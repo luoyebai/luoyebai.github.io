@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="zh-CN"
+      data-theme="dusk"
+      data-mode="dark"
+      data-bg="on"
+      data-bgmode="image"
+      data-tilt="12"
+      data-glass="med"
+      data-font="serif"
+      data-motion="on"
+      data-width="normal"
+      data-root=""
+      data-search-url="/search-index.json">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>机械臂运控：阻抗控制与力位混合 · 洛叶白</title>
+<meta name="description" content="位置控制只能应付自由空间，一旦接触工件，位置环会把力误差一路放大到撞坏东西。这篇讲阻抗控制的核心式子和参数怎么定，以及和力位混合控制到底该选哪个。">
+<meta name="author" content="洛叶白">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0b0d14" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f7f7f5" media="(prefers-color-scheme: light)">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="洛叶白">
+<meta property="og:title" content="机械臂运控：阻抗控制与力位混合">
+<meta property="og:description" content="位置控制只能应付自由空间，一旦接触工件，位置环会把力误差一路放大到撞坏东西。这篇讲阻抗控制的核心式子和参数怎么定，以及和力位混合控制到底该选哪个。">
+<meta property="og:url" content="https://luoyebai.github.io/posts/arm-impedance-control/">
+<meta property="og:image" content="https://luoyebai.github.io/assets/images/favicon.svg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://luoyebai.github.io/posts/arm-impedance-control/">
+<link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
+
+<link rel="stylesheet" href="/assets/themes.css">
+<link rel="stylesheet" href="/assets/site.css">
+
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+
+
+<meta property="og:image" content="https://luoyebai.github.io/assets/bg/cyber.jpg">
+  <meta name="author" content="洛叶白">
+<script>
+/* 在首次绘制前恢复外观偏好；URL 参数优先，便于分享特定主题的链接 */
+(function () {
+  var el = document.documentElement;
+  el.classList.add('js');   /* 只有 JS 可用时才启用进场动画的隐藏态 */
+  var q = {};
+  try { new URLSearchParams(location.search).forEach(function (v, k) { q[k] = v; }); } catch (e) {}
+  var s = {};
+  try { s = JSON.parse(localStorage.getItem('blog.appearance') || '{}') || {}; } catch (e) {}
+  function pick(k) { return q[k] !== undefined ? q[k] : s[k]; }
+  ['theme', 'mode', 'bg', 'bgmode', 'tilt', 'glass', 'font', 'motion', 'width'].forEach(function (k) {
+    var v = pick(k);
+    if (v) el.setAttribute('data-' + k, v);
+  });
+  var op = pick('bgOpacity');
+  if (op !== undefined && op !== '') el.style.setProperty('--bg-opacity', (Number(op) / 100).toFixed(3));
+  var bl = pick('bgBlur');
+  if (bl !== undefined && bl !== '') el.style.setProperty('--bg-blur', Number(bl) + 'px');
+  var sc = pick('scale');
+  if (sc !== undefined && sc !== '') el.style.setProperty('--font-scale', String(sc));
+  var ac = pick('accent');
+  if (ac) el.style.setProperty('--accent', ac);
+})();
+</script>
+</head>
+<body class="page-post">
+<a class="skip-link" href="#main">跳到正文</a>
+
+<div class="bg-layer" aria-hidden="true">
+  <div class="bg-image"></div>
+  <video class="bg-video" muted loop playsinline preload="none" disablepictureinpicture></video>
+  <div class="bg-scrim"></div>
+  <div class="bg-aurora"><span></span><span></span><span></span></div>
+  <div class="bg-grid"></div>
+  <div class="bg-vignette"></div>
+</div>
+<div class="grain" aria-hidden="true"></div>
+<div class="spotlight" aria-hidden="true"></div>
+<div class="scroll-progress" aria-hidden="true"><i></i></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3.5" y="7" width="17" height="12" rx="4"/>
+          <circle cx="9" cy="13" r="1.7" fill="currentColor" stroke="none"/>
+          <circle cx="15" cy="13" r="1.7" fill="currentColor" stroke="none"/>
+          <path d="M12 7V3.6"/><circle cx="12" cy="2.9" r="1.3"/>
+          <path d="M1.8 12v2.4M22.2 12v2.4"/>
+        </svg>
+      </span>
+      <span class="brand-text">
+        <b>洛叶白</b>
+        <i>luoyebai</i>
+      </span>
+    </a>
+
+    <nav class="nav-links" aria-label="主导航">
+      
+      <a href="/">首页</a>
+      
+      <a href="/posts/" class="is-active" aria-current="page">文章</a>
+      
+      <a href="/projects/">项目</a>
+      
+      <a href="/archive/">归档</a>
+      
+      <a href="/about/">关于</a>
+      
+    </nav>
+
+    <div class="nav-actions">
+      <button class="icon-btn" type="button" data-open-search aria-label="搜索 (Ctrl+K)" title="搜索  Ctrl+K">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <circle cx="11" cy="11" r="6.5"/><path d="M16.2 16.2 21 21"/>
+        </svg>
+      </button>
+      <button class="icon-btn" type="button" data-toggle-mode aria-label="切换明暗" title="切换明暗">
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+        </svg>
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+          <circle cx="12" cy="12" r="4.2"/>
+          <path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4 17 7M7 17l-1.6 1.6"/>
+        </svg>
+      </button>
+      <button class="icon-btn" type="button" data-open-settings aria-label="外观设置" title="外观设置">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 7h10M18 7h2M4 17h4M12 17h8"/>
+          <circle cx="16" cy="7" r="2.2"/><circle cx="10" cy="17" r="2.2"/>
+        </svg>
+      </button>
+      <button class="icon-btn nav-burger" type="button" data-open-menu aria-label="菜单">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+
+<main id="main">
+
+
+<article class="post">
+  <header class="post-head">
+    
+    <div class="post-cover">
+      <img src="/assets/bg/cyber.jpg" alt="" decoding="async">
+      <span class="post-cover-veil"></span>
+    </div>
+    
+
+    <div class="post-head-inner">
+      <nav class="crumbs" aria-label="面包屑">
+        <a href="/posts/">文章</a>
+        <span aria-hidden="true">/</span>
+        <span class="current">机械臂运控：阻抗控制与力位混合</span>
+      </nav>
+
+      
+      <div class="post-tags">
+        
+        <a class="pill" href="/tags/机械臂/">机械臂</a>
+        
+        <a class="pill" href="/tags/运动控制/">运动控制</a>
+        
+        <a class="pill" href="/tags/力控/">力控</a>
+        
+      </div>
+      
+
+      <h1 class="post-title reveal">机械臂运控：阻抗控制与力位混合</h1>
+      <p class="post-lede reveal">位置控制只能应付自由空间，一旦接触工件，位置环会把力误差一路放大到撞坏东西。这篇讲阻抗控制的核心式子和参数怎么定，以及和力位混合控制到底该选哪个。</p>
+
+      <div class="post-meta reveal">
+        <span class="meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/>
+          </svg>
+          <time datetime="2026-01-22">2026 年 1 月 22 日</time>
+        </span>
+        <span class="meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>
+          </svg>
+          5 分钟
+        </span>
+        
+      </div>
+    </div>
+  </header>
+
+  <div class="post-layout">
+    
+    <aside class="post-aside">
+      <nav class="toc" data-toc aria-label="目录">
+        <p class="toc-title">目录</p>
+        <ul>
+          
+          <li class="toc-l2"><a href="#阻抗控制把机器人变成弹簧阻尼">阻抗控制：把机器人变成弹簧阻尼</a></li>
+          
+          <li class="toc-l2"><a href="#参数怎么定">参数怎么定</a></li>
+          
+          <li class="toc-l2"><a href="#导纳控制位置环机器人也能用力控">导纳控制：位置环机器人也能用力控</a></li>
+          
+          <li class="toc-l2"><a href="#力位混合控制任务空间分解">力位混合控制：任务空间分解</a></li>
+          
+          <li class="toc-l2"><a href="#什么时候用哪个">什么时候用哪个</a></li>
+          
+          <li class="toc-l2"><a href="#踩过的坑">踩过的坑</a></li>
+          
+        </ul>
+      </nav>
+    </aside>
+    
+
+    <div class="post-main">
+      <div class="prose reveal"><p>机械臂只做位置控制有个硬伤：<strong>它不知道自己使了多大劲</strong>。轨迹上多出 2 mm 的工件，位置环就会一直加压直到电机堵转或者工件变形。</p>
+<p>力控的三种主流做法：阻抗控制、导纳控制、力位混合控制。它们解决的问题不同，选错会很难用。</p>
+<h2 id="阻抗控制把机器人变成弹簧阻尼">阻抗控制：把机器人变成弹簧阻尼<a class="heading-anchor" href="#阻抗控制把机器人变成弹簧阻尼" aria-label="锚点">#</a></h2>
+<p>核心思想是不再控制位置，而是<strong>建立力与位置偏差之间的动态关系</strong>：</p>
+<div class="math-block" data-tex="\mathbf{M}_d (\ddot{\mathbf{x}} - \ddot{\mathbf{x}}_d) + \mathbf{D}_d (\dot{\mathbf{x}} - \dot{\mathbf{x}}_d) + \mathbf{K}_d (\mathbf{x} - \mathbf{x}_d) = -\mathbf{F}_{ext}">$$\mathbf{M}_d (\ddot{\mathbf{x}} - \ddot{\mathbf{x}}_d) + \mathbf{D}_d (\dot{\mathbf{x}} - \dot{\mathbf{x}}_d) + \mathbf{K}_d (\mathbf{x} - \mathbf{x}_d) = -\mathbf{F}_{ext}$$</div>
+<p>翻译成人话：外部施加 <span class="math-inline" data-tex="\mathbf{F}_{ext}">\mathbf{F}_{ext}</span> 时，末端偏移多少由 <span class="math-inline" data-tex="\mathbf{K}_d">\mathbf{K}_d</span> 决定，偏移多快由 <span class="math-inline" data-tex="\mathbf{D}_d">\mathbf{D}_d</span> 决定，加速度响应由 <span class="math-inline" data-tex="\mathbf{M}_d">\mathbf{M}_d</span> 决定。三个矩阵就是你要调的全部参数。</p>
+<p>关节力矩由下面的控制律给出：</p>
+<div class="math-block" data-tex="\boldsymbol{\tau} = \mathbf{J}^\top \Big( \mathbf{M}_d^{-1}\big( \mathbf{D}_d \dot{\tilde{\mathbf{x}}} + \mathbf{K}_d \tilde{\mathbf{x}} - \mathbf{F}_{ext} \big) \Big) + \mathbf{C}(\mathbf{q},\dot{\mathbf{q}})\dot{\mathbf{q}} + \mathbf{g}(\mathbf{q})">$$\boldsymbol{\tau} = \mathbf{J}^\top \Big( \mathbf{M}_d^{-1}\big( \mathbf{D}_d \dot{\tilde{\mathbf{x}}} + \mathbf{K}_d \tilde{\mathbf{x}} - \mathbf{F}_{ext} \big) \Big) + \mathbf{C}(\mathbf{q},\dot{\mathbf{q}})\dot{\mathbf{q}} + \mathbf{g}(\mathbf{q})$$</div>
+<p>其中 <span class="math-inline" data-tex="\tilde{\mathbf{x}} = \mathbf{x}_d - \mathbf{x}">\tilde{\mathbf{x}} = \mathbf{x}_d - \mathbf{x}</span> 是位置偏差。</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-type">Eigen</span><span class="tok-operator">::</span><span class="tok-type">VectorXd</span> <span class="tok-function">impedance_control</span><span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-type">RobotState</span><span class="tok-operator">&amp;</span> s<span class="tok-punct">,</span> <span class="tok-keyword">const</span> <span class="tok-type">Target</span><span class="tok-operator">&amp;</span> t<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">const</span> <span class="tok-type">Eigen</span><span class="tok-operator">::</span><span class="tok-type">MatrixXd</span> <span class="tok-type">J</span> <span class="tok-operator">=</span> <span class="tok-function">jacobian</span><span class="tok-punct">(</span>s<span class="tok-punct">.</span>q<span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">const</span> <span class="tok-type">Eigen</span><span class="tok-operator">::</span><span class="tok-type">Vector3d</span> dx  <span class="tok-operator">=</span> t<span class="tok-punct">.</span>x_des <span class="tok-operator">-</span> s<span class="tok-punct">.</span>x<span class="tok-punct">;</span>          <span class="tok-comment">// 位置偏差</span>
+    <span class="tok-keyword">const</span> <span class="tok-type">Eigen</span><span class="tok-operator">::</span><span class="tok-type">Vector3d</span> dv  <span class="tok-operator">=</span> t<span class="tok-punct">.</span>v_des <span class="tok-operator">-</span> s<span class="tok-punct">.</span>v<span class="tok-punct">;</span>          <span class="tok-comment">// 速度偏差</span>
+
+    <span class="tok-comment">// 期望的笛卡尔加速度</span>
+    <span class="tok-type">Eigen</span><span class="tok-operator">::</span><span class="tok-type">Vector3d</span> a_cmd <span class="tok-operator">=</span>
+        <span class="tok-type">Md_inv</span> <span class="tok-operator">*</span> <span class="tok-punct">(</span><span class="tok-type">Dd</span> <span class="tok-operator">*</span> dv <span class="tok-operator">+</span> <span class="tok-type">Kd</span> <span class="tok-operator">*</span> dx <span class="tok-operator">-</span> s<span class="tok-punct">.</span>f_ext<span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+    <span class="tok-comment">// 关节力矩：J^T 映射 + 补偿项</span>
+    <span class="tok-type">Eigen</span><span class="tok-operator">::</span><span class="tok-type">VectorXd</span> tau <span class="tok-operator">=</span> <span class="tok-type">J</span><span class="tok-punct">.</span><span class="tok-function">transpose</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-operator">*</span> <span class="tok-punct">(</span><span class="tok-type">Md</span> <span class="tok-operator">*</span> a_cmd<span class="tok-punct">)</span>
+                        <span class="tok-operator">+</span> <span class="tok-function">coriolis</span><span class="tok-punct">(</span>s<span class="tok-punct">.</span>q<span class="tok-punct">,</span> s<span class="tok-punct">.</span>dq<span class="tok-punct">)</span> <span class="tok-operator">+</span> <span class="tok-function">gravity</span><span class="tok-punct">(</span>s<span class="tok-punct">.</span>q<span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">return</span> tau<span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre></div>
+<h2 id="参数怎么定">参数怎么定<a class="heading-anchor" href="#参数怎么定" aria-label="锚点">#</a></h2>
+<p><span class="math-inline" data-tex="\mathbf{M}_d, \mathbf{D}_d, \mathbf{K}_d">\mathbf{M}_d, \mathbf{D}_d, \mathbf{K}_d</span> 都是 6×6（3 平移 + 3 旋转）。实际调试时按下面的顺序：</p>
+<ol><li><strong>先定 <span class="math-inline" data-tex="\mathbf{K}_d">\mathbf{K}_d</span></strong>。它决定"刚度"，也就是接触时机器人有多"硬"。<ul><li>装配插孔：低刚度（平移 200~500 N/m），让机器人能顺应误差</li><li>打磨/抛光：中等（1000~3000 N/m），保持恒定接触力</li><li>搬运重物：高刚度（10000+ N/m），接近位置控制</li></ul></li><li><strong><span class="math-inline" data-tex="\mathbf{D}_d">\mathbf{D}_d</span> 按临界阻尼配</strong>：</li></ol>
+<div class="math-block" data-tex="\mathbf{D}_d = 2\sqrt{\mathbf{M}_d \mathbf{K}_d}">$$\mathbf{D}_d = 2\sqrt{\mathbf{M}_d \mathbf{K}_d}$$</div>
+<p>欠阻尼会振荡，过阻尼响应迟钝。取临界阻尼的 0.8~1.2 倍区间微调。</p>
+<ol><li><strong><span class="math-inline" data-tex="\mathbf{M}_d">\mathbf{M}_d</span> 最后调</strong>。它主要影响动态响应，稳态行为由 <span class="math-inline" data-tex="\mathbf{K}_d">\mathbf{K}_d</span> 决定。多数场景直接取对角阵，数值取任务惯量的量级即可。</li></ol>
+<aside class="callout callout-tip"><div class="callout-title">旋转自由度要单独处理</div><div class="callout-body"><p>平移和旋转的刚度量纲不同（N/m vs N·m/rad），不能用一个数。而且旋转方向的惯量随姿态变化，<span class="math-inline" data-tex="\mathbf{M}_d">\mathbf{M}_d</span> 用定值会导致某些姿态下振荡。实际做法是只对旋转方向做阻尼控制，刚度给 0。</p></div></aside>
+<h2 id="导纳控制位置环机器人也能用力控">导纳控制：位置环机器人也能用力控<a class="heading-anchor" href="#导纳控制位置环机器人也能用力控" aria-label="锚点">#</a></h2>
+<p>阻抗控制需要<strong>力矩接口</strong>。如果你的机械臂只能收位置指令（很多协作臂是这个情况），那就用导纳控制——它是阻抗的对偶：</p>
+<div class="math-block" data-tex="\mathbf{M}_d \ddot{\mathbf{x}} + \mathbf{D}_d \dot{\mathbf{x}} + \mathbf{K}_d (\mathbf{x} - \mathbf{x}_0) = \mathbf{F}_{ext}">$$\mathbf{M}_d \ddot{\mathbf{x}} + \mathbf{D}_d \dot{\mathbf{x}} + \mathbf{K}_d (\mathbf{x} - \mathbf{x}_0) = \mathbf{F}_{ext}$$</div>
+<p>解出 <span class="math-inline" data-tex="\mathbf{x}">\mathbf{x}</span>，作为位置指令发给位置环。区别在于：阻抗控制是"力的控制器"，导纳控制是"位置的修正器"。</p>
+<div class="table-wrap"><table>
+<thead><tr><th></th><th>阻抗控制</th><th>导纳控制</th></tr></thead>
+<tbody>
+<tr><td>需要接口</td><td>力矩</td><td>位置</td></tr>
+<tr><td>接触刚度上限</td><td>高（可做刚性接触）</td><td>低（受位置环带宽限制）</td></tr>
+<tr><td>稳定性</td><td>无源性易保证</td><td>需要额外处理接触刚度</td></tr>
+<tr><td>适用</td><td>自研关节、有力和位混合接口</td><td>商用协作臂</td></tr>
+</tbody></table></div>
+<h2 id="力位混合控制任务空间分解">力位混合控制：任务空间分解<a class="heading-anchor" href="#力位混合控制任务空间分解" aria-label="锚点">#</a></h2>
+<p>如果任务本身可以明确分成"某些方向控位、某些方向控力"，用 Raibert-Craig 的混合控制更直接：</p>
+<div class="math-block" data-tex="\boldsymbol{\tau} = \mathbf{J}^\top \big( \mathbf{S} \mathbf{F}_{pos} + (\mathbf{I} - \mathbf{S}) \mathbf{F}_{force} \big)">$$\boldsymbol{\tau} = \mathbf{J}^\top \big( \mathbf{S} \mathbf{F}_{pos} + (\mathbf{I} - \mathbf{S}) \mathbf{F}_{force} \big)$$</div>
+<p><span class="math-inline" data-tex="\mathbf{S}">\mathbf{S}</span> 是对角选择矩阵：<span class="math-inline" data-tex="\mathbf{S}_{ii}=1">\mathbf{S}_{ii}=1</span> 表示该方向控位，<span class="math-inline" data-tex="=0">=0</span> 表示控力。</p>
+<p>典型场景是<strong>平面接触</strong>：法向控力（比如恒定 20 N 压紧），切向控位（沿表面移动）。这时候混合控制比阻抗控制好调得多，因为两个方向解耦了。</p>
+<aside class="callout callout-warn"><div class="callout-title">选择矩阵不能随便取</div><div class="callout-body"><p><span class="math-inline" data-tex="\mathbf{S}">\mathbf{S}</span> 必须和<strong>约束坐标系</strong>对齐。工件表面是斜面时，如果还在世界坐标系里选方向，法向控力的那个轴就指错了。做法是先估计表面法向，构造约束坐标系再分解。</p></div></aside>
+<h2 id="什么时候用哪个">什么时候用哪个<a class="heading-anchor" href="#什么时候用哪个" aria-label="锚点">#</a></h2>
+<div class="table-wrap"><table>
+<thead><tr><th>场景</th><th>推荐</th><th>理由</th></tr></thead>
+<tbody>
+<tr><td>插孔 / 装配</td><td>阻抗控制（低刚度）</td><td>需要顺应位置误差，接触力不需要精确</td></tr>
+<tr><td>表面打磨 / 抛光</td><td>力位混合 或 力控阻抗</td><td>法向力要恒定，切向要跟轨迹</td></tr>
+<tr><td>人机协作 / 拖动示教</td><td>导纳控制</td><td>只需外力感知，位置接口够用</td></tr>
+<tr><td>抓取易碎物</td><td>阻抗 + 抓取力闭环</td><td>需要柔顺，不能撞</td></tr>
+<tr><td>高速搬运</td><td>位置控制 + 前馈</td><td>力控反而拖慢节拍</td></tr>
+</tbody></table></div>
+<h2 id="踩过的坑">踩过的坑<a class="heading-anchor" href="#踩过的坑" aria-label="锚点">#</a></h2>
+<aside class="callout callout-danger"><div class="callout-title">三个真实事故</div><div class="callout-body"><ol><li><strong>零力补偿没做，机器人"锁死"</strong>。上电时电机抱闸，末端无法被推动，操作员以为力控坏了。阻抗控制必须在任务开始前做重力与摩擦补偿，否则你感受到的是机器人的自重。</li><li><strong>力传感器零漂</strong>。开机时传感器读数有 0.8 N 偏置，插孔时一直往一边顶，工件被顶飞。力控任务前必须做零点标定，且温度变化后要重标。</li><li><strong><span class="math-inline" data-tex="\mathbf{K}_d">\mathbf{K}_d</span> 给了纯对角 0</strong>。想让机器人"完全柔顺"，结果数值上 <span class="math-inline" data-tex="\mathbf{J}^\top">\mathbf{J}^\top</span> 的伪逆发散了。刚度可以小，但不能是 0，至少留一点做数值稳定。</li></ol></div></aside></div>
+
+      <div class="post-end">
+        <span class="end-mark" aria-hidden="true">◆</span>
+      </div>
+
+      
+      <section class="related">
+        <h2>相关文章</h2>
+        <div class="grid grid-3">
+          <article class="card post-card reveal" data-tiltable>
+  
+  <a class="card-link" href="/posts/quadruped-mpc-wbc/"><span class="sr-only">四足运控：MPC 与 WBC 的分层结构</span></a>
+  <div class="card-tilt">
+    
+    <div class="card-cover">
+      <img src="/assets/bg/dusk.jpg" alt="" loading="lazy" decoding="async">
+      <span class="card-cover-veil"></span>
+    </div>
+    
+    <div class="card-body">
+      
+      <div class="card-tags">
+        <a class="pill" href="/tags/四足/">四足</a><a class="pill" href="/tags/运动控制/">运动控制</a><a class="pill" href="/tags/mpc/">MPC</a><a class="pill" href="/tags/wbc/">WBC</a>
+      </div>
+      
+      <h3 class="card-title">四足运控：MPC 与 WBC 的分层结构</h3>
+      <p class="card-summary">四足机器人的运控栈基本是「上层 MPC 出地面反作用力，下层 WBC 分配到关节力矩」。这篇讲清两层的接口怎么定、任务优先级怎么排、以及为什么我最后放弃了纯 MPC 方案。</p>
+      <div class="card-meta">
+        <time datetime="2026-03-08">2026 年 3 月 8 日</time>
+        <span class="sep" aria-hidden="true"></span>
+        <span>4 分钟</span>
+        <span class="card-meta-end">
+          
+          <span class="pin" title="精选">精选</span>
+          <span class="card-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/>
+            </svg>
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>
+</article>
+
+        </div>
+      </section>
+      
+    </div>
+  </div>
+
+  <nav class="post-nav" aria-label="上下篇">
+    
+    <a class="post-nav-item prev" href="/posts/humanoid-rl-sim2real/">
+      <span class="dir">← 上一篇</span>
+      <span class="t">人形机器人 RL：从 Isaac 训练到实机部署</span>
+    </a>
+    
+    
+    <a class="post-nav-item next" href="/posts/realtime-control-loop/">
+      <span class="dir">下一篇 →</span>
+      <span class="t">运控回路的实时性：1 kHz 到底能不能跑满</span>
+    </a>
+    
+  </nav>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="footer-glow" aria-hidden="true"></div>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="brand-mark lg" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3.5" y="7" width="17" height="12" rx="4"/>
+          <circle cx="9" cy="13" r="1.7" fill="currentColor" stroke="none"/>
+          <circle cx="15" cy="13" r="1.7" fill="currentColor" stroke="none"/>
+          <path d="M12 7V3.6"/><circle cx="12" cy="2.9" r="1.3"/>
+          <path d="M1.8 12v2.4M22.2 12v2.4"/>
+        </svg>
+      </div>
+      <p class="footer-title">洛叶白</p>
+      <p class="footer-tag">中间件 · 运动控制 · 强化学习</p>
+    </div>
+
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h4>导航</h4>
+        <a href="/">首页</a><a href="/posts/">文章</a><a href="/projects/">项目</a><a href="/archive/">归档</a><a href="/about/">关于</a>
+      </div>
+      <div class="footer-col">
+        <h4>联系</h4>
+        <a href="https://github.com/luoyebai" rel="noopener">GitHub</a><a href="mailto:2112216825@qq.com" rel="noopener">邮箱</a><a href="mailto:luoyebai4444@gmail.com" rel="noopener">Gmail</a><a href="tel:13407209575" rel="noopener">电话</a>
+      </div>
+      <div class="footer-col">
+        <h4>站点</h4>
+        
+        <a href="/sitemap.xml">站点地图</a>
+        <a href="/search-index.json">搜索索引</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <span>© 2022–2026 洛叶白</span>
+    <span class="dot" aria-hidden="true">·</span>
+    <span>用 Python 手写的静态站点生成器构建 · 无第三方依赖</span>
+  </div>
+</footer>
+
+<button class="to-top" type="button" data-to-top aria-label="回到顶部">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19V5"/><path d="m5.5 11.5 6.5-6.5 6.5 6.5"/>
+  </svg>
+</button>
+
+<div class="settings" id="settings" hidden>
+  <div class="settings-backdrop" data-close-settings></div>
+  <aside class="settings-panel" role="dialog" aria-modal="true" aria-label="外观设置">
+    <header class="settings-head">
+      <div>
+        <h2>外观设置</h2>
+        <p>设置会保存在本机浏览器，刷新后保持</p>
+      </div>
+      <button class="icon-btn" type="button" data-close-settings aria-label="关闭">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path d="M6 6l12 12M18 6 6 18"/>
+        </svg>
+      </button>
+    </header>
+
+    <div class="settings-body">
+      <section class="set-group">
+        <h3>主题</h3>
+        <div class="theme-grid">
+          
+          <button class="theme-card" type="button" data-theme-pick="dusk" title="暮色风车">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/dusk.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#ff9d5c"></i><i style="background:#7aa2ff"></i><i style="background:#0b1020"></i>
+              </span>
+            </span>
+            <span class="theme-name">暮色风车</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="neon" title="霓虹机房">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/neon.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#c04bff"></i><i style="background:#22d3ee"></i><i style="background:#0a0718"></i>
+              </span>
+            </span>
+            <span class="theme-name">霓虹机房</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="cyber" title="夜城投递">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/cyber.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#ff7ab6"></i><i style="background:#5ee7c4"></i><i style="background:#141019"></i>
+              </span>
+            </span>
+            <span class="theme-name">夜城投递</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="sakura" title="樱色光爆">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/sakura.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#ff6fa5"></i><i style="background:#b78bff"></i><i style="background:#120a14"></i>
+              </span>
+            </span>
+            <span class="theme-name">樱色光爆</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="void" title="虚空龙息">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/void.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#6ea8ff"></i><i style="background:#ffd166"></i><i style="background:#06080f"></i>
+              </span>
+            </span>
+            <span class="theme-name">虚空龙息</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="mono" title="黑白编辑">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/mono.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#e8e8e8"></i><i style="background:#9aa0a6"></i><i style="background:#0c0c0d"></i>
+              </span>
+            </span>
+            <span class="theme-name">黑白编辑</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="paper" title="留白纸面">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/paper.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#17b8a6"></i><i style="background:#f0a04b"></i><i style="background:#fbfcfc"></i>
+              </span>
+            </span>
+            <span class="theme-name">留白纸面</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="alpine" title="远山夜湖">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/alpine.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#5b8dd9"></i><i style="background:#78d9c8"></i><i style="background:#0a1220"></i>
+              </span>
+            </span>
+            <span class="theme-name">远山夜湖</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="moonlit" title="皎月水面">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/moonlit.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#7fd4f0"></i><i style="background:#ffd9a0"></i><i style="background:#050b1c"></i>
+              </span>
+            </span>
+            <span class="theme-name">皎月水面</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="comet" title="彗星山晚">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/comet.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#e07a5f"></i><i style="background:#9b8cff"></i><i style="background:#1c2242"></i>
+              </span>
+            </span>
+            <span class="theme-name">彗星山晚</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="lantern" title="林间提灯">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/lantern.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#e8a45c"></i><i style="background:#66d6a8"></i><i style="background:#141121"></i>
+              </span>
+            </span>
+            <span class="theme-name">林间提灯</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="sketch" title="素描线稿">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/sketch.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#5a6b96"></i><i style="background:#8a6f52"></i><i style="background:#1f2024"></i>
+              </span>
+            </span>
+            <span class="theme-name">素描线稿</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="manga" title="漫画分格">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/manga.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#cf4436"></i><i style="background:#4a6fa8"></i><i style="background:#242428"></i>
+              </span>
+            </span>
+            <span class="theme-name">漫画分格</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="lumen" title="暖灯夜色">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/lumen.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#ffbe4d"></i><i style="background:#7ad3e8"></i><i style="background:#0d1a28"></i>
+              </span>
+            </span>
+            <span class="theme-name">暖灯夜色</span>
+          </button>
+          
+        </div>
+      </section>
+
+      <section class="set-group">
+        <h3>模式</h3>
+        <div class="seg" data-seg="mode">
+          <button type="button" data-val="dark">深色</button>
+          <button type="button" data-val="light">浅色</button>
+        </div>
+      </section>
+
+      <section class="set-group">
+        <h3>字体</h3>
+        <div class="seg" data-seg="font">
+          <button type="button" data-val="sans">无衬线</button>
+          <button type="button" data-val="serif">衬线</button>
+          <button type="button" data-val="mono">等宽</button>
+        </div>
+      </section>
+
+      <section class="set-group">
+        <h3>阅读宽度</h3>
+        <div class="seg" data-seg="width">
+          <button type="button" data-val="narrow">窄</button>
+          <button type="button" data-val="normal">标准</button>
+          <button type="button" data-val="wide">宽</button>
+        </div>
+      </section>
+
+      <section class="set-group">
+        <h3>玻璃质感</h3>
+        <div class="seg" data-seg="glass">
+          <button type="button" data-val="off">关闭</button>
+          <button type="button" data-val="low">弱</button>
+          <button type="button" data-val="med">中</button>
+          <button type="button" data-val="high">强</button>
+        </div>
+      </section>
+
+      <section class="set-group">
+        <h3>背景壁纸</h3>
+        <div class="row">
+          <div class="seg" data-seg="bgmode">
+            <button type="button" data-val="image">静态图</button>
+            <button type="button" data-val="video">动态视频</button>
+          </div>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <div class="seg" data-seg="bg">
+            <button type="button" data-val="on">显示</button>
+            <button type="button" data-val="off">隐藏</button>
+          </div>
+        </div>
+        <p class="set-hint">动态视频（5 秒无声循环）已随站点打包，切到「动态视频」后才开始加载</p>
+        <label class="slider">
+          <span>可见度 <b data-out="bgOpacity">—</b></span>
+          <input type="range" data-range="bgOpacity" min="0" max="100" step="2" value="62">
+        </label>
+        <label class="slider">
+          <span>模糊 <b data-out="bgBlur">—</b></span>
+          <input type="range" data-range="bgBlur" min="0" max="40" step="1" value="0">
+        </label>
+      </section>
+
+      <section class="set-group">
+        <h3>文字与动效</h3>
+        <div class="row">
+          <span class="set-label">卡片 3D 倾斜</span>
+          <div class="seg" data-seg="tilt">
+            <button type="button" data-val="0">关闭</button>
+            <button type="button" data-val="6">轻微</button>
+            <button type="button" data-val="12">标准</button>
+            <button type="button" data-val="20">明显</button>
+          </div>
+        </div>
+        <p class="set-hint">鼠标移到文章 / 项目卡片上时跟着倾斜的角度，仅在精确指针设备生效</p>
+        <label class="slider">
+          <span>字号 <b data-out="scale">—</b></span>
+          <input type="range" data-range="scale" min="0.9" max="1.25" step="0.01" value="1">
+        </label>
+        <div class="row">
+          <div class="seg" data-seg="motion">
+            <button type="button" data-val="on">动效开</button>
+            <button type="button" data-val="off">动效关</button>
+          </div>
+        </div>
+        <label class="field">
+          <span>强调色覆盖</span>
+          <input type="color" data-color="accent" value="#ff9d5c">
+        </label>
+      </section>
+    </div>
+
+    <footer class="settings-foot">
+      <button class="btn ghost" type="button" data-reset-appearance>恢复默认</button>
+      <button class="btn primary" type="button" data-close-settings>完成</button>
+    </footer>
+  </aside>
+</div>
+
+<div class="search" id="search" hidden>
+  <div class="search-backdrop" data-close-search></div>
+  <div class="search-panel" role="dialog" aria-modal="true" aria-label="搜索">
+    <div class="search-input">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <circle cx="11" cy="11" r="6.5"/><path d="M16.2 16.2 21 21"/>
+      </svg>
+      <input type="search" placeholder="搜索文章、项目、标签…" autocomplete="off" spellcheck="false" data-search-input>
+      <kbd>Esc</kbd>
+    </div>
+    <div class="search-results" data-search-results>
+      <p class="search-hint">输入关键词开始搜索 · ↑↓ 选择 · Enter 打开</p>
+    </div>
+  </div>
+</div>
+
+<div class="mobile-menu" id="mobile-menu" hidden>
+  <div class="mobile-menu-backdrop" data-close-menu></div>
+  <nav class="mobile-menu-panel">
+    <a href="/">首页</a><a href="/posts/">文章</a><a href="/projects/">项目</a><a href="/archive/">归档</a><a href="/about/">关于</a>
+    <div class="mobile-menu-social">
+      <a href="https://github.com/luoyebai" rel="noopener">GitHub</a><a href="mailto:2112216825@qq.com" rel="noopener">邮箱</a><a href="mailto:luoyebai4444@gmail.com" rel="noopener">Gmail</a><a href="tel:13407209575" rel="noopener">电话</a>
+    </div>
+  </nav>
+</div>
+
+
+<script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.jpg","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.jpg","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.jpg","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.jpg","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.jpg","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.jpg","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.jpg","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.jpg","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.jpg","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.jpg","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.jpg","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.jpg","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.jpg","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.jpg","video":"assets/bg/lumen.mp4"}}</script>
+
+
+<script defer src="/assets/vendor/katex/katex.min.js"></script>
+
+
+<script src="/assets/site.js" defer></script>
+</body>
+</html>
+
