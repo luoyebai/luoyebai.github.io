@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#ff9d5c"/>
-      <stop offset="0.55" stop-color="#ff6fa5"/>
+      <stop offset="0" stop-color="#ffb066"/>
+      <stop offset="0.5" stop-color="#ff6fa5"/>
       <stop offset="1" stop-color="#7aa2ff"/>
     </linearGradient>
     <linearGradient id="b" x1="0" y1="0" x2="0" y2="1">
@@ -11,10 +11,16 @@
     </linearGradient>
   </defs>
   <rect width="64" height="64" rx="15" fill="url(#b)"/>
-  <rect x="12" y="24" width="40" height="26" rx="10" fill="none" stroke="url(#g)" stroke-width="3.4"/>
-  <circle cx="24" cy="37" r="4.2" fill="url(#g)"/>
-  <circle cx="40" cy="37" r="4.2" fill="url(#g)"/>
-  <path d="M32 24V14" stroke="url(#g)" stroke-width="3.4" stroke-linecap="round"/>
-  <circle cx="32" cy="11" r="3.4" fill="url(#g)"/>
-  <path d="M6 34v6M58 34v6" stroke="url(#g)" stroke-width="3.4" stroke-linecap="round"/>
+
+  <!-- 两连杆机械臂（与导航栏 logo 同一造型，见 partials/mark.html）。
+       基线 + 大基座是关键：少了它整个形状会读成一只勾。
+       实心粗端点是刻意的 —— favicon 实际只有 16px，细线在那里会糊成一团。 -->
+  <g stroke="url(#g)" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M6.8 53.3h14.3" stroke-width="5.7"/>
+    <path d="M20.5 41.2 30 17.2" stroke-width="7.2"/>
+    <path d="M34.6 18.8 49.5 29.5" stroke-width="7.2"/>
+  </g>
+  <circle cx="14.5" cy="45.6" r="7.5" fill="url(#g)"/>
+  <circle cx="31.4" cy="16.7" r="5.9" fill="url(#g)"/>
+  <circle cx="52.6" cy="31.7" r="4.6" fill="url(#g)"/>
 </svg>

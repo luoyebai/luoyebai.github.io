@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="zh-CN"
+      data-theme="dusk"
+      data-mode="dark"
+      data-bg="on"
+      data-bgmode="image"
+      data-tilt="12"
+      data-glass="med"
+      data-font="serif"
+      data-motion="on"
+      data-width="normal"
+      data-cursor="on"
+      data-root=""
+      data-search-url="/search-index.json">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>初识 Linux · 洛叶白</title>
+<meta name="description" content="为什么用 Linux、Linux 到底是什么、怎么把它装起来跑通，以及命令行里最常用的那几条。">
+<meta name="author" content="洛叶白">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0b0d14" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f7f7f5" media="(prefers-color-scheme: light)">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="洛叶白">
+<meta property="og:title" content="初识 Linux">
+<meta property="og:description" content="为什么用 Linux、Linux 到底是什么、怎么把它装起来跑通，以及命令行里最常用的那几条。">
+<meta property="og:url" content="https://luoyebai.github.io/docs/linux-intro/">
+<meta property="og:image" content="https://luoyebai.github.io/assets/images/favicon.svg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://luoyebai.github.io/docs/linux-intro/">
+<link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
+
+<link rel="stylesheet" href="/assets/themes.css">
+<link rel="stylesheet" href="/assets/site.css">
+
+<noscript><style>.boot{display:none !important}</style></noscript>
+<link rel="stylesheet" href="/assets/docs.css">
+
+
+
+<script>
+/* 在首次绘制前恢复外观偏好；URL 参数优先，便于分享特定主题的链接 */
+(function () {
+  var el = document.documentElement;
+  el.classList.add('js');   /* 只有 JS 可用时才启用进场动画的隐藏态 */
+  var q = {};
+  try { new URLSearchParams(location.search).forEach(function (v, k) { q[k] = v; }); } catch (e) {}
+  var s = {};
+  try { s = JSON.parse(localStorage.getItem('blog.appearance') || '{}') || {}; } catch (e) {}
+  function pick(k) { return q[k] !== undefined ? q[k] : s[k]; }
+  ['theme', 'mode', 'bg', 'bgmode', 'tilt', 'glass', 'font', 'motion', 'width', 'cursor'].forEach(function (k) {
+    var v = pick(k);
+    if (v) el.setAttribute('data-' + k, v);
+  });
+  var op = pick('bgOpacity');
+  if (op !== undefined && op !== '') el.style.setProperty('--bg-opacity', (Number(op) / 100).toFixed(3));
+  var bl = pick('bgBlur');
+  if (bl !== undefined && bl !== '') el.style.setProperty('--bg-blur', Number(bl) + 'px');
+  var sc = pick('scale');
+  if (sc !== undefined && sc !== '') el.style.setProperty('--font-scale', String(sc));
+  var ac = pick('accent');
+  if (ac) el.style.setProperty('--accent', ac);
+})();
+</script>
+</head>
+<body class="page-doc">
+<a class="skip-link" href="#main">跳到正文</a>
+
+<div class="bg-layer" aria-hidden="true">
+  <div class="bg-image"></div>
+  <video class="bg-video" muted loop playsinline preload="none" disablepictureinpicture></video>
+  <div class="bg-scrim"></div>
+  <div class="bg-aurora"><span></span><span></span><span></span></div>
+  <div class="bg-grid"></div>
+  <div class="bg-vignette"></div>
+</div>
+<div class="grain" aria-hidden="true"></div>
+<div class="spotlight" aria-hidden="true"></div>
+<div class="scroll-progress" aria-hidden="true"><i></i></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">
+      <span class="brand-mark" aria-hidden="true">
+        <!-- 站点标记：两连杆机械臂（造型见 partials/mark.html，页脚用的是同一份） -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M2.6 20.6h5.6" stroke-width="2.2"/>
+  <path d="M7.9 15.9 11.6 6.6" stroke-width="2.8"/>
+  <path d="M13.4 7.2 19.2 11.4" stroke-width="2.8"/>
+  <circle cx="5.6" cy="17.6" r="2.9" fill="currentColor" stroke="none"/>
+  <circle cx="12.2" cy="6.4" r="2.3" fill="currentColor" stroke="none"/>
+  <circle cx="20.4" cy="12.2" r="1.8" fill="currentColor" stroke="none"/>
+</svg>
+
+      </span>
+      <span class="brand-text">
+        <b>洛叶白</b>
+        <i>luoyebai</i>
+      </span>
+    </a>
+
+    <nav class="nav-links" aria-label="主导航">
+      
+      <a href="/">首页</a>
+      
+      <a href="/posts/">文章</a>
+      
+      <a href="/projects/">项目</a>
+      
+      <a href="/docs/" class="is-active" aria-current="page">文档</a>
+      
+      <a href="/graph/">图谱</a>
+      
+      <a href="/archive/">归档</a>
+      
+      <a href="/about/">关于</a>
+      
+    </nav>
+
+    <div class="nav-actions">
+      <button class="icon-btn" type="button" data-open-search aria-label="搜索 (Ctrl+K)" title="搜索  Ctrl+K">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <circle cx="11" cy="11" r="6.5"/><path d="M16.2 16.2 21 21"/>
+        </svg>
+      </button>
+      <button class="icon-btn" type="button" data-toggle-mode aria-label="切换明暗" title="切换明暗">
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+        </svg>
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+          <circle cx="12" cy="12" r="4.2"/>
+          <path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4 17 7M7 17l-1.6 1.6"/>
+        </svg>
+      </button>
+      <button class="icon-btn" type="button" data-open-settings aria-label="外观设置" title="外观设置">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 7h10M18 7h2M4 17h4M12 17h8"/>
+          <circle cx="16" cy="7" r="2.2"/><circle cx="10" cy="17" r="2.2"/>
+        </svg>
+      </button>
+      <button class="icon-btn nav-burger" type="button" data-open-menu aria-label="菜单">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+
+<main id="main">
+
+
+<article class="doc" id="doc"
+         data-slides="16"
+         data-title="初识 Linux">
+  <header class="doc-head">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="/docs/">文档</a>
+      <span aria-hidden="true">/</span>
+      <a href="/docs/windows-to-linux/">从 Windows 到 Linux</a>
+      <span aria-hidden="true">/</span>
+      <span class="current">初识 Linux</span>
+    </nav>
+
+    <h1 class="doc-title">初识 Linux</h1>
+    <p class="doc-lede">为什么用 Linux、Linux 到底是什么、怎么把它装起来跑通，以及命令行里最常用的那几条。</p>
+
+    <p class="doc-meta">
+      <span class="meta-item"><b>1</b> / 5 篇</span>
+      <span class="meta-item"><b>16</b> 页幻灯片</span>
+      <span class="meta-item muted">迁移自 <a href="https://github.com/luoyebai/doc_html/blob/HEAD/视觉组教程/从Windows到Linux/初识linux/main.md" rel="noopener" target="_blank">源文档</a></span>
+    </p>
+  </header>
+
+  <section class="deck is-paged" id="deck" data-deck aria-roledescription="幻灯片" aria-label="初识 Linux">
+    <noscript>
+      <style>.deck .slide{display:block !important;margin-top:1.2rem}</style>
+    </noscript>
+    <div class="deck-bar">
+      <div class="deck-nav">
+        <button type="button" class="deck-btn" data-deck-prev aria-label="上一页" title="上一页  ←">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M15 5 8 12l7 7"/>
+          </svg>
+        </button>
+        <button type="button" class="deck-btn" data-deck-next aria-label="下一页" title="下一页  →">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m9 5 7 7-7 7"/>
+          </svg>
+        </button>
+        <p class="deck-counter" aria-live="polite">
+          <b data-deck-no>1</b> / 16
+        </p>
+      </div>
+
+      <p class="deck-section" data-deck-section aria-live="polite"></p>
+
+      <div class="deck-tools">
+        <button type="button" class="deck-btn deck-btn--text" data-deck-outline aria-expanded="false" aria-controls="deck-outline">目录</button>
+        <div class="deck-seg" role="group" aria-label="阅读方式">
+          <button type="button" data-deck-mode="paged" class="is-on" aria-pressed="true">逐页</button>
+          <button type="button" data-deck-mode="scroll" aria-pressed="false">通读</button>
+        </div>
+        <button type="button" class="deck-btn" data-deck-full aria-label="全屏演示" title="全屏演示  F">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="deck-progress" aria-hidden="true"><i data-deck-progress></i></div>
+
+    <nav class="deck-outline" id="deck-outline" data-deck-outline-panel hidden aria-label="幻灯片目录">
+      <ol>
+        
+        <li class="is-section">
+          <button type="button" data-deck-goto="0">
+            <span class="ol-no">0</span>初识linux(点击查看)
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="1">
+            <span class="ol-no">1</span>概述（Overview）
+          </button>
+        </li>
+        
+        <li class="is-section">
+          <button type="button" data-deck-goto="2">
+            <span class="ol-no">2</span>Q1 为什么要使用Linux？（Why）
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="3">
+            <span class="ol-no">3</span>🪟 显然，我们都在用Windows操作系统
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="4">
+            <span class="ol-no">4</span>不可避免地对比：Windows 🆚 Linux
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="5">
+            <span class="ol-no">5</span>第一回合比试：Windows比Linux易用
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="6">
+            <span class="ol-no">6</span>第二回合比试：Linux比Windows安全、稳定、流畅
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="7">
+            <span class="ol-no">7</span>直接进入第三回合比试！
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="8">
+            <span class="ol-no">8</span>至少多了一条路（Not only Windows）
+          </button>
+        </li>
+        
+        <li class="is-section">
+          <button type="button" data-deck-goto="9">
+            <span class="ol-no">9</span>Q2 什么是Linux？（What）
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="10">
+            <span class="ol-no">10</span>👶 我们已经初步了解Linux了
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="11">
+            <span class="ol-no">11</span>我们也知道了一些发行版（带GUI的GNU/Linux）
+          </button>
+        </li>
+        
+        <li class="is-section">
+          <button type="button" data-deck-goto="12">
+            <span class="ol-no">12</span>Q3 如何启动Linux？（How）
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="13">
+            <span class="ol-no">13</span>启动盘(点击查看)制作
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="14">
+            <span class="ol-no">14</span>镜像下载和安装
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="15">
+            <span class="ol-no">15</span>⚠️  注意事项
+          </button>
+        </li>
+        
+      </ol>
+    </nav>
+
+    <div class="deck-stage" id="deck-stage" data-deck-stage tabindex="0"
+         aria-label="幻灯片内容，用左右方向键翻页">
+      
+      <section class="slide slide--section" data-slide="0"
+               data-title="初识linux(点击查看)" data-section="1">
+        <div class="slide-inner"><h1>初识<a href="https://zh.wikipedia.org/wiki/Linux" target="_blank" rel="noopener"><strong><em>linux(点击查看)</em></strong></a></h1></div>
+      </section>
+      
+      <section class="slide" data-slide="1"
+               data-title="概述（Overview）">
+        <div class="slide-inner"><h2>概述<strong><em>（Overview）</em></strong></h2>
+<ul><li><strong>Q1</strong> 为什么要使用<strong><em>Linux？（Why）</em></strong></li><li><strong>Q2</strong> 什么是<strong><em>Linux？（What）</em></strong></li><li><strong>Q3</strong> 如何启动<strong><em>Linux？（How）</em></strong></li></ul>
+<img class="float-right" src="/assets/docs/linux-intro/img/01.webp" loading="lazy" decoding="async">
+<p><br><br><br><br><br><br><br><br></p>
+<blockquote><p><strong><em>Software is like sex: it's better when it's free. ——— Linus Torvalds</em></strong></p></blockquote></div>
+      </section>
+      
+      <section class="slide slide--section" data-slide="2"
+               data-title="Q1 为什么要使用Linux？（Why）" data-section="1">
+        <div class="slide-inner"><h1><strong>Q1</strong> 为什么要使用<strong><em>Linux？（Why）</em></strong></h1>
+<p>--</p>
+<blockquote><p><strong><em>When you say, ‘I wrote a program that crashed Windows,’ 
+people just stare at you blankly and say, ‘Hey, I got those with the system, for free.’ 
+——— Linus Torvalds</em></strong></p></blockquote></div>
+      </section>
+      
+      <section class="slide" data-slide="3"
+               data-title="🪟 显然，我们都在用Windows操作系统">
+        <div class="slide-inner"><h2>🪟 显然，我们都在用<strong><em>Windows</em></strong>操作系统</h2>
+<p>某些<strong>前置知识</strong> <strong><em>（Some pre-knowledge）</em></strong></p>
+<ul><li><strong>也许要了解一下</strong><a href="https://zh.wikipedia.org/wiki/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" target="_blank" rel="noopener">操作系统<strong><em>（英语：Operating System，缩写：OS）(点击查看)</em></strong></a><ul><li><strong><del>也许不用</del></strong> 在我们了解什么是<a href="https://zh.wikipedia.org/wiki/Microsoft_Windows" target="_blank" rel="noopener"><strong><em>Windows(点击查看)</em></strong></a>之前我们就在使用<strong><em>Windows</em></strong>了</li></ul></li><li><span class="math-inline" data-tex="Windows \neq OS">Windows \neq OS</span> <ul><li><strong><em>But</em></strong> <span class="math-inline" data-tex="Window \in OS">Window \in OS</span> </li><li><strong><em>And</em></strong> <span class="math-inline" data-tex="Linux \in UNIX">Linux \in UNIX</span></li><li><strong><em>And</em></strong> $ UNIX \in  OS$<ul><li><strong><em>So Linux ∈  OS</em></strong></li></ul></li></ul></li></ul>
+<blockquote><p>🐧 那为什么，我们在以前的人生中，从来没有见过<strong><em>Linux</em></strong>呢？</p></blockquote></div>
+      </section>
+      
+      <section class="slide" data-slide="4"
+               data-title="不可避免地对比：Windows 🆚 Linux">
+        <div class="slide-inner"><h2>不可避免地对比：<strong><em>Windows 🆚 Linux</em></strong></h2>
+<p>如果从来没有见过<strong><em>xxx</em></strong>，那有一种可能是：</p>
+<ul><li>那玩意确实<strong>不好用</strong></li></ul>
+<p>当然，还有一种可能：</p>
+<ul><li>它确实很好用，但是不<a href="https://zh.wikipedia.org/wiki/%E6%98%93%E7%94%A8%E6%80%A7" target="_blank" rel="noopener">易用<strong><em>（英语：Usability）(点击查看)</em></strong></a></li></ul>
+<!-- <img class="float-right" src="/assets/docs/linux-intro/img/02.webp" loading="lazy" decoding="async"> -->
+<img class="center" src="/assets/docs/linux-intro/img/02.webp" loading="lazy" decoding="async"></div>
+      </section>
+      
+      <section class="slide" data-slide="5"
+               data-title="第一回合比试：Windows比Linux易用">
+        <div class="slide-inner"><h2>第一回合比试：<strong><em>Windows比Linux易用</em></strong></h2>
+<p><strong><em>Windows</em></strong>提供了桌面系统，即<a href="https://zh.wikipedia.org/wiki/%E5%9B%BE%E5%BD%A2%E7%94%A8%E6%88%B7%E7%95%8C%E9%9D%A2" target="_blank" rel="noopener">图形用户界面<strong><em>（英语：Graphical User Interface，缩写：GUI）(点击查看)</em></strong></a></p>
+<ul><li>当然Windows是<strong>商业产品（收费）</strong> </li><li><del>虽然这难不倒中国用户</del></li></ul>
+<p><strong><em>Linux</em></strong>发行版也提供了<strong><em>GUI</em></strong></p>
+<ul><li><strong><em>Linux</em></strong>的发行版，有些收费，有些免费<ul><li>有些不仅免费，还开源，<a href="https://www.gnu.org/distros/free-distros.zh-cn.html" target="_blank" rel="noopener">自由的<strong><em>GNU/Linux发行版(点击查看)</em></strong></a></li></ul></li><li><strong><em>Linux</em></strong> 这波，“<strong>遥遥领先”</strong>。</li><li><strong><em>Linux</em></strong>这么“好用”，那它还没被大众熟知的原因也就很清晰了<ul><li><strong><em>Linux继承了<a href="https://zh.wikipedia.org/wiki/UNIX" target="_blank" rel="noopener"><strong><em>UNIX(点击查看)</em></strong></a>的不易用性</em></strong></li></ul></li></ul>
+<blockquote><p>🐮 所以有一些笑话<a href="https://www.gnu.org/fun/humor.zh-cn.html" target="_blank" rel="noopener"><strong><em>GNU Humor(点击查看)</em></strong></a></p></blockquote></div>
+      </section>
+      
+      <section class="slide" data-slide="6"
+               data-title="第二回合比试：Linux比Windows安全、稳定、流畅">
+        <div class="slide-inner"><h2>第二回合比试：<strong><em>Linux比Windows安全、稳定、流畅</em></strong></h2>
+<p><strong><em>Linux</em></strong>更安全（全球程序员的<strong>审查</strong>）、更稳定、更流畅：</p>
+<ul><li><strong>*Linux *</strong>继续领先！<br></li></ul>
+<img class="center" src="/assets/docs/linux-intro/img/03.webp" loading="lazy" decoding="async"></div>
+      </section>
+      
+      <section class="slide" data-slide="7"
+               data-title="直接进入第三回合比试！">
+        <div class="slide-inner"><h2>直接进入第三回合比试！</h2>
+<p>让我们看看<strong><em>Windows</em></strong>怎么说</p>
+<!-- - Windows: 我对英伟达支持友好 -->
+<ul><li><strong><em>Windows</em></strong>: 我装<strong><em>NVIDIA</em></strong>显卡不崩</li></ul>
+<p>--</p>
+<ul><li><strong><em>Linus：So NVIDIA fxxk you !</em></strong><ul><li><strong><em>Anyway</em></strong>，我们还是要用<strong><em>Linux</em></strong>的</li></ul></li></ul>
+<img class="center" src="/assets/docs/linux-intro/img/04.webp" loading="lazy" decoding="async"></div>
+      </section>
+      
+      <section class="slide" data-slide="8"
+               data-title="至少多了一条路（Not only Windows）">
+        <div class="slide-inner"><h2><strong><em>至少多了一条路（Not only Windows）</em></strong></h2>
+<p>至少，我们已经初步了解了如何为什么要用<strong><em>Linux</em></strong></p>
+<ul><li>不易用，但好用<strong><em>（至少和Windows比起来）</em></strong></li><li>对于<strong>CS相关从业人员</strong>来说，<strong><em>Linux</em></strong> 确实算得上是“必修课”<ul><li>然而，<strong><em>Linux</em></strong>生态存在问题<ol><li>很多软件<del>游戏</del>没有<strong><em>Linux</em></strong>版本</li><li>即使有<strong><em>Linux</em></strong>版本，大部分也只是通过虚拟机运作</li><li>即使支持原生<strong><em>Linux</em></strong>，也可能因为发行版不同而无法运作</li></ol></li><li>即便如此我们还是要用</li></ul></li></ul>
+<p><strong><em>Linux</em></strong>是专业人员要面对的<strong>“难题”</strong></p>
+<blockquote><p>🤣 <strong><em>UNIX是用户友好的，只是要成为UNIX的用户很困难</em></strong></p></blockquote></div>
+      </section>
+      
+      <section class="slide slide--section" data-slide="9"
+               data-title="Q2 什么是Linux？（What）" data-section="1">
+        <div class="slide-inner"><h1><strong>Q2</strong> 什么是<strong><em>Linux？（What）</em></strong></h1>
+<p>--</p>
+<blockquote><p><strong><em>Just The Kernel</em></strong>
+--
+<strong><em>Not Only The Kernel</em></strong></p></blockquote></div>
+      </section>
+      
+      <section class="slide" data-slide="10"
+               data-title="👶 我们已经初步了解Linux了">
+        <div class="slide-inner"><h2>👶 我们已经初步了解<strong><em>Linux</em></strong>了</h2>
+<p>我们花了很多时间在为什么要用<strong><em>Linux（Why should use Linux）</em></strong>上</p>
+<ul><li>然后我们知道了<strong><em>Windows、OS、UNIX……</em></strong></li><li>但是我们貌似还不知道什么是<a href="https://zh.wikipedia.org/zh-cn/Linux" target="_blank" rel="noopener"><strong><em>Linux(点击查看)</em></strong></a></li></ul>
+<p>我们现在貌似知道<strong><em>Linux</em></strong>到底是什么了</p>
+<ul><li>正如前面说的<strong><em>Just The Kernel</em></strong></li><li>也知道了<a href="https://www.gnu.org/gnu/linux-and-gnu.zh-cn.html" target="_blank" rel="noopener"><strong><em>Linux和GNU</em></strong>(点击查看)</a></li></ul>
+<p><strong><em>OK，Not Only The Kernel</em></strong></p>
+<ul><li>我们在知道<strong><em>Linux</em></strong>之前，就在用<strong><em>Linux</em></strong>了<ul><li>大部分服务器</li><li>一些<a href="https://zh.wikipedia.org/wiki/%E5%B5%8C%E5%85%A5%E5%BC%8F%E7%B3%BB%E7%BB%9F" target="_blank" rel="noopener">嵌入式系统<strong><em>（embedded system）(点击查看)</em></strong></a>应用</li><li>手机的系统<a href="https://zh.wikipedia.org/wiki/Android" target="_blank" rel="noopener"><strong><em>Android</em></strong>(点击查看)</a></li></ul></li></ul></div>
+      </section>
+      
+      <section class="slide" data-slide="11"
+               data-title="我们也知道了一些发行版（带GUI的GNU/Linux）">
+        <div class="slide-inner"><h2>我们也知道了一些发行版<strong><em>（带GUI的GNU/Linux）</em></strong></h2>
+<p>🤔暂时<strong>先不要纠结选什么发行版，选择其实不止一种</strong></p>
+<ul><li>如果你要使用<strong><em>Linux</em></strong>的话<strong>（如果只有一台电脑）</strong><ul><li>虚拟机或直接<strong>租服务器</strong></li><li>双系统<strong><em>（Windows和Linux同时在电脑上）</em></strong></li><li><a href="https://zh.wikipedia.org/wiki/%E9%80%82%E7%94%A8%E4%BA%8ELinux%E7%9A%84Windows%E5%AD%90%E7%B3%BB%E7%BB%9F" target="_blank" rel="noopener"><strong><em>WSL（英语：Windows Subsystem for Linux，简称WSL）(点击查看)</em></strong></a></li></ul></li></ul>
+<p>对于新手，一般推荐安装并使用<strong><em>Ubuntu</em></strong></p>
+<ul><li>也可以尝试一下<strong>其他的发行版</strong><ul><li><a href="https://distrochooser.de/zh-hans" target="_blank" rel="noopener">测测什么发行版适合你(点击查看)</a></li></ul></li></ul>
+<blockquote><p>⌛ 是时候了，<strong><em>Linux启动！</em></strong></p></blockquote></div>
+      </section>
+      
+      <section class="slide slide--section" data-slide="12"
+               data-title="Q3 如何启动Linux？（How）" data-section="1">
+        <div class="slide-inner"><h1><strong>Q3</strong> 如何启动<strong><em>Linux？（How）</em></strong></h1>
+<blockquote><p>以<strong><em>Ubuntu</em></strong>为例，尝试安装
+--
+😨<strong>现实中的恐怖，远比不上想象中的恐怖那么可怕———亚伯拉罕·林肯</strong></p></blockquote></div>
+      </section>
+      
+      <section class="slide" data-slide="13"
+               data-title="启动盘(点击查看)制作">
+        <div class="slide-inner"><h2><strong><a href="https://zh.wikipedia.org/wiki/%E5%90%AF%E5%8A%A8%E7%9B%98" target="_blank" rel="noopener">启动盘(点击查看)</a>制作</strong></h2>
+<ul><li>先准备好一个16G左右的U盘，制作成<a href="https://zh.wikipedia.org/wiki/Ventoy" target="_blank" rel="noopener"><strong><em>Ventoy(点击查看)</em></strong></a><br></li><li><strong>U盘会被格式化，请提前做好文件备份</strong></li><li><a href="https://www.ventoy.net/cn/doc_start.html" target="_blank" rel="noopener"><strong>这里是教程(点击查看)</strong></a></li></ul>
+<img class="center" src="/assets/docs/linux-intro/img/05.webp" loading="lazy" decoding="async">
+<blockquote><p>制作好的U盘名字会变成<strong><em>Ventoy</em></strong></p></blockquote></div>
+      </section>
+      
+      <section class="slide" data-slide="14"
+               data-title="镜像下载和安装">
+        <div class="slide-inner"><h2><strong><em>镜像下载和安装</em></strong></h2>
+<p>选择要下载的镜像版本（通常使用第二新的<strong>长期维护</strong>版本）</p>
+<ul><li><a href="https://mirrors.tuna.tsinghua.edu.cn/ubuntu-releases/" target="_blank" rel="noopener"><strong><em>清华源Ubuntu镜像(点击查看)</em></strong></a><ul><li>把<strong><em>Ubuntu</em></strong>镜像复制到到<strong>制作好的启动盘</strong>上即可</li></ul></li><li>进入<strong><em>Bios</em></strong><ul><li><a href="https://zhuanlan.zhihu.com/p/126593694" target="_blank" rel="noopener"><strong><em>各大品牌电脑如何进入Bios(点击查看)</em></strong></a>启动按钮，然后在开机的时候多次按</li><li>切换启动引导项<ul><li>大概长这样：<a href="https://cn.linux-console.net/common-images/use-ventoy/Ventoy-boot-screen.png" target="_blank" rel="noopener"><strong>启动引导项(点击查看)</strong></a></li></ul></li></ul></li></ul>
+<blockquote><p>安装系统存在风险，最好<strong>对重要文件进行备份</strong></p></blockquote></div>
+      </section>
+      
+      <section class="slide" data-slide="15"
+               data-title="⚠️  注意事项">
+        <div class="slide-inner"><h2>⚠️  <span class="ink ink-red"><strong><em>注意事项</em></strong></span></h2>
+<p><span class="ink ink-red"><strong>备份</strong></span>是一个好习惯，你会在使用 <strong><em>Linux</em></strong>的过程中体会到的</p>
+<ul><li><strong><em>虽然那很可能是糟糕的体验</em></strong></li></ul>
+<p>下面是一些<span class="ink ink-red"><strong>注意事项</strong></span>的链接</p>
+<ul><li><a href="https://zhuanlan.zhihu.com/p/60704389" target="_blank" rel="noopener"><strong>解除磁盘锁</strong></a></li><li><a href="https://zhuanlan.zhihu.com/p/146554549" target="_blank" rel="noopener"><strong>双系统：Linux系统磁盘空间不够，拓展磁盘空间(点击查看)</strong></a></li><li><a href="https://zhuanlan.zhihu.com/p/94105263" target="_blank" rel="noopener"><strong>timeshift备份，防止系统崩溃，环境重配(点击查看)</strong></a></li><li><a href="https://zhuanlan.zhihu.com/p/393152883" target="_blank" rel="noopener"><strong>安装显卡驱动！慎重，一定要做好备份(点击查看)</strong></a></li></ul>
+<blockquote><p>➕ <a href="https://www.yinwang.org/blog-cn/2013/03/07/linux-windows-mac" target="_blank" rel="noopener"><strong><em>拓展阅读：Linux-Windows-Mac(点击查看)</em></strong></a></p></blockquote></div>
+      </section>
+      
+    </div>
+
+    <p class="deck-hint">
+      <kbd>←</kbd><kbd>→</kbd> 翻页 · <kbd>F</kbd> 全屏 · <kbd>Esc</kbd> 退出 · 也可直接点两侧
+    </p>
+
+    
+    <button type="button" class="deck-zone deck-zone--prev" data-deck-prev aria-label="上一页" tabindex="-1">
+      <span aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></svg>
+      </span>
+    </button>
+    <button type="button" class="deck-zone deck-zone--next" data-deck-next aria-label="下一页" tabindex="-1">
+      <span aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg>
+      </span>
+    </button>
+  </section>
+
+  <nav class="doc-nav" aria-label="上下篇">
+    <span class="doc-nav-item empty"></span>
+    
+    <a class="doc-nav-item next" href="/docs/linux-c/">
+      <span class="dir">下一篇 →</span>
+      <span class="t">尝试在 Linux 上编写 C 程序</span>
+    </a>
+    
+  </nav>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="footer-glow" aria-hidden="true"></div>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="brand-mark lg" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M2.6 20.6h5.6" stroke-width="2.2"/>
+  <path d="M7.9 15.9 11.6 6.6" stroke-width="2.8"/>
+  <path d="M13.4 7.2 19.2 11.4" stroke-width="2.8"/>
+  <circle cx="5.6" cy="17.6" r="2.9" fill="currentColor" stroke="none"/>
+  <circle cx="12.2" cy="6.4" r="2.3" fill="currentColor" stroke="none"/>
+  <circle cx="20.4" cy="12.2" r="1.8" fill="currentColor" stroke="none"/>
+</svg>
+
+      </div>
+      <p class="footer-title">洛叶白</p>
+      <p class="footer-tag">中间件 · 运动控制 · 强化学习</p>
+    </div>
+
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h4>导航</h4>
+        <a href="/">首页</a><a href="/posts/">文章</a><a href="/projects/">项目</a><a href="/docs/">文档</a><a href="/graph/">图谱</a><a href="/archive/">归档</a><a href="/about/">关于</a>
+      </div>
+      <div class="footer-col">
+        <h4>联系</h4>
+        <a href="https://github.com/luoyebai" rel="noopener">GitHub</a><a href="mailto:2112216825@qq.com" rel="noopener">邮箱</a><a href="mailto:luoyebai4444@gmail.com" rel="noopener">Gmail</a><a href="tel:13407209575" rel="noopener">电话</a>
+      </div>
+      <div class="footer-col">
+        <h4>站点</h4>
+        
+        <a href="/sitemap.xml">站点地图</a>
+        <a href="/search-index.json">搜索索引</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <span>© 2022–2026 洛叶白</span>
+    <span class="dot" aria-hidden="true">·</span>
+    <span>用 Python 手写的静态站点生成器构建 · 无第三方依赖</span>
+  </div>
+</footer>
+
+<button class="to-top" type="button" data-to-top aria-label="回到顶部">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19V5"/><path d="m5.5 11.5 6.5-6.5 6.5 6.5"/>
+  </svg>
+</button>
+
+<div class="settings" id="settings" hidden>
+  <div class="settings-backdrop" data-close-settings></div>
+  <aside class="settings-panel" role="dialog" aria-modal="true" aria-label="外观设置">
+    <header class="settings-head">
+      <div>
+        <h2>外观设置</h2>
+        <p>设置会保存在本机浏览器，刷新后保持</p>
+      </div>
+      <button class="icon-btn" type="button" data-close-settings aria-label="关闭">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path d="M6 6l12 12M18 6 6 18"/>
+        </svg>
+      </button>
+    </header>
+
+    <div class="settings-body">
+
+      <section class="set-group">
+        <h3>主题</h3>
+        <div class="theme-grid">
+          
+          <button class="theme-card" type="button" data-theme-pick="dusk" title="暮色风车">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/dusk.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#ff9d5c"></i><i style="background:#7aa2ff"></i><i style="background:#0b1020"></i>
+              </span>
+            </span>
+            <span class="theme-name">暮色风车</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="neon" title="霓虹机房">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/neon.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#c04bff"></i><i style="background:#22d3ee"></i><i style="background:#0a0718"></i>
+              </span>
+            </span>
+            <span class="theme-name">霓虹机房</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="cyber" title="夜城投递">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/cyber.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#ff7ab6"></i><i style="background:#5ee7c4"></i><i style="background:#141019"></i>
+              </span>
+            </span>
+            <span class="theme-name">夜城投递</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="sakura" title="樱色光爆">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/sakura.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#ff6fa5"></i><i style="background:#b78bff"></i><i style="background:#120a14"></i>
+              </span>
+            </span>
+            <span class="theme-name">樱色光爆</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="void" title="虚空龙息">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/void.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#6ea8ff"></i><i style="background:#ffd166"></i><i style="background:#06080f"></i>
+              </span>
+            </span>
+            <span class="theme-name">虚空龙息</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="mono" title="黑白编辑">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/mono.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#e8e8e8"></i><i style="background:#9aa0a6"></i><i style="background:#0c0c0d"></i>
+              </span>
+            </span>
+            <span class="theme-name">黑白编辑</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="paper" title="留白纸面">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/paper.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#17b8a6"></i><i style="background:#f0a04b"></i><i style="background:#fbfcfc"></i>
+              </span>
+            </span>
+            <span class="theme-name">留白纸面</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="alpine" title="远山夜湖">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/alpine.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#5b8dd9"></i><i style="background:#78d9c8"></i><i style="background:#0a1220"></i>
+              </span>
+            </span>
+            <span class="theme-name">远山夜湖</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="moonlit" title="皎月水面">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/moonlit.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#7fd4f0"></i><i style="background:#ffd9a0"></i><i style="background:#050b1c"></i>
+              </span>
+            </span>
+            <span class="theme-name">皎月水面</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="comet" title="彗星山晚">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/comet.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#e07a5f"></i><i style="background:#9b8cff"></i><i style="background:#1c2242"></i>
+              </span>
+            </span>
+            <span class="theme-name">彗星山晚</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="lantern" title="林间提灯">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/lantern.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#e8a45c"></i><i style="background:#66d6a8"></i><i style="background:#141121"></i>
+              </span>
+            </span>
+            <span class="theme-name">林间提灯</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="sketch" title="素描线稿">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/sketch.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#5a6b96"></i><i style="background:#8a6f52"></i><i style="background:#1f2024"></i>
+              </span>
+            </span>
+            <span class="theme-name">素描线稿</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="manga" title="漫画分格">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/manga.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#cf4436"></i><i style="background:#4a6fa8"></i><i style="background:#242428"></i>
+              </span>
+            </span>
+            <span class="theme-name">漫画分格</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="lumen" title="暖灯夜色">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/lumen.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#ffbe4d"></i><i style="background:#7ad3e8"></i><i style="background:#0d1a28"></i>
+              </span>
+            </span>
+            <span class="theme-name">暖灯夜色</span>
+          </button>
+          
+        </div>
+      </section>
+
+      <section class="set-group">
+        <h3>配色</h3>
+        <div class="set-field">
+          <span class="set-label">明暗模式</span>
+          <div class="seg" data-seg="mode">
+            <button type="button" data-val="dark">深色</button>
+            <button type="button" data-val="light">浅色</button>
+          </div>
+        </div>
+        <div class="set-field set-field--inline">
+          <span class="set-label">强调色覆盖</span>
+          <input type="color" data-color="accent" value="#ff9d5c" aria-label="强调色">
+        </div>
+        <p class="set-note">强调色默认由主题的种子色推导；想临时改一个色就动这里，留空色块即为跟随主题。</p>
+      </section>
+
+      <section class="set-group">
+        <h3>排版</h3>
+        <div class="set-field">
+          <span class="set-label">正文字体</span>
+          <div class="seg" data-seg="font">
+            <button type="button" data-val="sans">黑体</button>
+            <button type="button" data-val="serif">宋体</button>
+            <button type="button" data-val="mono">等宽</button>
+          </div>
+        </div>
+        <div class="set-field">
+          <span class="set-label">字号 <b data-out="scale">—</b></span>
+          <input type="range" data-range="scale" min="0.9" max="1.25" step="0.01" value="1" aria-label="字号">
+        </div>
+        <div class="set-field">
+          <span class="set-label">阅读宽度</span>
+          <div class="seg" data-seg="width">
+            <button type="button" data-val="narrow">窄</button>
+            <button type="button" data-val="normal">标准</button>
+            <button type="button" data-val="wide">宽</button>
+          </div>
+        </div>
+        <p class="set-note">黑体 / 宋体都随站点自带（子集化的 Noto，约 330 / 430 KB），不依赖你本机装了什么字体。</p>
+      </section>
+
+      <section class="set-group">
+        <h3>玻璃材质</h3>
+        <div class="set-field">
+          <span class="set-label">质感档位</span>
+          <div class="seg" data-seg="glass">
+            <button type="button" data-val="off">关闭</button>
+            <button type="button" data-val="low">弱</button>
+            <button type="button" data-val="med">中</button>
+            <button type="button" data-val="high">强</button>
+          </div>
+        </div>
+        <div class="set-field">
+          <span class="set-label">不透明度 <b data-out="glassAlpha">—</b></span>
+          <input type="range" data-range="glassAlpha" min="40" max="100" step="1" value="72" aria-label="玻璃不透明度">
+        </div>
+        <p class="set-note">越低越透、背后的壁纸越明显；低于 60% 时文字在花哨壁纸上会不太好读。选「关闭」为实底。</p>
+      </section>
+
+      <section class="set-group">
+        <h3>背景壁纸</h3>
+        <div class="set-field">
+          <span class="set-label">显示</span>
+          <div class="seg" data-seg="bg">
+            <button type="button" data-val="on">显示</button>
+            <button type="button" data-val="off">隐藏</button>
+          </div>
+        </div>
+        <div class="set-field">
+          <span class="set-label">来源</span>
+          <div class="seg" data-seg="bgmode">
+            <button type="button" data-val="image">静态图</button>
+            <button type="button" data-val="video">动态视频</button>
+          </div>
+        </div>
+        <p class="set-note">动态视频是 2560×1440 无声循环，已随站点打包；切到「动态视频」后才开始加载当前主题那一条。</p>
+        <div class="set-divider"></div>
+        <div class="set-field">
+          <span class="set-label">可见度 <b data-out="bgOpacity">—</b></span>
+          <input type="range" data-range="bgOpacity" min="0" max="100" step="2" value="62" aria-label="壁纸可见度">
+        </div>
+        <div class="set-field">
+          <span class="set-label">模糊 <b data-out="bgBlur">—</b></span>
+          <input type="range" data-range="bgBlur" min="0" max="40" step="1" value="0" aria-label="壁纸模糊">
+        </div>
+      </section>
+
+      <section class="set-group">
+        <h3>交互</h3>
+        <div class="set-field">
+          <span class="set-label">卡片 3D 倾斜</span>
+          <div class="seg" data-seg="tilt">
+            <button type="button" data-val="0">关闭</button>
+            <button type="button" data-val="6">轻微</button>
+            <button type="button" data-val="12">标准</button>
+            <button type="button" data-val="20">明显</button>
+          </div>
+        </div>
+        <p class="set-note">鼠标移到文章 / 项目卡片上时跟着倾斜的角度，仅在精确指针设备生效。</p>
+        <div class="set-divider"></div>
+        <div class="set-field">
+          <span class="set-label">页面动效</span>
+          <div class="seg" data-seg="motion">
+            <button type="button" data-val="on">开启</button>
+            <button type="button" data-val="off">关闭</button>
+          </div>
+        </div>
+        <div class="set-field">
+          <span class="set-label">鼠标指针</span>
+          <div class="seg" data-seg="cursor">
+            <button type="button" data-val="on">自定义</button>
+            <button type="button" data-val="off">系统</button>
+          </div>
+        </div>
+        <p class="set-note">自定义指针是一个反相圆环，悬停会变形并显示提示；文字输入框仍用系统指针，触屏设备自动忽略。</p>
+      </section>
+
+    </div>
+
+    <footer class="settings-foot">
+      <button class="btn ghost" type="button" data-reset-appearance>恢复默认</button>
+      <button class="btn primary" type="button" data-close-settings>完成</button>
+    </footer>
+  </aside>
+</div>
+
+<div class="search" id="search" hidden>
+  <div class="search-backdrop" data-close-search></div>
+  <div class="search-panel" role="dialog" aria-modal="true" aria-label="搜索">
+    <div class="search-input">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <circle cx="11" cy="11" r="6.5"/><path d="M16.2 16.2 21 21"/>
+      </svg>
+      <input type="search" placeholder="搜索文章、项目、标签…" autocomplete="off" spellcheck="false" data-search-input>
+      <kbd>Esc</kbd>
+    </div>
+    <div class="search-results" data-search-results>
+      <p class="search-hint">输入关键词开始搜索 · ↑↓ 选择 · Enter 打开</p>
+    </div>
+  </div>
+</div>
+
+<div class="mobile-menu" id="mobile-menu" hidden>
+  <div class="mobile-menu-backdrop" data-close-menu></div>
+  <nav class="mobile-menu-panel">
+    <a href="/">首页</a><a href="/posts/">文章</a><a href="/projects/">项目</a><a href="/docs/">文档</a><a href="/graph/">图谱</a><a href="/archive/">归档</a><a href="/about/">关于</a>
+    <div class="mobile-menu-social">
+      <a href="https://github.com/luoyebai" rel="noopener">GitHub</a><a href="mailto:2112216825@qq.com" rel="noopener">邮箱</a><a href="mailto:luoyebai4444@gmail.com" rel="noopener">Gmail</a><a href="tel:13407209575" rel="noopener">电话</a>
+    </div>
+  </nav>
+</div>
+
+
+<script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.jpg","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.jpg","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.jpg","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.jpg","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.jpg","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.jpg","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.jpg","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.jpg","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.jpg","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.jpg","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.jpg","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.jpg","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.jpg","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.jpg","video":"assets/bg/lumen.mp4"}}</script>
+
+<script src="/assets/site.js" defer></script>
+<script src="/assets/docs.js" defer></script>
+
+</body>
+</html>
+
