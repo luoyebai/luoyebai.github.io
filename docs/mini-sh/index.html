@@ -15,20 +15,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>编程语言的使用 · 洛叶白</title>
-<meta name="description" content="Q1 shell的使用 Q2 C-&gt;C++-&gt;python Q3 什么时候用什么语言">
+<title>mini_sh · 手写一个 shell · 洛叶白</title>
+<meta name="description" content="shell 每天在用，但它到底做了什么？从一个 20 行的骨架开始，把读入、分词、fork、exec、管道一步步接起来。">
 <meta name="author" content="洛叶白">
 <meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#0b0d14" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#f7f7f5" media="(prefers-color-scheme: light)">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="洛叶白">
-<meta property="og:title" content="编程语言的使用">
-<meta property="og:description" content="Q1 shell的使用 Q2 C-&gt;C++-&gt;python Q3 什么时候用什么语言">
-<meta property="og:url" content="https://luoyebai.github.io/docs/shell-and-languages/">
+<meta property="og:title" content="mini_sh · 手写一个 shell">
+<meta property="og:description" content="shell 每天在用，但它到底做了什么？从一个 20 行的骨架开始，把读入、分词、fork、exec、管道一步步接起来。">
+<meta property="og:url" content="https://luoyebai.github.io/docs/mini-sh/">
 <meta property="og:image" content="https://luoyebai.github.io/assets/images/favicon.svg">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="canonical" href="https://luoyebai.github.io/docs/shell-and-languages/">
+<link rel="canonical" href="https://luoyebai.github.io/docs/mini-sh/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
 <link rel="stylesheet" href="/assets/themes.css">
@@ -153,28 +153,28 @@
 
 
 <article class="doc" id="doc"
-         data-slides="28"
-         data-title="编程语言的使用">
+         data-slides="17"
+         data-title="mini_sh · 手写一个 shell">
   <header class="doc-head">
     <nav class="crumbs" aria-label="面包屑">
       <a href="/docs/">文档</a>
       <span aria-hidden="true">/</span>
-      <a href="/docs/windows-to-linux/">从 Windows 到 Linux</a>
+      <a href="/docs/learning/">从编程开始的学习</a>
       <span aria-hidden="true">/</span>
-      <span class="current">编程语言的使用</span>
+      <span class="current">mini_sh · 手写一个 shell</span>
     </nav>
 
-    <h1 class="doc-title">编程语言的使用</h1>
-    <p class="doc-lede">Q1 shell的使用 Q2 C-&gt;C++-&gt;python Q3 什么时候用什么语言</p>
+    <h1 class="doc-title">mini_sh · 手写一个 shell</h1>
+    <p class="doc-lede">shell 每天在用，但它到底做了什么？从一个 20 行的骨架开始，把读入、分词、fork、exec、管道一步步接起来。</p>
 
     <p class="doc-meta">
-      <span class="meta-item"><b>4</b> / 5 篇</span>
-      <span class="meta-item"><b>28</b> 页幻灯片</span>
-      <span class="meta-item muted">迁移自 <a href="https://github.com/luoyebai/doc_html/blob/HEAD/视觉组教程/从Windows到Linux/编程语言的使用/main.md" rel="noopener" target="_blank">源文档</a></span>
+      <span class="meta-item"><b>14</b> / 6 篇</span>
+      <span class="meta-item"><b>17</b> 页幻灯片</span>
+      
     </p>
   </header>
 
-  <section class="deck is-paged" id="deck" data-deck aria-roledescription="幻灯片" aria-label="编程语言的使用">
+  <section class="deck is-paged" id="deck" data-deck aria-roledescription="幻灯片" aria-label="mini_sh · 手写一个 shell">
     <noscript>
       <style>.deck .slide{display:block !important;margin-top:1.2rem}</style>
     </noscript>
@@ -191,7 +191,7 @@
           </svg>
         </button>
         <p class="deck-counter" aria-live="polite">
-          <b data-deck-no>1</b> / 28
+          <b data-deck-no>1</b> / 17
         </p>
       </div>
 
@@ -218,7 +218,7 @@
         
         <li class="is-section">
           <button type="button" data-deck-goto="0">
-            <span class="ol-no">0</span>编程语言的使用
+            <span class="ol-no">0</span>minish · 手写一个 shell
           </button>
         </li>
         
@@ -230,121 +230,91 @@
         
         <li class="is-section">
           <button type="button" data-deck-goto="2">
-            <span class="ol-no">2</span>1：shell的使用？
+            <span class="ol-no">2</span>1. 命令行里到底发生了什么
           </button>
         </li>
         
         <li>
+          <button type="button" data-deck-goto="3">
+            <span class="ol-no">3</span>你在终端敲下 ls -l /tmp 的那一瞬间
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="4">
+            <span class="ol-no">4</span>一句话概括
+          </button>
+        </li>
+        
+        <li class="is-section">
           <button type="button" data-deck-goto="5">
-            <span class="ol-no">5</span>ex1:我想知道某个程序运行的时间?
+            <span class="ol-no">5</span>2. 一个最小可用的骨架
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="6">
-            <span class="ol-no">6</span>shell的调用控制和运算
+            <span class="ol-no">6</span>二十行，能跑命令
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="7">
-            <span class="ol-no">7</span>shell的调用
+            <span class="ol-no">7</span>切词这一步比看上去难
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="8">
-            <span class="ol-no">8</span>shell的调用例子
+            <span class="ol-no">8</span>试一个：自己写个分词器
           </button>
         </li>
         
-        <li>
+        <li class="is-section">
           <button type="button" data-deck-goto="9">
-            <span class="ol-no">9</span>shell的控制
+            <span class="ol-no">9</span>3. 管道、重定向、内建命令
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="10">
-            <span class="ol-no">10</span>shell的运算
+            <span class="ol-no">10</span>管道：一条内核缓冲区 + 两个文件描述符
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="11">
-            <span class="ol-no">11</span>shell的运算例子
+            <span class="ol-no">11</span>重定向其实就是改文件描述符
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="12">
-            <span class="ol-no">12</span>更现代的shell命令
-          </button>
-        </li>
-        
-        <li class="is-section">
-          <button type="button" data-deck-goto="13">
-            <span class="ol-no">13</span>2：C-&gt;C++-&gt;python
+            <span class="ol-no">12</span>cd 为什么不能是外部程序
           </button>
         </li>
         
         <li>
+          <button type="button" data-deck-goto="13">
+            <span class="ol-no">13</span>前台、后台与信号
+          </button>
+        </li>
+        
+        <li class="is-section">
           <button type="button" data-deck-goto="14">
-            <span class="ol-no">14</span>C语言适合做什么?
+            <span class="ol-no">14</span>4. 源码怎么读
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="15">
-            <span class="ol-no">15</span>熟悉而陌生的C语言
+            <span class="ol-no">15</span>从最小到完整
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="16">
-            <span class="ol-no">16</span>现代的C语言
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="17">
-            <span class="ol-no">17</span>C++适合做什么?
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="18">
-            <span class="ol-no">18</span>C++，噩梦的开始
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="19">
-            <span class="ol-no">19</span>C++也不总是那么简单
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="20">
-            <span class="ol-no">20</span>C++很复杂，但并非困难
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="21">
-            <span class="ol-no">21</span>python适合做什么?
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="22">
-            <span class="ol-no">22</span>python的包管理
-          </button>
-        </li>
-        
-        <li class="is-section">
-          <button type="button" data-deck-goto="23">
-            <span class="ol-no">23</span>3：什么时候用什么语言
+            <span class="ol-no">16</span>小结
           </button>
         </li>
         
@@ -355,31 +325,27 @@
          aria-label="幻灯片内容，用左右方向键翻页">
       
       <section class="slide slide--section" data-slide="0"
-               data-title="编程语言的使用" data-section="1">
-        <div class="slide-inner"><h1>编程语言的使用</h1>
-<blockquote><p><strong><em>语言只是工具，能解决问题的工具就是好工具</em></strong></p></blockquote></div>
+               data-title="minish · 手写一个 shell" data-section="1">
+        <div class="slide-inner"><h1>mini_sh · 手写一个 shell</h1></div>
       </section>
       
       <section class="slide" data-slide="1"
                data-title="概述">
         <div class="slide-inner"><h2>概述</h2>
-<ul><li><strong>Q1</strong> shell的使用</li><li><strong>Q2</strong> C-&gt;C++-&gt;python</li><li><strong>Q3</strong> 什么时候用什么语言</li></ul>
-<img class="center" src="/assets/docs/shell-and-languages/img/01.webp" loading="lazy" decoding="async">
-<!-- ![](assets/docs/shell-and-languages/img/01.webp) --></div>
+<ul><li><strong>1.</strong> 命令行里到底发生了什么</li><li><strong>2.</strong> 一个最小可用的骨架</li><li><strong>3.</strong> 管道、重定向、内建命令</li><li><strong>4.</strong> 源码怎么读</li></ul>
+<blockquote><p>你以为 shell 是个「程序」，其实它只是<span class="ink ink-blue">一个循环</span>。</p></blockquote></div>
       </section>
       
       <section class="slide slide--section" data-slide="2"
-               data-title="1：shell的使用？" data-section="1">
-        <div class="slide-inner"><h1>1：shell的使用？</h1></div>
+               data-title="1. 命令行里到底发生了什么" data-section="1">
+        <div class="slide-inner"><h1>1. 命令行里到底发生了什么</h1></div>
       </section>
       
       <section class="slide" data-slide="3"
-               data-title="">
-        <div class="slide-inner"><blockquote><p>为什么要先说shell?</p></blockquote>
-<p><strong>shell</strong> 是早些年代<del>（当然现在也用</del> 的一款语言，
-它会从<span class="ink ink-blue">命令行</span>读取命令然后执行。
-使用Linux少不了shell的陪伴，在介绍其他语言前，自然得先说一下陪伴我们最多的shell。</p>
-<ul><li>但你有没有想过，敲下回车之后<strong>到底发生了什么</strong>？其实只有一个循环：</li></ul>
+               data-title="你在终端敲下 ls -l /tmp 的那一瞬间">
+        <div class="slide-inner"><h2>你在终端敲下 <code>ls -l /tmp</code> 的那一瞬间</h2>
+<p>系统里发生了这些事，而<strong>没有任何一步是魔法</strong>：</p>
+<ul><li>终端把按键交给 shell 进程</li><li>shell 读到一行，按空格切成几个词</li><li>shell 判断：<code>ls</code> 不是我的内建命令 → 我得<span class="ink ink-blue">造一个子进程</span>去跑它</li><li>子进程把自己<strong>换成</strong> <code>ls</code> 这个程序</li><li>父进程（shell）等着，直到子进程结束</li><li>打印下一个提示符，回到第一步</li></ul>
 <figure class="docfig-wrap" data-fig="shell-loop">
 <svg class="docfig" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="shell 的主循环：读一行 → 分词 → fork → 子进程 exec → 父进程 wait">
   <defs><marker id="f5a87b87-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" class="fg-head"/></marker></defs>
@@ -416,110 +382,127 @@
   <text class="fg-note" x="40" y="360" text-anchor="start" font-size="12">内建命令为什么必须自己实现：cd 改的是当前进程的工作目录，子进程里改了，父进程看不见。</text>
 </svg>
 <figcaption>shell 的主循环：读一行 → 分词 → fork → 子进程 exec → 父进程 wait</figcaption>
-</figure>
-<blockquote><p>看懂这张图，后面所有「为什么管道慢」「为什么 <code>cd</code> 是个特殊命令」都有了答案。
-本站的 <span class="ink ink-blue"><strong>mini_sh · 手写一个 shell</strong></span> 就是从这张图出发的。</p></blockquote>
-<p><img src="/assets/docs/shell-and-languages/img/02.webp" alt="" loading="lazy" decoding="async"></p></div>
+</figure></div>
       </section>
       
       <section class="slide" data-slide="4"
-               data-title="">
-        <div class="slide-inner"><p>shell 的进化历史</p>
-<blockquote><p>sh -&gt; bash -&gt; zsh/fish （个人推荐使用新手fish）</p></blockquote>
-<p><a href="https://fishshell.com/" target="_blank" rel="noopener">fish官网</a></p>
-<p><img src="/assets/docs/shell-and-languages/img/03.webp" alt="" loading="lazy" decoding="async"></p></div>
+               data-title="一句话概括">
+        <div class="slide-inner"><h2>一句话概括</h2>
+<p><span class="ink ink-red"><strong>shell 的全部工作就是：读一行、切词、造进程、等它结束、重复。</strong></span></p>
+<ul><li>「变成一门语言」的那些东西（变量、引号、通配符、管道）都是在这个循环上长出来的。</li><li>所以你想真正理解它，最好的方式是<strong>自己写一个最小的</strong>。</li></ul>
+<blockquote><p>这也是为什么这一节的代码只有几十行 —— 骨架不长，长的是边角。</p></blockquote></div>
       </section>
       
-      <section class="slide" data-slide="5"
-               data-title="ex1:我想知道某个程序运行的时间?">
-        <div class="slide-inner"><p>当然为了解shell的历史，还是得看看bash</p>
-<p><a href="https://manpages.debian.org/unstable/manpages-zh/bash.1.zh_CN.html" target="_blank" rel="noopener">点击查看bash</a></p>
-<blockquote><p>也许是更好的文档(但全英文)</p></blockquote>
-<ul><li>命令行输入</li></ul>
-<div class="code-block" data-lang="shell"><div class="code-head"><span class="code-lang">shell</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-shell">man sh</code></pre></div>
-<ul><li>使用sh意味着我们无时无刻不在编程(</li></ul>
-<div class="code-block" data-lang="shell"><div class="code-head"><span class="code-lang">shell</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-shell"><span class="tok-comment"># ex1:我想知道某个程序运行的时间?</span>
-<span class="tok-keyword">time</span> <span class="tok-operator">&lt;</span>那个程序<span class="tok-operator">&gt;</span>
-<span class="tok-comment"># ex2:我想关机?</span>
-poweroff
-<span class="tok-comment">#  我还想...</span></code></pre></div></div>
+      <section class="slide slide--section" data-slide="5"
+               data-title="2. 一个最小可用的骨架" data-section="1">
+        <div class="slide-inner"><h1>2. 一个最小可用的骨架</h1></div>
       </section>
       
       <section class="slide" data-slide="6"
-               data-title="shell的调用控制和运算">
-        <div class="slide-inner"><h2>shell的调用控制和运算</h2>
-<ul><li><span class="ink ink-blue">调用</span>：使用存在的部分<ul><li>变量</li><li>函数</li><li>可执行文件：通常为二进制文件（ELF）或脚本</li></ul></li><li><span class="ink ink-blue">控制</span>：主要包括循环和选择</li><li><span class="ink ink-blue">运算</span>：shell中最智能的地方，主要在运算符方面</li></ul>
-<blockquote><p>这三者构成了shell这门语言最基本的部分</p></blockquote></div>
+               data-title="二十行，能跑命令">
+        <div class="slide-inner"><h2>二十行，能跑命令</h2>
+<div class="code-block" data-lang="c"><div class="code-head"><span class="code-lang">c</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-c">#include &lt;stdio.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;sys/wait.h&gt;
+#include &lt;string.h&gt;
+
+int main(void) {
+    char line[1024];
+    while (1) {
+        printf(&quot;mini_sh&gt; &quot;);                       /* 1. 提示符 */
+        fflush(stdout);
+        if (!fgets(line, sizeof line, stdin)) break; /* 2. 读一行 */
+        line[strcspn(line, &quot;\n&quot;)] = 0;             /*    去掉换行 */
+
+        char *argv[64] = {0};
+        int argc = 0;                              /* 3. 切词 */
+        for (char *p = strtok(line, &quot; &quot;); p &amp;&amp; argc &lt; 63; p = strtok(NULL, &quot; &quot;))
+            argv[argc++] = p;
+        if (argc == 0) continue;
+
+        pid_t pid = fork();                        /* 4. 造子进程 */
+        if (pid == 0) {
+            execvp(argv[0], argv);                 /*    子进程：换程序 */
+            perror(&quot;exec&quot;);                        /*    换失败才会走到这 */
+            _exit(127);
+        }
+        int status;
+        waitpid(pid, &amp;status, 0);                  /* 5. 父进程：等 */
+    }
+    return 0;
+}</code></pre></div>
+<ul><li>这二十行已经能跑 <code>ls</code>、<code>cat</code>、<code>gcc</code> 了。剩下的全是<strong>边角</strong>。</li></ul></div>
       </section>
       
       <section class="slide" data-slide="7"
-               data-title="shell的调用">
-        <div class="slide-inner"><h3>shell的调用</h3>
-<p>主要讲一下<span class="ink ink-blue">可执行文件</span>，暂时<span class="ink ink-red">避开变量和函数</span></p>
-<ul><li><span class="ink ink-blue">调用</span><br><ul><li><span class="ink ink-blue">直接执行的命令</span><br>
-shell会在PATH路径下一个一个找过去，也就是说几乎所有的命令都可以在PATH下找到，
-也可以把自己编译得到的命令放到某个PATH下。</li><li><span class="ink ink-blue">指定路径执行的命令</span><br>
-shell会在PATH路径下一个一个找过去，也就是说几乎所有的命令都可以在PATH下找到，
-shell也可以通过在二进制文件或脚本的绝对路径或相对路径前加.来执行该文件命令<br></li></ul></li></ul>
-<blockquote><p><span class="ink ink-blue">ps：cd命令是对系统调用的封装，不是PATH下的二进制文件</span></p></blockquote></div>
+               data-title="切词这一步比看上去难">
+        <div class="slide-inner"><h2>切词这一步比看上去难</h2>
+<p>新手会以为「按空格切」就够了，实际上一行 shell 输入要先过这些：</p>
+<div class="table-wrap"><table>
+<thead><tr><th>输入</th><th>你以为的切法</th><th>实际规则</th></tr></thead>
+<tbody>
+<tr><td><code>echo "a b"</code></td><td><code>echo</code> / <code>"a</code> / <code>b"</code></td><td>引号内的空格不算分隔</td></tr>
+<tr><td><code>echo 'a b'</code></td><td>同上</td><td>单引号里<strong>什么都不解释</strong></td></tr>
+<tr><td><code>echo $HOME</code></td><td>字面量</td><td>先做变量展开</td></tr>
+<tr><td><code>echo *.c</code></td><td>字面量</td><td>先做通配符展开</td></tr>
+<tr><td><code>echo a\|b</code></td><td>三个词</td><td><code>\|</code> 是管道，不是普通字符</td></tr>
+</tbody></table></div>
+<p>顺序也不能换：<strong>切词 → 引号处理 → 展开 → 再切管道</strong>。<br>
+换一下顺序，<code>echo "a | b"</code> 就会被当成管道。</p></div>
       </section>
       
       <section class="slide" data-slide="8"
-               data-title="shell的调用例子">
-        <div class="slide-inner"><h3>shell的调用例子</h3>
-<div class="code-block" data-lang="shell"><div class="code-head"><span class="code-lang">shell</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-shell"><span class="tok-comment"># 查看所有的PATH</span>
-echo <span class="tok-variable">$PATH</span>
-<span class="tok-comment"># 查看ls命令所在位置</span>
-which ls 
-<span class="tok-comment"># 执行某个可执行文件</span>
-.<span class="tok-operator">/&lt;</span>可执行文件路径<span class="tok-operator">&gt;</span>
-<span class="tok-comment">#变量 ps：等于号前后不能为空格</span>
-<span class="tok-type">STR</span><span class="tok-operator">=</span><span class="tok-string">&quot;Hello World&quot;</span>
-<span class="tok-comment"># 函数</span>
-<span class="tok-function">sayHello</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">{</span>echo <span class="tok-string">&quot;$STR&quot;</span><span class="tok-punct">}</span><span class="tok-punct">;</span> sayHello<span class="tok-punct">;</span></code></pre></div>
-<blockquote><p>PATH其实是shell的变量</p></blockquote></div>
+               data-title="试一个：自己写个分词器">
+        <div class="slide-inner"><h2>试一个：自己写个分词器</h2>
+<p>下面这段是可运行的 —— 它做的正是 shell 的第一步。
+试着改一改：让它支持单引号，或者让它把 <code>|</code> 单独切出来。</p>
+<div class="demo" data-demo="js"><div class="demo-head"><span class="demo-badge">可运行示例</span><span class="demo-lang">JavaScript</span><div class="demo-actions"><button class="demo-toggle" type="button" data-demo-toggle aria-expanded="false"><span data-demo-toggle-label>查看代码</span><svg class="demo-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button><button class="demo-run" type="button" data-demo-run><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg><span data-demo-run-label>运行</span></button><button class="demo-reset" type="button" data-demo-reset hidden>重置</button></div></div><pre class="code-pre" data-demo-code hidden><code class="language-js"><span class="tok-comment">// 一个最小分词器：处理空格、双引号、反斜杠转义</span>
+<span class="tok-keyword">function</span> <span class="tok-function">tokenize</span><span class="tok-punct">(</span>line<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+  <span class="tok-keyword">const</span> out <span class="tok-operator">=</span> <span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">let</span> buf <span class="tok-operator">=</span> <span class="tok-string">&#x27;&#x27;</span><span class="tok-punct">,</span> quote <span class="tok-operator">=</span> false<span class="tok-punct">,</span> i <span class="tok-operator">=</span> <span class="tok-number">0</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">while</span> <span class="tok-punct">(</span>i <span class="tok-operator">&lt;</span> line<span class="tok-punct">.</span>length<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">const</span> c <span class="tok-operator">=</span> line<span class="tok-punct">[</span>i<span class="tok-punct">]</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">if</span> <span class="tok-punct">(</span>quote<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+      <span class="tok-keyword">if</span> <span class="tok-punct">(</span>c <span class="tok-operator">===</span> <span class="tok-string">&#x27;\\&#x27;</span> <span class="tok-operator">&amp;&amp;</span> i <span class="tok-operator">+</span> <span class="tok-number">1</span> <span class="tok-operator">&lt;</span> line<span class="tok-punct">.</span>length<span class="tok-punct">)</span> <span class="tok-punct">{</span> buf <span class="tok-operator">+=</span> line<span class="tok-punct">[</span><span class="tok-operator">++</span>i<span class="tok-punct">]</span><span class="tok-punct">;</span> i<span class="tok-operator">++</span><span class="tok-punct">;</span> <span class="tok-keyword">continue</span><span class="tok-punct">;</span> <span class="tok-punct">}</span>
+      <span class="tok-keyword">if</span> <span class="tok-punct">(</span>c <span class="tok-operator">===</span> <span class="tok-string">&#x27;&quot;&#x27;</span><span class="tok-punct">)</span> <span class="tok-punct">{</span> quote <span class="tok-operator">=</span> false<span class="tok-punct">;</span> i<span class="tok-operator">++</span><span class="tok-punct">;</span> <span class="tok-keyword">continue</span><span class="tok-punct">;</span> <span class="tok-punct">}</span>
+      buf <span class="tok-operator">+=</span> c<span class="tok-punct">;</span> i<span class="tok-operator">++</span><span class="tok-punct">;</span> <span class="tok-keyword">continue</span><span class="tok-punct">;</span>
+    <span class="tok-punct">}</span>
+    <span class="tok-keyword">if</span> <span class="tok-punct">(</span>c <span class="tok-operator">===</span> <span class="tok-string">&#x27;&quot;&#x27;</span><span class="tok-punct">)</span> <span class="tok-punct">{</span> quote <span class="tok-operator">=</span> true<span class="tok-punct">;</span> i<span class="tok-operator">++</span><span class="tok-punct">;</span> <span class="tok-keyword">continue</span><span class="tok-punct">;</span> <span class="tok-punct">}</span>
+    <span class="tok-keyword">if</span> <span class="tok-punct">(</span>c <span class="tok-operator">===</span> <span class="tok-string">&#x27;\\&#x27;</span> <span class="tok-operator">&amp;&amp;</span> i <span class="tok-operator">+</span> <span class="tok-number">1</span> <span class="tok-operator">&lt;</span> line<span class="tok-punct">.</span>length<span class="tok-punct">)</span> <span class="tok-punct">{</span> buf <span class="tok-operator">+=</span> line<span class="tok-punct">[</span><span class="tok-operator">++</span>i<span class="tok-punct">]</span><span class="tok-punct">;</span> i<span class="tok-operator">++</span><span class="tok-punct">;</span> <span class="tok-keyword">continue</span><span class="tok-punct">;</span> <span class="tok-punct">}</span>
+    <span class="tok-keyword">if</span> <span class="tok-punct">(</span>c <span class="tok-operator">===</span> <span class="tok-string">&#x27; &#x27;</span> <span class="tok-operator">||</span> c <span class="tok-operator">===</span> <span class="tok-string">&#x27;\t&#x27;</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+      <span class="tok-keyword">if</span> <span class="tok-punct">(</span>buf<span class="tok-punct">)</span> <span class="tok-punct">{</span> out<span class="tok-punct">.</span><span class="tok-function">push</span><span class="tok-punct">(</span>buf<span class="tok-punct">)</span><span class="tok-punct">;</span> buf <span class="tok-operator">=</span> <span class="tok-string">&#x27;&#x27;</span><span class="tok-punct">;</span> <span class="tok-punct">}</span>
+      i<span class="tok-operator">++</span><span class="tok-punct">;</span> <span class="tok-keyword">continue</span><span class="tok-punct">;</span>
+    <span class="tok-punct">}</span>
+    buf <span class="tok-operator">+=</span> c<span class="tok-punct">;</span> i<span class="tok-operator">++</span><span class="tok-punct">;</span>
+  <span class="tok-punct">}</span>
+  <span class="tok-keyword">if</span> <span class="tok-punct">(</span>buf<span class="tok-punct">)</span> out<span class="tok-punct">.</span><span class="tok-function">push</span><span class="tok-punct">(</span>buf<span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">return</span> <span class="tok-punct">{</span> tokens<span class="tok-operator">:</span> out<span class="tok-punct">,</span> closed<span class="tok-operator">:</span> <span class="tok-operator">!</span>quote <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span>
+
+<span class="tok-keyword">const</span> cases <span class="tok-operator">=</span> <span class="tok-punct">[</span>
+  <span class="tok-string">&#x27;ls -l /tmp&#x27;</span><span class="tok-punct">,</span>
+  <span class="tok-string">&#x27;echo &quot;a  b&quot; -n&#x27;</span><span class="tok-punct">,</span>
+  <span class="tok-string">&#x27;grep &quot;x \\&quot; y&quot; file.c&#x27;</span><span class="tok-punct">,</span>
+  <span class="tok-string">&#x27;echo &quot;没关引号&#x27;</span><span class="tok-punct">,</span>
+<span class="tok-punct">]</span><span class="tok-punct">;</span>
+<span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-keyword">const</span> s <span class="tok-keyword">of</span> cases<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+  <span class="tok-keyword">const</span> r <span class="tok-operator">=</span> <span class="tok-function">tokenize</span><span class="tok-punct">(</span>s<span class="tok-punct">)</span><span class="tok-punct">;</span>
+  demo<span class="tok-punct">.</span><span class="tok-function">log</span><span class="tok-punct">(</span><span class="tok-string">&#x27;输入:&#x27;</span><span class="tok-punct">,</span> s<span class="tok-punct">)</span><span class="tok-punct">;</span>
+  demo<span class="tok-punct">.</span><span class="tok-function">log</span><span class="tok-punct">(</span><span class="tok-string">&#x27;  →  &#x27;</span><span class="tok-punct">,</span> <span class="tok-builtin">JSON</span><span class="tok-punct">.</span><span class="tok-function">stringify</span><span class="tok-punct">(</span>r<span class="tok-punct">.</span>tokens<span class="tok-punct">)</span><span class="tok-punct">,</span> r<span class="tok-punct">.</span>closed <span class="tok-operator">?</span> <span class="tok-string">&#x27;&#x27;</span> <span class="tok-operator">:</span> <span class="tok-string">&#x27;⚠ 引号没闭合&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre><div class="demo-stage" data-demo-stage hidden><div class="demo-frame-wrap" data-demo-mount></div><div class="demo-log" data-demo-log hidden></div><p class="demo-status" data-demo-status></p></div><noscript><p class="demo-noscript">这段示例需要 JavaScript 才能运行。</p></noscript><script type="application/json" data-demo-src>"// 一个最小分词器：处理空格、双引号、反斜杠转义\nfunction tokenize(line) {\n  const out = [];\n  let buf = '', quote = false, i = 0;\n  while (i \u003c line.length) {\n    const c = line[i];\n    if (quote) {\n      if (c === '\\\\' && i + 1 \u003c line.length) { buf += line[++i]; i++; continue; }\n      if (c === '\"') { quote = false; i++; continue; }\n      buf += c; i++; continue;\n    }\n    if (c === '\"') { quote = true; i++; continue; }\n    if (c === '\\\\' && i + 1 \u003c line.length) { buf += line[++i]; i++; continue; }\n    if (c === ' ' || c === '\\t') {\n      if (buf) { out.push(buf); buf = ''; }\n      i++; continue;\n    }\n    buf += c; i++;\n  }\n  if (buf) out.push(buf);\n  return { tokens: out, closed: !quote };\n}\n\nconst cases = [\n  'ls -l /tmp',\n  'echo \"a  b\" -n',\n  'grep \"x \\\\\" y\" file.c',\n  'echo \"没关引号',\n];\nfor (const s of cases) {\n  const r = tokenize(s);\n  demo.log('输入:', s);\n  demo.log('  →  ', JSON.stringify(r.tokens), r.closed ? '' : '⚠ 引号没闭合');\n}"</script></div>
+<p><span class="ink ink-red">注意最后一条</span>：真实的 shell 遇到没闭合的引号会<strong>再要一行</strong>，
+而不是硬着头皮执行。这就是「交互式」和「批处理」的区别。</p></div>
       </section>
       
-      <section class="slide" data-slide="9"
-               data-title="shell的控制">
-        <div class="slide-inner"><h3>shell的控制</h3>
-<ul><li>选择<ul><li>if</li><li>if else</li><li>if elif else</li></ul></li><li>循环 <ul><li>for</li><li>while</li><li>do while</li></ul></li></ul>
-<blockquote><p>老生常谈，放个链接自己看</p></blockquote>
-<p><a href="https://www.runoob.com/linux/linux-shell-process-control.html" target="_blank" rel="noopener">菜鸟教程</a></p></div>
+      <section class="slide slide--section" data-slide="9"
+               data-title="3. 管道、重定向、内建命令" data-section="1">
+        <div class="slide-inner"><h1>3. 管道、重定向、内建命令</h1></div>
       </section>
       
       <section class="slide" data-slide="10"
-               data-title="shell的运算">
-        <div class="slide-inner"><h3>shell的运算</h3>
-<p>shell 的运算很独特，除了加减乘除且或等<br>
-还有一类比较独特的符号---<span class="ink ink-blue">重定向符</span></p>
-<div class="table-wrap"><table>
-<thead><tr><th style="text-align:left">符号</th><th style="text-align:center">功能</th></tr></thead>
-<tbody>
-<tr><td style="text-align:left">&gt;</td><td style="text-align:center">将命令输出写入到文件或设备（例如打印机）中，而不是写在命令提示符窗口中。</td></tr>
-<tr><td style="text-align:left">&lt;</td><td style="text-align:center">从文件中而不是从键盘中读入命令输入。</td></tr>
-<tr><td style="text-align:left">&gt;&gt;</td><td style="text-align:center">将命令输出添加到文件末尾而不删除文件中的信息。</td></tr>
-<tr><td style="text-align:left">&gt;&amp;</td><td style="text-align:center">将一个句柄的输出写入到另一个句柄的输入中。</td></tr>
-<tr><td style="text-align:left">&lt;&amp;</td><td style="text-align:center">从一个句柄读取输入并将其写入到另一个句柄输出中。</td></tr>
-<tr><td style="text-align:left">\|</td><td style="text-align:center">从一个命令中读取输出并将其写入另一个命令的输入中。也称作管道。</td></tr>
-</tbody></table></div></div>
-      </section>
-      
-      <section class="slide" data-slide="11"
-               data-title="shell的运算例子">
-        <div class="slide-inner"><h3>shell的运算例子</h3>
-<div class="code-block" data-lang="shell"><div class="code-head"><span class="code-lang">shell</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-shell"><span class="tok-comment"># 把当前目录下的内容写入 tmp.txt文件</span>
-tree <span class="tok-operator">&gt;</span> tmp.txt
-<span class="tok-comment"># 等同于cat tmp.txt</span>
-cat <span class="tok-operator">&lt;</span> tmp.txt
-<span class="tok-comment"># 在tmp.txt追加日期</span>
-date <span class="tok-operator">&gt;&gt;</span> tmp.txt
-<span class="tok-comment"># 在tmp.txt追加日期</span>
-date <span class="tok-operator">&gt;&gt;</span> tmp.txt
-<span class="tok-comment"># 查看当前目录下的cpp文件</span>
-ls <span class="tok-operator">|</span> grep <span class="tok-operator">*</span>.cpp</code></pre></div>
-<blockquote><p>通过复合使用这些符号，利用<span class="ink ink-blue">简单</span>的工具完成<span class="ink ink-red">复杂</span>的任务</p></blockquote>
-<ul><li>这些 <code>&gt;</code> <code>&gt;&gt;</code> <code>&lt;</code> <code>|</code> 不是「语法糖」，它们改的是<strong>文件描述符</strong>：</li></ul>
+               data-title="管道：一条内核缓冲区 + 两个文件描述符">
+        <div class="slide-inner"><h2>管道：一条内核缓冲区 + 两个文件描述符</h2>
+<p><code>ls | grep c</code> 里的 <code>|</code> 不是把命令串起来，而是造了一根<strong>管子</strong>。</p>
 <figure class="docfig-wrap" data-fig="pipe-fd">
 <svg class="docfig" viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="管道是一条内核缓冲区，两端各是一个文件描述符；dup2 把它接到 0/1 上">
   <defs><marker id="ffb42a98-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" class="fg-head"/></marker></defs>
@@ -541,175 +524,72 @@ ls <span class="tok-operator">|</span> grep <span class="tok-operator">*</span>.
 </svg>
 <figcaption>管道是一条内核缓冲区，两端各是一个文件描述符；dup2 把它接到 0/1 上</figcaption>
 </figure>
-<blockquote><p>所以 <code>ls | grep *.cpp</code> 里，<code>ls</code> 根本不知道 <code>grep</code> 存在 ——
-它只是往 fd 1 里写，至于 fd 1 通向哪里，是 shell 在 <code>exec</code> 之前替它决定的。</p></blockquote></div>
+<p>实现顺序很固定：</p>
+<ul><li>父进程 <code>pipe(fd)</code> —— 拿到读写两端</li><li><code>fork</code> 两次，得到左右两个孩子</li><li>左孩子在 <code>exec</code> <strong>之前</strong> <code>dup2(fd[1], 1)</code>，把 stdout 接到写端</li><li>右孩子在 <code>exec</code> <strong>之前</strong> <code>dup2(fd[0], 0)</code>，把 stdin 接到读端</li><li>两边都把自己的 fd 关掉，<code>wait</code> 收尸</li></ul>
+<blockquote><p><span class="ink ink-blue">顺序错了就死锁</span>：忘了在父进程里关掉 fd，读端永远等不到 EOF。</p></blockquote></div>
+      </section>
+      
+      <section class="slide" data-slide="11"
+               data-title="重定向其实就是改文件描述符">
+        <div class="slide-inner"><h2>重定向其实就是改文件描述符</h2>
+<ul><li><code>&gt; file</code>：<code>open(file, O_WRONLY|O_CREAT|O_TRUNC)</code> 之后 <code>dup2(fd, 1)</code>。</li><li><code>&lt; file</code>：同理 <code>dup2(fd, 0)</code>。</li><li><code>2&gt;&amp;1</code>：把 fd 2 也指到 fd 1 现在指的地方 —— <strong>注意是「现在」</strong>。</li></ul>
+<div class="code-block" data-lang="shell"><div class="code-head"><span class="code-lang">shell</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-shell"><span class="tok-comment"># 这两条不一样，顺序有意义</span>
+cmd <span class="tok-operator">&gt;</span> out.txt <span class="tok-number">2</span><span class="tok-operator">&gt;&amp;</span><span class="tok-number">1</span>     <span class="tok-comment"># stdout 和 stderr 都进 out.txt</span>
+cmd <span class="tok-number">2</span><span class="tok-operator">&gt;&amp;</span><span class="tok-number">1</span> <span class="tok-operator">&gt;</span> out.txt     <span class="tok-comment"># stderr 进终端，stdout 进文件</span></code></pre></div></div>
       </section>
       
       <section class="slide" data-slide="12"
-               data-title="更现代的shell命令">
-        <div class="slide-inner"><h2>更现代的shell命令</h2>
-<ul><li>试试fish</li></ul>
-<div class="code-block" data-lang="shell"><div class="code-head"><span class="code-lang">shell</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-shell">fish
-fish_config</code></pre></div>
-<p><del>然后自己玩</del></p>
-<ul><li>也许不只是shell</li></ul>
-<div class="code-block" data-lang="shell"><div class="code-head"><span class="code-lang">shell</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-shell"><span class="tok-comment"># 类似shell的方式使用python3</span>
-python3
-<span class="tok-comment"># 对python而言。也许就像fish一样，有更好的交互方式。</span>
-<span class="tok-comment"># 安装ipython （少不了清华源）</span>
-pip3 install ipython <span class="tok-operator">-</span>i https:<span class="tok-operator">//</span>pypi.tuna.tsinghua.edu.cn<span class="tok-operator">/</span>simple
-ipython</code></pre></div>
-<blockquote><p>也许ipython可以让你重新认识python</p></blockquote></div>
+               data-title="cd 为什么不能是外部程序">
+        <div class="slide-inner"><h2><code>cd</code> 为什么不能是外部程序</h2>
+<p>这是 shell 设计里最漂亮的一处约束：</p>
+<ul><li>每个进程有自己的「当前工作目录」，它是<strong>进程的属性</strong>。</li><li><code>cd</code> 如果是外部程序，它跑在<strong>子进程</strong>里，改的是子进程的目录。</li><li>子进程一退出，改动就没了，父进程（shell）的工作目录纹丝不动。</li></ul>
+<p><span class="ink ink-red">所以 <code>cd</code> 必须是内建命令。</span><br>
+同样必须是内建的还有：<code>export</code>、<code>alias</code>、<code>umask</code>、<code>jobs</code>、<code>fg</code>、<code>bg</code> —— 
+它们改的都是 <strong>shell 进程自己的状态</strong>。</p>
+<blockquote><p>判断标准很简单：<strong>这条命令有没有副作用落在「当前这个 shell」身上。</strong></p></blockquote></div>
       </section>
       
-      <section class="slide slide--section" data-slide="13"
-               data-title="2：C-&gt;C++-&gt;python" data-section="1">
-        <div class="slide-inner"><h1>2：C-&gt;C++-&gt;python</h1>
-<img class="center" src="/assets/docs/shell-and-languages/img/04.webp" loading="lazy" decoding="async"></div>
+      <section class="slide" data-slide="13"
+               data-title="前台、后台与信号">
+        <div class="slide-inner"><h2>前台、后台与信号</h2>
+<ul><li><code>&amp;</code> 让子进程进后台，shell 不 <code>wait</code> 它，直接打印下一个提示符。</li><li>但 shell 不能不管它 —— 它在<strong>作业表</strong>里记着，<code>jobs</code> 能查、<code>fg</code> 能捞回来。</li><li><code>Ctrl+C</code> 不是 shell 处理的，是终端把 <code>SIGINT</code> 发给<strong>前台进程组</strong>。
+shell 自己也要处理这个信号，否则一按就把自己杀了。</li></ul>
+<div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-text">你想清楚三件事，mini shell 就完整了：
+  1) 谁是前台进程组
+  2) 谁负责 wait
+  3) 信号发给谁</code></pre></div></div>
       </section>
       
-      <section class="slide" data-slide="14"
-               data-title="C语言适合做什么?">
-        <div class="slide-inner"><h2>C语言适合做什么?</h2>
-<blockquote><p>接近底层的低抽象程序设计。</p></blockquote>
-<p>个人观点：用C语言写数学题完全是<span class="ink ink-red">浪费时间</span>。<br>
-C语言做底层封装更合适，比如</p>
-<ul><li><span class="ink ink-blue">封装计算</span></li><li><span class="ink ink-blue">内存分配器</span></li><li><span class="ink ink-blue">线程池</span></li></ul>
-<p>简单来说，C语言的模型接近<strong>状态机</strong>，是控制状态的过程。</p></div>
+      <section class="slide slide--section" data-slide="14"
+               data-title="4. 源码怎么读" data-section="1">
+        <div class="slide-inner"><h1>4. 源码怎么读</h1></div>
       </section>
       
       <section class="slide" data-slide="15"
-               data-title="熟悉而陌生的C语言">
-        <div class="slide-inner"><h3>熟悉而陌生的C语言</h3>
-<p>C语言里有很多你们可能<span class="ink ink-red">手动实现</span>过，但其实是<span class="ink ink-blue">标准库</span>有的东西<br>
-比如：</p>
-<ul><li>字符串 <a href="https://zh.cppreference.com/w/c/string" target="_blank" rel="noopener">点击查看</a></li><li>数值相关 <a href="https://zh.cppreference.com/w/c/numeric" target="_blank" rel="noopener">点击查看</a></li></ul>
-<p>还有些你们<span class="ink ink-red">不喜欢的东西</span>：</p>
-<ul><li>排序 <a href="https://zh.cppreference.com/w/c/algorithm/qsort" target="_blank" rel="noopener">点击查看</a></li></ul>
-<div class="code-block" data-lang="c"><div class="code-head"><span class="code-lang">c</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-c">void qsort( void *ptr, size_t count, size_t size,
-            int (*comp)(const void *, const void *) );</code></pre></div>
-<blockquote><p>你们肯定<span class="ink ink-red">不想用这样复杂</span>的api，但标准库提供了</p></blockquote>
-<p><a href="/assets/docs/shell-and-languages/code/sort.c">简单的整数排序代码</a></p></div>
+               data-title="从最小到完整">
+        <div class="slide-inner"><h2>从最小到完整</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>文件</th><th>做什么</th><th>大概多少行</th></tr></thead>
+<tbody>
+<tr><td><code>mini_sh.c</code></td><td>只有循环 + fork/exec</td><td>几十行</td></tr>
+<tr><td><code>sh-xv6.c</code></td><td>加了重定向、管道、内建命令</td><td>三百行左右</td></tr>
+<tr><td><code>test.c</code></td><td>测试用例</td><td>—</td></tr>
+</tbody></table></div>
+<ul><li>读的顺序：<strong>先读 <code>mini_sh.c</code> 把主干记住，再读 <code>sh-xv6.c</code> 看它补了哪些边角</strong>。</li><li>不要从头读到尾 —— 先找 <code>fork</code>、<code>exec</code>、<code>wait</code> 这三个词，
+把主干抽出来，剩下的都是分支。</li></ul>
+<div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash"><span class="tok-comment"># 想直接上手：编译、跑、然后自己加一个内建命令</span>
+make
+.<span class="tok-operator">/</span>mini_sh</code></pre></div>
+<blockquote><p>源码就在本站：<span class="ink ink-blue"><code>assets/docs/mini-sh/code/</code></span> 下，
+页面右侧点文件名就能看。建议先自己敲一遍 <code>mini_sh.c</code>，再对照。</p></blockquote></div>
       </section>
       
       <section class="slide" data-slide="16"
-               data-title="现代的C语言">
-        <div class="slide-inner"><h3>现代的C语言</h3>
-<p>还有些偏现代的特性：</p>
-<ul><li>泛型数学 <a href="https://zh.cppreference.com/w/c/numeric/tgmath" target="_blank" rel="noopener">点击查看</a></li><li>并发支持 <a href="https://zh.cppreference.com/w/c/thread" target="_blank" rel="noopener">点击查看</a></li></ul>
-<blockquote><p>你们<span class="ink ink-red">不会自己去实现的东西</span>，C标准库也提供了</p></blockquote>
-<p>说起现代，不可避免地要说到C++，它是一门现代的语言<br>
-很多人不喜欢C++，觉得它破坏了C的<span class="ink ink-blue">小而美</span><br>
-但也许我们应该<span class="ink ink-blue">辩证地看待C++</span>，不过是一门语言，试试又何妨。<br></p></div>
-      </section>
-      
-      <section class="slide" data-slide="17"
-               data-title="C++适合做什么?">
-        <div class="slide-inner"><h2>C++适合做什么?</h2>
-<blockquote><p>高性能计算和高抽象设计</p></blockquote>
-<p>C++ 的抽象能力很强，有多种编程范式，面向对象，元编程，函数式编程。<br></p>
-<ul><li>最常用的面向对象，模型接近<span class="ink ink-blue">行为树</span>。</li><li>元编程，即---编写<span class="ink ink-blue">生成代码的代码</span>。</li><li>函数式编程，一切抽象为<span class="ink ink-blue">表达式求值</span>。</li></ul>
-<p>C++适合设计，但它最大的毛病也在于此，限制太少，<br>
-容易写出满是bug的代码，所以<strong>不适合</strong>新手。<br>
-<del>ps:已经会C语言就不是新手了</del><br></p></div>
-      </section>
-      
-      <section class="slide" data-slide="18"
-               data-title="C++，噩梦的开始">
-        <div class="slide-inner"><h2>C++，噩梦的开始</h2>
-<h3>也许C++没有那么难</h3>
-<blockquote><p>C++ 很难学这个概念，似乎在人们心中根深蒂固，但真的是这样吗？</p></blockquote>
-<p>回到前面的C语言，C语言的排序很复杂， 正常人不会想用那种api</p>
-<ul><li>排序 <a href="https://zh.cppreference.com/w/cpp/algorithm/sort" target="_blank" rel="noopener">点击查看</a></li></ul>
-<div class="code-block" data-lang="c++"><div class="code-head"><span class="code-lang">c++</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-c++"><span class="tok-preproc"># s是stl容器</span>
-<span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-function">sort</span><span class="tok-punct">(</span>s<span class="tok-punct">.</span><span class="tok-function">begin</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">,</span> s<span class="tok-punct">.</span><span class="tok-function">end</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-<span class="tok-preproc"># customLess</span> 自定义的比较方式
-<span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-function">sort</span><span class="tok-punct">(</span>s<span class="tok-punct">.</span><span class="tok-function">begin</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">,</span> s<span class="tok-punct">.</span><span class="tok-function">end</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">,</span> customLess<span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
-<blockquote><p>比C清爽很多，不是吗？C++<span class="ink ink-red">并没有想象中那么难</span></p></blockquote></div>
-      </section>
-      
-      <section class="slide" data-slide="19"
-               data-title="C++也不总是那么简单">
-        <div class="slide-inner"><h3>C++也<span class="ink ink-blue">不总是那么简单</span></h3>
-<img class="float-right" src="/assets/docs/shell-and-languages/img/08.webp" loading="lazy" decoding="async">
-<ul><li>元编程 <a href="https://zh.cppreference.com/w/cpp/meta" target="_blank" rel="noopener">点击查看</a></li><li>迭代器 <a href="https://zh.cppreference.com/w/cpp/iterator" target="_blank" rel="noopener">点击查看</a></li><li>并发支持 <a href="https://zh.cppreference.com/w/cpp/thread" target="_blank" rel="noopener">点击查看</a></li><li>内存管理 <a href="https://zh.cppreference.com/w/cpp/memory" target="_blank" rel="noopener">点击查看</a></li><li>通用工具 <a href="https://zh.cppreference.com/w/cpp/utility#.E9.80.9A.E7.94.A8.E5.B7.A5.E5.85.B7" target="_blank" rel="noopener">点击查看</a></li></ul>
-<p><br><br> <br><br> <br><br> <br><br></p>
-<blockquote><p>比C简单的api背后，是海量的代码在支持，所以说C++难</p></blockquote></div>
-      </section>
-      
-      <section class="slide" data-slide="20"
-               data-title="C++很复杂，但并非困难">
-        <div class="slide-inner"><h3>C++很复杂，但并非困难</h3>
-<ul><li>零开销原则 <a href="https://zh.cppreference.com/w/cpp/language/Zero-overhead_principle" target="_blank" rel="noopener">点击查看</a></li></ul>
-<blockquote><p>所以你<span class="ink ink-blue">几乎不用担心</span>，C++那么复杂，学不完怎么办</p></blockquote>
-<div class="code-block" data-lang="c++"><div class="code-head"><span class="code-lang">c++</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-c++"><span class="tok-preproc"># 一切不过是对底层的抽象和封装</span>
-<span class="tok-builtin">std</span><span class="tok-operator">::</span>cout <span class="tok-operator">&lt;&lt;</span> <span class="tok-string">&quot;Hello World\n&quot;</span><span class="tok-punct">;</span></code></pre></div>
-<p>那么，C++作为高性能的代表，至今仍有一个问题困扰各C++程序员<br></p>
-<h3><span class="ink ink-red">包管理</span></h3>
-<p>提到包管理，那一定绕不开<span class="ink ink-blue">python</span></p></div>
-      </section>
-      
-      <section class="slide" data-slide="21"
-               data-title="python适合做什么?">
-        <div class="slide-inner"><h2>python适合做什么?</h2>
-<blockquote><p>简单小巧的任务</p></blockquote>
-<p><span class="ink ink-blue">一句话能说清楚需求的任务</span>，python再合适不过。<br>
-比如计算。</p>
-<div class="code-block" data-lang="shell"><div class="code-head"><span class="code-lang">shell</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-shell"><span class="tok-operator">&gt;</span>  ipython
-<span class="tok-type">In</span> <span class="tok-punct">[</span><span class="tok-number">1</span><span class="tok-punct">]</span>: from sympy import <span class="tok-operator">*</span>
-<span class="tok-type">In</span> <span class="tok-punct">[</span><span class="tok-number">2</span><span class="tok-punct">]</span>: x <span class="tok-operator">=</span> <span class="tok-function">symbols</span><span class="tok-punct">(</span><span class="tok-string">&quot;x&quot;</span><span class="tok-punct">)</span>
-<span class="tok-type">In</span> <span class="tok-punct">[</span><span class="tok-number">3</span><span class="tok-punct">]</span>: y <span class="tok-operator">=</span> <span class="tok-punct">(</span><span class="tok-number">5</span><span class="tok-operator">**</span><span class="tok-number">5</span><span class="tok-punct">)</span><span class="tok-operator">*</span><span class="tok-function">atan</span><span class="tok-punct">(</span>x<span class="tok-punct">)</span>
-<span class="tok-type">In</span> <span class="tok-punct">[</span><span class="tok-number">4</span><span class="tok-punct">]</span>: y
-<span class="tok-type">Out</span><span class="tok-punct">[</span><span class="tok-number">4</span><span class="tok-punct">]</span>: <span class="tok-number">3125</span><span class="tok-operator">*</span><span class="tok-function">atan</span><span class="tok-punct">(</span>x<span class="tok-punct">)</span>
-<span class="tok-type">In</span> <span class="tok-punct">[</span><span class="tok-number">5</span><span class="tok-punct">]</span>: y.<span class="tok-function">diff</span><span class="tok-punct">(</span><span class="tok-punct">)</span>
-<span class="tok-type">Out</span><span class="tok-punct">[</span><span class="tok-number">5</span><span class="tok-punct">]</span>: <span class="tok-number">3125</span><span class="tok-operator">/</span><span class="tok-punct">(</span>x<span class="tok-operator">**</span><span class="tok-number">2</span> <span class="tok-operator">+</span> <span class="tok-number">1</span><span class="tok-punct">)</span>
-<span class="tok-type">In</span> <span class="tok-punct">[</span><span class="tok-number">6</span><span class="tok-punct">]</span>: y.<span class="tok-function">integrate</span><span class="tok-punct">(</span><span class="tok-punct">)</span>
-<span class="tok-type">Out</span><span class="tok-punct">[</span><span class="tok-number">6</span><span class="tok-punct">]</span>: <span class="tok-number">3125</span><span class="tok-operator">*</span>x<span class="tok-operator">*</span><span class="tok-function">atan</span><span class="tok-punct">(</span>x<span class="tok-punct">)</span> <span class="tok-operator">-</span> <span class="tok-number">3125</span><span class="tok-operator">*</span><span class="tok-function">log</span><span class="tok-punct">(</span>x<span class="tok-operator">**</span><span class="tok-number">2</span> <span class="tok-operator">+</span> <span class="tok-number">1</span><span class="tok-punct">)</span><span class="tok-operator">/</span><span class="tok-number">2</span></code></pre></div></div>
-      </section>
-      
-      <section class="slide" data-slide="22"
-               data-title="python的包管理">
-        <div class="slide-inner"><h2>python的包管理</h2>
-<div class="code-block" data-lang="shell"><div class="code-head"><span class="code-lang">shell</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-shell">pip3 install xxx</code></pre></div>
-<blockquote><p><span class="ink ink-blue">简单友好</span>的工具总是受到大家的青睐</p></blockquote>
-<p>python很适合做些小东西，同样地</p>
-<blockquote><p>比C++简单的api背后，是海量的代码在支持（但并非官方提供的）</p></blockquote>
-<p>所以各行各业都比较喜欢使用python来开发<br>
-但python也有很难绕开的毛病：<span class="ink ink-red">慢</span><br></p>
-<p>所以python虽然在某些时候很好用，但偶尔<br>
-程序员宁愿自己用C++实现相同的功能，也不愿使用python<br>
-大材小用地讲，python<span class="ink ink-red">至少是个很厉害的计算器</span><br></p></div>
-      </section>
-      
-      <section class="slide slide--section" data-slide="23"
-               data-title="3：什么时候用什么语言" data-section="1">
-        <div class="slide-inner"><h1>3：什么时候用什么语言</h1>
-<blockquote><p>不要有语言歧视，每种语言都有适合自己的领域</p></blockquote>
-<img class="center" src="/assets/docs/shell-and-languages/img/05.webp" loading="lazy" decoding="async"></div>
-      </section>
-      
-      <section class="slide" data-slide="24"
-               data-title="">
-        <div class="slide-inner"><p>C++可以应付大部分场景<br></p>
-<ul><li>但是如果涉及较多<strong>系统调用</strong>我会先考虑C语言<br></li><li>如果要做稍微<strong>复杂一点的计算</strong>，我会考虑python<br></li><li>如果要<strong>日常使用</strong>的命令我会选择shell（当然这个也算不得选择<br></li></ul>
-<blockquote><p>接下来来点干货（推荐</p></blockquote>
-<img class="center" src="/assets/docs/shell-and-languages/img/06.webp" loading="lazy" decoding="async"></div>
-      </section>
-      
-      <section class="slide" data-slide="25"
-               data-title="">
-        <div class="slide-inner"><ul><li>通用<ul><li><a href="https://chat.openai.com/" target="_blank" rel="noopener">ChatGPT</a> </li><li><a href="https://github.com/PKUFlyingPig/cs-self-learning/blob/master/docs/%E5%BF%85%E5%AD%A6%E5%B7%A5%E5%85%B7/tools.md" target="_blank" rel="noopener">工具箱</a></li><li><a href="https://stackoverflow.com/" target="_blank" rel="noopener">解答</a></li><li><a href="https://github.com/EbookFoundation/free-programming-books/blob/main/books/free-programming-books-zh.md" target="_blank" rel="noopener">编程书籍推荐</a></li><li><a href="https://annas-archive.org" target="_blank" rel="noopener">书籍下载</a></li><li><a href="https://godbolt.org/" target="_blank" rel="noopener">在线编译</a></li><li><a href="https://www.hello-algo.com/" target="_blank" rel="noopener">算法</a></li><li><a href="https://quickref.cn/" target="_blank" rel="noopener">代码快速查询手册</a></li></ul></li></ul></div>
-      </section>
-      
-      <section class="slide" data-slide="26"
-               data-title="">
-        <div class="slide-inner"><ul><li>shell<ul><li><a href="https://github.com/ibraheemdev/modern-unix" target="_blank" rel="noopener">modern unix</a></li></ul></li><li>c++<ul><li><a href="https://zh.cppreference.com/w/%E9%A6%96%E9%A1%B5" target="_blank" rel="noopener">c++手册</a></li><li><a href="https://zh-google-styleguide.readthedocs.io/en/latest/google-cpp-styleguide/" target="_blank" rel="noopener">谷歌开源风格指南</a></li><li><a href="https://xmake.io/#/" target="_blank" rel="noopener">xmake</a></li><li><a href="https://github.com/BehaviorTree/BehaviorTree.CPP" target="_blank" rel="noopener">c++行为树库</a></li><li><a href="https://www.behaviortree.dev/groot/" target="_blank" rel="noopener">配套的工具</a></li></ul></li><li>python<ul><li><a href="https://jupyter.org/" target="_blank" rel="noopener">jupyter</a></li><li><a href="https://matplotlib.org/" target="_blank" rel="noopener">matplotlib</a></li><li><a href="https://www.sympy.org/zh/" target="_blank" rel="noopener">sympy</a></li><li><a href="https://colab.research.google.com/?pli=1#scrollTo=Nma_JWh-W-IF" target="_blank" rel="noopener">谷歌免费机器学习训练</a></li></ul></li></ul></div>
-      </section>
-      
-      <section class="slide" data-slide="27"
-               data-title="">
-        <div class="slide-inner"><img class="center" src="/assets/docs/shell-and-languages/img/07.webp" loading="lazy" decoding="async">
-<blockquote><p>最后希望大家使用更现代的工具，更好地编程（解决问题）</p></blockquote></div>
+               data-title="小结">
+        <div class="slide-inner"><h2>小结</h2>
+<ol><li>shell 是一个<strong>循环</strong>：读 → 切词 → fork → exec → wait。</li><li>切词的顺序不能换，<strong>引号要先于管道</strong>。</li><li>管道是内核缓冲区 + <code>dup2</code>；重定向本质是改文件描述符。</li><li>内建命令之所以内建，是因为它们要改 <strong>shell 自己的状态</strong>。</li></ol>
+<p><del>写完你会对所有「命令行」祛魅。</del><br>
+<span class="ink ink-blue">然后你会发现，祛魅之后反而更好用。</span></p></div>
       </section>
       
     </div>
@@ -733,15 +613,15 @@ C语言做底层封装更合适，比如</p>
 
   <nav class="doc-nav" aria-label="上下篇">
     
-    <a class="doc-nav-item prev" href="/docs/pointers/">
+    <a class="doc-nav-item prev" href="/docs/mini-linux/">
       <span class="dir">← 上一篇</span>
-      <span class="t">从指针来理解程序的执行</span>
+      <span class="t">从源码构建 mini Linux</span>
     </a>
     
     
-    <a class="doc-nav-item next" href="/docs/build-and-maintain/">
+    <a class="doc-nav-item next" href="/docs/attributes-and-reasons/">
       <span class="dir">下一篇 →</span>
-      <span class="t">工程的构建与维护</span>
+      <span class="t">属性及其原因</span>
     </a>
     
   </nav>

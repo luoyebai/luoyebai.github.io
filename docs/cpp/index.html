@@ -15,26 +15,27 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>一些网站 · 洛叶白</title>
-<meta name="description" content="平时真正会点开的那些：技术指南、C++ / GNU/Linux 参考、常用工具和一点点趣味链接。">
+<title>从 C 语言到 C++ · 洛叶白</title>
+<meta name="description" content="C++ 不是「带类的 C」。先把 C 的边界看清楚，再看它到底补了哪几个洞，最后决定哪些特性值得用、哪些先当它不存在。">
 <meta name="author" content="洛叶白">
 <meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#0b0d14" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#f7f7f5" media="(prefers-color-scheme: light)">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="洛叶白">
-<meta property="og:title" content="一些网站">
-<meta property="og:description" content="平时真正会点开的那些：技术指南、C++ / GNU/Linux 参考、常用工具和一点点趣味链接。">
-<meta property="og:url" content="https://luoyebai.github.io/links/">
+<meta property="og:title" content="从 C 语言到 C++">
+<meta property="og:description" content="C++ 不是「带类的 C」。先把 C 的边界看清楚，再看它到底补了哪几个洞，最后决定哪些特性值得用、哪些先当它不存在。">
+<meta property="og:url" content="https://luoyebai.github.io/docs/cpp/">
 
 <meta name="twitter:card" content="summary_large_image">
-<link rel="canonical" href="https://luoyebai.github.io/links/">
+<link rel="canonical" href="https://luoyebai.github.io/docs/cpp/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
 <link rel="stylesheet" href="/assets/themes.css">
 <link rel="stylesheet" href="/assets/site.css">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
+<link rel="stylesheet" href="/assets/docs.css">
 
 
 
@@ -63,7 +64,7 @@
 })();
 </script>
 </head>
-<body class="page-single">
+<body class="page-docs">
 <a class="skip-link" href="#main">跳到正文</a>
 
 <div class="bg-layer" aria-hidden="true">
@@ -107,7 +108,7 @@
       
       <a href="/projects/">项目</a>
       
-      <a href="/docs/">文档</a>
+      <a href="/docs/" class="is-active" aria-current="page">文档</a>
       
       <a href="/graph/">图谱</a>
       
@@ -151,54 +152,58 @@
 <main id="main">
 
 
-<article class="post">
-  <header class="post-head">
-    <div class="post-head-inner">
+<section class="docs-page docs-page--single">
+  <nav class="crumbs" aria-label="面包屑">
+    <a href="/docs/">文档</a>
+    <span aria-hidden="true">/</span>
+    <span class="current">从 C 语言到 C++</span>
+  </nav>
+
+  <header class="docs-head">
+    <p class="docs-kicker"><span class="dot"></span>语言进阶</p>
+    <h1>从 C 语言到 C++</h1>
+    <p class="docs-lede">C++ 不是「带类的 C」。先把 C 的边界看清楚，再看它到底补了哪几个洞，最后决定哪些特性值得用、哪些先当它不存在。</p>
+    <p class="docs-stats">
+      <span><b>1</b> 篇</span>
+      <span><b>17</b> 页幻灯片</span>
       
-      <h1 class="post-title reveal">一些网站</h1>
-      
-    </div>
+    </p>
   </header>
 
-  <div class="post-layout">
+  
+  <p class="ds-refs ds-refs--top">
+    <span class="ds-refs-label">相关</span>
     
-    <aside class="post-aside">
-      <nav class="toc" data-toc aria-label="目录">
-        <p class="toc-title">目录</p>
-        <ul>
-          
-          <li class="toc-l2"><a href="#技术指南">技术指南</a></li>
-          
-          <li class="toc-l2"><a href="#code相关">Code相关</a></li>
-          
-          <li class="toc-l2"><a href="#cpp相关">CPP相关</a></li>
-          
-          <li class="toc-l2"><a href="#gnulinux相关">GNU/Linux相关</a></li>
-          
-          <li class="toc-l2"><a href="#一些常用工具">一些常用工具</a></li>
-          
-          <li class="toc-l2"><a href="#趣味链接">趣味链接</a></li>
-          
-        </ul>
-      </nav>
-    </aside>
+    <a class="ds-ref" href="https://isocpp.github.io/CppCoreGuidelines/" rel="noopener" target="_blank">
+      <img src="/assets/docs/brand/cpp.png" alt="" loading="lazy" decoding="async">
+      C++ 核心准则
+    </a>
     
-    <div class="post-main">
-      <div class="prose reveal"><h2 id="技术指南">技术指南<a class="heading-anchor" href="#技术指南" aria-label="锚点">#</a></h2>
-<ul><li><a href="https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way/blob/main/README-zh_CN.md" target="_blank" rel="noopener"><strong>提问的智慧</strong></a></li><li><a href="https://csdiy.wiki/" target="_blank" rel="noopener"><strong><em>CS自学指南</em></strong></a></li><li><a href="https://www.hello-algo.com/" target="_blank" rel="noopener"><strong><em>Hello,算法!</em></strong></a></li><li><a href="https://ctf-wiki.org/" target="_blank" rel="noopener"><strong><em>CTF Wiki</em></strong></a></li><li><a href="https://oi-wiki.org/" target="_blank" rel="noopener"><strong><em>OI Wiki</em></strong></a></li><li><a href="https://refactoringguru.cn/" target="_blank" rel="noopener"><strong>代码重构与设计模式</strong></a></li><li><a href="https://github.com/donnemartin/system-design-primer" target="_blank" rel="noopener"><strong>系统设计入门</strong></a></li><li><a href="https://github.com/topics/awesome" target="_blank" rel="noopener"><strong><em>Awesome Lists</em></strong></a></li><li><a href="https://www.iso.org/home.html" target="_blank" rel="noopener"><strong><em>ISO</em></strong></a></li></ul>
-<h2 id="code相关">Code相关<a class="heading-anchor" href="#code相关" aria-label="锚点">#</a></h2>
-<ul><li><a href="https://stackoverflow.com/" target="_blank" rel="noopener"><strong>提问网站</strong></a></li><li><a href="https://godbolt.org/" target="_blank" rel="noopener"><strong>在线编译器</strong></a></li><li><a href="https://quickref.cn/" target="_blank" rel="noopener"><strong>代码速查清单</strong></a></li><li><a href="https://github.com/EbookFoundation/free-programming-books/tree/main" target="_blank" rel="noopener"><strong>多种语言免费学习资源列表</strong></a></li><li><a href="https://github.com/hellogcc/100-gdb-tips/blob/master/src/index.md" target="_blank" rel="noopener"><strong><em>100个gdb小技巧</em></strong></a></li></ul>
-<h2 id="cpp相关">CPP相关<a class="heading-anchor" href="#cpp相关" aria-label="锚点">#</a></h2>
-<ul><li><a href="https://isocpp.github.io/CppCoreGuidelines/" target="_blank" rel="noopener"><strong><em>C++核心准则</em></strong></a></li><li><a href="https://isocpp.org/" target="_blank" rel="noopener"><strong><em>ISOCPP</em></strong></a></li><li><a href="https://zh.cppreference.com/w/%E9%A6%96%E9%A1%B5" target="_blank" rel="noopener"><strong><em>C++参考手册</em></strong></a></li><li><a href="https://cplusplus.com/forum/" target="_blank" rel="noopener"><strong>C++论坛</strong></a></li><li><a href="https://people.sc.fsu.edu/~jburkardt/cpp_src/cpp_src.html" target="_blank" rel="noopener"><strong><em>著名C++代码</em></strong></a></li></ul>
-<h2 id="gnulinux相关">GNU/Linux相关<a class="heading-anchor" href="#gnulinux相关" aria-label="锚点">#</a></h2>
-<ul><li><a href="https://www.gnu.org/home.zh-cn.html" target="_blank" rel="noopener"><strong>GNU</strong></a></li><li><a href="https://www.kernel.org/" target="_blank" rel="noopener"><strong><em>Linux内核</em></strong></a></li><li><a href="https://www.linux.org/" target="_blank" rel="noopener"><strong><em>Linux论坛</em></strong></a></li><li><a href="https://www.man7.org/linux/man-pages/index.html" target="_blank" rel="noopener"><strong><em>Linux手册页</em></strong></a></li><li><a href="https://wangchujiang.com/linux-command/" target="_blank" rel="noopener"><strong><em>Linux命令搜索引擎</em></strong></a></li><li><a href="https://wiki.archlinuxcn.org/wiki/%E9%A6%96%E9%A1%B5" target="_blank" rel="noopener"><strong><em>ArchLinux Wiki</em></strong></a></li><li><a href="https://distrochooser.de/zh-hans" target="_blank" rel="noopener"><strong>测试您适合哪个Linux发行版</strong></a></li></ul>
-<h2 id="一些常用工具">一些常用工具<a class="heading-anchor" href="#一些常用工具" aria-label="锚点">#</a></h2>
-<ul><li><a href="https://chat.openai.com/" target="_blank" rel="noopener"><strong><em>ChatGPT</em></strong></a></li><li><a href="https://zh.annas-archive.org/" target="_blank" rel="noopener"><strong>安娜的档案</strong></a></li><li><a href="https://mirrors.tuna.tsinghua.edu.cn/" target="_blank" rel="noopener"><strong>清华大学开源软件镜像站</strong></a></li><li><a href="https://colab.research.google.com/" target="_blank" rel="noopener"><strong><em>Google Colab</em></strong></a></li><li><a href="https://mathworld.wolfram.com/" target="_blank" rel="noopener"><strong>数学世界</strong></a></li></ul>
-<h2 id="趣味链接">趣味链接<a class="heading-anchor" href="#趣味链接" aria-label="锚点">#</a></h2>
-<ul><li><a href="https://github.com/geekan/HowToLiveLonger" target="_blank" rel="noopener"><strong>程序员延寿指南</strong></a></li><li><a href="https://github.com/Anduin2017/HowToCook" target="_blank" rel="noopener"><strong>程序员做饭指南</strong></a></li><li><a href="https://github.com/zijie0/HumanSystemOptimization" target="_blank" rel="noopener">人体系统优化不完全指南</a></li><li><a href="https://qwerty.kaiyi.cool/" target="_blank" rel="noopener"><strong>单词打字练习</strong></a></li><li><a href="https://github.com/Blankj/awesome-comment" target="_blank" rel="noopener">神奇的注释</a></li><li><a href="https://carbon.now.sh/" target="_blank" rel="noopener">代码图片生成</a></li><li><a href="https://wallhaven.cc/" target="_blank" rel="noopener">壁纸</a></li><li><a href="https://pearmini.github.io/colorfu/#/editor" target="_blank" rel="noopener">简约文字壁纸生成</a></li></ul></div>
-    </div>
-  </div>
-</article>
+  </p>
+  
+
+  <ol class="ds-list ds-list--wide">
+    
+    <li class="ds-item">
+      <a class="ds-link" href="/docs/c-to-cpp/">
+        <span class="ds-no">6</span>
+        <span class="ds-body">
+          <span class="ds-title">从 C 语言到 C++ 的转变</span>
+          <span class="ds-sum">C++ 不是「带类的 C」。从过程式到泛型，先看清楚它到底补了 C 的哪几个洞，再决定哪些特性值得用。</span>
+        </span>
+        <span class="ds-pages">17<i>页</i></span>
+      </a>
+    </li>
+    
+  </ol>
+
+  
+
+  <p class="ds-source">
+    原始幻灯片：
+    <a href="https://github.com/luoyebai/doc_html" rel="noopener" target="_blank">doc_html</a>
+  </p>
+</section>
 
 </main>
 

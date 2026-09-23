@@ -395,7 +395,43 @@
         <div class="slide-inner"><h2>首先是地址</h2>
 <ul><li>地址就是在<span class="ink ink-blue">空间-<a href="https://zh.wikipedia.org/wiki/%E9%9A%8F%E6%9C%BA%E5%AD%98%E5%8F%96%E5%AD%98%E5%82%A8%E5%99%A8" target="_blank" rel="noopener">内存(点击查看)</a></span></li></ul>
 <p>上所占的一块位置的开头。<br></p>
-<ul><li>地址只是地址头，是<strong>页码编号，并不知道有多少页(不知道内存块大小)。</strong> <del>（操作系统才是分配内存的那位大人)</del></li><li>这里还涉及到<a href="https://zh.wikipedia.org/wiki/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98" target="_blank" rel="noopener">虚拟内存(点击查看)</a>的知识</li><li>地址和内存遥相呼应。<br><ul><li>地址标记了内存的某一个位置，像极了箭头。</li></ul></li></ul></div>
+<ul><li>地址只是地址头，是<strong>页码编号，并不知道有多少页(不知道内存块大小)。</strong> <del>（操作系统才是分配内存的那位大人)</del></li><li>这里还涉及到<a href="https://zh.wikipedia.org/wiki/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98" target="_blank" rel="noopener">虚拟内存(点击查看)</a>的知识</li><li>地址和内存遥相呼应。<br><ul><li>地址标记了内存的某一个位置，像极了箭头。</li></ul></li></ul>
+<figure class="docfig-wrap" data-fig="memory-layout">
+<svg class="docfig" viewBox="0 0 760 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="一个进程的虚拟地址空间：地址从下往上排，栈往下长、堆往上长">
+  <defs><marker id="fef3f636-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" class="fg-head"/></marker></defs>
+  <text class="fg-s" x="370.0" y="49.0" text-anchor="middle" font-size="13">内核空间</text>
+  <line class="fg-line" x1="210" y1="66" x2="530" y2="66" stroke-dasharray="5 5"/>
+  <rect class="fg-box" x="210" y="72" width="320" height="74" rx="9"/>
+  <text class="fg-t" x="370.0" y="109.0" text-anchor="middle" font-size="15">栈 stack</text>
+  <text class="fg-s" x="370.0" y="131" text-anchor="middle" font-size="12">函数局部变量、返回地址 · 往下增长</text>
+  <text class="fg-t" x="556" y="109.0" text-anchor="middle" font-size="20">↓</text>
+  <rect class="fg-box" x="210" y="180" width="320" height="46" rx="9"/>
+  <text class="fg-t" x="370.0" y="203.0" text-anchor="middle" font-size="15">共享库 / mmap</text>
+  <text class="fg-s" x="370.0" y="211" text-anchor="middle" font-size="12">libc、动态链接进来的代码</text>
+  <rect class="fg-box" x="210" y="256" width="320" height="74" rx="9"/>
+  <text class="fg-t" x="370.0" y="293.0" text-anchor="middle" font-size="15">堆 heap</text>
+  <text class="fg-s" x="370.0" y="315" text-anchor="middle" font-size="12">malloc / new 拿到的内存 · 往上增长</text>
+  <text class="fg-t" x="556" y="293.0" text-anchor="middle" font-size="20">↑</text>
+  <rect class="fg-box" x="210" y="330" width="320" height="46" rx="9"/>
+  <text class="fg-t" x="370.0" y="353.0" text-anchor="middle" font-size="15">BSS</text>
+  <text class="fg-s" x="370.0" y="361" text-anchor="middle" font-size="12">未初始化的全局/静态变量</text>
+  <rect class="fg-box" x="210" y="376" width="320" height="46" rx="9"/>
+  <text class="fg-t" x="370.0" y="399.0" text-anchor="middle" font-size="15">数据段 data</text>
+  <text class="fg-s" x="370.0" y="407" text-anchor="middle" font-size="12">已初始化的全局/静态变量</text>
+  <rect class="fg-box is-accent" x="210" y="422" width="320" height="46" rx="9"/>
+  <text class="fg-t" x="370.0" y="445.0" text-anchor="middle" font-size="15">代码段 text</text>
+  <text class="fg-s" x="370.0" y="453" text-anchor="middle" font-size="12">机器指令 · 只读、可执行</text>
+  <text class="fg-s" x="370.0" y="501.0" text-anchor="middle" font-size="13">0x0000…</text>
+  <line class="fg-line" x1="210" y1="506" x2="530" y2="506" stroke-dasharray="5 5"/>
+  <path class="fg-line" d="M 176 96 L 176 176" fill="none" marker-end="url(#fef3f636-a)"/>
+  <text class="fg-s" x="164" y="136" text-anchor="end" font-size="12">栈向下</text>
+  <path class="fg-line" d="M 176 380 L 176 330" fill="none" marker-end="url(#fef3f636-a)"/>
+  <text class="fg-s" x="164" y="356" text-anchor="end" font-size="12">堆向上</text>
+</svg>
+<figcaption>一个进程的虚拟地址空间：地址从下往上排，栈往下长、堆往上长</figcaption>
+</figure>
+<blockquote><p>上面那张图是<span class="ink ink-blue">一个进程眼里的内存</span>。注意两件事：
+地址是<strong>从下往上</strong>排的，而栈<strong>往下长</strong>、堆<strong>往上长</strong> —— 中间那片空白是留给它们长的。</p></blockquote></div>
       </section>
       
       <section class="slide" data-slide="5"
@@ -439,6 +475,40 @@ int main() {
 }</code></pre></div>
 <p><img src="/assets/docs/pointers/img/03.webp" alt="" loading="lazy" decoding="async"></p>
 <ul><li>没什么特别的，指针也是变量，指针也需要内存来存放<br></li><li><strong>指针就是数据为地址编号的变量</strong><br></li></ul>
+<figure class="docfig-wrap" data-fig="pointer-array">
+<svg class="docfig" viewBox="0 0 780 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="数组名在表达式里退化成首元素地址；指针是另存了地址的变量">
+  <defs><marker id="f689e538-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" class="fg-head"/></marker></defs>
+  <rect class="fg-box is-accent" x="250" y="120" width="84" height="64" rx="9"/>
+  <text class="fg-t" x="292.0" y="152.0" text-anchor="middle" font-size="15">x[0]</text>
+  <text class="fg-s" x="292.0" y="166" text-anchor="middle" font-size="12">114</text>
+  <text class="fg-note" x="292.0" y="202" text-anchor="middle" font-size="11">0x7ffd010</text>
+  <rect class="fg-box" x="334" y="120" width="84" height="64" rx="9"/>
+  <text class="fg-t" x="376.0" y="152.0" text-anchor="middle" font-size="15">x[1]</text>
+  <text class="fg-s" x="376.0" y="166" text-anchor="middle" font-size="12">514</text>
+  <text class="fg-note" x="376.0" y="202" text-anchor="middle" font-size="11">0x7ffd014</text>
+  <rect class="fg-box" x="418" y="120" width="84" height="64" rx="9"/>
+  <text class="fg-t" x="460.0" y="152.0" text-anchor="middle" font-size="15">x[2]</text>
+  <text class="fg-s" x="460.0" y="166" text-anchor="middle" font-size="12">914</text>
+  <text class="fg-note" x="460.0" y="202" text-anchor="middle" font-size="11">0x7ffd018</text>
+  <rect class="fg-box" x="502" y="120" width="84" height="64" rx="9"/>
+  <text class="fg-t" x="544.0" y="152.0" text-anchor="middle" font-size="15">x[3]</text>
+  <text class="fg-s" x="544.0" y="166" text-anchor="middle" font-size="12">1314</text>
+  <text class="fg-note" x="544.0" y="202" text-anchor="middle" font-size="11">0x7ffd01c</text>
+  <text class="fg-s" x="418" y="86" text-anchor="middle" font-size="12">int x[2] 实际上是 4 个格子（这里画成 4 格）</text>
+  <text class="fg-t" x="232" y="152" text-anchor="end" font-size="15">x →</text>
+  <rect class="fg-box is-accent2" x="60" y="220" width="190" height="64" rx="9"/>
+  <text class="fg-t" x="155.0" y="252.0" text-anchor="middle" font-size="15">int *p</text>
+  <text class="fg-s" x="155" y="268" text-anchor="middle" font-size="11">p 自己也有地址</text>
+  <path class="fg-line" d="M 155 220 L 260 118" fill="none" marker-end="url(#f689e538-a)"/>
+  <text class="fg-s" x="207.5" y="162.0" text-anchor="middle" font-size="12">p 里存的值 = x 的地址</text>
+  <text class="fg-s" x="60" y="200" text-anchor="start" font-size="12">指针是一个变量</text>
+  <text class="fg-note" x="60" y="312" text-anchor="start" font-size="12">x 不是指针：它没有另存地址的格子，它就是那块内存本身。</text>
+</svg>
+<figcaption>数组名在表达式里退化成首元素地址；指针是另存了地址的变量</figcaption>
+</figure>
+<blockquote><p>记住这张图里的两层：<span class="ink ink-blue">数组 <code>x</code> 本身就是那块内存</span>，
+而<span class="ink ink-blue">指针 <code>p</code> 是另开的一格，格子里存着别人的地址</span>。
+「数组不是指针」这句话，说的就是这两层结构的区别。</p></blockquote>
 <blockquote><p><span class="ink ink-blue"><strong>思考</strong></span>：指针只是编号的话，那为什么指针要声明类型？</p></blockquote></div>
       </section>
       

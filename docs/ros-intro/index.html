@@ -15,20 +15,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>编程概述 · 洛叶白</title>
-<meta name="description" content="Q1. 为何编程？ Q2. 何为编程？ Q3. 如何编程？🤔🤔 Q4. 形如编程？🤔🤔🤔">
+<title>初识 ROS · 洛叶白</title>
+<meta name="description" content="ROS 不是操作系统，是一套中间件加约定。从「为什么需要它」讲到一次话题通信的完整时序，以及 ROS 1 和 ROS 2 该选谁。">
 <meta name="author" content="洛叶白">
 <meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#0b0d14" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#f7f7f5" media="(prefers-color-scheme: light)">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="洛叶白">
-<meta property="og:title" content="编程概述">
-<meta property="og:description" content="Q1. 为何编程？ Q2. 何为编程？ Q3. 如何编程？🤔🤔 Q4. 形如编程？🤔🤔🤔">
-<meta property="og:url" content="https://luoyebai.github.io/docs/what-is-programming/">
+<meta property="og:title" content="初识 ROS">
+<meta property="og:description" content="ROS 不是操作系统，是一套中间件加约定。从「为什么需要它」讲到一次话题通信的完整时序，以及 ROS 1 和 ROS 2 该选谁。">
+<meta property="og:url" content="https://luoyebai.github.io/docs/ros-intro/">
 <meta property="og:image" content="https://luoyebai.github.io/assets/images/favicon.svg">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="canonical" href="https://luoyebai.github.io/docs/what-is-programming/">
+<link rel="canonical" href="https://luoyebai.github.io/docs/ros-intro/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
 <link rel="stylesheet" href="/assets/themes.css">
@@ -153,28 +153,28 @@
 
 
 <article class="doc" id="doc"
-         data-slides="12"
-         data-title="编程概述">
+         data-slides="18"
+         data-title="初识 ROS">
   <header class="doc-head">
     <nav class="crumbs" aria-label="面包屑">
       <a href="/docs/">文档</a>
       <span aria-hidden="true">/</span>
-      <a href="/docs/learning/">从编程开始的学习</a>
+      <a href="/docs/vision/">ROS 与机器视觉</a>
       <span aria-hidden="true">/</span>
-      <span class="current">编程概述</span>
+      <span class="current">初识 ROS</span>
     </nav>
 
-    <h1 class="doc-title">编程概述</h1>
-    <p class="doc-lede">Q1. 为何编程？ Q2. 何为编程？ Q3. 如何编程？🤔🤔 Q4. 形如编程？🤔🤔🤔</p>
+    <h1 class="doc-title">初识 ROS</h1>
+    <p class="doc-lede">ROS 不是操作系统，是一套中间件加约定。从「为什么需要它」讲到一次话题通信的完整时序，以及 ROS 1 和 ROS 2 该选谁。</p>
 
     <p class="doc-meta">
-      <span class="meta-item"><b>11</b> / 6 篇</span>
-      <span class="meta-item"><b>12</b> 页幻灯片</span>
-      <span class="meta-item muted">迁移自 <a href="https://github.com/luoyebai/doc_html/blob/HEAD/从编程开始的学习/简单又轻松的编程/编程概述/main.md" rel="noopener" target="_blank">源文档</a></span>
+      <span class="meta-item"><b>7</b> / 4 篇</span>
+      <span class="meta-item"><b>18</b> 页幻灯片</span>
+      
     </p>
   </header>
 
-  <section class="deck is-paged" id="deck" data-deck aria-roledescription="幻灯片" aria-label="编程概述">
+  <section class="deck is-paged" id="deck" data-deck aria-roledescription="幻灯片" aria-label="初识 ROS">
     <noscript>
       <style>.deck .slide{display:block !important;margin-top:1.2rem}</style>
     </noscript>
@@ -191,7 +191,7 @@
           </svg>
         </button>
         <p class="deck-counter" aria-live="polite">
-          <b data-deck-no>1</b> / 12
+          <b data-deck-no>1</b> / 18
         </p>
       </div>
 
@@ -218,73 +218,109 @@
         
         <li class="is-section">
           <button type="button" data-deck-goto="0">
-            <span class="ol-no">0</span>编程概述
+            <span class="ol-no">0</span>初识 ROS
           </button>
         </li>
         
-        <li class="is-section">
+        <li>
           <button type="button" data-deck-goto="1">
-            <span class="ol-no">1</span>概述 （Overview）
+            <span class="ol-no">1</span>概述
           </button>
         </li>
         
         <li class="is-section">
           <button type="button" data-deck-goto="2">
-            <span class="ol-no">2</span>Q1. 为何编程？（Why）
+            <span class="ol-no">2</span>Q1. ROS 是什么？
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="3">
-            <span class="ol-no">3</span>灵魂拷问：为什么要学习xxx（Anything）
+            <span class="ol-no">3</span>先把名字里的误会解掉
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="4">
-            <span class="ol-no">4</span>🧰 学习工具的重要性
+            <span class="ol-no">4</span>一个 ROS 程序长什么样
           </button>
         </li>
         
         <li class="is-section">
           <button type="button" data-deck-goto="5">
-            <span class="ol-no">5</span>📜 学习思想的重要性
+            <span class="ol-no">5</span>Q2. 为什么机器人需要它？
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="6">
-            <span class="ol-no">6</span>然而，为何要学习编程（Why learn to code）
+            <span class="ol-no">6</span>先看不用 ROS 会怎样
           </button>
         </li>
         
-        <li class="is-section">
+        <li>
           <button type="button" data-deck-goto="7">
-            <span class="ol-no">7</span>Q2. 何为编程（英语：programming）(点击查看)？（What）
+            <span class="ol-no">7</span>解耦：谁也不知道对方是谁
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="8">
-            <span class="ol-no">8</span>📖介绍一个东西，总要从历史出发
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="9">
-            <span class="ol-no">9</span>🧮 重点讲讲图灵机 🌶️🌶️
+            <span class="ol-no">8</span>顺带解决的三件事
           </button>
         </li>
         
         <li class="is-section">
+          <button type="button" data-deck-goto="9">
+            <span class="ol-no">9</span>Q3. ROS 1 还是 ROS 2？
+          </button>
+        </li>
+        
+        <li>
           <button type="button" data-deck-goto="10">
-            <span class="ol-no">10</span>Q4. 形如编程？（Like）
+            <span class="ol-no">10</span>一句话结论
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="11">
-            <span class="ol-no">11</span>TODO
+            <span class="ol-no">11</span>主要差异
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="12">
+            <span class="ol-no">12</span>DDS 意味着什么
+          </button>
+        </li>
+        
+        <li class="is-section">
+          <button type="button" data-deck-goto="13">
+            <span class="ol-no">13</span>Q4. 一次通信长什么样？
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="14">
+            <span class="ol-no">14</span>时序
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="15">
+            <span class="ol-no">15</span>试一个：模拟发布订阅
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="16">
+            <span class="ol-no">16</span>小结
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="17">
+            <span class="ol-no">17</span>下一步
           </button>
         </li>
         
@@ -295,96 +331,212 @@
          aria-label="幻灯片内容，用左右方向键翻页">
       
       <section class="slide slide--section" data-slide="0"
-               data-title="编程概述" data-section="1">
-        <div class="slide-inner"><h1><strong>编程概述</strong></h1></div>
+               data-title="初识 ROS" data-section="1">
+        <div class="slide-inner"><h1>初识 ROS</h1></div>
       </section>
       
-      <section class="slide slide--section" data-slide="1"
-               data-title="概述 （Overview）" data-section="1">
-        <div class="slide-inner"><h2>概述 <strong><em>（Overview）</em></strong></h2>
-<ul><li><strong>Q1.</strong> 为何编程？<strong><em>（Why）</em></strong></li><li><strong>Q2.</strong> 何为编程？<strong><em>（What）</em></strong></li><li><strong>Q3.</strong> 如何编程？<strong><em>（How）</em></strong>🤔🤔</li><li><strong>Q4.</strong> 形如编程？<strong><em>（Like）</em></strong>🤔🤔🤔</li></ul></div>
+      <section class="slide" data-slide="1"
+               data-title="概述">
+        <div class="slide-inner"><h2>概述</h2>
+<ul><li><strong>Q1.</strong> ROS 是什么？——它不是操作系统</li><li><strong>Q2.</strong> 为什么机器人需要它？</li><li><strong>Q3.</strong> ROS 1 还是 ROS 2？</li><li><strong>Q4.</strong> 一次通信长什么样？</li></ul></div>
       </section>
       
       <section class="slide slide--section" data-slide="2"
-               data-title="Q1. 为何编程？（Why）" data-section="1">
-        <div class="slide-inner"><h1><strong>Q1.</strong> 为何编程？<strong><em>（Why）</em></strong></h1>
-<blockquote><p>首先考虑第一个重要的问题：<strong>为何</strong><a href="https://zh.wikipedia.org/wiki/%E5%AD%A6%E4%B9%A0" target="_blank" rel="noopener"><strong><em>学习(点击查看)</em></strong></a>？</p></blockquote></div>
+               data-title="Q1. ROS 是什么？" data-section="1">
+        <div class="slide-inner"><h1><strong>Q1.</strong> ROS 是什么？</h1></div>
       </section>
       
       <section class="slide" data-slide="3"
-               data-title="灵魂拷问：为什么要学习xxx（Anything）">
-        <div class="slide-inner"><h2><strong>灵魂拷问</strong>：为什么要学习<strong><em>xxx（Anything）</em></strong></h2>
-<p>可能是萦绕在所有人头顶的一个<span class="ink ink-red">疑问❓</span>：</p>
-<ul><li>为什么要学习？<strong><em>（Why study?）</em></strong><ul><li>比如：<ul><li>为什么要学<a href="https://zh.wikipedia.org/wiki/%E6%95%B0%E5%AD%A6" target="_blank" rel="noopener"><strong><em>工具(点击查看)</em></strong></a></li><li>为什么要学<a href="https://zh.wikipedia.org/wiki/%E6%95%B0%E5%AD%A6" target="_blank" rel="noopener"><strong><em>数学（希腊语：μαθηματικά）(点击查看)</em></strong></a></li><li>为什么要学<a href="https://zh.wikipedia.org/wiki/%E8%AA%9E%E8%A8%80" target="_blank" rel="noopener"><strong><em>语言（英语：language，词源为拉丁语：lingua，意为“舌”）(点击查看)</em></strong></a></li></ul></li></ul></li><li>仅仅是为了所谓的“💯”</li><li>又或只是为了<strong><em>学会xxx（master somthing）？</em></strong></li></ul>
-<p>--</p>
-<ul><li>是，但不仅仅是这样<strong><em>（Yes,but not only）</em></strong><ul><li>不仅是学会</li><li>更是<a href="https://zh.wikipedia.org/wiki/%E5%89%B5%E6%96%B0" target="_blank" rel="noopener"><strong><em>创新（英语：Innovation，源自拉丁语 innovare，“更新”）(点击查看)</em></strong></a></li></ul></li></ul></div>
+               data-title="先把名字里的误会解掉">
+        <div class="slide-inner"><h2>先把名字里的误会解掉</h2>
+<p><span class="ink ink-red">ROS = Robot Operating System，但它<strong>不是</strong>操作系统。</span></p>
+<ul><li>它不管理内存、不调度进程、不提供文件系统 —— 那些是 Linux 干的活。</li><li>它其实是一套<span class="ink ink-blue"><strong>中间件 + 工具链 + 一堆约定</strong></span>：</li></ul>
+<div class="table-wrap"><table>
+<thead><tr><th>它提供</th><th>它不提供</th></tr></thead>
+<tbody>
+<tr><td>进程之间怎么通信（话题 / 服务 / 动作）</td><td>进程调度、内存管理</td></tr>
+<tr><td>数据怎么描述（<code>.msg</code> / <code>.srv</code> / IDL）</td><td>实时内核</td></tr>
+<tr><td>坐标怎么统一（tf2）</td><td>硬件驱动（驱动要自己写/找）</td></tr>
+<tr><td>一堆调试工具（<code>ros2 topic</code> / rqt / bag）</td><td>控制算法</td></tr>
+</tbody></table></div>
+<blockquote><p><span class="ink ink-blue">ROS 帮你解决的是「一堆程序怎么凑成一个机器人」这件事。</span></p></blockquote></div>
       </section>
       
       <section class="slide" data-slide="4"
-               data-title="🧰 学习工具的重要性">
-        <div class="slide-inner"><h2>🧰 <strong>学习工具</strong>的重要性</h2>
-<p>工具能帮助人类</p>
-<ul><li>能帮助人类做到原先做不到的事情</li><li>能帮助人类更轻松地做到某些事情</li><li>能帮助人类“不需要做某些事情”<ul><li>🤯<a href="https://zh.wikipedia.org/wiki/%E8%87%AA%E5%8B%95%E6%A9%9F" target="_blank" rel="noopener"><strong><em>自动机（英语：Automaton，又称自动机器、自动机械）(点击查看)</em></strong></a></li><li>🤯🤯<a href="https://zh.wikipedia.org/wiki/%E7%94%B5%E5%AD%90%E8%AE%A1%E7%AE%97%E6%9C%BA" target="_blank" rel="noopener"><strong><em>电子计算机（英语：Computer）(点击查看)</em></strong></a></li><li>🤯🤯🤯<a href="https://zh.wikipedia.org/wiki/ChatGPT" target="_blank" rel="noopener"><strong><em>ChatGPT（英语全称：Chat Generative Pre-trained Transformer）(点击查看)</em></strong></a></li></ul></li><li><strong>📐数学/💬语言</strong>也是工具</li></ul>
-<blockquote><p>君子性非异也，善假于物也———[荀子]《劝学》</p></blockquote></div>
+               data-title="一个 ROS 程序长什么样">
+        <div class="slide-inner"><h2>一个 ROS 程序长什么样</h2>
+<p>最小的工作单元叫<strong>节点（node）</strong>，就是一个普通进程。</p>
+<div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">import</span> rclpy
+<span class="tok-keyword">from</span> rclpy<span class="tok-punct">.</span>node <span class="tok-keyword">import</span> <span class="tok-type">Node</span>
+<span class="tok-keyword">from</span> std_msgs<span class="tok-punct">.</span>msg <span class="tok-keyword">import</span> <span class="tok-type">String</span>
+
+<span class="tok-keyword">class</span> <span class="tok-function">Talker</span><span class="tok-punct">(</span><span class="tok-type">Node</span><span class="tok-punct">)</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">def</span> <span class="tok-function">__init__</span><span class="tok-punct">(</span><span class="tok-keyword">self</span><span class="tok-punct">)</span><span class="tok-punct">:</span>
+        <span class="tok-builtin">super</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-function">__init__</span><span class="tok-punct">(</span><span class="tok-string">&#x27;talker&#x27;</span><span class="tok-punct">)</span>
+        <span class="tok-keyword">self</span><span class="tok-punct">.</span>pub <span class="tok-operator">=</span> <span class="tok-keyword">self</span><span class="tok-punct">.</span><span class="tok-function">create_publisher</span><span class="tok-punct">(</span><span class="tok-type">String</span><span class="tok-punct">,</span> <span class="tok-string">&#x27;chatter&#x27;</span><span class="tok-punct">,</span> <span class="tok-number">10</span><span class="tok-punct">)</span>
+        <span class="tok-keyword">self</span><span class="tok-punct">.</span><span class="tok-function">create_timer</span><span class="tok-punct">(</span><span class="tok-number">0.5</span><span class="tok-punct">,</span> <span class="tok-keyword">self</span><span class="tok-punct">.</span>tick<span class="tok-punct">)</span>
+
+    <span class="tok-keyword">def</span> <span class="tok-function">tick</span><span class="tok-punct">(</span><span class="tok-keyword">self</span><span class="tok-punct">)</span><span class="tok-punct">:</span>
+        <span class="tok-keyword">self</span><span class="tok-punct">.</span>pub<span class="tok-punct">.</span><span class="tok-function">publish</span><span class="tok-punct">(</span><span class="tok-function">String</span><span class="tok-punct">(</span>data<span class="tok-operator">=</span><span class="tok-string">&#x27;hello&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">)</span>
+
+rclpy<span class="tok-punct">.</span><span class="tok-function">init</span><span class="tok-punct">(</span><span class="tok-punct">)</span>
+rclpy<span class="tok-punct">.</span><span class="tok-function">spin</span><span class="tok-punct">(</span><span class="tok-function">Talker</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span></code></pre></div>
+<ul><li>没有 <code>main</code> 循环，没有 socket —— 你把「发什么」写出来就行。</li></ul></div>
       </section>
       
       <section class="slide slide--section" data-slide="5"
-               data-title="📜 学习思想的重要性" data-section="1">
-        <div class="slide-inner"><h2>📜 <strong>学习思想</strong>的重要性</h2>
-<p>除了学习工具，还有思想</p>
-<ul><li>学习某种<a href="https://zh.wikipedia.org/wiki/%E7%90%86%E8%AB%96" target="_blank" rel="noopener"><strong><em>理论（英语：theory）(点击查看)</em></strong></a><ul><li><a href="https://znetwork.org/wp-content/uploads/zinstructionals/htdocs/RTInstruc/id6.htm" target="_blank" rel="noopener">什么是理论(点击查看)</a></li></ul></li></ul>
-<p>但是，<strong>理论不是一成不变的</strong></p>
-<ul><li><a href="https://undsci.berkeley.edu/understanding-science-101/how-science-works/even-theories-change/" target="_blank" rel="noopener"><strong><em>Even theories change(点击查看)</em></strong></a><ul><li>👨‍🔬<a href="https://zh.wikipedia.org/wiki/%E8%89%BE%E8%90%A8%E5%85%8B%C2%B7%E7%89%9B%E9%A1%BF" target="_blank" rel="noopener"><strong><em>牛顿（英语：Sir Isaac Newton）(点击查看)</em></strong></a>时代<ul><li><a href="https://zh.wikipedia.org/wiki/%E7%BB%8F%E5%85%B8%E5%8A%9B%E5%AD%A6" target="_blank" rel="noopener"><strong><em>经典力学（英语：Classical mechanics）(点击查看)</em></strong></a></li></ul></li><li>👨‍🔬<a href="https://zh.wikipedia.org/wiki/%E9%98%BF%E5%B0%94%E4%BC%AF%E7%89%B9%C2%B7%E7%88%B1%E5%9B%A0%E6%96%AF%E5%9D%A6" target="_blank" rel="noopener"><strong><em>爱因斯坦（德语：Albert Einstein）(点击查看)</em></strong></a>时代<ul><li><a href="https://zh.wikipedia.org/wiki/%E7%9B%B8%E5%AF%B9%E8%AE%BA" target="_blank" rel="noopener"><strong><em>相对论（英语：Theory of relativity）(点击查看)</em></strong></a></li></ul></li></ul></li></ul>
-<blockquote><p>用<a href="https://zh.wikipedia.org/wiki/%E8%BE%A9%E8%AF%81%E6%B3%95" target="_blank" rel="noopener"><strong><em>辩证法（英语：alectics，希腊语：διαλεκτική，dialektikḗ）(点击查看)</em></strong></a>看待理论，这才是学习思想的重要性</p></blockquote></div>
+               data-title="Q2. 为什么机器人需要它？" data-section="1">
+        <div class="slide-inner"><h1><strong>Q2.</strong> 为什么机器人需要它？</h1></div>
       </section>
       
       <section class="slide" data-slide="6"
-               data-title="然而，为何要学习编程（Why learn to code）">
-        <div class="slide-inner"><h2>然而，<strong><em>为何要学习编程（Why learn to code）</em></strong></h2>
-<p>--</p>
-<p>从学习<strong>工具</strong>的视角看</p>
-<ul><li>🙂我们能使用最些前沿的工具<ul><li>然后就能办到某些看似“遥不可及”的事<ul><li>搭建个人网站</li><li>🎮 编写自己的电子游戏</li><li>对其他学科（数学、物理、生物等）<a href="https://zh.wikipedia.org/wiki/%E4%BB%BF%E7%9C%9F" target="_blank" rel="noopener"><strong><em>仿真模拟（英语：Simulation）(点击查看)</em></strong></a></li></ul></li></ul></li></ul>
-<p>--</p>
-<p>从学习<strong>思想</strong>的视角看</p>
-<ul><li>🙃我们能通过编程了解前沿的理论<span class="ink ink-red"><del>（甚至颠覆）</del></span><ul><li><a href="https://zh.wikipedia.org/wiki/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6" target="_blank" rel="noopener"><strong><em>计算机科学（英语：Computer science，有时缩写为CS）(点击查看)</em></strong></a>相关理论<ul><li>🖇️ 计算机链接了“大多数”学科</li></ul></li></ul></li></ul></div>
+               data-title="先看不用 ROS 会怎样">
+        <div class="slide-inner"><h2>先看不用 ROS 会怎样</h2>
+<p>假设你要做一台移动机器人，上面有这些程序：</p>
+<ul><li>激光雷达驱动 → 里程计</li><li>相机驱动 → 目标检测</li><li>定位 → 路径规划 → 底盘控制</li></ul>
+<p>如果每个箭头都是一段<span class="ink ink-red">自己写的 socket</span>：</p>
+<ul><li>N 个程序两两通信，最多 N² 条链路要维护。</li><li>换一个雷达，驱动接口变了，下游全改。</li><li>想录一段数据回放调试？自己写。</li><li>想看看当前谁在发什么？自己写。</li></ul>
+<p><del>最后你写出来的那坨东西，其实就是一个更差的 ROS。</del></p></div>
       </section>
       
-      <section class="slide slide--section" data-slide="7"
-               data-title="Q2. 何为编程（英语：programming）(点击查看)？（What）" data-section="1">
-        <div class="slide-inner"><h1><strong>Q2.</strong> 何为<a href="https://zh.wikipedia.org/wiki/%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" target="_blank" rel="noopener"><strong><em>编程（英语：programming）(点击查看)</em></strong></a>？<strong><em>（What）</em></strong></h1>
-<p>--</p>
-<blockquote><p><strong><em>Programming is like sex. One mistake and you have to support it for the rest of your life ——— Michael Sinz</em></strong></p></blockquote></div>
+      <section class="slide" data-slide="7"
+               data-title="解耦：谁也不知道对方是谁">
+        <div class="slide-inner"><h2>解耦：谁也不知道对方是谁</h2>
+<figure class="docfig-wrap" data-fig="ros-graph">
+<svg class="docfig" viewBox="0 0 820 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ROS 2 的计算图：节点之间靠话题（多对多）、服务（一问一答）、动作（长任务）连接">
+  <defs><marker id="f9da41ff-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" class="fg-head"/></marker></defs>
+  <rect class="fg-box is-accent" x="40" y="60" width="170" height="70" rx="9"/>
+  <text class="fg-t" x="125.0" y="95.0" text-anchor="middle" font-size="15">摄像头节点</text>
+  <rect class="fg-box is-accent" x="40" y="190" width="170" height="70" rx="9"/>
+  <text class="fg-t" x="125.0" y="225.0" text-anchor="middle" font-size="15">激光雷达节点</text>
+  <rect class="fg-box is-accent2" x="320" y="120" width="180" height="76" rx="38"/>
+  <text class="fg-t" x="410.0" y="150.0" text-anchor="middle" font-size="15">/image_raw</text>
+  <text class="fg-s" x="410.0" y="171.0" text-anchor="middle" font-size="12">话题 · 多对多</text>
+  <rect class="fg-box" x="620" y="60" width="170" height="70" rx="9"/>
+  <text class="fg-t" x="705.0" y="95.0" text-anchor="middle" font-size="15">感知节点</text>
+  <rect class="fg-box" x="620" y="190" width="170" height="70" rx="9"/>
+  <text class="fg-t" x="705.0" y="225.0" text-anchor="middle" font-size="15">建图节点</text>
+  <path class="fg-line" d="M 210 95 L 318 140" fill="none" marker-end="url(#f9da41ff-a)"/>
+  <path class="fg-line" d="M 210 225 L 318 176" fill="none" marker-end="url(#f9da41ff-a)"/>
+  <path class="fg-line" d="M 500 140 L 618 95" fill="none" marker-end="url(#f9da41ff-a)"/>
+  <path class="fg-line" d="M 500 176 L 618 225" fill="none" marker-end="url(#f9da41ff-a)"/>
+  <rect class="fg-box is-accent2" x="320" y="270" width="180" height="70" rx="38"/>
+  <text class="fg-t" x="410.0" y="297.0" text-anchor="middle" font-size="15">/reset_map</text>
+  <text class="fg-s" x="410.0" y="318.0" text-anchor="middle" font-size="12">服务 · 一问一答</text>
+  <path class="fg-line" d="M 795 270 Q 738.466058961887 256.39252004597574 700 300" fill="none" marker-end="url(#f9da41ff-a)"/>
+  <text class="fg-s" x="640" y="330" text-anchor="middle" font-size="11">控制器请求</text>
+</svg>
+<figcaption>ROS 2 的计算图：节点之间靠话题（多对多）、服务（一问一答）、动作（长任务）连接</figcaption>
+</figure>
+<p>用了 ROS 之后：</p>
+<ul><li>发布者只管往话题上写，<strong>不知道有几个订阅者、它们是谁</strong>。</li><li>订阅者只管从话题读，<strong>不知道数据从哪来</strong>。</li><li>加一个新的「录制节点」不需要通知任何人。</li></ul>
+<p><span class="ink ink-blue">这就是「解耦」的实际含义：把「谁跟谁说话」从代码里拿掉，交给运行时。</span></p>
+<blockquote><p>代价也在这里：出问题时你不能靠读一处代码搞明白，得去看<strong>运行时的图</strong>
+—— <code>rqt_graph</code> 就是干这个的。</p></blockquote></div>
       </section>
       
       <section class="slide" data-slide="8"
-               data-title="📖介绍一个东西，总要从历史出发">
-        <div class="slide-inner"><h2>📖介绍一个东西，<strong>总要从历史出发</strong></h2>
-<p>所以<strong>来看看历史</strong></p>
-<ul><li><a href="https://zh.wikipedia.org/zh-cn/%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80%E6%AD%B7%E5%8F%B2" target="_blank" rel="noopener">编程语言历史(点击查看)</a><ul><li>🧮 <a href="https://zh.wikipedia.org/wiki/%CE%9B%E6%BC%94%E7%AE%97" target="_blank" rel="noopener"><strong><em>λ演算（英语：lambda calculus，λ-calculus）(点击查看)</em></strong></a></li><li>🧮 <a href="https://zh.wikipedia.org/wiki/%E5%9B%BE%E7%81%B5%E6%9C%BA" target="_blank" rel="noopener"><strong><em>图灵机（英语：Turing machine）(点击查看)</em></strong></a></li></ul></li></ul>
-<p>同样地，<strong>工具的历史</strong></p>
-<ul><li>🖥️<a href="https://zh.wikipedia.org/wiki/%E7%94%B5%E5%AD%90%E8%AE%A1%E7%AE%97%E6%9C%BA" target="_blank" rel="noopener"><strong><em>电子计算机（英语：Computer）(点击查看)</em></strong></a><ul><li>计算机的出现和“<a href="https://zh.wikipedia.org/wiki/%E7%AC%AC%E4%BA%8C%E6%AC%A1%E4%B8%96%E7%95%8C%E5%A4%A7%E6%88%98" target="_blank" rel="noopener"><strong>第二次世界大战(点击查看)</strong></a>”脱不了干系<ul><li>计算机的历史在一定程度上代表了<strong>“最前沿”</strong>的工具发展史</li><li>现在可能是<a href="https://zh.wikipedia.org/wiki/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD" target="_blank" rel="noopener"><strong><em>AI（英语：artificial intelligence）(点击查看)</em></strong></a></li></ul></li></ul></li></ul>
-<blockquote><p>👨‍💻第一个编程语言的出现早于现代的计算机的诞生。首先，这种语言是种<a href="https://zh.wikipedia.org/wiki/%E4%BB%A3%E7%A0%81" target="_blank" rel="noopener"><strong><em>代码（英文：code）(点击查看)</em></strong></a></p></blockquote></div>
+               data-title="顺带解决的三件事">
+        <div class="slide-inner"><h2>顺带解决的三件事</h2>
+<ol><li><strong>数据格式统一</strong>：<code>.msg</code> 定义了消息长什么样，生成各语言的代码。</li><li><strong>时间与坐标统一</strong>：所有话题带时间戳，所有坐标系挂在同一棵 tf2 树上。</li><li><strong>可回放</strong>：<code>ros2 bag record -a</code> 把一切录下来，之后离线重放，
+离线调试比在真机上反复试高效得多。</li></ol>
+<blockquote><p>ps：第三条是很多人低估的。<span class="ink ink-red"><strong>能复现</strong>才是工程。</span></p></blockquote></div>
       </section>
       
-      <section class="slide" data-slide="9"
-               data-title="🧮 重点讲讲图灵机 🌶️🌶️">
-        <div class="slide-inner"><h2>🧮 重点讲讲<strong>图灵机</strong> 🌶️🌶️</h2>
-<ul><li>一台图灵机是一个七元有序组<span class="math-inline" data-tex="（Q,\Sigma,\Gamma,\delta,q_0,q_{accept},q_{reject}）">（Q,\Sigma,\Gamma,\delta,q_0,q_{accept},q_{reject}）</span>都是<a href="https://zh.wikipedia.org/wiki/%E6%9C%89%E9%99%90%E9%9B%86%E5%90%88" target="_blank" rel="noopener">有限集合(点击查看)</a>，且满足：</li></ul>
-<p><img src="/assets/docs/what-is-programming/img/animation.gif" alt="Animation" loading="lazy" decoding="async"></p></div>
+      <section class="slide slide--section" data-slide="9"
+               data-title="Q3. ROS 1 还是 ROS 2？" data-section="1">
+        <div class="slide-inner"><h1><strong>Q3.</strong> ROS 1 还是 ROS 2？</h1></div>
       </section>
       
-      <section class="slide slide--section" data-slide="10"
-               data-title="Q4. 形如编程？（Like）" data-section="1">
-        <div class="slide-inner"><h1><strong>Q4.</strong> 形如编程？<strong><em>（Like）</em></strong></h1>
-<p>--
-<strong><em>Math like PL(Tools like PL)</em></strong><br>
-<strong><em>Machine like PL(Automaton like PL)</em></strong><br>
-<strong><em>The World like PL(Everything like PL)</em></strong><br></p></div>
+      <section class="slide" data-slide="10"
+               data-title="一句话结论">
+        <div class="slide-inner"><h2>一句话结论</h2>
+<p><span class="ink ink-blue"><strong>新项目一律 ROS 2。</strong></span> ROS 1 已经在 2025 年 5 月停止维护（Noetic 是最后一个版本）。</p></div>
       </section>
       
       <section class="slide" data-slide="11"
-               data-title="TODO">
-        <div class="slide-inner"><h2>TODO</h2></div>
+               data-title="主要差异">
+        <div class="slide-inner"><h2>主要差异</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>维度</th><th>ROS 1</th><th>ROS 2</th></tr></thead>
+<tbody>
+<tr><td>通信底层</td><td>自己写的 TCPROS</td><td><strong>DDS</strong>（工业级中间件）</td></tr>
+<tr><td>实时性</td><td>基本没有</td><td>支持实时与确定性 QoS</td></tr>
+<tr><td>多机 / 组播</td><td>需要 master 协调</td><td>天然支持，可发现</td></tr>
+<tr><td>单点故障</td><td><code>roscore</code> 挂了全挂</td><td>无中心节点</td></tr>
+<tr><td>进程模型</td><td>一个节点一个进程</td><td>支持组合式节点（同进程多节点）</td></tr>
+<tr><td>生命周期</td><td>无</td><td>托管节点（Lifecycle Node）</td></tr>
+<tr><td>安全</td><td>无</td><td>SROS2（认证 + 加密）</td></tr>
+<tr><td>平台</td><td>主要 Linux</td><td>Linux / Windows / macOS / RTOS</td></tr>
+</tbody></table></div></div>
+      </section>
+      
+      <section class="slide" data-slide="12"
+               data-title="DDS 意味着什么">
+        <div class="slide-inner"><h2>DDS 意味着什么</h2>
+<ul><li>ROS 1 的通信是「够用就好」；ROS 2 直接把工业界用了十几年的 <strong>DDS</strong> 拿来当底座。</li><li>带来的是 <strong>QoS</strong>：可靠性、历史深度、期限、活跃度……全都可以按话题单独配。</li><li>代价是<strong>复杂度</strong>：<span class="ink ink-red">QoS 不匹配时连接根本建立不起来，而且默认不报错</span>。</li></ul>
+<div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-text">发布者 reliable  ←→  订阅者 best_effort   →  没有连接，也没有日志</code></pre></div>
+<blockquote><p>这条坑在《节点和工具》那一篇里单独展开 —— 它是 ROS 2 新手最常见的一次「玄学」。</p></blockquote></div>
+      </section>
+      
+      <section class="slide slide--section" data-slide="13"
+               data-title="Q4. 一次通信长什么样？" data-section="1">
+        <div class="slide-inner"><h1><strong>Q4.</strong> 一次通信长什么样？</h1></div>
+      </section>
+      
+      <section class="slide" data-slide="14"
+               data-title="时序">
+        <div class="slide-inner"><h2>时序</h2>
+<p>以「相机节点发布一帧图像，检测节点订阅」为例：</p>
+<ul><li>两个节点启动，各自连上 DDS 的域（domain）</li><li>DDS 做<strong>发现</strong>：订阅者广播「我要 <code>/image_raw</code>」</li><li>发布者收到，两边协商 QoS，协商通过才建立连接</li><li>发布者调用 <code>publish()</code>，序列化后交给 DDS</li><li>DDS 按 QoS 决定：立刻发 / 排队 / 丢掉最旧的</li><li>订阅者收到，反序列化，调用你的回调</li></ul>
+<p><span class="ink ink-red"><strong>注意第 3 步：协商不通过就没有第 4 步，而且不会有明显的报错。</strong></span></p></div>
+      </section>
+      
+      <section class="slide" data-slide="15"
+               data-title="试一个：模拟发布订阅">
+        <div class="slide-inner"><h2>试一个：模拟发布订阅</h2>
+<p>下面这段是可运行的。它把「话题」抽象成一个只有名字的邮箱 ——
+发布者不知道谁在听，订阅者不知道谁在发，这正是 ROS 的解耦。</p>
+<div class="demo" data-demo="js"><div class="demo-head"><span class="demo-badge">可运行示例</span><span class="demo-lang">JavaScript</span><div class="demo-actions"><button class="demo-toggle" type="button" data-demo-toggle aria-expanded="false"><span data-demo-toggle-label>查看代码</span><svg class="demo-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button><button class="demo-run" type="button" data-demo-run><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg><span data-demo-run-label>运行</span></button><button class="demo-reset" type="button" data-demo-reset hidden>重置</button></div></div><pre class="code-pre" data-demo-code hidden><code class="language-js"><span class="tok-comment">// 极简 pub/sub：把「话题名 → 订阅者列表」放在一个中心表里</span>
+<span class="tok-keyword">const</span> bus <span class="tok-operator">=</span> <span class="tok-keyword">new</span> <span class="tok-builtin">Map</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">function</span> <span class="tok-function">advertise</span><span class="tok-punct">(</span>topic<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+  <span class="tok-keyword">if</span> <span class="tok-punct">(</span><span class="tok-operator">!</span>bus<span class="tok-punct">.</span><span class="tok-function">has</span><span class="tok-punct">(</span>topic<span class="tok-punct">)</span><span class="tok-punct">)</span> bus<span class="tok-punct">.</span><span class="tok-keyword">set</span><span class="tok-punct">(</span>topic<span class="tok-punct">,</span> <span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">return</span> <span class="tok-punct">{</span> publish<span class="tok-operator">:</span> <span class="tok-punct">(</span>msg<span class="tok-punct">)</span> <span class="tok-operator">=&gt;</span> <span class="tok-punct">(</span>bus<span class="tok-punct">.</span><span class="tok-keyword">get</span><span class="tok-punct">(</span>topic<span class="tok-punct">)</span> <span class="tok-operator">||</span> <span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-function">forEach</span><span class="tok-punct">(</span>cb <span class="tok-operator">=&gt;</span> <span class="tok-function">cb</span><span class="tok-punct">(</span>msg<span class="tok-punct">)</span><span class="tok-punct">)</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span>
+<span class="tok-keyword">function</span> <span class="tok-function">subscribe</span><span class="tok-punct">(</span>topic<span class="tok-punct">,</span> cb<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+  <span class="tok-keyword">if</span> <span class="tok-punct">(</span><span class="tok-operator">!</span>bus<span class="tok-punct">.</span><span class="tok-function">has</span><span class="tok-punct">(</span>topic<span class="tok-punct">)</span><span class="tok-punct">)</span> bus<span class="tok-punct">.</span><span class="tok-keyword">set</span><span class="tok-punct">(</span>topic<span class="tok-punct">,</span> <span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+  bus<span class="tok-punct">.</span><span class="tok-keyword">get</span><span class="tok-punct">(</span>topic<span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-function">push</span><span class="tok-punct">(</span>cb<span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">return</span> <span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-operator">=&gt;</span> bus<span class="tok-punct">.</span><span class="tok-keyword">set</span><span class="tok-punct">(</span>topic<span class="tok-punct">,</span> bus<span class="tok-punct">.</span><span class="tok-keyword">get</span><span class="tok-punct">(</span>topic<span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-function">filter</span><span class="tok-punct">(</span>x <span class="tok-operator">=&gt;</span> x <span class="tok-operator">!==</span> cb<span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span>
+
+<span class="tok-comment">// 相机节点：只管发</span>
+<span class="tok-keyword">const</span> cam <span class="tok-operator">=</span> <span class="tok-function">advertise</span><span class="tok-punct">(</span><span class="tok-string">&#x27;/image_raw&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-comment">// 检测节点：只管收</span>
+<span class="tok-keyword">const</span> stop <span class="tok-operator">=</span> <span class="tok-function">subscribe</span><span class="tok-punct">(</span><span class="tok-string">&#x27;/image_raw&#x27;</span><span class="tok-punct">,</span> <span class="tok-punct">(</span>m<span class="tok-punct">)</span> <span class="tok-operator">=&gt;</span>
+  demo<span class="tok-punct">.</span><span class="tok-function">log</span><span class="tok-punct">(</span><span class="tok-string">&#x27;检测节点收到第&#x27;</span><span class="tok-punct">,</span> m<span class="tok-punct">.</span>seq<span class="tok-punct">,</span> <span class="tok-string">&#x27;帧，&#x27;</span><span class="tok-punct">,</span> m<span class="tok-punct">.</span>kb<span class="tok-punct">,</span> <span class="tok-string">&#x27;KB&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+<span class="tok-comment">// 中途再插一个「录制节点」—— 相机节点的代码一行没改</span>
+<span class="tok-function">setTimeout</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-operator">=&gt;</span> <span class="tok-function">subscribe</span><span class="tok-punct">(</span><span class="tok-string">&#x27;/image_raw&#x27;</span><span class="tok-punct">,</span> <span class="tok-punct">(</span>m<span class="tok-punct">)</span> <span class="tok-operator">=&gt;</span> demo<span class="tok-punct">.</span><span class="tok-function">log</span><span class="tok-punct">(</span><span class="tok-string">&#x27;  录制节点也收到了第&#x27;</span><span class="tok-punct">,</span> m<span class="tok-punct">.</span>seq<span class="tok-punct">,</span> <span class="tok-string">&#x27;帧&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-number">0</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">let</span> seq <span class="tok-operator">=</span> <span class="tok-number">0</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> timer <span class="tok-operator">=</span> <span class="tok-function">setInterval</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-operator">=&gt;</span> <span class="tok-punct">{</span>
+  cam<span class="tok-punct">.</span><span class="tok-function">publish</span><span class="tok-punct">(</span><span class="tok-punct">{</span> seq<span class="tok-operator">:</span> <span class="tok-operator">++</span>seq<span class="tok-punct">,</span> kb<span class="tok-operator">:</span> <span class="tok-number">300</span> <span class="tok-operator">+</span> seq <span class="tok-operator">*</span> <span class="tok-number">7</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">if</span> <span class="tok-punct">(</span>seq <span class="tok-operator">&gt;=</span> <span class="tok-number">4</span><span class="tok-punct">)</span> <span class="tok-punct">{</span> <span class="tok-function">clearInterval</span><span class="tok-punct">(</span>timer<span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-function">stop</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span> demo<span class="tok-punct">.</span><span class="tok-function">log</span><span class="tok-punct">(</span><span class="tok-string">&#x27;检测节点已退出，相机还在发 —— 它不知道&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-punct">}</span>
+<span class="tok-punct">}</span><span class="tok-punct">,</span> <span class="tok-number">260</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre><div class="demo-stage" data-demo-stage hidden><div class="demo-frame-wrap" data-demo-mount></div><div class="demo-log" data-demo-log hidden></div><p class="demo-status" data-demo-status></p></div><noscript><p class="demo-noscript">这段示例需要 JavaScript 才能运行。</p></noscript><script type="application/json" data-demo-src>"// 极简 pub/sub：把「话题名 → 订阅者列表」放在一个中心表里\nconst bus = new Map();\nfunction advertise(topic) {\n  if (!bus.has(topic)) bus.set(topic, []);\n  return { publish: (msg) => (bus.get(topic) || []).forEach(cb => cb(msg)) };\n}\nfunction subscribe(topic, cb) {\n  if (!bus.has(topic)) bus.set(topic, []);\n  bus.get(topic).push(cb);\n  return () => bus.set(topic, bus.get(topic).filter(x => x !== cb));\n}\n\n// 相机节点：只管发\nconst cam = advertise('/image_raw');\n// 检测节点：只管收\nconst stop = subscribe('/image_raw', (m) =>\n  demo.log('检测节点收到第', m.seq, '帧，', m.kb, 'KB'));\n\n// 中途再插一个「录制节点」—— 相机节点的代码一行没改\nsetTimeout(() => subscribe('/image_raw', (m) => demo.log('  录制节点也收到了第', m.seq, '帧')), 0);\n\nlet seq = 0;\nconst timer = setInterval(() => {\n  cam.publish({ seq: ++seq, kb: 300 + seq * 7 });\n  if (seq >= 4) { clearInterval(timer); stop(); demo.log('检测节点已退出，相机还在发 —— 它不知道'); }\n}, 260);"</script></div>
+<p><span class="ink ink-blue">把最后一行注释掉再跑一次</span>，你会看到相机节点完全没有察觉。</p></div>
+      </section>
+      
+      <section class="slide" data-slide="16"
+               data-title="小结">
+        <div class="slide-inner"><h2>小结</h2>
+<ol><li>ROS 是<strong>中间件 + 约定</strong>，不是操作系统。</li><li>它解决的核心问题是「<span class="ink ink-blue">一堆程序怎么凑成一个机器人</span>」，手段是解耦。</li><li>新项目用 <strong>ROS 2</strong>，底座是 DDS，因此有 QoS，也因此有 QoS 的坑。</li><li>记住那次协商：<span class="ink ink-red"><strong>QoS 谈不拢就没有连接，而且默认不报错。</strong></span></li></ol></div>
+      </section>
+      
+      <section class="slide" data-slide="17"
+               data-title="下一步">
+        <div class="slide-inner"><h2>下一步</h2>
+<ul><li>打开《节点和工具》，把话题 / 服务 / 动作 / QoS 的取舍搞清楚。</li><li>想动手的话，装一个 ROS 2（推荐 Ubuntu + <code>apt</code>，或 Docker），
+跑通官方的 talker / listener 例子，然后<strong>用 <code>rqt_graph</code> 看一眼那张图</strong>。</li><li>如果你已经写过 DDS，可以直接跳到 QoS 那一节 —— 那是你熟悉的地方。</li></ul></div>
       </section>
       
     </div>
@@ -409,9 +561,9 @@
   <nav class="doc-nav" aria-label="上下篇">
     <span class="doc-nav-item empty"></span>
     
-    <a class="doc-nav-item next" href="/docs/python-first/">
+    <a class="doc-nav-item next" href="/docs/ros-tools/">
       <span class="dir">下一篇 →</span>
-      <span class="t">从 Python 入手</span>
+      <span class="t">节点和工具</span>
     </a>
     
   </nav>

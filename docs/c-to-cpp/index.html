@@ -15,20 +15,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>属性及其原因 · 洛叶白</title>
-<meta name="description" content="1. 属性是什么? 2. 原因是什么? 3. 为什么理解原因要高于理解属性?">
+<title>从 C 语言到 C++ 的转变 · 洛叶白</title>
+<meta name="description" content="C++ 不是「带类的 C」。从过程式到泛型，先看清楚它到底补了 C 的哪几个洞，再决定哪些特性值得用。">
 <meta name="author" content="洛叶白">
 <meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#0b0d14" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#f7f7f5" media="(prefers-color-scheme: light)">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="洛叶白">
-<meta property="og:title" content="属性及其原因">
-<meta property="og:description" content="1. 属性是什么? 2. 原因是什么? 3. 为什么理解原因要高于理解属性?">
-<meta property="og:url" content="https://luoyebai.github.io/docs/attributes-and-reasons/">
+<meta property="og:title" content="从 C 语言到 C++ 的转变">
+<meta property="og:description" content="C++ 不是「带类的 C」。从过程式到泛型，先看清楚它到底补了 C 的哪几个洞，再决定哪些特性值得用。">
+<meta property="og:url" content="https://luoyebai.github.io/docs/c-to-cpp/">
 <meta property="og:image" content="https://luoyebai.github.io/assets/images/favicon.svg">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="canonical" href="https://luoyebai.github.io/docs/attributes-and-reasons/">
+<link rel="canonical" href="https://luoyebai.github.io/docs/c-to-cpp/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
 <link rel="stylesheet" href="/assets/themes.css">
@@ -153,28 +153,28 @@
 
 
 <article class="doc" id="doc"
-         data-slides="4"
-         data-title="属性及其原因">
+         data-slides="17"
+         data-title="从 C 语言到 C++ 的转变">
   <header class="doc-head">
     <nav class="crumbs" aria-label="面包屑">
       <a href="/docs/">文档</a>
       <span aria-hidden="true">/</span>
-      <a href="/docs/learning/">从编程开始的学习</a>
+      <a href="/docs/cpp/">从 C 语言到 C++</a>
       <span aria-hidden="true">/</span>
-      <span class="current">属性及其原因</span>
+      <span class="current">从 C 语言到 C++ 的转变</span>
     </nav>
 
-    <h1 class="doc-title">属性及其原因</h1>
-    <p class="doc-lede">1. 属性是什么? 2. 原因是什么? 3. 为什么理解原因要高于理解属性?</p>
+    <h1 class="doc-title">从 C 语言到 C++ 的转变</h1>
+    <p class="doc-lede">C++ 不是「带类的 C」。从过程式到泛型，先看清楚它到底补了 C 的哪几个洞，再决定哪些特性值得用。</p>
 
     <p class="doc-meta">
-      <span class="meta-item"><b>15</b> / 6 篇</span>
-      <span class="meta-item"><b>4</b> 页幻灯片</span>
-      <span class="meta-item muted">迁移自 <a href="https://github.com/luoyebai/doc_html/blob/HEAD/从编程开始的学习/关于学习编程的思考/属性及其原因/main.md" rel="noopener" target="_blank">源文档</a></span>
+      <span class="meta-item"><b>6</b> / 1 篇</span>
+      <span class="meta-item"><b>17</b> 页幻灯片</span>
+      
     </p>
   </header>
 
-  <section class="deck is-paged" id="deck" data-deck aria-roledescription="幻灯片" aria-label="属性及其原因">
+  <section class="deck is-paged" id="deck" data-deck aria-roledescription="幻灯片" aria-label="从 C 语言到 C++ 的转变">
     <noscript>
       <style>.deck .slide{display:block !important;margin-top:1.2rem}</style>
     </noscript>
@@ -191,7 +191,7 @@
           </svg>
         </button>
         <p class="deck-counter" aria-live="polite">
-          <b data-deck-no>1</b> / 4
+          <b data-deck-no>1</b> / 17
         </p>
       </div>
 
@@ -218,25 +218,103 @@
         
         <li class="is-section">
           <button type="button" data-deck-goto="0">
-            <span class="ol-no">0</span>属性及其原因
+            <span class="ol-no">0</span>从 C 语言到 C++ 的转变
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="1">
-            <span class="ol-no">1</span>概述
+            <span class="ol-no">1</span>概述（Overview）
           </button>
         </li>
         
         <li class="is-section">
           <button type="button" data-deck-goto="2">
-            <span class="ol-no">2</span>特性是什么?
+            <span class="ol-no">2</span>Q1. C 的边界在哪？
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="3">
-            <span class="ol-no">3</span>属性的介绍
+            <span class="ol-no">3</span>C 的假设：你自己管好一切
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="4">
+            <span class="ol-no">4</span>于是有了这三类经典 bug
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="5">
+            <span class="ol-no">5</span>真的没有办法吗
+          </button>
+        </li>
+        
+        <li class="is-section">
+          <button type="button" data-deck-goto="6">
+            <span class="ol-no">6</span>Q2. C++ 补了哪几个洞？
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="7">
+            <span class="ol-no">7</span>洞一：让「释放」跟着「作用域」走 —— RAII
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="8">
+            <span class="ol-no">8</span>洞二：值语义与引用，把「拷贝」说清楚
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="9">
+            <span class="ol-no">9</span>洞三：泛型 —— 同一种算法只写一遍
+          </button>
+        </li>
+        
+        <li class="is-section">
+          <button type="button" data-deck-goto="10">
+            <span class="ol-no">10</span>Q3. 哪些特性值得用？
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="11">
+            <span class="ol-no">11</span>优先级清单
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="12">
+            <span class="ol-no">12</span>STL：容器、迭代器、算法
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="13">
+            <span class="ol-no">13</span>智能指针：把所有权说清楚
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="14">
+            <span class="ol-no">14</span>现代 C++ 值得记住的几条
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="15">
+            <span class="ol-no">15</span>最后一句劝告
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="16">
+            <span class="ol-no">16</span>小结
           </button>
         </li>
         
@@ -247,26 +325,209 @@
          aria-label="幻灯片内容，用左右方向键翻页">
       
       <section class="slide slide--section" data-slide="0"
-               data-title="属性及其原因" data-section="1">
-        <div class="slide-inner"><h1>属性及其原因</h1></div>
+               data-title="从 C 语言到 C++ 的转变" data-section="1">
+        <div class="slide-inner"><h1>从 C 语言到 C++ 的转变</h1></div>
       </section>
       
       <section class="slide" data-slide="1"
-               data-title="概述">
-        <div class="slide-inner"><h2>概述</h2>
-<ol><li>属性是什么?</li><li>原因是什么?</li><li>为什么理解原因要高于理解属性?</li></ol></div>
+               data-title="概述（Overview）">
+        <div class="slide-inner"><h2>概述<strong><em>（Overview）</em></strong></h2>
+<ul><li><strong>Q1.</strong> C 的边界在哪？</li><li><strong>Q2.</strong> C++ 补了哪几个洞？</li><li><strong>Q3.</strong> 哪些特性值得用、哪些是坑？</li><li><del>Q4. 我要不要直接学 Rust</del></li></ul>
+<blockquote><p>这篇不教语法。语法书到处都是，<span class="ink ink-blue">这里只讲「为什么要变」</span>。</p></blockquote></div>
       </section>
       
       <section class="slide slide--section" data-slide="2"
-               data-title="特性是什么?" data-section="1">
-        <div class="slide-inner"><h1>特性是什么?</h1></div>
+               data-title="Q1. C 的边界在哪？" data-section="1">
+        <div class="slide-inner"><h1><strong>Q1.</strong> C 的边界在哪？</h1></div>
       </section>
       
       <section class="slide" data-slide="3"
-               data-title="属性的介绍">
-        <div class="slide-inner"><h2>属性的介绍</h2>
-<ul><li><a href="https://zh.wikipedia.org/wiki/%E5%B1%9E%E6%80%A7" target="_blank" rel="noopener">属性wiki 点击查看</a></li><li>属性与特性类似，但是属性强调不变性,特性则强调区别性</li><li>属性大部分情况下是可以证明的,例如:<ul><li>直角三角形在欧氏几何下符合勾股定理</li></ul></li><li>如何理解,证明属性?</li></ul>
-<blockquote><p>ps:这里的属性并非特指计算机科学中的特性</p></blockquote></div>
+               data-title="C 的假设：你自己管好一切">
+        <div class="slide-inner"><h2>C 的假设：你自己管好一切</h2>
+<p>C 是一门<strong>贴着机器</strong>的语言，它的每一条设计都在说同一句话：</p>
+<p><span class="ink ink-red">「我不管你，你自己清楚你在干什么。」</span></p>
+<ul><li>内存：<code>malloc</code> / <code>free</code>，配对是你的事。</li><li>资源：文件、锁、socket，关不关是你的事。</li><li>类型：能隐式转换就转，转错了也不拦你。</li><li>错误：多数函数只返回一个数，含义靠约定。</li></ul>
+<p>这套设计带来了极致的可控和可预测 —— 也带来了<span class="ink ink-blue">所有错误都得靠人记</span>。</p></div>
+      </section>
+      
+      <section class="slide" data-slide="4"
+               data-title="于是有了这三类经典 bug">
+        <div class="slide-inner"><h2>于是有了这三类经典 bug</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>类型</th><th>长什么样</th><th>根因</th></tr></thead>
+<tbody>
+<tr><td>资源泄漏</td><td>提前 return、中途抛错，<code>fclose</code> 没走到</td><td>释放点分散在多个出口</td></tr>
+<tr><td>悬垂指针</td><td><code>free(p)</code> 之后又用 <code>p</code></td><td>指针和它的生命周期脱钩</td></tr>
+<tr><td>重复释放 / 未初始化</td><td>有时崩，有时不崩</td><td>状态靠人脑维护</td></tr>
+</tbody></table></div>
+<ul><li>注意第二列：<strong>它们都不是「写错了」，而是「忘了写」</strong>。</li><li>编译器不会因为你少写一行就报错。<del>所以它们能活到线上。</del></li></ul></div>
+      </section>
+      
+      <section class="slide" data-slide="5"
+               data-title="真的没有办法吗">
+        <div class="slide-inner"><h2>真的没有办法吗</h2>
+<ul><li>有，而且 C 程序员一直在用 —— 只是要靠<strong>纪律</strong>：</li></ul>
+<div class="code-block" data-lang="c"><div class="code-head"><span class="code-lang">c</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-c">int load(const char *path, char **out) {
+    FILE *f = fopen(path, &quot;rb&quot;);
+    if (!f) return -1;
+    long n = filesize(f);
+    char *buf = malloc(n);
+    if (!buf) { fclose(f); return -2; }     /* ← 每个出口都得记得 */
+    if (fread(buf, 1, n, f) != (size_t)n) {
+        free(buf); fclose(f); return -3;    /* ← 又是两行 */
+    }
+    fclose(f);
+    *out = buf;
+    return 0;
+}</code></pre></div>
+<ul><li>这段代码没错。但它有 <strong>4 个出口，每个都要写对</strong>。</li><li>加一个「出错时打日志」的需求，就要改 4 处。</li></ul>
+<blockquote><p><span class="ink ink-blue">C++ 想做的，就是把「记得」交给类型系统。</span></p></blockquote></div>
+      </section>
+      
+      <section class="slide slide--section" data-slide="6"
+               data-title="Q2. C++ 补了哪几个洞？" data-section="1">
+        <div class="slide-inner"><h1><strong>Q2.</strong> C++ 补了哪几个洞？</h1></div>
+      </section>
+      
+      <section class="slide" data-slide="7"
+               data-title="洞一：让「释放」跟着「作用域」走 —— RAII">
+        <div class="slide-inner"><h2>洞一：让「释放」跟着「作用域」走 —— RAII</h2>
+<figure class="docfig-wrap" data-fig="cpp-raii">
+<svg class="docfig" viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="RAII：资源在构造函数里拿、在析构函数里放；离开作用域就一定回收，包括抛异常">
+  <defs><marker id="fc13d926-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" class="fg-head"/></marker></defs>
+  <line class="fg-line is-muted" x1="70" y1="240" x2="740" y2="240"/>
+  <text class="fg-s" x="70" y="264" text-anchor="start" font-size="12">时间 →</text>
+  <rect class="fg-box is-accent" x="140" y="70" width="240" height="110" rx="9"/>
+  <text class="fg-t" x="260.0" y="117.0" text-anchor="middle" font-size="15">构造函数</text>
+  <text class="fg-s" x="260.0" y="138.0" text-anchor="middle" font-size="12">拿到资源 · 打开文件</text>
+  <rect class="fg-box is-accent2" x="400" y="70" width="240" height="110" rx="9"/>
+  <text class="fg-t" x="520.0" y="117.0" text-anchor="middle" font-size="15">析构函数</text>
+  <text class="fg-s" x="520.0" y="138.0" text-anchor="middle" font-size="12">释放资源 · 关掉文件</text>
+  <path class="fg-line" d="M 380 125 L 398 125" fill="none" marker-end="url(#fc13d926-a)"/>
+  <line class="fg-line" x1="140" y1="196" x2="140" y2="240" stroke-dasharray="5 5"/>
+  <line class="fg-line" x1="640" y1="196" x2="640" y2="240" stroke-dasharray="5 5"/>
+  <text class="fg-s" x="390" y="210" text-anchor="middle" font-size="12">作用域</text>
+  <path class="fg-line is-accent2" d="M 260 60 Q 390 20 520 60" fill="none" stroke-dasharray="5 5"/>
+  <text class="fg-s" x="390" y="40" text-anchor="middle" font-size="12">中途抛异常？析构照样会被调用</text>
+  <text class="fg-note" x="70" y="288" text-anchor="start" font-size="12">C 里要记得在每个 return 分支 fclose；C++ 里这个「记得」被交给了类型系统。</text>
+</svg>
+<figcaption>RAII：资源在构造函数里拿、在析构函数里放；离开作用域就一定回收，包括抛异常</figcaption>
+</figure>
+<p>RAII = Resource Acquisition Is Initialization，直译很绕，意思是：</p>
+<p><span class="ink ink-blue"><strong>把资源的生命周期绑到一个对象的生命周期上。</strong></span></p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">int</span> <span class="tok-function">load</span><span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">string</span> <span class="tok-operator">&amp;</span>path<span class="tok-punct">,</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">vector</span><span class="tok-operator">&lt;</span><span class="tok-keyword">char</span><span class="tok-operator">&gt;</span> <span class="tok-operator">&amp;</span>out<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-builtin">std</span><span class="tok-operator">::</span>ifstream <span class="tok-function">f</span><span class="tok-punct">(</span>path<span class="tok-punct">,</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span>ios<span class="tok-operator">::</span>binary<span class="tok-punct">)</span><span class="tok-punct">;</span>   <span class="tok-comment">// 构造即打开</span>
+    <span class="tok-keyword">if</span> <span class="tok-punct">(</span><span class="tok-operator">!</span>f<span class="tok-punct">)</span> <span class="tok-keyword">return</span> <span class="tok-operator">-</span><span class="tok-number">1</span><span class="tok-punct">;</span>
+    out<span class="tok-punct">.</span><span class="tok-function">assign</span><span class="tok-punct">(</span><span class="tok-builtin">std</span><span class="tok-operator">::</span>istreambuf_iterator<span class="tok-operator">&lt;</span><span class="tok-keyword">char</span><span class="tok-operator">&gt;</span><span class="tok-punct">(</span>f<span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-punct">{</span><span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">return</span> <span class="tok-number">0</span><span class="tok-punct">;</span>                                   <span class="tok-comment">// 离开作用域，自动关闭</span>
+<span class="tok-punct">}</span></code></pre></div>
+<ul><li>没有一处 <code>close</code>，也没有一个出口需要特别处理。</li><li><strong>中途抛异常也一样会关</strong> —— 这是 C 里做不到的。</li></ul></div>
+      </section>
+      
+      <section class="slide" data-slide="8"
+               data-title="洞二：值语义与引用，把「拷贝」说清楚">
+        <div class="slide-inner"><h2>洞二：值语义与引用，把「拷贝」说清楚</h2>
+<ul><li>C 里所有东西都是值，想要「别名」只能传指针 —— 然后指针可以为 <code>NULL</code>、
+可以指向已经死掉的对象。</li><li>C++ 把三件事分开表达了：</li></ul>
+<div class="table-wrap"><table>
+<thead><tr><th>写法</th><th>含义</th><th>可不可以为空</th></tr></thead>
+<tbody>
+<tr><td><code>void f(T x)</code></td><td>我拿走一份拷贝</td><td>不适用</td></tr>
+<tr><td><code>void f(T &amp;x)</code></td><td>我要改你</td><td><strong>不可以</strong>（必须传对象）</td></tr>
+<tr><td><code>void f(const T &amp;x)</code></td><td>我只读，且不想拷贝</td><td>不可以</td></tr>
+<tr><td><code>void f(T *x)</code></td><td>可能没有</td><td>可以</td></tr>
+</tbody></table></div>
+<p><span class="ink ink-red">函数签名本身就成了文档。</span>看到 <code>const T&amp;</code> 你就知道它不会改你、也不会拷你。</p></div>
+      </section>
+      
+      <section class="slide" data-slide="9"
+               data-title="洞三：泛型 —— 同一种算法只写一遍">
+        <div class="slide-inner"><h2>洞三：泛型 —— 同一种算法只写一遍</h2>
+<p>C 里想对 <code>int</code> 和 <code>double</code> 各写一份排序，只能靠宏或者复制粘贴。</p>
+<div class="code-block" data-lang="c"><div class="code-head"><span class="code-lang">c</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-c">/* C 的宏版本：能跑，但报错信息基本没法看 */
+#define MAX(a, b) ((a) &gt; (b) ? (a) : (b))
+MAX(i++, j++)      /* ← 自增了两次 */</code></pre></div>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-comment">// C++ 的模板版本：类型是参数，报错能定位到具体类型</span>
+<span class="tok-keyword">template</span> <span class="tok-operator">&lt;</span><span class="tok-keyword">class</span> <span class="tok-type">T</span><span class="tok-operator">&gt;</span>
+<span class="tok-keyword">const</span> <span class="tok-type">T</span> <span class="tok-operator">&amp;</span><span class="tok-function">maxOf</span><span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-type">T</span> <span class="tok-operator">&amp;</span>a<span class="tok-punct">,</span> <span class="tok-keyword">const</span> <span class="tok-type">T</span> <span class="tok-operator">&amp;</span>b<span class="tok-punct">)</span> <span class="tok-punct">{</span> <span class="tok-keyword">return</span> a <span class="tok-operator">&gt;</span> b <span class="tok-operator">?</span> a <span class="tok-operator">:</span> b<span class="tok-punct">;</span> <span class="tok-punct">}</span></code></pre></div>
+<ul><li>模板是<strong>编译期</strong>展开的，所以没有运行时开销。</li><li>代价是编译变慢、报错变长 —— 这是后面要单独讲的一节。</li></ul></div>
+      </section>
+      
+      <section class="slide slide--section" data-slide="10"
+               data-title="Q3. 哪些特性值得用？" data-section="1">
+        <div class="slide-inner"><h1><strong>Q3.</strong> 哪些特性值得用？</h1></div>
+      </section>
+      
+      <section class="slide" data-slide="11"
+               data-title="优先级清单">
+        <div class="slide-inner"><h2>优先级清单</h2>
+<p>先按这个顺序用，其余的先不碰：</p>
+<ol><li><strong>RAII</strong>：<code>std::string</code>、<code>std::vector</code>、<code>std::ifstream</code>、智能指针。</li><li><strong>引用与 <code>const</code></strong>：把所有「不该改」的地方标出来。</li><li><strong>STL 容器与算法</strong>：别自己写链表和排序。</li><li><strong>模板</strong>：只在真的需要「同一套逻辑多种类型」时用。</li><li><strong>继承与虚函数</strong>：用于<strong>接口</strong>，不用于复用实现。</li></ol>
+<p><span class="ink ink-red">反过来说：不要因为「C++ 有」就去用。</span><br>
+多继承、运算符重载、异常规格、裸 <code>new</code>/<code>delete</code> —— 先当它们不存在。</p></div>
+      </section>
+      
+      <section class="slide" data-slide="12"
+               data-title="STL：容器、迭代器、算法">
+        <div class="slide-inner"><h2>STL：容器、迭代器、算法</h2>
+<p>这是 C++ 最值钱的部分，也是「不像 C」的部分。</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-preproc">#include</span> <span class="tok-operator">&lt;</span>algorithm<span class="tok-operator">&gt;</span>
+<span class="tok-preproc">#include</span> <span class="tok-operator">&lt;</span><span class="tok-builtin">vector</span><span class="tok-operator">&gt;</span>
+
+<span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">vector</span><span class="tok-operator">&lt;</span><span class="tok-keyword">int</span><span class="tok-operator">&gt;</span> v<span class="tok-punct">{</span><span class="tok-number">5</span><span class="tok-punct">,</span> <span class="tok-number">2</span><span class="tok-punct">,</span> <span class="tok-number">9</span><span class="tok-punct">,</span> <span class="tok-number">1</span><span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-function">sort</span><span class="tok-punct">(</span>v<span class="tok-punct">.</span><span class="tok-function">begin</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">,</span> v<span class="tok-punct">.</span><span class="tok-function">end</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>                       <span class="tok-comment">// 1 2 5 9</span>
+
+<span class="tok-comment">// 迭代器把「容器」和「算法」解耦了：</span>
+<span class="tok-comment">// sort 不知道 v 是 vector 还是数组，它只要一对迭代器</span>
+<span class="tok-keyword">int</span> a<span class="tok-punct">[</span><span class="tok-punct">]</span> <span class="tok-operator">=</span> <span class="tok-punct">{</span><span class="tok-number">3</span><span class="tok-punct">,</span> <span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-number">2</span><span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-function">sort</span><span class="tok-punct">(</span><span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-function">begin</span><span class="tok-punct">(</span>a<span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-function">end</span><span class="tok-punct">(</span>a<span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
+<ul><li><strong>算法不关心容器</strong>，这是泛型编程的核心收益。</li><li>记住三个动词：<code>begin</code> / <code>end</code> 划范围，算法吃这个范围。</li></ul></div>
+      </section>
+      
+      <section class="slide" data-slide="13"
+               data-title="智能指针：把所有权说清楚">
+        <div class="slide-inner"><h2>智能指针：把所有权说清楚</h2>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-preproc">#include</span> <span class="tok-operator">&lt;</span>memory<span class="tok-operator">&gt;</span>
+
+<span class="tok-keyword">auto</span> p <span class="tok-operator">=</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">make_unique</span><span class="tok-operator">&lt;</span><span class="tok-type">Widget</span><span class="tok-operator">&gt;</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>        <span class="tok-comment">// 独占：不能拷贝，只能移动</span>
+<span class="tok-keyword">auto</span> q <span class="tok-operator">=</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">make_shared</span><span class="tok-operator">&lt;</span><span class="tok-type">Widget</span><span class="tok-operator">&gt;</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>        <span class="tok-comment">// 共享：引用计数归零才释放</span>
+
+<span class="tok-builtin">std</span><span class="tok-operator">::</span>weak_ptr<span class="tok-operator">&lt;</span><span class="tok-type">Widget</span><span class="tok-operator">&gt;</span> w <span class="tok-operator">=</span> q<span class="tok-punct">;</span>                <span class="tok-comment">// 观察：不增加计数，打破循环引用</span></code></pre></div>
+<ul><li><span class="ink ink-blue"><code>unique_ptr</code> 应该是默认选择</span> —— 它零开销，且表达了「只有一个主人」。</li><li>只有真的需要共享所有权时才上 <code>shared_ptr</code>，因为引用计数有成本。</li><li>一旦用了智能指针，<strong>裸 <code>new</code> 就不应该出现在业务代码里</strong>。</li></ul></div>
+      </section>
+      
+      <section class="slide" data-slide="14"
+               data-title="现代 C++ 值得记住的几条">
+        <div class="slide-inner"><h2>现代 C++ 值得记住的几条</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>特性</th><th>版本</th><th>一句话</th></tr></thead>
+<tbody>
+<tr><td><code>auto</code></td><td>C++11</td><td>让编译器推类型，别手写一长串</td></tr>
+<tr><td>range-for</td><td>C++11</td><td><code>for (auto &amp;x : v)</code>，不用再写迭代器</td></tr>
+<tr><td>移动语义</td><td>C++11</td><td><code>std::move</code> 把资源搬走，不拷贝</td></tr>
+<tr><td><code>nullptr</code></td><td>C++11</td><td>替换 <code>NULL</code>，类型安全</td></tr>
+<tr><td><code>constexpr</code></td><td>C++11/14</td><td>能在编译期算的就别留到运行期</td></tr>
+<tr><td>结构化绑定</td><td>C++17</td><td><code>auto [k, v] = pair;</code></td></tr>
+<tr><td><code>std::optional</code></td><td>C++17</td><td>「可能没有值」写进类型</td></tr>
+<tr><td>概念 concepts</td><td>C++20</td><td>给模板参数加约束，报错终于能看了</td></tr>
+</tbody></table></div>
+<blockquote><p>别一次全用。<span class="ink ink-blue">把 RAII、<code>const</code>、STL 这三样用熟，你就已经写得比大多数「C with class」好了。</span></p></blockquote></div>
+      </section>
+      
+      <section class="slide" data-slide="15"
+               data-title="最后一句劝告">
+        <div class="slide-inner"><h2>最后一句劝告</h2>
+<p><span class="ink ink-red"><strong>不要把 C++ 写成「带类的 C」。</strong></span></p>
+<ul><li>还是手工 <code>malloc/free</code>、还是到处裸指针、还是自己写数组循环 ——
+那就等于付了 C++ 的复杂度，却没拿到它的好处。</li><li>反过来也一样：<span class="ink ink-red"><strong>不要在 C 里假装有 C++。</strong></span>
+用 C 写嵌入式、写内核模块，就老老实实按 C 的纪律来。</li></ul>
+<blockquote><p>语言是工具。<strong>先问「我要解决什么问题」，再问「这门语言为此提供了什么」。</strong></p></blockquote></div>
+      </section>
+      
+      <section class="slide" data-slide="16"
+               data-title="小结">
+        <div class="slide-inner"><h2>小结</h2>
+<ol><li>C 的边界是「<strong>所有清理都得靠人记</strong>」，RAII 把这件事交给了作用域。</li><li>引用 + <code>const</code> 让函数签名本身说明「会不会改你」。</li><li>模板与 STL 让算法只写一遍，且没有运行时开销。</li><li>用法上要有优先级：<span class="ink ink-blue">RAII → const → STL → 模板 → 继承</span>，别倒过来。</li></ol></div>
       </section>
       
     </div>
@@ -289,18 +550,8 @@
   </section>
 
   <nav class="doc-nav" aria-label="上下篇">
-    
-    <a class="doc-nav-item prev" href="/docs/mini-sh/">
-      <span class="dir">← 上一篇</span>
-      <span class="t">mini_sh · 手写一个 shell</span>
-    </a>
-    
-    
-    <a class="doc-nav-item next" href="/docs/be-a-detective/">
-      <span class="dir">下一篇 →</span>
-      <span class="t">像侦探一样地</span>
-    </a>
-    
+    <span class="doc-nav-item empty"></span>
+    <span class="doc-nav-item empty"></span>
   </nav>
 </article>
 

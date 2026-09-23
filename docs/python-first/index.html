@@ -15,20 +15,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>属性及其原因 · 洛叶白</title>
-<meta name="description" content="1. 属性是什么? 2. 原因是什么? 3. 为什么理解原因要高于理解属性?">
+<title>从 Python 入手 · 洛叶白</title>
+<meta name="description" content="为什么第一门语言选 Python、它到底是什么、环境怎么搭起来，以及新手一定会踩的那几个坑。">
 <meta name="author" content="洛叶白">
 <meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#0b0d14" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#f7f7f5" media="(prefers-color-scheme: light)">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="洛叶白">
-<meta property="og:title" content="属性及其原因">
-<meta property="og:description" content="1. 属性是什么? 2. 原因是什么? 3. 为什么理解原因要高于理解属性?">
-<meta property="og:url" content="https://luoyebai.github.io/docs/attributes-and-reasons/">
+<meta property="og:title" content="从 Python 入手">
+<meta property="og:description" content="为什么第一门语言选 Python、它到底是什么、环境怎么搭起来，以及新手一定会踩的那几个坑。">
+<meta property="og:url" content="https://luoyebai.github.io/docs/python-first/">
 <meta property="og:image" content="https://luoyebai.github.io/assets/images/favicon.svg">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="canonical" href="https://luoyebai.github.io/docs/attributes-and-reasons/">
+<link rel="canonical" href="https://luoyebai.github.io/docs/python-first/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
 <link rel="stylesheet" href="/assets/themes.css">
@@ -153,28 +153,28 @@
 
 
 <article class="doc" id="doc"
-         data-slides="4"
-         data-title="属性及其原因">
+         data-slides="17"
+         data-title="从 Python 入手">
   <header class="doc-head">
     <nav class="crumbs" aria-label="面包屑">
       <a href="/docs/">文档</a>
       <span aria-hidden="true">/</span>
       <a href="/docs/learning/">从编程开始的学习</a>
       <span aria-hidden="true">/</span>
-      <span class="current">属性及其原因</span>
+      <span class="current">从 Python 入手</span>
     </nav>
 
-    <h1 class="doc-title">属性及其原因</h1>
-    <p class="doc-lede">1. 属性是什么? 2. 原因是什么? 3. 为什么理解原因要高于理解属性?</p>
+    <h1 class="doc-title">从 Python 入手</h1>
+    <p class="doc-lede">为什么第一门语言选 Python、它到底是什么、环境怎么搭起来，以及新手一定会踩的那几个坑。</p>
 
     <p class="doc-meta">
-      <span class="meta-item"><b>15</b> / 6 篇</span>
-      <span class="meta-item"><b>4</b> 页幻灯片</span>
-      <span class="meta-item muted">迁移自 <a href="https://github.com/luoyebai/doc_html/blob/HEAD/从编程开始的学习/关于学习编程的思考/属性及其原因/main.md" rel="noopener" target="_blank">源文档</a></span>
+      <span class="meta-item"><b>12</b> / 6 篇</span>
+      <span class="meta-item"><b>17</b> 页幻灯片</span>
+      
     </p>
   </header>
 
-  <section class="deck is-paged" id="deck" data-deck aria-roledescription="幻灯片" aria-label="属性及其原因">
+  <section class="deck is-paged" id="deck" data-deck aria-roledescription="幻灯片" aria-label="从 Python 入手">
     <noscript>
       <style>.deck .slide{display:block !important;margin-top:1.2rem}</style>
     </noscript>
@@ -191,7 +191,7 @@
           </svg>
         </button>
         <p class="deck-counter" aria-live="polite">
-          <b data-deck-no>1</b> / 4
+          <b data-deck-no>1</b> / 17
         </p>
       </div>
 
@@ -218,25 +218,103 @@
         
         <li class="is-section">
           <button type="button" data-deck-goto="0">
-            <span class="ol-no">0</span>属性及其原因
+            <span class="ol-no">0</span>从 Python 入手
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="1">
-            <span class="ol-no">1</span>概述
+            <span class="ol-no">1</span>概述（Overview）
           </button>
         </li>
         
         <li class="is-section">
           <button type="button" data-deck-goto="2">
-            <span class="ol-no">2</span>特性是什么?
+            <span class="ol-no">2</span>Q1. 为什么第一门语言是它？
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="3">
-            <span class="ol-no">3</span>属性的介绍
+            <span class="ol-no">3</span>先问一句：第一门语言学什么，真的重要吗
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="4">
+            <span class="ol-no">4</span>Python 把哪些东西先替你收起来了
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="5">
+            <span class="ol-no">5</span>顺手说清楚：Python 慢，是不是问题
+          </button>
+        </li>
+        
+        <li class="is-section">
+          <button type="button" data-deck-goto="6">
+            <span class="ol-no">6</span>Q2. Python 到底是什么？
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="7">
+            <span class="ol-no">7</span>一句话：它是一种解释型的、动态类型的语言
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="8">
+            <span class="ol-no">8</span>「名字」和「对象」是两回事
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="9">
+            <span class="ol-no">9</span>那些「奇怪」的报错都从这来
+          </button>
+        </li>
+        
+        <li class="is-section">
+          <button type="button" data-deck-goto="10">
+            <span class="ol-no">10</span>Q3. 从哪一行开始？
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="11">
+            <span class="ol-no">11</span>环境：先把这个坑填了
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="12">
+            <span class="ol-no">12</span>一个脚本 → 一个模块 → 一个包
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="13">
+            <span class="ol-no">13</span>新手一定会踩的五个坑
+          </button>
+        </li>
+        
+        <li class="is-section">
+          <button type="button" data-deck-goto="14">
+            <span class="ol-no">14</span>小结
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="15">
+            <span class="ol-no">15</span>三句话
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="16">
+            <span class="ol-no">16</span>动手
           </button>
         </li>
         
@@ -247,26 +325,198 @@
          aria-label="幻灯片内容，用左右方向键翻页">
       
       <section class="slide slide--section" data-slide="0"
-               data-title="属性及其原因" data-section="1">
-        <div class="slide-inner"><h1>属性及其原因</h1></div>
+               data-title="从 Python 入手" data-section="1">
+        <div class="slide-inner"><h1>从 Python 入手</h1></div>
       </section>
       
       <section class="slide" data-slide="1"
-               data-title="概述">
-        <div class="slide-inner"><h2>概述</h2>
-<ol><li>属性是什么?</li><li>原因是什么?</li><li>为什么理解原因要高于理解属性?</li></ol></div>
+               data-title="概述（Overview）">
+        <div class="slide-inner"><h2>概述<strong><em>（Overview）</em></strong></h2>
+<ul><li><strong>Q1.</strong> 为什么第一门语言是它？<strong><em>（Why）</em></strong></li><li><strong>Q2.</strong> Python 到底是什么？<strong><em>（What）</em></strong></li><li><strong>Q3.</strong> 从哪一行开始？<strong><em>（How）</em></strong></li><li><del>Q4. 学会了能干嘛</del> ——写出来才知道</li></ul></div>
       </section>
       
       <section class="slide slide--section" data-slide="2"
-               data-title="特性是什么?" data-section="1">
-        <div class="slide-inner"><h1>特性是什么?</h1></div>
+               data-title="Q1. 为什么第一门语言是它？" data-section="1">
+        <div class="slide-inner"><h1><strong>Q1.</strong> 为什么第一门语言是它？</h1></div>
       </section>
       
       <section class="slide" data-slide="3"
-               data-title="属性的介绍">
-        <div class="slide-inner"><h2>属性的介绍</h2>
-<ul><li><a href="https://zh.wikipedia.org/wiki/%E5%B1%9E%E6%80%A7" target="_blank" rel="noopener">属性wiki 点击查看</a></li><li>属性与特性类似，但是属性强调不变性,特性则强调区别性</li><li>属性大部分情况下是可以证明的,例如:<ul><li>直角三角形在欧氏几何下符合勾股定理</li></ul></li><li>如何理解,证明属性?</li></ul>
-<blockquote><p>ps:这里的属性并非特指计算机科学中的特性</p></blockquote></div>
+               data-title="先问一句：第一门语言学什么，真的重要吗">
+        <div class="slide-inner"><h2>先问一句：第一门语言学什么，真的重要吗</h2>
+<ul><li>重要，但<strong>没有你想的那么重要</strong>。</li><li>真正难的是「把一个想法拆成步骤」，这件事换哪种语言都一样。</li><li>所以第一门语言的任务只有一条：<span class="ink ink-blue">让你尽可能快地把想法跑起来</span>，
+而不是让你一次学完所有概念。</li><li>那为什么不从 C 开始？——C 会逼你同时面对三件事：</li></ul>
+<ol><li>语言本身</li><li>内存与地址</li><li>编译、链接、构建</li></ol>
+<p><del>新手同时接三个球，基本都会掉。</del></p></div>
+      </section>
+      
+      <section class="slide" data-slide="4"
+               data-title="Python 把哪些东西先替你收起来了">
+        <div class="slide-inner"><h2>Python 把哪些东西先替你收起来了</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>你暂时不用管</th><th>什么时候再回来管</th></tr></thead>
+<tbody>
+<tr><td>类型声明</td><td>想写大一点的项目时</td></tr>
+<tr><td>手动管内存</td><td>需要抠性能时（先学会 C）</td></tr>
+<tr><td>编译链接</td><td>需要发布成单文件时</td></tr>
+<tr><td>工程结构</td><td>代码超过几百行时</td></tr>
+</tbody></table></div>
+<blockquote><p><span class="ink ink-blue"><strong>先能跑，再谈好。</strong></span> 这句话对新手和对老手都成立，只是「好」的标准不同。</p></blockquote></div>
+      </section>
+      
+      <section class="slide" data-slide="5"
+               data-title="顺手说清楚：Python 慢，是不是问题">
+        <div class="slide-inner"><h2>顺手说清楚：Python 慢，是不是问题</h2>
+<ul><li>是，也不是。</li><li><strong>纯 Python 的循环</strong>确实比 C 慢一到两个数量级，这是事实。</li><li>但工程里真正的瓶颈往往不在语言，而在<span class="ink ink-red">算法和数据搬运</span>。</li><li>而且 Python 的生态里，吃性能的那部分（numpy / OpenCV / PyTorch）
+本来就是 C/C++ 写的，Python 只是那个「遥控器」。</li></ul>
+<div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-text">你用 Python 描述「要算什么」，
+真正在算的是下面那层 C —— 所以速度未必差。</code></pre></div>
+<blockquote><p>ps：真到了遥控器也不够用的时候，再回去学 C 和指针，那时候你会有明确的目标。</p></blockquote></div>
+      </section>
+      
+      <section class="slide slide--section" data-slide="6"
+               data-title="Q2. Python 到底是什么？" data-section="1">
+        <div class="slide-inner"><h1><strong>Q2.</strong> Python 到底是什么？</h1></div>
+      </section>
+      
+      <section class="slide" data-slide="7"
+               data-title="一句话：它是一种解释型的、动态类型的语言">
+        <div class="slide-inner"><h2>一句话：它是一种<strong>解释型</strong>的、<strong>动态类型</strong>的语言</h2>
+<p>拆开看这两个词：</p>
+<ul><li><strong>解释型</strong> —— 没有「编译成机器码」这一步独立的产物，
+代码交给一个叫解释器的程序，它一边读一边执行。</li><li><strong>动态类型</strong> —— 变量不声明类型，类型跟着<strong>它当时指向的那个对象</strong>走。</li><li>这两条决定了后面所有的行为，包括那些让人困惑的报错。</li></ul></div>
+      </section>
+      
+      <section class="slide" data-slide="8"
+               data-title="「名字」和「对象」是两回事">
+        <div class="slide-inner"><h2>「名字」和「对象」是两回事</h2>
+<p>这是新手到进阶最重要的一道坎。</p>
+<figure class="docfig-wrap" data-fig="py-object">
+<svg class="docfig" viewBox="0 0 780 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Python 的变量是「名字」，赋值是把名字绑到对象上；同一个对象可以有多个名字">
+  <defs><marker id="fe93df5b-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" class="fg-head"/></marker></defs>
+  <rect class="fg-box is-accent" x="50" y="60" width="130" height="56" rx="9"/>
+  <text class="fg-t" x="115.0" y="88.0" text-anchor="middle" font-size="15">a</text>
+  <rect class="fg-box is-accent" x="50" y="170" width="130" height="56" rx="9"/>
+  <text class="fg-t" x="115.0" y="198.0" text-anchor="middle" font-size="15">b</text>
+  <rect class="fg-box is-accent2" x="330" y="110" width="200" height="70" rx="9"/>
+  <text class="fg-t" x="430.0" y="137.0" text-anchor="middle" font-size="15">list 对象</text>
+  <text class="fg-s" x="430.0" y="158.0" text-anchor="middle" font-size="12">[1, 2, 3]</text>
+  <rect class="fg-box" x="600" y="110" width="150" height="70" rx="9"/>
+  <text class="fg-t" x="675.0" y="145.0" text-anchor="middle" font-size="15">id() 不变</text>
+  <path class="fg-line" d="M 180 88 L 328 128" fill="none" marker-end="url(#fe93df5b-a)"/>
+  <path class="fg-line" d="M 180 198 L 328 162" fill="none" marker-end="url(#fe93df5b-a)"/>
+  <path class="fg-line" d="M 530 145 L 598 145" fill="none" marker-end="url(#fe93df5b-a)"/>
+  <text class="fg-s" x="255" y="96" text-anchor="middle" font-size="12">a = [1, 2, 3]</text>
+  <text class="fg-s" x="255" y="214" text-anchor="middle" font-size="12">b = a</text>
+  <text class="fg-note" x="50" y="262" text-anchor="start" font-size="12">b = a 没有复制列表，只是又多了一个名字。改 b 就是改 a —— 要真复制得写 b = list(a)。</text>
+</svg>
+<figcaption>Python 的变量是「名字」，赋值是把名字绑到对象上；同一个对象可以有多个名字</figcaption>
+</figure>
+<ul><li><code>a = [1, 2, 3]</code> 做的是：先造一个 list 对象，再把名字 <code>a</code> 绑到它上面。</li><li><code>b = a</code> 做的是：把 <code>b</code> 也绑到<span class="ink ink-red">同一个</span>对象上。</li><li>所以改 <code>b</code> 就是改 <code>a</code> —— 它们不是两个盒子，是两个标签贴在同一个盒子上。</li></ul>
+<div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python">a <span class="tok-operator">=</span> <span class="tok-punct">[</span><span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-number">2</span><span class="tok-punct">,</span> <span class="tok-number">3</span><span class="tok-punct">]</span>
+b <span class="tok-operator">=</span> a
+b<span class="tok-punct">.</span><span class="tok-function">append</span><span class="tok-punct">(</span><span class="tok-number">4</span><span class="tok-punct">)</span>
+<span class="tok-builtin">print</span><span class="tok-punct">(</span>a<span class="tok-punct">)</span>          <span class="tok-comment"># [1, 2, 3, 4]  —— a 也变了</span>
+
+c <span class="tok-operator">=</span> <span class="tok-builtin">list</span><span class="tok-punct">(</span>a<span class="tok-punct">)</span>       <span class="tok-comment"># 这才是复制</span>
+c<span class="tok-punct">.</span><span class="tok-function">append</span><span class="tok-punct">(</span><span class="tok-number">5</span><span class="tok-punct">)</span>
+<span class="tok-builtin">print</span><span class="tok-punct">(</span>a<span class="tok-punct">)</span>          <span class="tok-comment"># [1, 2, 3, 4]</span></code></pre></div></div>
+      </section>
+      
+      <section class="slide" data-slide="9"
+               data-title="那些「奇怪」的报错都从这来">
+        <div class="slide-inner"><h2>那些「奇怪」的报错都从这来</h2>
+<p><span class="ink ink-red"><code>TypeError: 'NoneType' object is not subscriptable</code></span><br>
+你拿到的不是你想的那个东西。多数情况是某个函数<strong>忘了写 return</strong>。</p>
+<p><span class="ink ink-red"><code>UnboundLocalError: local variable 'x' referenced before assignment</code></span><br>
+函数里给 <code>x</code> 赋过值 → Python 就认为整个函数里 <code>x</code> 都是局部的，
+函数开头那次读取就撞上了「还没绑」。</p>
+<p><span class="ink ink-red"><code>ValueError: too many values to unpack</code></span><br>
+右边的对象和你左边写的名字个数对不上。数一数就行。</p>
+<blockquote><p><span class="ink ink-blue"><strong>看 Python 的报错要从最后一行往回读。</strong></span>
+最后一行是「发生了什么」，往上几行是「在哪发生」。</p></blockquote></div>
+      </section>
+      
+      <section class="slide slide--section" data-slide="10"
+               data-title="Q3. 从哪一行开始？" data-section="1">
+        <div class="slide-inner"><h1><strong>Q3.</strong> 从哪一行开始？</h1></div>
+      </section>
+      
+      <section class="slide" data-slide="11"
+               data-title="环境：先把这个坑填了">
+        <div class="slide-inner"><h2>环境：先把这个坑填了</h2>
+<p>新手 90% 的「装不上」都出在这里。</p>
+<div class="table-wrap"><table>
+<thead><tr><th>方案</th><th>适合</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>官网安装包 + <code>python -m venv</code></td><td>推荐</td><td>一个项目一个虚拟环境，干净</td></tr>
+<tr><td>conda / miniconda</td><td>做科学计算</td><td>能装非 Python 的依赖（CUDA 之类）</td></tr>
+<tr><td>系统自带的 python3</td><td>只写脚本</td><td>别往里装东西，系统工具依赖它</td></tr>
+</tbody></table></div>
+<div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash"><span class="tok-comment"># 一个项目一个环境，这是纪律不是建议</span>
+python <span class="tok-operator">-</span>m venv .venv
+.venv\<span class="tok-type">Scripts</span>\activate        <span class="tok-comment"># Windows</span>
+<span class="tok-keyword">source</span> .venv<span class="tok-operator">/</span>bin<span class="tok-operator">/</span>activate      <span class="tok-comment"># Linux / macOS</span>
+
+pip install numpy              <span class="tok-comment"># 装完记得 freeze 下来</span>
+pip freeze <span class="tok-operator">&gt;</span> requirements.txt</code></pre></div></div>
+      </section>
+      
+      <section class="slide" data-slide="12"
+               data-title="一个脚本 → 一个模块 → 一个包">
+        <div class="slide-inner"><h2>一个脚本 → 一个模块 → 一个包</h2>
+<p>不要一上来就搭目录结构。</p>
+<div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-comment"># 1) 先是一个脚本：直接跑</span>
+<span class="tok-keyword">def</span> <span class="tok-function">area</span><span class="tok-punct">(</span>r<span class="tok-punct">)</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">return</span> <span class="tok-number">3.14159</span> <span class="tok-operator">*</span> r <span class="tok-operator">*</span> r
+
+<span class="tok-builtin">print</span><span class="tok-punct">(</span><span class="tok-function">area</span><span class="tok-punct">(</span><span class="tok-number">2</span><span class="tok-punct">)</span><span class="tok-punct">)</span></code></pre></div>
+<div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-comment"># 2) 想复用的时候，加一个入口判断 —— 它才是「模块」</span>
+<span class="tok-keyword">def</span> <span class="tok-function">area</span><span class="tok-punct">(</span>r<span class="tok-punct">)</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">return</span> <span class="tok-number">3.14159</span> <span class="tok-operator">*</span> r <span class="tok-operator">*</span> r
+
+<span class="tok-keyword">if</span> __name__ <span class="tok-operator">==</span> <span class="tok-string">&#x27;__main__&#x27;</span><span class="tok-punct">:</span>
+    <span class="tok-builtin">print</span><span class="tok-punct">(</span><span class="tok-function">area</span><span class="tok-punct">(</span><span class="tok-number">2</span><span class="tok-punct">)</span><span class="tok-punct">)</span></code></pre></div>
+<div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-text">3) 文件多了再拆目录 + __init__.py，那才叫包。
+   顺序反了的话，你会花一整天在设计目录，而不是在写代码。</code></pre></div>
+<blockquote><p><code>if __name__ == '__main__':</code> 的含义：<strong>「这个文件是被直接运行的，而不是被 import 的」</strong>。
+被 import 时 <code>__name__</code> 是模块名，所以这段不会执行。</p></blockquote></div>
+      </section>
+      
+      <section class="slide" data-slide="13"
+               data-title="新手一定会踩的五个坑">
+        <div class="slide-inner"><h2>新手一定会踩的五个坑</h2>
+<ul><li><strong>可变默认参数</strong>：<code>def f(x, acc=[])</code> —— 那个 <code>[]</code> 只造一次，会跨调用累积。</li></ul>
+<div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">def</span> <span class="tok-function">bad</span><span class="tok-punct">(</span>x<span class="tok-punct">,</span> acc<span class="tok-operator">=</span><span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">)</span><span class="tok-punct">:</span>        <span class="tok-comment"># 别这么写</span>
+    acc<span class="tok-punct">.</span><span class="tok-function">append</span><span class="tok-punct">(</span>x<span class="tok-punct">)</span>
+    <span class="tok-keyword">return</span> acc
+
+<span class="tok-keyword">def</span> <span class="tok-function">good</span><span class="tok-punct">(</span>x<span class="tok-punct">,</span> acc<span class="tok-operator">=</span><span class="tok-keyword">None</span><span class="tok-punct">)</span><span class="tok-punct">:</span>
+    acc <span class="tok-operator">=</span> <span class="tok-punct">[</span><span class="tok-punct">]</span> <span class="tok-keyword">if</span> acc <span class="tok-keyword">is</span> <span class="tok-keyword">None</span> <span class="tok-keyword">else</span> acc
+    acc<span class="tok-punct">.</span><span class="tok-function">append</span><span class="tok-punct">(</span>x<span class="tok-punct">)</span>
+    <span class="tok-keyword">return</span> acc</code></pre></div>
+<ul><li><strong>浮点数</strong>：<code>0.1 + 0.2 != 0.3</code>。要精确就用 <code>decimal</code>，要比较就用 <code>abs(a-b) &lt; eps</code>。</li><li><strong>缩进是语法</strong>：混用 Tab 和空格会报错，选一个，然后让编辑器替你统一。</li><li><strong><code>is</code> 和 <code>==</code></strong>：<code>is</code> 比的是「是不是同一个对象」，比数值请用 <code>==</code>。
+<span class="ink ink-blue">小整数和短字符串会被缓存，所以 <code>is</code> 有时「看起来能用」—— 那是假象。</span></li><li><strong>忘了激活虚拟环境</strong>：装到了系统 Python 里，然后奇怪为什么 <code>import</code> 不到。</li></ul></div>
+      </section>
+      
+      <section class="slide slide--section" data-slide="14"
+               data-title="小结" data-section="1">
+        <div class="slide-inner"><h1>小结</h1></div>
+      </section>
+      
+      <section class="slide" data-slide="15"
+               data-title="三句话">
+        <div class="slide-inner"><h2>三句话</h2>
+<ol><li>第一门语言的任务是<span class="ink ink-blue">让你快跑起来</span>，Python 干这个最合适。</li><li>它的两个关键词是<strong>解释执行</strong>和<strong>动态类型</strong>，记住
+<span class="ink ink-red">「名字」和「对象」是两回事</span>，一大半困惑就没了。</li><li>先把环境弄干净（虚拟环境），再从一个脚本开始长，别提前设计目录。</li></ol>
+<blockquote><p>真到了「遥控器不够快」的那天，再回来看 <span class="ink ink-blue"><strong>从指针来理解程序的执行</strong></span> ——
+那时候你会带着具体的问题去读，效率完全不一样。</p></blockquote></div>
+      </section>
+      
+      <section class="slide" data-slide="16"
+               data-title="动手">
+        <div class="slide-inner"><h2>动手</h2>
+<ul><li>装一个 Python，建一个虚拟环境，写一个只有 10 行的脚本。</li><li>用 <code>print()</code> 和报错信息对话，别怕它。</li><li>明天再去看 <span class="ink ink-blue"><strong>编程概述</strong></span> 里的「Q3 如何编程」，
+你会发现那些抽象的话现在有落脚点了。</li></ul></div>
       </section>
       
     </div>
@@ -290,15 +540,15 @@
 
   <nav class="doc-nav" aria-label="上下篇">
     
-    <a class="doc-nav-item prev" href="/docs/mini-sh/">
+    <a class="doc-nav-item prev" href="/docs/what-is-programming/">
       <span class="dir">← 上一篇</span>
-      <span class="t">mini_sh · 手写一个 shell</span>
+      <span class="t">编程概述</span>
     </a>
     
     
-    <a class="doc-nav-item next" href="/docs/be-a-detective/">
+    <a class="doc-nav-item next" href="/docs/mini-linux/">
       <span class="dir">下一篇 →</span>
-      <span class="t">像侦探一样地</span>
+      <span class="t">从源码构建 mini Linux</span>
     </a>
     
   </nav>

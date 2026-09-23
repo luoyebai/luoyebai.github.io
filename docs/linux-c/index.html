@@ -397,8 +397,47 @@ ls .
 <span class="tok-comment"># 我们应该可以看到frist.out文件Windows编译Windows编ndows编译</span>
 <span class="tok-comment"># ./就是运行这个文件，如果这个文件可以运行的话</span>
 .<span class="tok-operator">/</span>frist.out</code></pre></div>
-<p>Linux下该可以在终端界面看到输出的文字了。<br><br>
-Linux下的编译貌似有点繁琐，感觉，<strong>不如。。。Windows 编译。</strong></p></div>
+<p>Linux下该可以在终端界面看到输出的文字了。<br><br></p>
+<ul><li>顺便说清楚,<code>gcc</code> 那一行<strong>其实替你做了四件事</strong>:</li></ul>
+<figure class="docfig-wrap" data-fig="build-flow">
+<svg class="docfig" viewBox="0 0 820 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="四步：预处理 → 编译 → 汇编 → 链接；每一步都是一次独立的程序调用">
+  <defs><marker id="fda0f858-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" class="fg-head"/></marker></defs>
+  <rect class="fg-box is-fg-muted" x="30" y="70" width="118" height="76" rx="9"/>
+  <text class="fg-t" x="89.0" y="100.0" text-anchor="middle" font-size="15">foo.c</text>
+  <text class="fg-s" x="89.0" y="121.0" text-anchor="middle" font-size="12">源文件</text>
+  <text class="fg-s" x="89" y="170" text-anchor="middle" font-size="11">源文件</text>
+  <path class="fg-line" d="M 148 108 L 172 108" fill="none" marker-end="url(#fda0f858-a)"/>
+  <rect class="fg-box" x="172" y="70" width="118" height="76" rx="9"/>
+  <text class="fg-t" x="231.0" y="100.0" text-anchor="middle" font-size="15">预处理</text>
+  <text class="fg-s" x="231.0" y="121.0" text-anchor="middle" font-size="12">cpp</text>
+  <text class="fg-note" x="231" y="170" text-anchor="middle" font-size="11">cpp</text>
+  <path class="fg-line" d="M 290 108 L 314 108" fill="none" marker-end="url(#fda0f858-a)"/>
+  <rect class="fg-box" x="314" y="70" width="118" height="76" rx="9"/>
+  <text class="fg-t" x="373.0" y="100.0" text-anchor="middle" font-size="15">编译</text>
+  <text class="fg-s" x="373.0" y="121.0" text-anchor="middle" font-size="12">cc1</text>
+  <text class="fg-note" x="373" y="170" text-anchor="middle" font-size="11">cc1</text>
+  <path class="fg-line" d="M 432 108 L 456 108" fill="none" marker-end="url(#fda0f858-a)"/>
+  <rect class="fg-box" x="456" y="70" width="118" height="76" rx="9"/>
+  <text class="fg-t" x="515.0" y="100.0" text-anchor="middle" font-size="15">汇编</text>
+  <text class="fg-s" x="515.0" y="121.0" text-anchor="middle" font-size="12">as</text>
+  <text class="fg-note" x="515" y="170" text-anchor="middle" font-size="11">as</text>
+  <path class="fg-line" d="M 574 108 L 598 108" fill="none" marker-end="url(#fda0f858-a)"/>
+  <rect class="fg-box is-accent" x="598" y="70" width="118" height="76" rx="9"/>
+  <text class="fg-t" x="657.0" y="100.0" text-anchor="middle" font-size="15">链接</text>
+  <text class="fg-s" x="657.0" y="121.0" text-anchor="middle" font-size="12">ld</text>
+  <text class="fg-note" x="657" y="170" text-anchor="middle" font-size="11">ld</text>
+  <path class="fg-line" d="M 716 108 L 740 108" fill="none" marker-end="url(#fda0f858-a)"/>
+  <rect class="fg-box is-accent2" x="740" y="70" width="118" height="76" rx="9"/>
+  <text class="fg-t" x="799.0" y="100.0" text-anchor="middle" font-size="15">a.out</text>
+  <text class="fg-s" x="799.0" y="121.0" text-anchor="middle" font-size="12">可执行文件</text>
+  <text class="fg-s" x="799" y="170" text-anchor="middle" font-size="11">可执行文件</text>
+  <text class="fg-note" x="30" y="216" text-anchor="start" font-size="12">平时说的「编译」其实只是第 2 步；gcc 是个驱动器，四步它都替你调。</text>
+</svg>
+<figcaption>四步：预处理 → 编译 → 汇编 → 链接；每一步都是一次独立的程序调用</figcaption>
+</figure>
+<blockquote><p>Linux 下「麻烦」的那一步,只是因为把中间产物摆在了你面前。
+后面讲构建工具时,会发现它们管的就是这四步<strong>哪一步该重做</strong>。</p></blockquote>
+<p>Linux下的编译貌似有点繁琐，感觉，<strong>不如。。。Windows 编译。</strong></p></div>
       </section>
       
       <section class="slide slide--section" data-slide="8"

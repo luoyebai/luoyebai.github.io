@@ -15,20 +15,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>工程的构建与维护 · 洛叶白</title>
-<meta name="description" content="1. 从简单又常用的工具开始学习 2. CPP工具的学习 3. 编程范式与设计模式">
+<title>仿真 · 洛叶白</title>
+<meta name="description" content="仿真不是为了截图好看。什么时候值得上仿真、URDF 怎么写、物理步进为什么必须定步长，以及 sim2real 的差距到底差在哪。">
 <meta name="author" content="洛叶白">
 <meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#0b0d14" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#f7f7f5" media="(prefers-color-scheme: light)">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="洛叶白">
-<meta property="og:title" content="工程的构建与维护">
-<meta property="og:description" content="1. 从简单又常用的工具开始学习 2. CPP工具的学习 3. 编程范式与设计模式">
-<meta property="og:url" content="https://luoyebai.github.io/docs/build-and-maintain/">
+<meta property="og:title" content="仿真">
+<meta property="og:description" content="仿真不是为了截图好看。什么时候值得上仿真、URDF 怎么写、物理步进为什么必须定步长，以及 sim2real 的差距到底差在哪。">
+<meta property="og:url" content="https://luoyebai.github.io/docs/ros-sim/">
 <meta property="og:image" content="https://luoyebai.github.io/assets/images/favicon.svg">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="canonical" href="https://luoyebai.github.io/docs/build-and-maintain/">
+<link rel="canonical" href="https://luoyebai.github.io/docs/ros-sim/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
 <link rel="stylesheet" href="/assets/themes.css">
@@ -153,28 +153,28 @@
 
 
 <article class="doc" id="doc"
-         data-slides="25"
-         data-title="工程的构建与维护">
+         data-slides="19"
+         data-title="仿真">
   <header class="doc-head">
     <nav class="crumbs" aria-label="面包屑">
       <a href="/docs/">文档</a>
       <span aria-hidden="true">/</span>
-      <a href="/docs/windows-to-linux/">从 Windows 到 Linux</a>
+      <a href="/docs/vision/">ROS 与机器视觉</a>
       <span aria-hidden="true">/</span>
-      <span class="current">工程的构建与维护</span>
+      <span class="current">仿真</span>
     </nav>
 
-    <h1 class="doc-title">工程的构建与维护</h1>
-    <p class="doc-lede">1. 从简单又常用的工具开始学习 2. CPP工具的学习 3. 编程范式与设计模式</p>
+    <h1 class="doc-title">仿真</h1>
+    <p class="doc-lede">仿真不是为了截图好看。什么时候值得上仿真、URDF 怎么写、物理步进为什么必须定步长，以及 sim2real 的差距到底差在哪。</p>
 
     <p class="doc-meta">
-      <span class="meta-item"><b>5</b> / 5 篇</span>
-      <span class="meta-item"><b>25</b> 页幻灯片</span>
-      <span class="meta-item muted">迁移自 <a href="https://github.com/luoyebai/doc_html/blob/HEAD/视觉组教程/从Windows到Linux/工程的构建与维护/main.md" rel="noopener" target="_blank">源文档</a></span>
+      <span class="meta-item"><b>9</b> / 4 篇</span>
+      <span class="meta-item"><b>19</b> 页幻灯片</span>
+      
     </p>
   </header>
 
-  <section class="deck is-paged" id="deck" data-deck aria-roledescription="幻灯片" aria-label="工程的构建与维护">
+  <section class="deck is-paged" id="deck" data-deck aria-roledescription="幻灯片" aria-label="仿真">
     <noscript>
       <style>.deck .slide{display:block !important;margin-top:1.2rem}</style>
     </noscript>
@@ -191,7 +191,7 @@
           </svg>
         </button>
         <p class="deck-counter" aria-live="polite">
-          <b data-deck-no>1</b> / 25
+          <b data-deck-no>1</b> / 19
         </p>
       </div>
 
@@ -218,7 +218,7 @@
         
         <li class="is-section">
           <button type="button" data-deck-goto="0">
-            <span class="ol-no">0</span>计算机工程的构建与维护
+            <span class="ol-no">0</span>仿真
           </button>
         </li>
         
@@ -230,127 +230,103 @@
         
         <li class="is-section">
           <button type="button" data-deck-goto="2">
-            <span class="ol-no">2</span>1.简单的工具
+            <span class="ol-no">2</span>Q1. 仿真到底解决什么问题
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="3">
-            <span class="ol-no">3</span>工程中的各种&quot;简单&quot;工具
+            <span class="ol-no">3</span>先排除一个错误答案
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="4">
+            <span class="ol-no">4</span>什么时候不值得上仿真
           </button>
         </li>
         
         <li class="is-section">
+          <button type="button" data-deck-goto="5">
+            <span class="ol-no">5</span>Q2. 选哪个仿真器
+          </button>
+        </li>
+        
+        <li>
           <button type="button" data-deck-goto="6">
-            <span class="ol-no">6</span>2. CPP工程中的工具学习(TODO:待更新)
+            <span class="ol-no">6</span>对照表
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="7">
-            <span class="ol-no">7</span>好的工具是工程师实现与传递思想的武器
-          </button>
-        </li>
-        
-        <li class="is-section">
-          <button type="button" data-deck-goto="8">
-            <span class="ol-no">8</span>构建工具:make-&gt;cmake-&gt;xmake
+            <span class="ol-no">7</span>怎么选：看你要验证什么
           </button>
         </li>
         
         <li>
+          <button type="button" data-deck-goto="8">
+            <span class="ol-no">8</span>仿真循环里有个必须守的规矩
+          </button>
+        </li>
+        
+        <li class="is-section">
           <button type="button" data-deck-goto="9">
-            <span class="ol-no">9</span>看看makefile
+            <span class="ol-no">9</span>Q3. URDF 怎么写
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="10">
-            <span class="ol-no">10</span>Q1:构建为什么是必要的流程
+            <span class="ol-no">10</span>一棵树，两种东西
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="11">
-            <span class="ol-no">11</span>Q2:如何更好的构建
+            <span class="ol-no">11</span>一个最小可用的 URDF
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="12">
-            <span class="ol-no">12</span>makefile带来的缺点
+            <span class="ol-no">12</span>Xacro：别手写 URDF
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="13">
-            <span class="ol-no">13</span>makefile-&gt;cmake
+            <span class="ol-no">13</span>检查模型的两个土办法
           </button>
         </li>
         
-        <li>
+        <li class="is-section">
           <button type="button" data-deck-goto="14">
-            <span class="ol-no">14</span>2023年的今天
+            <span class="ol-no">14</span>Q4. 为什么到真机就不灵了
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="15">
-            <span class="ol-no">15</span>本节仅为拓展:xmake的依赖管理
+            <span class="ol-no">15</span>差距在哪
           </button>
         </li>
         
-        <li class="is-section">
+        <li>
           <button type="button" data-deck-goto="16">
-            <span class="ol-no">16</span>文档生成器:doxygen
+            <span class="ol-no">16</span>三种应对
           </button>
         </li>
         
-        <li class="is-section">
+        <li>
           <button type="button" data-deck-goto="17">
-            <span class="ol-no">17</span>调试器:gdb
+            <span class="ol-no">17</span>一条实用的验收线
           </button>
         </li>
         
-        <li class="is-section">
+        <li>
           <button type="button" data-deck-goto="18">
-            <span class="ol-no">18</span>静态检查器:cppcheck
-          </button>
-        </li>
-        
-        <li class="is-section">
-          <button type="button" data-deck-goto="19">
-            <span class="ol-no">19</span>动态分析器:spin,perf,boost test
-          </button>
-        </li>
-        
-        <li class="is-section">
-          <button type="button" data-deck-goto="20">
-            <span class="ol-no">20</span>项目管理:git
-          </button>
-        </li>
-        
-        <li class="is-section">
-          <button type="button" data-deck-goto="21">
-            <span class="ol-no">21</span>打包部署工具:docker
-          </button>
-        </li>
-        
-        <li class="is-section">
-          <button type="button" data-deck-goto="22">
-            <span class="ol-no">22</span>3. 编程范式与设计模式的思考(TODO:待更新)
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="23">
-            <span class="ol-no">23</span>系统地处理可维护性
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="24">
-            <span class="ol-no">24</span>编程语言相关
+            <span class="ol-no">18</span>小结
           </button>
         </li>
         
@@ -361,283 +337,275 @@
          aria-label="幻灯片内容，用左右方向键翻页">
       
       <section class="slide slide--section" data-slide="0"
-               data-title="计算机工程的构建与维护" data-section="1">
-        <div class="slide-inner"><h1><a href="https://zh.wikipedia.org/wiki/%E8%A8%88%E7%AE%97%E6%A9%9F%E5%B7%A5%E7%A8%8B" target="_blank" rel="noopener">计算机工程</a>的构建与维护</h1>
-<blockquote><p>计算机工程需要可维护性</p></blockquote></div>
+               data-title="仿真" data-section="1">
+        <div class="slide-inner"><h1>仿真</h1></div>
       </section>
       
       <section class="slide" data-slide="1"
                data-title="概述">
         <div class="slide-inner"><h2>概述</h2>
-<ol><li>从简单又常用的工具开始学习</li><li>CPP工具的学习</li><li>编程范式与设计模式</li></ol></div>
+<ul><li><strong>Q1.</strong> 仿真到底解决什么问题？</li><li><strong>Q2.</strong> 选哪个仿真器？</li><li><strong>Q3.</strong> URDF 怎么写？</li><li><strong>Q4.</strong> 仿真里的东西，为什么到真机就不灵了？</li></ul></div>
       </section>
       
       <section class="slide slide--section" data-slide="2"
-               data-title="1.简单的工具" data-section="1">
-        <div class="slide-inner"><h1>1.简单的工具</h1>
-<blockquote><p>Simplicity is prerequisite for weliability --- Edsger Dijkstra</p></blockquote></div>
+               data-title="Q1. 仿真到底解决什么问题" data-section="1">
+        <div class="slide-inner"><h1><strong>Q1.</strong> 仿真到底解决什么问题</h1></div>
       </section>
       
       <section class="slide" data-slide="3"
-               data-title="工程中的各种&quot;简单&quot;工具">
-        <div class="slide-inner"><h2>工程中的各种"简单"工具</h2>
-<ul><li>构建工具:通过指定参数对项目进行构建生成. <br></li></ul>
-<p>如:</p>
-<ul><li><a href="https://www.gnu.org/software/make/" target="_blank" rel="noopener">make 点击查看</a></li><li><a href="https://cmake.org/" target="_blank" rel="noopener">cmake 点击查看</a></li><li><a href="https://ninja-build.org/" target="_blank" rel="noopener">ninja 点击查看</a></li><li><a href="https://bazel.build/?hl=zh-cn" target="_blank" rel="noopener">bazel 点击查看</a></li><li><a href="https://xmake.io/#/zh-cn/" target="_blank" rel="noopener">xmake 点击查看</a></li></ul>
-<ul><li>生成工具:通过项目文本或指定内容生成文件.<br></li></ul>
-<p>如:</p>
-<ul><li><a href="https://www.doxygen.nl/index.html" target="_blank" rel="noopener">doxygen 点击查看</a></li><li><a href="https://github.com/features/copilot" target="_blank" rel="noopener">copilot 点击查看</a></li><li><a href="https://codegeex.cn/zh-CN" target="_blank" rel="noopener">codegeex 点击查看</a></li></ul></div>
+               data-title="先排除一个错误答案">
+        <div class="slide-inner"><h2>先排除一个错误答案</h2>
+<p><span class="ink ink-red">「仿真跑通了，真机就差不多了。」</span></p>
+<p>这句话是错的，而且是很多人第一次做 sim2real 时最贵的一课。
+那仿真还值得做吗？值得，因为它解决的是<strong>另外四件事</strong>：</p>
+<ul><li><strong>不用等硬件</strong>：机械臂还在采购，控制器的代码可以先写。</li><li><strong>不会摔坏</strong>：调参数时炸一百次，代价是零。</li><li><strong>可以复现</strong>：同一段轨迹能一模一样地重放，这在真机上做不到。</li><li><strong>能加速</strong>：仿真可以跑得比实时快，采数据用得上。</li></ul>
+<blockquote><p><span class="ink ink-blue">仿真的价值在「迭代速度」，不在「真实性」。</span></p></blockquote></div>
       </section>
       
       <section class="slide" data-slide="4"
-               data-title="">
-        <div class="slide-inner"><ul><li>动态分析器:对涉及执行相关程序的分析.<br><ul><li>模型检验:<a href="https://zh.wikipedia.org/wiki/%E5%BD%A2%E5%BC%8F%E8%AF%AD%E8%A8%80" target="_blank" rel="noopener">形式语义wiki 点击查看</a><ul><li><a href="https://spinroot.com/spin/whatispin.html" target="_blank" rel="noopener">spin 点击查看</a></li><li><a href="https://is.ifmo.ru/books/_principles_of_model_checking.pdf" target="_blank" rel="noopener">model-check相关书籍 点击查看</a></li></ul></li><li>单元测试:<ul><li><a href="https://google.github.io/googletest/" target="_blank" rel="noopener">google-test 点击查看</a></li><li><a href="https://cppunit.sourceforge.net/doc/1.8.0/" target="_blank" rel="noopener">cppunit 点击查看</a></li></ul></li><li>调试工具:在程序的执行过程中,暂停,插入,修改,查看其内容.<br><ul><li><a href="https://sourceware.org/gdb/" target="_blank" rel="noopener">gdb 点击查看</a></li><li><a href="https://lldb.llvm.org/" target="_blank" rel="noopener">lldb 点击查看</a></li></ul></li><li>性能分析:分析程序执行过程中,各部分消耗的性能相关资源.<br><ul><li><a href="https://www.brendangregg.com/perf.html" target="_blank" rel="noopener">perf 点击查看</a></li><li><a href="https://www.brendangregg.com/flamegraphs.html" target="_blank" rel="noopener">flame-graphs 点击查看</a></li></ul></li></ul></li></ul></div>
+               data-title="什么时候不值得上仿真">
+        <div class="slide-inner"><h2>什么时候<strong>不值得</strong>上仿真</h2>
+<ul><li>只做一次、路径很短的验证 —— 搭环境的成本比直接上真机高。</li><li>瓶颈在<strong>接触</strong>（装配、插拔、拧螺丝）—— 现在的接触仿真还不便宜也不够准。</li><li>瓶颈在<strong>感知</strong>（光照、反光、透明件）—— 渲染差距会把结论带偏。</li></ul>
+<p><del>还有一种：只是想截一张好看的图发朋友圈。</del></p></div>
       </section>
       
-      <section class="slide" data-slide="5"
-               data-title="">
-        <div class="slide-inner"><ul><li>静态检查器:检查代码格式,内容.输出分析结果信息.<br><ul><li><a href="http://cppcheck.net/" target="_blank" rel="noopener">cppcheck 点击查看</a></li><li><a href="https://clang.llvm.org/extra/clang-tidy/" target="_blank" rel="noopener">clang-tidy 点击查看</a></li></ul></li><li>管理工具:管理代码版本和内容,方便维护代码.<br></li></ul>
-<p>如:</p>
-<ul><li><a href="https://git-scm.com/" target="_blank" rel="noopener">git 点击查看</a> </li><li><a href="https://tortoisesvn.net/" target="_blank" rel="noopener">svn 点击查看</a></li></ul>
-<ul><li>打包工具:对制作好的程序进行包装部署,简化部署流程.<br></li></ul>
-<p>如:</p>
-<ul><li><a href="https://www.docker.com/" target="_blank" rel="noopener">docker 点击查看</a></li><li><a href="https://podman.io/" target="_blank" rel="noopener">podman 点击查看</a></li></ul>
-<blockquote><p>这些工具共同作用于程工程项目,提供一个良好的可维护环境</p></blockquote></div>
+      <section class="slide slide--section" data-slide="5"
+               data-title="Q2. 选哪个仿真器" data-section="1">
+        <div class="slide-inner"><h1><strong>Q2.</strong> 选哪个仿真器</h1></div>
       </section>
       
-      <section class="slide slide--section" data-slide="6"
-               data-title="2. CPP工程中的工具学习(TODO:待更新)" data-section="1">
-        <div class="slide-inner"><h1>2. CPP工程中的工具学习<br><span class="ink ink-red">(TODO:待更新)</span></h1>
-<blockquote><p>好的工程能准确地传达工程师的思想与目的</p></blockquote></div>
+      <section class="slide" data-slide="6"
+               data-title="对照表">
+        <div class="slide-inner"><h2>对照表</h2>
+<div class="table-wrap"><table>
+<thead><tr><th></th><th>Gazebo / Ignition</th><th>MuJoCo</th><th>Isaac Sim</th><th>PyBullet</th></tr></thead>
+<tbody>
+<tr><td>定位</td><td>ROS 原生仿真</td><td>接触与动力学</td><td>GPU 大规模并行</td><td>轻量快速</td></tr>
+<tr><td>物理精度</td><td>中</td><td><strong>高</strong>（接触）</td><td>中高</td><td>中</td></tr>
+<tr><td>渲染</td><td>中</td><td>弱</td><td><strong>强</strong>（光追）</td><td>弱</td></tr>
+<tr><td>速度</td><td>实时</td><td>快</td><td><strong>极快</strong>（几千环境并行）</td><td>快</td></tr>
+<tr><td>ROS 集成</td><td><strong>最好</strong></td><td>一般</td><td>好</td><td>一般</td></tr>
+<tr><td>上手成本</td><td>低</td><td>低</td><td>高（要 GPU）</td><td><strong>最低</strong></td></tr>
+<tr><td>适合</td><td>系统联调</td><td>足式 / 操作臂控制</td><td>强化学习 / 合成数据</td><td>算法原型</td></tr>
+</tbody></table></div></div>
       </section>
       
       <section class="slide" data-slide="7"
-               data-title="好的工具是工程师实现与传递思想的武器">
-        <div class="slide-inner"><h2>好的工具是工程师实现与传递思想的武器</h2>
-<ul><li>有什么工具就在很大程度上意味着需要做什么<br><ul><li>工具是工程实现流程的体现</li><li>知道需要什么工具可能比工具本身更重要</li></ul></li><li>工具代表了开发环节<ul><li>每个工具侧重的方向不同</li><li>理解每个工具的目的才是重点</li></ul></li></ul>
-<blockquote><p>编辑器在代码编写过程中最为重要,既代码才是重中之重</p></blockquote></div>
+               data-title="怎么选：看你要验证什么">
+        <div class="slide-inner"><h2>怎么选：看你要验证什么</h2>
+<ul><li>验证<strong>系统集成</strong>（话题通不通、launch 写得对不对）→ Gazebo。</li><li>验证<strong>控制器</strong>（WBC / MPC 跟不跟得上）→ MuJoCo。</li><li>训练<strong>强化学习策略</strong>、需要几百万步 → Isaac Sim。</li><li>只是想快速试一个算法 → PyBullet。</li></ul>
+<blockquote><p><span class="ink ink-blue">选错仿真器的代价不是「跑不起来」，而是「结论不可信」。</span>
+用渲染很弱的仿真器去研究视觉，得出来的结论没有意义。</p></blockquote></div>
       </section>
       
-      <section class="slide slide--section" data-slide="8"
-               data-title="构建工具:make-&gt;cmake-&gt;xmake" data-section="1">
-        <div class="slide-inner"><h2>构建工具:<a href="https://www.gnu.org/software/make/" target="_blank" rel="noopener">make</a>-&gt;<a href="https://cmake.org/" target="_blank" rel="noopener">cmake</a>-&gt;<a href="https://xmake.io/#/zh-cn/" target="_blank" rel="noopener">xmake</a></h2>
-<ul><li>先讲讲构建工具<br></li></ul>
-<p>Q1:构建为什么是必要的流程?<br>
-Q2:如何更好地构建?<br></p>
-<ul><li>回答这两个问题,从具体的工具出发可能会更清晰<br></li></ul>
-<p>先看看使用makefile构建的这样一个工程<br></p>
-<ul><li>不过在谈工具之前,先得知道<strong>「编译一个 C 程序」本身分几步</strong> ——</li></ul>
-<p>工具只是在替你安排这几步:</p>
-<figure class="docfig-wrap" data-fig="build-flow">
-<svg class="docfig" viewBox="0 0 820 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="四步：预处理 → 编译 → 汇编 → 链接；每一步都是一次独立的程序调用">
-  <defs><marker id="fda0f858-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" class="fg-head"/></marker></defs>
-  <rect class="fg-box is-fg-muted" x="30" y="70" width="118" height="76" rx="9"/>
-  <text class="fg-t" x="89.0" y="100.0" text-anchor="middle" font-size="15">foo.c</text>
-  <text class="fg-s" x="89.0" y="121.0" text-anchor="middle" font-size="12">源文件</text>
-  <text class="fg-s" x="89" y="170" text-anchor="middle" font-size="11">源文件</text>
-  <path class="fg-line" d="M 148 108 L 172 108" fill="none" marker-end="url(#fda0f858-a)"/>
-  <rect class="fg-box" x="172" y="70" width="118" height="76" rx="9"/>
-  <text class="fg-t" x="231.0" y="100.0" text-anchor="middle" font-size="15">预处理</text>
-  <text class="fg-s" x="231.0" y="121.0" text-anchor="middle" font-size="12">cpp</text>
-  <text class="fg-note" x="231" y="170" text-anchor="middle" font-size="11">cpp</text>
-  <path class="fg-line" d="M 290 108 L 314 108" fill="none" marker-end="url(#fda0f858-a)"/>
-  <rect class="fg-box" x="314" y="70" width="118" height="76" rx="9"/>
-  <text class="fg-t" x="373.0" y="100.0" text-anchor="middle" font-size="15">编译</text>
-  <text class="fg-s" x="373.0" y="121.0" text-anchor="middle" font-size="12">cc1</text>
-  <text class="fg-note" x="373" y="170" text-anchor="middle" font-size="11">cc1</text>
-  <path class="fg-line" d="M 432 108 L 456 108" fill="none" marker-end="url(#fda0f858-a)"/>
-  <rect class="fg-box" x="456" y="70" width="118" height="76" rx="9"/>
-  <text class="fg-t" x="515.0" y="100.0" text-anchor="middle" font-size="15">汇编</text>
-  <text class="fg-s" x="515.0" y="121.0" text-anchor="middle" font-size="12">as</text>
-  <text class="fg-note" x="515" y="170" text-anchor="middle" font-size="11">as</text>
-  <path class="fg-line" d="M 574 108 L 598 108" fill="none" marker-end="url(#fda0f858-a)"/>
-  <rect class="fg-box is-accent" x="598" y="70" width="118" height="76" rx="9"/>
-  <text class="fg-t" x="657.0" y="100.0" text-anchor="middle" font-size="15">链接</text>
-  <text class="fg-s" x="657.0" y="121.0" text-anchor="middle" font-size="12">ld</text>
-  <text class="fg-note" x="657" y="170" text-anchor="middle" font-size="11">ld</text>
-  <path class="fg-line" d="M 716 108 L 740 108" fill="none" marker-end="url(#fda0f858-a)"/>
-  <rect class="fg-box is-accent2" x="740" y="70" width="118" height="76" rx="9"/>
-  <text class="fg-t" x="799.0" y="100.0" text-anchor="middle" font-size="15">a.out</text>
-  <text class="fg-s" x="799.0" y="121.0" text-anchor="middle" font-size="12">可执行文件</text>
-  <text class="fg-s" x="799" y="170" text-anchor="middle" font-size="11">可执行文件</text>
-  <text class="fg-note" x="30" y="216" text-anchor="start" font-size="12">平时说的「编译」其实只是第 2 步；gcc 是个驱动器，四步它都替你调。</text>
+      <section class="slide" data-slide="8"
+               data-title="仿真循环里有个必须守的规矩">
+        <div class="slide-inner"><h2>仿真循环里有个必须守的规矩</h2>
+<figure class="docfig-wrap" data-fig="sim-loop">
+<svg class="docfig" viewBox="0 0 800 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="仿真循环：物理步进 → 推进仿真时钟 → 发布传感器数据 → 执行器指令回灌">
+  <defs><marker id="f3037e45-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" class="fg-head"/></marker></defs>
+  <rect class="fg-box is-accent2" x="60" y="70" width="150" height="84" rx="9"/>
+  <text class="fg-t" x="135.0" y="104.0" text-anchor="middle" font-size="15">读指令</text>
+  <text class="fg-s" x="135.0" y="125.0" text-anchor="middle" font-size="12">订阅 cmd_vel</text>
+  <rect class="fg-box is-accent" x="250" y="70" width="150" height="84" rx="9"/>
+  <text class="fg-t" x="325.0" y="104.0" text-anchor="middle" font-size="15">物理步进</text>
+  <text class="fg-s" x="325.0" y="125.0" text-anchor="middle" font-size="12">dt = 1 ms</text>
+  <rect class="fg-box" x="440" y="70" width="150" height="84" rx="9"/>
+  <text class="fg-t" x="515.0" y="104.0" text-anchor="middle" font-size="15">推进时钟</text>
+  <text class="fg-s" x="515.0" y="125.0" text-anchor="middle" font-size="12">仿真时间 +dt</text>
+  <rect class="fg-box" x="630" y="70" width="150" height="84" rx="9"/>
+  <text class="fg-t" x="705.0" y="104.0" text-anchor="middle" font-size="15">发传感器</text>
+  <text class="fg-s" x="705.0" y="125.0" text-anchor="middle" font-size="12">相机 / IMU / 里程计</text>
+  <path class="fg-line" d="M 210 112 L 248 112" fill="none" marker-end="url(#f3037e45-a)"/>
+  <path class="fg-line" d="M 400 112 L 438 112" fill="none" marker-end="url(#f3037e45-a)"/>
+  <path class="fg-line" d="M 590 112 L 628 112" fill="none" marker-end="url(#f3037e45-a)"/>
+  <path class="fg-line is-accent" d="M 705 154 L 705 230 L 135 230 L 135 156" fill="none"/>
+  <path class="fg-line" d="M 135 230 L 135 158" fill="none" marker-end="url(#f3037e45-a)"/>
+  <text class="fg-s" x="420" y="254" text-anchor="middle" font-size="12">回灌到下一步（这一步必须是定步长，否则物理会飘）</text>
+  <text class="fg-note" x="60" y="296" text-anchor="start" font-size="12">真实时间是墙上的钟；仿真时间是仿真器自己数的。两者不一致，控制器就必须按仿真时间工作。</text>
 </svg>
-<figcaption>四步：预处理 → 编译 → 汇编 → 链接；每一步都是一次独立的程序调用</figcaption>
+<figcaption>仿真循环：物理步进 → 推进仿真时钟 → 发布传感器数据 → 执行器指令回灌</figcaption>
 </figure>
-<blockquote><p>记住这张图:平时口语说的「编译」只是第 2 步。
-<code>gcc</code> 其实是个<strong>驱动器</strong>,四步它都替你调;而「构建」要解决的问题是
-<span class="ink ink-blue">哪一步可以跳过、哪一步变了要重做</span>。</p></blockquote>
-<div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-text">./code
-├── build
-│   ├── main
-│   └── sum.o
-├── include
-│   └── sum.h
-├── makefile
-└── src
-    ├── main.c
-    └── sum.c
-4 directories, 6 files</code></pre></div></div>
+<p><span class="ink ink-red">物理步进必须是<strong>定步长</strong>。</span></p>
+<ul><li>物理引擎的稳定性、接触求解、积分误差全都建立在「每步 dt 固定」之上。</li><li>用真实时间当 dt，帧率一抖，机器人就会自己抖起来 —— 而且现象像是控制器的问题。</li></ul>
+<div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-text">墙上的钟  → 真实时间（Real Time Factor 描述仿真比它快还是慢）
+仿真时钟  → 仿真器自己数的时间，控制器应该用它</code></pre></div>
+<blockquote><p><span class="ink ink-blue">仿真里要把 <code>use_sim_time</code> 打开</span>，否则节点用真实时间，
+一加速仿真，所有定时器都会错乱。</p></blockquote></div>
       </section>
       
-      <section class="slide" data-slide="9"
-               data-title="看看makefile">
-        <div class="slide-inner"><h3>看看makefile</h3>
-<ul><li>这样一个工程很简单,使用make编译就好<br></li></ul>
-<p>顺便看看<a href="/assets/docs/build-and-maintain/code/makefile">makefile文件</a><br></p>
-<div class="code-block" data-lang="makefile"><div class="code-head"><span class="code-lang">makefile</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-makefile"><span class="tok-type">TARGET</span><span class="tok-punct">=</span>main
-<span class="tok-type">OBJS</span> <span class="tok-punct">=</span> sum.o
-<span class="tok-type">CC</span> <span class="tok-punct">=</span> g++
-<span class="tok-type">INCLUDE_DIR</span><span class="tok-punct">=</span><span class="tok-keyword">include</span>
-<span class="tok-type">SRC_DIR</span><span class="tok-punct">=</span>src
-<span class="tok-type">BUILD_DIR</span><span class="tok-punct">=</span>build
-<span class="tok-type">CFLAGS</span><span class="tok-punct">=</span>-<span class="tok-type">I</span><span class="tok-variable">$(INCLUDE_DIR)</span> -<span class="tok-type">O2</span> -o
-
-<span class="tok-key">main</span><span class="tok-punct">:</span> <span class="tok-variable">$(OBJS)</span> <span class="tok-variable">$(SRC_DIR)</span>/main.c
-	<span class="tok-variable">$(CC)</span> <span class="tok-variable">$(BUILD_DIR)</span>/*.o <span class="tok-variable">$(SRC_DIR)</span>/main.c <span class="tok-variable">$(CFLAGS)</span> <span class="tok-variable">$(BUILD_DIR)</span>/<span class="tok-variable">$(TARGET)</span>
-
-<span class="tok-key">sum.o</span><span class="tok-punct">:</span> <span class="tok-variable">$(SRC_DIR)</span>/sum.c
-	<span class="tok-variable">$(CC)</span> -c <span class="tok-variable">$(SRC_DIR)</span>/sum.c <span class="tok-variable">$(CFLAGS)</span> <span class="tok-variable">$(BUILD_DIR)</span>/sum.o</code></pre></div></div>
+      <section class="slide slide--section" data-slide="9"
+               data-title="Q3. URDF 怎么写" data-section="1">
+        <div class="slide-inner"><h1><strong>Q3.</strong> URDF 怎么写</h1></div>
       </section>
       
       <section class="slide" data-slide="10"
-               data-title="Q1:构建为什么是必要的流程">
-        <div class="slide-inner"><h3>Q1:构建为什么是必要的流程<br></h3>
-<ul><li>从makefile中我们可以得到很多信息<br></li></ul>
-<p>这是在.c和.h代码中很难得到的信息,这个makefile它告诉了我们<br></p>
-<ul><li>程序的结构<ul><li>源码-&gt;src</li><li>头文件-&gt;include</li><li>生成文件-&gt;build</li></ul></li><li>编译的参数<ul><li>使用g++命令编译,而不是gcc(这意味着之后可能引入cpp文件)</li><li>-O2 使用等级为2的优化,而且没有-g,意味着这不是debug模式</li></ul></li></ul>
-<blockquote><p>构建这一步骤不仅仅是提供了方便,而且给出了很多源码没有的信息,这也许更为重要</p></blockquote></div>
+               data-title="一棵树，两种东西">
+        <div class="slide-inner"><h2>一棵树，两种东西</h2>
+<figure class="docfig-wrap" data-fig="urdf-tree">
+<svg class="docfig" viewBox="0 0 800 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="URDF 是一棵树：link 是刚体，joint 连接父子 link 并给出类型与轴">
+  <defs><marker id="ff3bf3e8-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" class="fg-head"/></marker></defs>
+  <rect class="fg-box is-accent" x="320" y="40" width="160" height="56" rx="9"/>
+  <text class="fg-t" x="400.0" y="68.0" text-anchor="middle" font-size="15">base_link</text>
+  <rect class="fg-box" x="120" y="150" width="150" height="56" rx="9"/>
+  <text class="fg-t" x="195.0" y="178.0" text-anchor="middle" font-size="15">wheel_left</text>
+  <rect class="fg-box" x="320" y="150" width="160" height="56" rx="9"/>
+  <text class="fg-t" x="400.0" y="178.0" text-anchor="middle" font-size="15">torso_link</text>
+  <rect class="fg-box" x="540" y="150" width="150" height="56" rx="9"/>
+  <text class="fg-t" x="615.0" y="178.0" text-anchor="middle" font-size="15">wheel_right</text>
+  <rect class="fg-box is-accent2" x="320" y="260" width="160" height="56" rx="9"/>
+  <text class="fg-t" x="400.0" y="288.0" text-anchor="middle" font-size="15">head_link</text>
+  <path class="fg-line" d="M 360 96 L 220 148" fill="none" marker-end="url(#ff3bf3e8-a)"/>
+  <path class="fg-line" d="M 400 96 L 400 148" fill="none" marker-end="url(#ff3bf3e8-a)"/>
+  <path class="fg-line" d="M 440 96 L 580 148" fill="none" marker-end="url(#ff3bf3e8-a)"/>
+  <path class="fg-line" d="M 400 206 L 400 258" fill="none" marker-end="url(#ff3bf3e8-a)"/>
+  <text class="fg-s" x="258" y="116" text-anchor="middle" font-size="11">continuous</text>
+  <text class="fg-s" x="412" y="126" text-anchor="start" font-size="11">fixed</text>
+  <text class="fg-s" x="548" y="116" text-anchor="middle" font-size="11">continuous</text>
+  <text class="fg-s" x="412" y="240" text-anchor="start" font-size="11">revolute</text>
+  <text class="fg-note" x="120" y="330" text-anchor="start" font-size="12">每个 joint 描述三件事：父子是谁、绕哪根轴、限位多少。</text>
+</svg>
+<figcaption>URDF 是一棵树：link 是刚体，joint 连接父子 link 并给出类型与轴</figcaption>
+</figure>
+<ul><li><strong>link</strong>：刚体。有质量、惯性矩阵、可视几何、碰撞几何。</li><li><strong>joint</strong>：连接父子 link。描述「绕哪根轴、什么类型、限位多少」。</li></ul>
+<p>关节类型只有这几种，别记混：</p>
+<div class="table-wrap"><table>
+<thead><tr><th>类型</th><th>自由度</th><th>用途</th></tr></thead>
+<tbody>
+<tr><td><code>fixed</code></td><td>0</td><td>传感器固定安装</td></tr>
+<tr><td><code>revolute</code></td><td>1，<strong>有限位</strong></td><td>机械臂关节</td></tr>
+<tr><td><code>continuous</code></td><td>1，无限位</td><td>轮子</td></tr>
+<tr><td><code>prismatic</code></td><td>1，直线</td><td>升降、夹爪</td></tr>
+<tr><td><code>floating</code></td><td>6</td><td>浮动基座</td></tr>
+<tr><td><code>planar</code></td><td>2</td><td>平面移动</td></tr>
+</tbody></table></div></div>
       </section>
       
       <section class="slide" data-slide="11"
-               data-title="Q2:如何更好的构建">
-        <div class="slide-inner"><h3>Q2:如何更好的构建<br></h3>
-<ul><li>上述的构建模式很好,这像极了从<span class="ink ink-blue">汇编到c</span>的过程<br></li></ul>
-<p>我们有一套很不错的构建模式了</p>
-<ul><li>但也正如c语言完成了历史任务一般,我们可以做的更好</li><li><span class="ink ink-red">如c到c++一般,makefile便要到cmake了</span></li></ul>
-<blockquote><p>从makefile到cmake,构建体系逐渐完善</p></blockquote>
-<ul><li>先把三者的分工摆清楚,后面看任何构建脚本都不会迷路:</li></ul>
-<figure class="docfig-wrap" data-fig="cmake-flow">
-<svg class="docfig" viewBox="0 0 800 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="CMake 读 CMakeLists.txt 生成构建文件，Make/Ninja 读构建文件调编译器">
-  <defs><marker id="f0fd33c7-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" class="fg-head"/></marker></defs>
-  <rect class="fg-box" x="40" y="60" width="180" height="74" rx="9"/>
-  <text class="fg-t" x="130.0" y="89.0" text-anchor="middle" font-size="15">CMakeLists.txt</text>
-  <text class="fg-s" x="130.0" y="110.0" text-anchor="middle" font-size="12">你写的</text>
-  <rect class="fg-box is-accent" x="300" y="60" width="200" height="74" rx="9"/>
-  <text class="fg-t" x="400.0" y="89.0" text-anchor="middle" font-size="15">CMake</text>
-  <text class="fg-s" x="400.0" y="110.0" text-anchor="middle" font-size="12">生成器</text>
-  <rect class="fg-box" x="580" y="60" width="180" height="74" rx="9"/>
-  <text class="fg-t" x="670.0" y="89.0" text-anchor="middle" font-size="15">Makefile / build.ninja</text>
-  <text class="fg-s" x="670.0" y="110.0" text-anchor="middle" font-size="12">生成物</text>
-  <rect class="fg-box is-accent2" x="300" y="190" width="200" height="74" rx="9"/>
-  <text class="fg-t" x="400.0" y="219.0" text-anchor="middle" font-size="15">make / ninja</text>
-  <text class="fg-s" x="400.0" y="240.0" text-anchor="middle" font-size="12">调度器</text>
-  <rect class="fg-box" x="580" y="190" width="180" height="74" rx="9"/>
-  <text class="fg-t" x="670.0" y="219.0" text-anchor="middle" font-size="15">编译器 / 链接器</text>
-  <text class="fg-s" x="670.0" y="240.0" text-anchor="middle" font-size="12">真正干活</text>
-  <path class="fg-line" d="M 220 97 L 298 97" fill="none" marker-end="url(#f0fd33c7-a)"/>
-  <path class="fg-line" d="M 500 97 L 578 97" fill="none" marker-end="url(#f0fd33c7-a)"/>
-  <path class="fg-line" d="M 670 134 L 670 160" fill="none" marker-end="url(#f0fd33c7-a)"/>
-  <path class="fg-line is-accent2" d="M 670 160 L 400 160 L 400 188" fill="none"/>
-  <path class="fg-line" d="M 500 227 L 578 227" fill="none" marker-end="url(#f0fd33c7-a)"/>
-  <text class="fg-note" x="40" y="300" text-anchor="start" font-size="12">只写 Makefile 也能活，但换平台/换编译器时 CMake 帮你把差异吃掉。</text>
-</svg>
-<figcaption>CMake 读 CMakeLists.txt 生成构建文件，Make/Ninja 读构建文件调编译器</figcaption>
-</figure>
-<blockquote><p>CMake 不编译代码,它<strong>生成构建文件</strong>;Make 不编译代码,它<strong>调度</strong>;
-真正调编译器的是最底下那一层。换平台、换编译器,差异全被 CMake 吃掉。</p></blockquote>
-<h4>为什么要从makefile到cmake?</h4>
-<ul><li>makefile很方便了,在上面可以指定编译的工具,文件位置等参数<br></li></ul>
-<p>貌似没什么缺点,写下命令就可以自动化工作.<br></p>
-<blockquote><p>但是这种构造合理吗? 或者说有没有可能更好?</p></blockquote></div>
+               data-title="一个最小可用的 URDF">
+        <div class="slide-inner"><h2>一个最小可用的 URDF</h2>
+<div class="code-block" data-lang="xml"><div class="code-head"><span class="code-lang">xml</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-xml"><span class="tok-keyword">&lt;robot</span> <span class="tok-key">name</span><span class="tok-punct">=</span><span class="tok-string">&quot;arm&quot;</span><span class="tok-punct">&gt;</span>
+  <span class="tok-keyword">&lt;link</span> <span class="tok-key">name</span><span class="tok-punct">=</span><span class="tok-string">&quot;base_link&quot;</span><span class="tok-punct">&gt;</span>
+    <span class="tok-keyword">&lt;inertial</span><span class="tok-punct">&gt;</span>
+      <span class="tok-keyword">&lt;mass</span> <span class="tok-key">value</span><span class="tok-punct">=</span><span class="tok-string">&quot;5.0&quot;</span><span class="tok-punct">/</span><span class="tok-punct">&gt;</span>
+      <span class="tok-keyword">&lt;inertia</span> <span class="tok-key">ixx</span><span class="tok-punct">=</span><span class="tok-string">&quot;0.02&quot;</span> <span class="tok-key">iyy</span><span class="tok-punct">=</span><span class="tok-string">&quot;0.02&quot;</span> <span class="tok-key">izz</span><span class="tok-punct">=</span><span class="tok-string">&quot;0.03&quot;</span> <span class="tok-key">ixy</span><span class="tok-punct">=</span><span class="tok-string">&quot;0&quot;</span> <span class="tok-key">ixz</span><span class="tok-punct">=</span><span class="tok-string">&quot;0&quot;</span> <span class="tok-key">iyz</span><span class="tok-punct">=</span><span class="tok-string">&quot;0&quot;</span><span class="tok-punct">/</span><span class="tok-punct">&gt;</span>
+    <span class="tok-keyword">&lt;/inertial</span><span class="tok-punct">&gt;</span>
+    <span class="tok-keyword">&lt;visual</span><span class="tok-punct">&gt;</span>
+      <span class="tok-keyword">&lt;geometry</span><span class="tok-punct">&gt;</span><span class="tok-keyword">&lt;cylinder</span> <span class="tok-key">radius</span><span class="tok-punct">=</span><span class="tok-string">&quot;0.1&quot;</span> <span class="tok-key">length</span><span class="tok-punct">=</span><span class="tok-string">&quot;0.2&quot;</span><span class="tok-punct">/</span><span class="tok-punct">&gt;</span><span class="tok-keyword">&lt;/geometry</span><span class="tok-punct">&gt;</span>
+    <span class="tok-keyword">&lt;/visual</span><span class="tok-punct">&gt;</span>
+    <span class="tok-keyword">&lt;collision</span><span class="tok-punct">&gt;</span>
+      <span class="tok-keyword">&lt;geometry</span><span class="tok-punct">&gt;</span><span class="tok-keyword">&lt;cylinder</span> <span class="tok-key">radius</span><span class="tok-punct">=</span><span class="tok-string">&quot;0.1&quot;</span> <span class="tok-key">length</span><span class="tok-punct">=</span><span class="tok-string">&quot;0.2&quot;</span><span class="tok-punct">/</span><span class="tok-punct">&gt;</span><span class="tok-keyword">&lt;/geometry</span><span class="tok-punct">&gt;</span>
+    <span class="tok-keyword">&lt;/collision</span><span class="tok-punct">&gt;</span>
+  <span class="tok-keyword">&lt;/link</span><span class="tok-punct">&gt;</span>
+
+  <span class="tok-keyword">&lt;link</span> <span class="tok-key">name</span><span class="tok-punct">=</span><span class="tok-string">&quot;upper_arm&quot;</span><span class="tok-punct">/</span><span class="tok-punct">&gt;</span>
+
+  <span class="tok-keyword">&lt;joint</span> <span class="tok-key">name</span><span class="tok-punct">=</span><span class="tok-string">&quot;shoulder&quot;</span> <span class="tok-key">type</span><span class="tok-punct">=</span><span class="tok-string">&quot;revolute&quot;</span><span class="tok-punct">&gt;</span>
+    <span class="tok-keyword">&lt;parent</span> <span class="tok-key">link</span><span class="tok-punct">=</span><span class="tok-string">&quot;base_link&quot;</span><span class="tok-punct">/</span><span class="tok-punct">&gt;</span>
+    <span class="tok-keyword">&lt;child</span> <span class="tok-key">link</span><span class="tok-punct">=</span><span class="tok-string">&quot;upper_arm&quot;</span><span class="tok-punct">/</span><span class="tok-punct">&gt;</span>
+    <span class="tok-keyword">&lt;origin</span> <span class="tok-key">xyz</span><span class="tok-punct">=</span><span class="tok-string">&quot;0 0 0.15&quot;</span> <span class="tok-key">rpy</span><span class="tok-punct">=</span><span class="tok-string">&quot;0 0 0&quot;</span><span class="tok-punct">/</span><span class="tok-punct">&gt;</span>   <span class="tok-comment">&lt;!-- 相对父 link 的位置 --&gt;</span>
+    <span class="tok-keyword">&lt;axis</span> <span class="tok-key">xyz</span><span class="tok-punct">=</span><span class="tok-string">&quot;0 1 0&quot;</span><span class="tok-punct">/</span><span class="tok-punct">&gt;</span>                    <span class="tok-comment">&lt;!-- 绕 y 轴转 --&gt;</span>
+    <span class="tok-keyword">&lt;limit</span> <span class="tok-key">lower</span><span class="tok-punct">=</span><span class="tok-string">&quot;-1.57&quot;</span> <span class="tok-key">upper</span><span class="tok-punct">=</span><span class="tok-string">&quot;1.57&quot;</span> <span class="tok-key">effort</span><span class="tok-punct">=</span><span class="tok-string">&quot;50&quot;</span> <span class="tok-key">velocity</span><span class="tok-punct">=</span><span class="tok-string">&quot;3.0&quot;</span><span class="tok-punct">/</span><span class="tok-punct">&gt;</span>
+  <span class="tok-keyword">&lt;/joint</span><span class="tok-punct">&gt;</span>
+<span class="tok-keyword">&lt;/robot</span><span class="tok-punct">&gt;</span></code></pre></div>
+<p><span class="ink ink-red">最容易写错的四处：</span>质量的量级、惯性矩阵、
+<code>origin</code> 的坐标系（是<strong>父 link</strong> 的）、以及碰撞几何比可视几何大一圈。</p></div>
       </section>
       
       <section class="slide" data-slide="12"
-               data-title="makefile带来的缺点">
-        <div class="slide-inner"><h4>makefile带来的缺点</h4>
-<ul><li>makefile的缺点和c语言很像,没有深层次的特性和抽象<br></li></ul>
-<p>即过于简单,而带来的两个问题</p>
-<ul><li>因为简易性而带来的<span class="ink ink-red">信息不足</span><br>
-这个问题可以用注释,规范,和大量的变量去解决</li><li>因为简单性而导致的<span class="ink ink-red">抽象不足</span></li></ul>
-<ul><li>但面对第二个问题,抽象不足带来的最大毛病则是,工程量变大时</li></ul>
-<p>makefile的手写会很麻烦,而且想要跨平台也很复杂<br></p>
-<ul><li>根据我们从工程中汲取的经验,是时候换一种方式:<br>
-写一个专门生成makefile的"语言"了<br></li></ul></div>
+               data-title="Xacro：别手写 URDF">
+        <div class="slide-inner"><h2>Xacro：别手写 URDF</h2>
+<p>真机模型几百行，直接写 URDF 会疯。Xacro 是它的宏语言：</p>
+<div class="code-block" data-lang="xml"><div class="code-head"><span class="code-lang">xml</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-xml"><span class="tok-keyword">&lt;xacro:macro</span> <span class="tok-key">name</span><span class="tok-punct">=</span><span class="tok-string">&quot;wheel&quot;</span> <span class="tok-key">params</span><span class="tok-punct">=</span><span class="tok-string">&quot;prefix reflect&quot;</span><span class="tok-punct">&gt;</span>
+  <span class="tok-keyword">&lt;link</span> <span class="tok-key">name</span><span class="tok-punct">=</span><span class="tok-string">&quot;${prefix}_wheel&quot;</span><span class="tok-punct">/</span><span class="tok-punct">&gt;</span>
+  <span class="tok-keyword">&lt;joint</span> <span class="tok-key">name</span><span class="tok-punct">=</span><span class="tok-string">&quot;${prefix}_wheel_joint&quot;</span> <span class="tok-key">type</span><span class="tok-punct">=</span><span class="tok-string">&quot;continuous&quot;</span><span class="tok-punct">&gt;</span>
+    <span class="tok-keyword">&lt;parent</span> <span class="tok-key">link</span><span class="tok-punct">=</span><span class="tok-string">&quot;base_link&quot;</span><span class="tok-punct">/</span><span class="tok-punct">&gt;</span>
+    <span class="tok-keyword">&lt;child</span> <span class="tok-key">link</span><span class="tok-punct">=</span><span class="tok-string">&quot;${prefix}_wheel&quot;</span><span class="tok-punct">/</span><span class="tok-punct">&gt;</span>
+    <span class="tok-keyword">&lt;origin</span> <span class="tok-key">xyz</span><span class="tok-punct">=</span><span class="tok-string">&quot;0 ${0.15 * reflect} -0.05&quot;</span> <span class="tok-key">rpy</span><span class="tok-punct">=</span><span class="tok-string">&quot;0 0 0&quot;</span><span class="tok-punct">/</span><span class="tok-punct">&gt;</span>
+    <span class="tok-keyword">&lt;axis</span> <span class="tok-key">xyz</span><span class="tok-punct">=</span><span class="tok-string">&quot;0 1 0&quot;</span><span class="tok-punct">/</span><span class="tok-punct">&gt;</span>
+  <span class="tok-keyword">&lt;/joint</span><span class="tok-punct">&gt;</span>
+<span class="tok-keyword">&lt;/xacro:macro</span><span class="tok-punct">&gt;</span>
+
+<span class="tok-keyword">&lt;xacro:wheel</span> <span class="tok-key">prefix</span><span class="tok-punct">=</span><span class="tok-string">&quot;left&quot;</span>  <span class="tok-key">reflect</span><span class="tok-punct">=</span><span class="tok-string">&quot;1&quot;</span><span class="tok-punct">/</span><span class="tok-punct">&gt;</span>
+<span class="tok-keyword">&lt;xacro:wheel</span> <span class="tok-key">prefix</span><span class="tok-punct">=</span><span class="tok-string">&quot;right&quot;</span> <span class="tok-key">reflect</span><span class="tok-punct">=</span><span class="tok-string">&quot;-1&quot;</span><span class="tok-punct">/</span><span class="tok-punct">&gt;</span></code></pre></div>
+<ul><li>左右对称的部件写一次就够。</li><li>参数、常量、条件、<code>&lt;xacro:include&gt;</code> 都能用。</li><li>改完记得 <code>xacro robot.urdf.xacro &gt; robot.urdf</code> 再检查。</li></ul></div>
       </section>
       
       <section class="slide" data-slide="13"
-               data-title="makefile-&gt;cmake">
-        <div class="slide-inner"><h4>makefile-&gt;cmake</h4>
-<ul><li>文档相关<ul><li><a href="https://cmake.org/cmake/help/latest/guide/tutorial/index.html" target="_blank" rel="noopener">cmake教程 点击查看</a><br></li><li><a href="/assets/docs/build-and-maintain/code/CMakeLists.txt">CMakeLists.txt例子 点击查看</a></li></ul></li><li>事实上cmake也很好地接过了makefile的"部分工作", 而且在一定程度成为了c++工程最常用的构建工具<br><ul><li>它可以跨平台构建,生成makefile,所以,它成功了吗?</li></ul></li></ul>
-<blockquote><p><strong>我想,并没有完全成功</strong></p></blockquote></div>
+               data-title="检查模型的两个土办法">
+        <div class="slide-inner"><h2>检查模型的两个土办法</h2>
+<ol><li><strong>看重心</strong>：<code>rviz2</code> 里打开 TF 和模型，如果机器人一加载就往下掉或者抖，
+多半是质量或惯性矩阵写错了。</li><li><strong>数质量</strong>：<code>check_urdf robot.urdf</code> 加总质量，和实物称出来的对一下。
+<span class="ink ink-blue">差得离谱就说明单位写错了</span>（kg？g？mm？m？）。</li></ol>
+<blockquote><p>ps：CAD 导出的模型经常是 mm + g，直接丢进仿真会得到一个重一千倍的机器人。</p></blockquote></div>
       </section>
       
-      <section class="slide" data-slide="14"
-               data-title="2023年的今天">
-        <div class="slide-inner"><h4>2023年的今天</h4>
-<ul><li>2023年的今天,<strong>CMake依然只有57%的占比</strong><ul><li><a href="https://www.jetbrains.com/zh-cn/lp/devecosystem-2023/cpp/" target="_blank" rel="noopener">c++2023生态 | jetbrains 点击查看</a></li><li>重复历史一般地,如同c++没有取代c,cmake也没有取代make</li></ul></li><li>但是cmake已经做的很好了,解决了makefile的许多问题.<ul><li>但是仍有个老生常谈的问题没能解决---"依赖管理"</li><li>我们很难把所有的功能都留给自己写,很显然</li><li>大量的开发者依赖于第三方库</li></ul></li><li>所以涌现了许多"新新势力"<ul><li>其中最为出名的则是<span class="ink ink-blue">xmake</span></li></ul></li></ul>
-<blockquote><p>当然,构建工具的发展是必然的</p></blockquote></div>
+      <section class="slide slide--section" data-slide="14"
+               data-title="Q4. 为什么到真机就不灵了" data-section="1">
+        <div class="slide-inner"><h1><strong>Q4.</strong> 为什么到真机就不灵了</h1></div>
       </section>
       
       <section class="slide" data-slide="15"
-               data-title="本节仅为拓展:xmake的依赖管理">
-        <div class="slide-inner"><h3>本节仅为拓展:xmake的依赖管理</h3>
-<blockquote><p>"依赖管理"是个大问题</p></blockquote>
-<ul><li>xmake在一定程度上解决了这个问题<br></li><li>并且,xmake的体感比cmake要好,这是不得不承认的<ul><li>首先它使用lua语言进行编写,语法相对简单</li><li>其次它有自己的依赖管理:<a href="https://xmake.io/#/zh-cn/manual/package_dependencies" target="_blank" rel="noopener">点击查看</a></li><li>最后它甚至有<strong>自动生成(虽然还不太好用)</strong>:<a href="https://xmake.io/#/zh-cn/features/autogen" target="_blank" rel="noopener">点击查看</a></li></ul></li><li>虽然它解决了cmake一部分痛点</li><li>到底是否应该使用xmake还需要自己体验后,再决定</li></ul></div>
+               data-title="差距在哪">
+        <div class="slide-inner"><h2>差距在哪</h2>
+<figure class="docfig-wrap" data-fig="domain-random">
+<svg class="docfig" viewBox="0 0 820 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="训练时把仿真参数随机化，让策略见过足够宽的世界，真机上才不会一出分布就崩">
+  <defs><marker id="f496b2ce-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" class="fg-head"/></marker></defs>
+  <rect class="fg-box is-accent" x="40" y="90" width="170" height="120" rx="9"/>
+  <text class="fg-t" x="125.0" y="142.0" text-anchor="middle" font-size="15">仿真</text>
+  <text class="fg-s" x="125.0" y="163.0" text-anchor="middle" font-size="12">可随机化</text>
+  <rect class="fg-box is-accent2" x="610" y="90" width="170" height="120" rx="9"/>
+  <text class="fg-t" x="695.0" y="142.0" text-anchor="middle" font-size="15">真机</text>
+  <text class="fg-s" x="695.0" y="163.0" text-anchor="middle" font-size="12">不可随机化</text>
+  <text class="fg-s" x="400" y="96" text-anchor="middle" font-size="12">摩擦系数</text>
+  <text class="fg-s" x="400" y="120" text-anchor="middle" font-size="12">电机延迟</text>
+  <text class="fg-s" x="400" y="144" text-anchor="middle" font-size="12">质量 / 惯量</text>
+  <text class="fg-s" x="400" y="168" text-anchor="middle" font-size="12">传感器噪声</text>
+  <text class="fg-s" x="400" y="192" text-anchor="middle" font-size="12">地形高度</text>
+  <line class="fg-line" x1="212" y1="100" x2="610" y2="100" stroke-dasharray="5 5"/>
+  <line class="fg-line" x1="212" y1="124" x2="610" y2="124" stroke-dasharray="5 5"/>
+  <line class="fg-line" x1="212" y1="148" x2="610" y2="148" stroke-dasharray="5 5"/>
+  <line class="fg-line" x1="212" y1="172" x2="610" y2="172" stroke-dasharray="5 5"/>
+  <line class="fg-line" x1="212" y1="196" x2="610" y2="196" stroke-dasharray="5 5"/>
+  <line class="fg-line is-accent" x1="212" y1="160" x2="608" y2="160"/>
+  <path class="fg-line is-accent" d="M 212 40 L 608 40" fill="none" marker-end="url(#f496b2ce-a)"/>
+  <text class="fg-s" x="410.0" y="33.0" text-anchor="middle" font-size="12">把真实系统可能的样子整片盖住</text>
+  <text class="fg-s" x="210" y="236" text-anchor="start" font-size="12">随机化区间</text>
+  <text class="fg-s" x="610" y="236" text-anchor="end" font-size="12">必须落在区间内</text>
+  <text class="fg-note" x="40" y="290" text-anchor="start" font-size="12">随机化不是越宽越好：太宽会让策略变得保守、动作发软；太窄又会在真机上出分布。</text>
+</svg>
+<figcaption>训练时把仿真参数随机化，让策略见过足够宽的世界，真机上才不会一出分布就崩</figcaption>
+</figure>
+<p>sim2real gap 不是「仿真不够真」这么笼统，它是<strong>具体的几项</strong>：</p>
+<ul><li><strong>接触参数</strong>：摩擦系数、恢复系数、接触刚度 —— 最难测，也最敏感。</li><li><strong>延迟</strong>：仿真的电机是瞬时的，真机有 5~20 ms 的响应延迟。</li><li><strong>传感噪声</strong>：真机的 IMU 有偏置和温漂，编码器有量化误差。</li><li><strong>未建模动态</strong>：线缆、背隙、柔性、气动。</li><li><strong>视觉域差</strong>：光照、镜头畸变、运动模糊、材质反射。</li></ul></div>
       </section>
       
-      <section class="slide slide--section" data-slide="16"
-               data-title="文档生成器:doxygen" data-section="1">
-        <div class="slide-inner"><h2>文档生成器:doxygen</h2>
-<ul><li>代码中第一重要的是代码</li><li>那第二重要的是什么呢?<ul><li>是注释</li><li>有这么一个工具,在你写了注释之后帮你生成文档<ul><li>不仅可以搜索API,接口</li><li>而且生成依赖路径,UML图</li><li>可以显示公式,列表</li></ul></li></ul></li><li>为注释提供一个生成文档的工具,好比给写代码的时候提供LSP服务一样重要<br></li><li>这里提供一份<a href="/assets/docs/build-and-maintain/code/Doxyfile">doxygen file</a></li></ul>
-<blockquote><p>写注释都多了几分动力</p></blockquote></div>
+      <section class="slide" data-slide="16"
+               data-title="三种应对">
+        <div class="slide-inner"><h2>三种应对</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>手段</th><th>做法</th><th>适合</th></tr></thead>
+<tbody>
+<tr><td><strong>域随机化</strong></td><td>训练时把上面几项随机扰动，让策略见过足够宽的分布</td><td>强化学习</td></tr>
+<tr><td><strong>系统辨识</strong></td><td>用真机数据拟合仿真参数，把 gap 本身调小</td><td>经典控制</td></tr>
+<tr><td><strong>在线自适应</strong></td><td>策略/控制器自己估计并补偿</td><td>两者结合</td></tr>
+</tbody></table></div>
+<ul><li>域随机化的关键不是「随机」，而是<span class="ink ink-red">随机区间要和真机对得上</span>。</li><li>区间太宽 → 策略变得保守、动作发软；太窄 → 一上真机就出分布。</li></ul>
+<blockquote><p><span class="ink ink-blue">先量真机，再定区间。</span>这一步省不掉。</p></blockquote></div>
       </section>
       
-      <section class="slide slide--section" data-slide="17"
-               data-title="调试器:gdb" data-section="1">
-        <div class="slide-inner"><h2>调试器:gdb</h2>
-<ul><li>调试工具应该都用过,IDE打断点都会</li><li>这些IDE实际上是对gdb或其他调试工具进行了包装</li></ul></div>
+      <section class="slide" data-slide="17"
+               data-title="一条实用的验收线">
+        <div class="slide-inner"><h2>一条实用的验收线</h2>
+<p>在相信仿真结论之前，先做这件事：</p>
+<ol><li>在真机上跑一条<strong>固定的轨迹</strong>，录下关节指令与实际状态。</li><li>在仿真里回放同样的指令，录下仿真状态。</li><li>把两条曲线画在一起，看<strong>相位差</strong>和<strong>幅值差</strong>。</li></ol>
+<ul><li>相位差 → 延迟没建模；幅值差 → 摩擦/惯量不对。</li><li>两条曲线对不上的话，仿真里调出来的参数<span class="ink ink-red">一个字都别信</span>。</li></ul></div>
       </section>
       
-      <section class="slide slide--section" data-slide="18"
-               data-title="静态检查器:cppcheck" data-section="1">
-        <div class="slide-inner"><h2>静态检查器:cppcheck</h2></div>
-      </section>
-      
-      <section class="slide slide--section" data-slide="19"
-               data-title="动态分析器:spin,perf,boost test" data-section="1">
-        <div class="slide-inner"><h2>动态分析器:spin,perf,boost test</h2></div>
-      </section>
-      
-      <section class="slide slide--section" data-slide="20"
-               data-title="项目管理:git" data-section="1">
-        <div class="slide-inner"><h2>项目管理:git</h2></div>
-      </section>
-      
-      <section class="slide slide--section" data-slide="21"
-               data-title="打包部署工具:docker" data-section="1">
-        <div class="slide-inner"><h2>打包部署工具:docker</h2></div>
-      </section>
-      
-      <section class="slide slide--section" data-slide="22"
-               data-title="3. 编程范式与设计模式的思考(TODO:待更新)" data-section="1">
-        <div class="slide-inner"><h1>3. 编程范式与设计模式的思考<br><span class="ink ink-red">(TODO:待更新)</span></h1>
-<blockquote><p>没有结构组织的代码只会是混乱不堪的散沙</p></blockquote></div>
-      </section>
-      
-      <section class="slide" data-slide="23"
-               data-title="系统地处理可维护性">
-        <div class="slide-inner"><h2>系统地处理可维护性</h2>
-<p>回到工程的主体,代码身上,编程范式和设计模式往往贯穿代码始终<br></p>
-<ul><li><a href="https://zh.wikipedia.org/wiki/%E7%BC%96%E7%A8%8B%E8%8C%83%E5%9E%8B" target="_blank" rel="noopener">编程范式 点击查看</a><br></li><li><a href="https://zh.wikipedia.org/wiki/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%28%E8%AE%A1%E7%AE%97%E6%9C%BA%29" target="_blank" rel="noopener">设计模式 点击查看</a></li></ul>
-<p>编程范式侧重思考问题的角度:<a href="https://www.indicative.com/resource/programming-paradigm/" target="_blank" rel="noopener">点击查看</a><br>
-设计模式则侧重代码之间的设计结构:<a href="https://refactoringguru.cn/" target="_blank" rel="noopener">点击查看</a></p></div>
-      </section>
-      
-      <section class="slide" data-slide="24"
-               data-title="编程语言相关">
-        <div class="slide-inner"><h2>编程语言相关</h2>
-<ul><li>文档<ul><li><a href="https://zh.wikipedia.org/wiki/%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80%E7%90%86%E8%AB%96" target="_blank" rel="noopener">编程语言理论wiki 点击查看</a></li><li><a href="https://github.com/FrankHB/pl-docs/tree/master/zh-CN" target="_blank" rel="noopener">某些plt相关文档 点击查看</a></li><li><a href="https://en.wikipedia.org/wiki/Purely_functional_data_structure" target="_blank" rel="noopener">PFDS 点击查看</a></li></ul></li></ul></div>
+      <section class="slide" data-slide="18"
+               data-title="小结">
+        <div class="slide-inner"><h2>小结</h2>
+<ol><li>仿真买的是<strong>迭代速度</strong>，不是真实性。</li><li>选仿真器要看<strong>你要验证什么</strong>，选错了结论不可信。</li><li>物理必须<strong>定步长</strong>，仿真里记得开 <code>use_sim_time</code>。</li><li>URDF 是一棵树；质量/惯性/<code>origin</code> 是三个高频错误点。</li><li>sim2real 的差距是<strong>具体的几项参数</strong>，先量真机再定随机区间。</li></ol></div>
       </section>
       
     </div>
@@ -661,12 +629,17 @@ Q2:如何更好地构建?<br></p>
 
   <nav class="doc-nav" aria-label="上下篇">
     
-    <a class="doc-nav-item prev" href="/docs/shell-and-languages/">
+    <a class="doc-nav-item prev" href="/docs/ros-tools/">
       <span class="dir">← 上一篇</span>
-      <span class="t">编程语言的使用</span>
+      <span class="t">节点和工具</span>
     </a>
     
-    <span class="doc-nav-item empty"></span>
+    
+    <a class="doc-nav-item next" href="/docs/face-recognition/">
+      <span class="dir">下一篇 →</span>
+      <span class="t">简单的人脸识别</span>
+    </a>
+    
   </nav>
 </article>
 
