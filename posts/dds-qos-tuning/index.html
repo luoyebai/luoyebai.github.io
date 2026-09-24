@@ -16,7 +16,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>DDS 选型与调参：从 QoS 到零拷贝 · 洛叶白</title>
-<meta name="description" content="机器人上跑 DDS，第一件要决定的是「用什么传输」和「用什么 QoS」。选错了要么延迟抖动，要么丢包重传把带宽吃光。这篇记录我在四足和人形项目上把 DDS 从 2.5ms 抖到 150µs 的过程。">
+<meta name="description" content="从消息语义出发选择 QoS，区分进程内通信、共享内存和零拷贝，并用可复现的测量定位 DDS 延迟与抖动。">
 <meta name="author" content="洛叶白">
 <meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#0b0d14" media="(prefers-color-scheme: dark)">
@@ -24,15 +24,15 @@
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="洛叶白">
 <meta property="og:title" content="DDS 选型与调参：从 QoS 到零拷贝">
-<meta property="og:description" content="机器人上跑 DDS，第一件要决定的是「用什么传输」和「用什么 QoS」。选错了要么延迟抖动，要么丢包重传把带宽吃光。这篇记录我在四足和人形项目上把 DDS 从 2.5ms 抖到 150µs 的过程。">
+<meta property="og:description" content="从消息语义出发选择 QoS，区分进程内通信、共享内存和零拷贝，并用可复现的测量定位 DDS 延迟与抖动。">
 <meta property="og:url" content="https://luoyebai.github.io/posts/dds-qos-tuning/">
 <meta property="og:image" content="https://luoyebai.github.io/assets/images/favicon.svg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://luoyebai.github.io/posts/dds-qos-tuning/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css">
-<link rel="stylesheet" href="/assets/site.css">
+<link rel="stylesheet" href="/assets/themes.css?v=77072cd2">
+<link rel="stylesheet" href="/assets/site.css?v=77072cd2">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
 
@@ -44,6 +44,11 @@
 (function () {
   var el = document.documentElement;
   el.classList.add('js');   /* 只有 JS 可用时才启用进场动画的隐藏态 */
+  var compact = matchMedia('(pointer: coarse)').matches ||
+    (navigator.connection && navigator.connection.saveData) ||
+    (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
+    (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+  el.setAttribute('data-performance', compact ? 'compact' : 'standard');
   var q = {};
   try { new URLSearchParams(location.search).forEach(function (v, k) { q[k] = v; }); } catch (e) {}
   var s = {};
@@ -186,7 +191,7 @@
       
 
       <h1 class="phero-title reveal">DDS 选型与调参：从 QoS 到零拷贝</h1>
-      <p class="phero-lede reveal">机器人上跑 DDS，第一件要决定的是「用什么传输」和「用什么 QoS」。选错了要么延迟抖动，要么丢包重传把带宽吃光。这篇记录我在四足和人形项目上把 DDS 从 2.5ms 抖到 150µs 的过程。</p>
+      <p class="phero-lede reveal">从消息语义出发选择 QoS，区分进程内通信、共享内存和零拷贝，并用可复现的测量定位 DDS 延迟与抖动。</p>
 
       <div class="phero-meta reveal">
         <span class="meta-item">
@@ -199,8 +204,10 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
             <circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>
           </svg>
-          3 分钟
+          5 分钟
         </span>
+        
+        <span class="meta-item muted">更新于 2026 年 9 月 24 日</span>
         
       </div>
     </div>
@@ -213,19 +220,19 @@
         <p class="toc-title">目录</p>
         <ul>
           
-          <li class="toc-l2"><a href="#先搞清传输路径">先搞清传输路径</a></li>
+          <li class="toc-l2"><a href="#先画出消息经过的路径">先画出消息经过的路径</a></li>
           
-          <li class="toc-l2"><a href="#reliability控制回路要用-best-effort">Reliability：控制回路要用 BEST_EFFORT</a></li>
+          <li class="toc-l2"><a href="#qos-先保证匹配再讨论取舍">QoS 先保证匹配，再讨论取舍</a></li>
           
-          <li class="toc-l2"><a href="#零拷贝省掉最大的一块开销">零拷贝：省掉最大的一块开销</a></li>
+          <li class="toc-l2"><a href="#不同消息需要不同的交付语义">不同消息，需要不同的交付语义</a></li>
           
-          <li class="toc-l2"><a href="#实测数据">实测数据</a></li>
+          <li class="toc-l2"><a href="#三种优化别混为一谈">三种优化，别混为一谈</a></li>
           
-          <li class="toc-l2"><a href="#发现机制大网络里一定要收敛">发现机制：大网络里一定要收敛</a></li>
+          <li class="toc-l2"><a href="#一份能复现的压测记录">一份能复现的压测记录</a></li>
           
-          <li class="toc-l2"><a href="#我的默认-qos-组合">我的默认 QoS 组合</a></li>
+          <li class="toc-l2"><a href="#发现与启动也要单独测试">发现与启动也要单独测试</a></li>
           
-          <li class="toc-l2"><a href="#排查工具">排查工具</a></li>
+          <li class="toc-l2"><a href="#调整顺序">调整顺序</a></li>
           
         </ul>
       </nav>
@@ -233,78 +240,86 @@
     
 
     <div class="post-main">
-      <div class="prose reveal"><p>机器人上第一次接 DDS，最容易犯的错是把它当"更高级的 ROS 话题"用——默认配置跑起来能通，就以为没事了。等到控制周期压到 1 kHz，才发现延迟抖动比控制器的计算时间还大。</p>
-<p>DDS 是<strong>以数据为中心的发布订阅</strong>（DCPS），它的所有行为都由 QoS 策略描述。理解 QoS 就理解了 DDS。</p>
-<h2 id="先搞清传输路径">先搞清传输路径<a class="heading-anchor" href="#先搞清传输路径" aria-label="锚点">#</a></h2>
-<p>一条消息从发布者到订阅者，实际经过：</p>
-<div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-text">用户线程 → 序列化 → 发送队列 → 传输层(socket/shared-mem) → 接收队列 → 反序列化 → 回调线程</code></pre></div>
-<p>每一段都有 QoS 在管：</p>
-<div class="table-wrap"><table>
-<thead><tr><th>环节</th><th>相关 QoS</th><th>典型踩坑</th></tr></thead>
+      
+      <details class="mobile-toc">
+        <summary>本页目录</summary>
+        <nav aria-label="本页目录"><ul>
+          <li class="toc-l2"><a href="#先画出消息经过的路径">先画出消息经过的路径</a></li><li class="toc-l2"><a href="#qos-先保证匹配再讨论取舍">QoS 先保证匹配，再讨论取舍</a></li><li class="toc-l2"><a href="#不同消息需要不同的交付语义">不同消息，需要不同的交付语义</a></li><li class="toc-l2"><a href="#三种优化别混为一谈">三种优化，别混为一谈</a></li><li class="toc-l2"><a href="#一份能复现的压测记录">一份能复现的压测记录</a></li><li class="toc-l2"><a href="#发现与启动也要单独测试">发现与启动也要单独测试</a></li><li class="toc-l2"><a href="#调整顺序">调整顺序</a></li>
+        </ul></nav>
+      </details>
+      
+
+      <div class="prose reveal"><p>机器人通信首先要回答三个问题：这条消息过期后还有没有价值，丢失后是否需要补发，接收端多久收不到数据就必须改变行为。QoS 的选择应当从这些问题出发。</p>
+<p>本文以 ROS 2 中的 DDS 通信为背景。实现、RMW、消息类型和版本会影响实际路径；同一组配置不能保证在所有平台上得到相同延迟。</p>
+<h2 id="先画出消息经过的路径">先画出消息经过的路径<a class="heading-anchor" href="#先画出消息经过的路径" aria-label="锚点">#</a></h2>
+<div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-text">采样 → 应用发布 → 中间件缓存 → 传输 → 接收缓存 → 执行器调度 → 控制计算</code></pre></div>
+<p>通信慢不一定是网络慢。序列化、消息复制、资源不足、线程唤醒和回调排队，都可能让数据在使用时已经过期。先测出时间花在哪里，再调整传输或调度。</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
+<thead><tr><th>测量点</th><th>要回答的问题</th><th>一起记录的字段</th></tr></thead>
 <tbody>
-<tr><td>序列化</td><td>—</td><td>大消息（点云/图像）拷贝开销占比极高</td></tr>
-<tr><td>发送队列</td><td><code>RELIABILITY</code> <code>HISTORY</code> <code>DURABILITY</code></td><td>默认 <code>RELIABLE</code> 导致重传风暴</td></tr>
-<tr><td>传输层</td><td><code>TRANSPORT_PRIORITY</code></td><td>全部走 UDP 回环，没走共享内存</td></tr>
-<tr><td>接收队列</td><td><code>RESOURCE_LIMITS</code></td><td>队列太浅，突发时丢样本</td></tr>
-<tr><td>回调</td><td><code>DEADLINE</code> <code>LIVELINESS</code></td><td>没有 deadline 就永远发现不了丢帧</td></tr>
+<tr><td>采样到发布</td><td>驱动或上游处理是否积压</td><td>采样时间、序号</td></tr>
+<tr><td>发布到接收</td><td>传输与缓存是否有长尾</td><td>消息大小、QoS、丢失序号</td></tr>
+<tr><td>接收到回调</td><td>执行器是否被其他任务阻塞</td><td>回调起止时间、线程</td></tr>
+<tr><td>采样到控制使用</td><td>控制器真正拿到多旧的数据</td><td>数据年龄、拒收原因</td></tr>
 </tbody></table></div>
-<h2 id="reliability控制回路要用-best-effort">Reliability：控制回路要用 BEST_EFFORT<a class="heading-anchor" href="#reliability控制回路要用-best-effort" aria-label="锚点">#</a></h2>
-<p>默认的 <code>RELIABLE</code> 会为重传维护心跳与 ACK/NACK 状态。在控制回路上这是<strong>反效果</strong>：你要的是最新的一帧，不是补发三帧前的旧数据。</p>
-<aside class="callout callout-warn"><div class="callout-title">一个真实的翻车现场</div><div class="callout-body"><p>四足站立时关节指令用 <code>RELIABLE</code>，网络偶发抖动触发重传，接收端按序交付导致<strong>旧指令后到</strong>，关节出现一次 3ms 的力矩毛刺，机器人原地晃了一下。改成 <code>BEST_EFFORT</code> + <code>KEEP_LAST(1)</code> 后再没出现。</p></div></aside>
-<div class="code-block" data-lang="xml"><div class="code-head"><span class="code-lang">xml</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-xml"><span class="tok-keyword">&lt;qos</span><span class="tok-punct">&gt;</span>
-  <span class="tok-keyword">&lt;reliability</span><span class="tok-punct">&gt;</span><span class="tok-keyword">&lt;kind</span><span class="tok-punct">&gt;</span>BEST_EFFORT<span class="tok-keyword">&lt;/kind</span><span class="tok-punct">&gt;</span><span class="tok-keyword">&lt;/reliability</span><span class="tok-punct">&gt;</span>
-  <span class="tok-keyword">&lt;history</span><span class="tok-punct">&gt;</span><span class="tok-keyword">&lt;kind</span><span class="tok-punct">&gt;</span>KEEP_LAST<span class="tok-keyword">&lt;/kind</span><span class="tok-punct">&gt;</span><span class="tok-keyword">&lt;depth</span><span class="tok-punct">&gt;</span>1<span class="tok-keyword">&lt;/depth</span><span class="tok-punct">&gt;</span><span class="tok-keyword">&lt;/history</span><span class="tok-punct">&gt;</span>
-  <span class="tok-keyword">&lt;durability</span><span class="tok-punct">&gt;</span><span class="tok-keyword">&lt;kind</span><span class="tok-punct">&gt;</span>VOLATILE<span class="tok-keyword">&lt;/kind</span><span class="tok-punct">&gt;</span><span class="tok-keyword">&lt;/durability</span><span class="tok-punct">&gt;</span>
-<span class="tok-keyword">&lt;/qos</span><span class="tok-punct">&gt;</span></code></pre></div>
-<p>反过来说，<strong>参数下发、模式切换这类"必须到达"的消息一定要 RELIABLE + TRANSIENT_LOCAL</strong>，否则新上线的订阅者拿不到当前配置，会出现"同样的代码，重启后行为不同"。</p>
-<h2 id="零拷贝省掉最大的一块开销">零拷贝：省掉最大的一块开销<a class="heading-anchor" href="#零拷贝省掉最大的一块开销" aria-label="锚点">#</a></h2>
-<p>如果发布者和订阅者在同一进程内，启用进程内通信可以完全跳过序列化：</p>
-<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp">rclcpp<span class="tok-operator">::</span><span class="tok-type">NodeOptions</span> options<span class="tok-punct">;</span>
-options<span class="tok-punct">.</span><span class="tok-function">use_intra_process_comms</span><span class="tok-punct">(</span><span class="tok-keyword">true</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-<span class="tok-keyword">auto</span> node <span class="tok-operator">=</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">make_shared</span><span class="tok-operator">&lt;</span>rclcpp<span class="tok-operator">::</span><span class="tok-type">Node</span><span class="tok-operator">&gt;</span><span class="tok-punct">(</span><span class="tok-string">&quot;controller&quot;</span><span class="tok-punct">,</span> options<span class="tok-punct">)</span><span class="tok-punct">;</span>
-
-<span class="tok-comment">// 用移动语义发布，避免拷贝</span>
-<span class="tok-keyword">auto</span> msg <span class="tok-operator">=</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">make_unique</span><span class="tok-operator">&lt;</span>sensor_msgs<span class="tok-operator">::</span>msg<span class="tok-operator">::</span><span class="tok-type">Imu</span><span class="tok-operator">&gt;</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-<span class="tok-function">fill_from_driver</span><span class="tok-punct">(</span><span class="tok-operator">*</span>msg<span class="tok-punct">)</span><span class="tok-punct">;</span>
-imu_pub<span class="tok-operator">-&gt;</span><span class="tok-function">publish</span><span class="tok-punct">(</span><span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-function">move</span><span class="tok-punct">(</span>msg<span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
-<p>跨进程时，CycloneDDS / Iceoryx 提供共享内存传输（<code>iox-roudi</code>）。对 100 KB 以上的消息，收益非常明显。</p>
-<h2 id="实测数据">实测数据<a class="heading-anchor" href="#实测数据" aria-label="锚点">#</a></h2>
-<p>四足项目，IMU + 关节反馈 + 足端力，控制周期 1 kHz：</p>
-<div class="table-wrap"><table>
-<thead><tr><th>配置</th><th style="text-align:right">延迟均值</th><th style="text-align:right">延迟 p99</th><th style="text-align:right">最坏</th></tr></thead>
+<p>跨设备时间戳相减需要时钟同步与误差说明；不能把两台机器各自的单调时钟直接相减。</p>
+<h2 id="qos-先保证匹配再讨论取舍">QoS 先保证匹配，再讨论取舍<a class="heading-anchor" href="#qos-先保证匹配再讨论取舍" aria-label="锚点">#</a></h2>
+<p>订阅者请求的可靠性不能高于发布者提供的可靠性。例如，<code>BEST_EFFORT</code> 发布者无法满足 <code>RELIABLE</code> 订阅者；反向组合可以匹配。其他参与匹配的策略也必须兼容。完整规则见 <a href="https://docs.ros.org/en/humble/Concepts/Intermediate/About-Quality-of-Service-Settings.html" target="_blank" rel="noopener">ROS 2 QoS 文档</a>。</p>
+<div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash"><span class="tok-comment"># 在已经配置 ROS 2 环境的终端里，检查两端实际生效的配置</span>
+ros2 topic info <span class="tok-operator">/</span>joint_states <span class="tok-operator">--</span>verbose</code></pre></div>
+<p>如果话题存在却没有数据，先核对类型、Domain ID、发现范围与 QoS，不要立即归因于丢包。</p>
+<h2 id="不同消息需要不同的交付语义">不同消息，需要不同的交付语义<a class="heading-anchor" href="#不同消息需要不同的交付语义" aria-label="锚点">#</a></h2>
+<div class="table-wrap" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
+<thead><tr><th>消息</th><th>可评估的起点</th><th>应用层仍需处理</th></tr></thead>
 <tbody>
-<tr><td>默认（RELIABLE / UDP 回环）</td><td style="text-align:right">425 µs</td><td style="text-align:right">2.5 ms</td><td style="text-align:right">12 ms</td></tr>
-<tr><td>+ BEST_EFFORT + KEEP_LAST(1)</td><td style="text-align:right">210 µs</td><td style="text-align:right">780 µs</td><td style="text-align:right">3.1 ms</td></tr>
-<tr><td>+ 进程内零拷贝</td><td style="text-align:right">92 µs</td><td style="text-align:right">148 µs</td><td style="text-align:right">410 µs</td></tr>
-<tr><td>+ 共享内存 + CPU 隔离</td><td style="text-align:right">61 µs</td><td style="text-align:right">96 µs</td><td style="text-align:right">180 µs</td></tr>
+<tr><td>周期传感器流</td><td>BEST_EFFORT、较浅 KEEP_LAST、VOLATILE</td><td>时间戳、丢帧统计、数据过期</td></tr>
+<tr><td>周期控制参考</td><td>按失包容忍度比较 BEST_EFFORT 与 RELIABLE</td><td>序号、有效期、超时降级</td></tr>
+<tr><td>配置快照</td><td>RELIABLE；需要晚加入者拿到快照时使用 TRANSIENT_LOCAL</td><td>版本号、校验、原子切换</td></tr>
+<tr><td>一次性模式切换</td><td>带请求编号和结果确认的服务或协议</td><td>幂等、拒绝原因、超时状态</td></tr>
+<tr><td>高频图像或点云</td><td>按处理吞吐选择队列和可靠性</td><td>丢弃策略、缓冲区所有权</td></tr>
 </tbody></table></div>
-<p>关键结论：<strong>控制器本身只占 90 µs</strong>，剩下的全是中间件和调度。优化 DDS 比优化算法收益大一个数量级。</p>
-<h2 id="发现机制大网络里一定要收敛">发现机制：大网络里一定要收敛<a class="heading-anchor" href="#发现机制大网络里一定要收敛" aria-label="锚点">#</a></h2>
-<p>DDS 的自动发现（SPDP/SEDP）在节点数多了之后会产生大量组播。两台机器几十个节点时，启动阶段能刷出几百 MB 的发现流量。</p>
-<div class="code-block" data-lang="xml"><div class="code-head"><span class="code-lang">xml</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-xml"><span class="tok-comment">&lt;!-- CycloneDDS：单播发现 + 静态对端，关掉组播 --&gt;</span>
-<span class="tok-keyword">&lt;Discovery</span><span class="tok-punct">&gt;</span>
-  <span class="tok-keyword">&lt;ParticipantIndex</span><span class="tok-punct">&gt;</span>auto<span class="tok-keyword">&lt;/ParticipantIndex</span><span class="tok-punct">&gt;</span>
-  <span class="tok-keyword">&lt;MaxAutoParticipantIndex</span><span class="tok-punct">&gt;</span>32<span class="tok-keyword">&lt;/MaxAutoParticipantIndex</span><span class="tok-punct">&gt;</span>
-  <span class="tok-keyword">&lt;Peers</span><span class="tok-punct">&gt;</span>
-    <span class="tok-keyword">&lt;Peer</span> <span class="tok-key">Address</span><span class="tok-punct">=</span><span class="tok-string">&quot;192.168.1.10&quot;</span><span class="tok-punct">/</span><span class="tok-punct">&gt;</span>
-    <span class="tok-keyword">&lt;Peer</span> <span class="tok-key">Address</span><span class="tok-punct">=</span><span class="tok-string">&quot;192.168.1.11&quot;</span><span class="tok-punct">/</span><span class="tok-punct">&gt;</span>
-  <span class="tok-keyword">&lt;/Peers</span><span class="tok-punct">&gt;</span>
-  <span class="tok-keyword">&lt;EnableTopicDiscoveryEndpoints</span><span class="tok-punct">&gt;</span>false<span class="tok-keyword">&lt;/EnableTopicDiscoveryEndpoints</span><span class="tok-punct">&gt;</span>
-<span class="tok-keyword">&lt;/Discovery</span><span class="tok-punct">&gt;</span></code></pre></div>
-<p>代价是<strong>新增节点要手工登记</strong>。在固定拓扑的机器人上完全可接受，换来的是启动时间和网络稳定性。</p>
-<h2 id="我的默认-qos-组合">我的默认 QoS 组合<a class="heading-anchor" href="#我的默认-qos-组合" aria-label="锚点">#</a></h2>
-<aside class="callout callout-note"><div class="callout-title">直接抄</div><div class="callout-body"><ul><li><strong>传感器数据流</strong>（IMU/关节/力）：<code>BEST_EFFORT</code> + <code>KEEP_LAST(1)</code> + <code>VOLATILE</code></li><li><strong>控制指令</strong>：<code>BEST_EFFORT</code> + <code>KEEP_LAST(1)</code> + <code>DEADLINE(2ms)</code></li><li><strong>参数/配置</strong>：<code>RELIABLE</code> + <code>KEEP_LAST(1)</code> + <code>TRANSIENT_LOCAL</code></li><li><strong>状态上报/日志</strong>：<code>RELIABLE</code> + <code>KEEP_LAST(10)</code> + <code>TRANSIENT_LOCAL</code></li><li><strong>点云/图像</strong>：<code>BEST_EFFORT</code> + <code>KEEP_LAST(1)</code> + 共享内存传输</li></ul>
-<p>关键是为每条流<strong>显式声明</strong>，不要依赖默认值。默认值是为通用场景设计的，不是为你的控制回路。</p></div></aside>
-<h2 id="排查工具">排查工具<a class="heading-anchor" href="#排查工具" aria-label="锚点">#</a></h2>
-<div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash"><span class="tok-comment"># 看实际生效的 QoS 与匹配情况</span>
-ros2 topic info <span class="tok-operator">/</span>joint_states <span class="tok-operator">--</span>verbose
+<p><code>KEEP_LAST(1)</code> 限制历史缓存深度，不会自动清理应用自己排队的数据。<code>DEADLINE</code> 可以报告期望更新周期未满足，不能代替控制器的看门狗。<code>TRANSIENT_LOCAL</code> 适合保留状态快照，不应无条件用于一次性运动命令，以免晚加入的节点收到不适合重放的旧命令。</p>
+<p>下面是 ROS 2 C++ 的 QoS 构造片段，需要放进已有节点并包含 <code>rclcpp</code> 头文件；它不是一份独立可执行程序。</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">auto</span> sensor_qos <span class="tok-operator">=</span> rclcpp<span class="tok-operator">::</span><span class="tok-function">QoS</span><span class="tok-punct">(</span>rclcpp<span class="tok-operator">::</span><span class="tok-function">KeepLast</span><span class="tok-punct">(</span><span class="tok-number">1</span><span class="tok-punct">)</span><span class="tok-punct">)</span>
+    <span class="tok-punct">.</span><span class="tok-function">best_effort</span><span class="tok-punct">(</span><span class="tok-punct">)</span>
+    <span class="tok-punct">.</span><span class="tok-function">durability_volatile</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
 
-<span class="tok-comment"># CycloneDDS 内部统计：丢包、重传、队列溢出</span>
-ddsperf <span class="tok-operator">-</span>c <span class="tok-operator">-</span><span class="tok-type">Q</span>  <span class="tok-comment"># 或用 CYCLONEDDS_URI 打开 tracing</span>
+<span class="tok-keyword">auto</span> config_qos <span class="tok-operator">=</span> rclcpp<span class="tok-operator">::</span><span class="tok-function">QoS</span><span class="tok-punct">(</span>rclcpp<span class="tok-operator">::</span><span class="tok-function">KeepLast</span><span class="tok-punct">(</span><span class="tok-number">1</span><span class="tok-punct">)</span><span class="tok-punct">)</span>
+    <span class="tok-punct">.</span><span class="tok-function">reliable</span><span class="tok-punct">(</span><span class="tok-punct">)</span>
+    <span class="tok-punct">.</span><span class="tok-function">transient_local</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
+<h2 id="三种优化别混为一谈">三种优化，别混为一谈<a class="heading-anchor" href="#三种优化别混为一谈" aria-label="锚点">#</a></h2>
+<p><strong>进程内通信</strong>处理同一进程中节点之间的数据传递。是否减少复制，还与发布方式、订阅者数量和消息所有权有关。</p>
+<p><strong>共享内存传输</strong>处理同机进程间的数据通路。传输绕过 socket，并不等于应用到订阅回调的每一层都不复制。</p>
+<p><strong>借用消息与零拷贝</strong>要求中间件、类型和调用路径共同支持，还需要管理样本归还与生命周期。启用一个开关后，应通过跟踪、性能数据或实现提供的诊断确认路径，不能只看“配置加载成功”。</p>
+<p>因此，先把普通传输测稳定，再逐项切换。不要用同进程结果与跨机结果作直接的“优化前后”对照。</p>
+<h2 id="一份能复现的压测记录">一份能复现的压测记录<a class="heading-anchor" href="#一份能复现的压测记录" aria-label="锚点">#</a></h2>
+<p>每次只改变一个变量，保留以下信息：</p>
+<ul><li>CPU、系统与内核版本、ROS 2 / RMW / DDS 版本。</li><li>同进程、同机跨进程或跨机拓扑，以及网卡和链路条件。</li><li>消息类型、大小、频率、发布者与订阅者数量。</li><li>暖机时间、采样时长、后台负载与时钟同步方法。</li><li>p50、p95、p99、观测最大值、丢失率、超期率与 CPU 占用。</li></ul>
+<p>下面的 <strong>Python 3 独立示例</strong>只说明统计方法，输入是教学数据，不是本站机器人的实测结果。</p>
+<div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">import</span> math
 
-<span class="tok-comment"># 延迟直方图（自己写一个小节点，按时间戳统计）</span>
-ros2 run my_tools latency_probe <span class="tok-operator">--</span>duration <span class="tok-number">30</span></code></pre></div>
-<aside class="callout callout-tip"><div class="callout-title">一条经验</div><div class="callout-body"><p>先把延迟的 <strong>p99</strong> 打出来再加功能。均值好看但 p99 是 5ms 的系统，跑什么控制器都会抖。</p></div></aside></div>
+<span class="tok-keyword">def</span> <span class="tok-function">summarize_us</span><span class="tok-punct">(</span>samples<span class="tok-punct">,</span> deadline_us<span class="tok-punct">)</span><span class="tok-punct">:</span>
+    values <span class="tok-operator">=</span> <span class="tok-builtin">sorted</span><span class="tok-punct">(</span>samples<span class="tok-punct">)</span>
+    <span class="tok-keyword">if</span> <span class="tok-keyword">not</span> values <span class="tok-keyword">or</span> <span class="tok-keyword">not</span> math<span class="tok-punct">.</span><span class="tok-function">isfinite</span><span class="tok-punct">(</span>deadline_us<span class="tok-punct">)</span> <span class="tok-keyword">or</span> deadline_us <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span><span class="tok-punct">:</span>
+        <span class="tok-keyword">raise</span> <span class="tok-function">ValueError</span><span class="tok-punct">(</span><span class="tok-string">&#x27;需要非空样本和正的截止时间&#x27;</span><span class="tok-punct">)</span>
+    <span class="tok-keyword">if</span> <span class="tok-builtin">any</span><span class="tok-punct">(</span><span class="tok-keyword">not</span> math<span class="tok-punct">.</span><span class="tok-function">isfinite</span><span class="tok-punct">(</span>v<span class="tok-punct">)</span> <span class="tok-keyword">or</span> v <span class="tok-operator">&lt;</span> <span class="tok-number">0</span> <span class="tok-keyword">for</span> v <span class="tok-keyword">in</span> values<span class="tok-punct">)</span><span class="tok-punct">:</span>
+        <span class="tok-keyword">raise</span> <span class="tok-function">ValueError</span><span class="tok-punct">(</span><span class="tok-string">&#x27;延迟必须是有限的非负值&#x27;</span><span class="tok-punct">)</span>
+    p99 <span class="tok-operator">=</span> values<span class="tok-punct">[</span>math<span class="tok-punct">.</span><span class="tok-function">ceil</span><span class="tok-punct">(</span><span class="tok-number">0.99</span> <span class="tok-operator">*</span> <span class="tok-builtin">len</span><span class="tok-punct">(</span>values<span class="tok-punct">)</span><span class="tok-punct">)</span> <span class="tok-operator">-</span> <span class="tok-number">1</span><span class="tok-punct">]</span>
+    <span class="tok-keyword">return</span> <span class="tok-punct">{</span>
+        <span class="tok-string">&#x27;count&#x27;</span><span class="tok-punct">:</span> <span class="tok-builtin">len</span><span class="tok-punct">(</span>values<span class="tok-punct">)</span><span class="tok-punct">,</span>
+        <span class="tok-string">&#x27;p99_us&#x27;</span><span class="tok-punct">:</span> p99<span class="tok-punct">,</span>
+        <span class="tok-string">&#x27;max_us&#x27;</span><span class="tok-punct">:</span> values<span class="tok-punct">[</span><span class="tok-operator">-</span><span class="tok-number">1</span><span class="tok-punct">]</span><span class="tok-punct">,</span>
+        <span class="tok-string">&#x27;late_ratio&#x27;</span><span class="tok-punct">:</span> <span class="tok-builtin">sum</span><span class="tok-punct">(</span>v <span class="tok-operator">&gt;</span> deadline_us <span class="tok-keyword">for</span> v <span class="tok-keyword">in</span> values<span class="tok-punct">)</span> <span class="tok-operator">/</span> <span class="tok-builtin">len</span><span class="tok-punct">(</span>values<span class="tok-punct">)</span><span class="tok-punct">,</span>
+    <span class="tok-punct">}</span>
+
+<span class="tok-builtin">print</span><span class="tok-punct">(</span><span class="tok-function">summarize_us</span><span class="tok-punct">(</span><span class="tok-punct">[</span><span class="tok-number">80</span><span class="tok-punct">,</span> <span class="tok-number">90</span><span class="tok-punct">,</span> <span class="tok-number">100</span><span class="tok-punct">,</span> <span class="tok-number">110</span><span class="tok-punct">,</span> <span class="tok-number">1400</span><span class="tok-punct">]</span><span class="tok-punct">,</span> <span class="tok-number">1000</span><span class="tok-punct">)</span><span class="tok-punct">)</span></code></pre></div>
+<p>五个样本的 p99 实际上就是最大值，不能支撑稳定的尾延迟结论。正式比较需要更长时间和多轮重复测试。</p>
+<h2 id="发现与启动也要单独测试">发现与启动也要单独测试<a class="heading-anchor" href="#发现与启动也要单独测试" aria-label="锚点">#</a></h2>
+<p>固定拓扑可以评估静态对端或受控的发现机制，但配置项及其作用取决于 DDS 实现。关闭组播不等于只配置对端地址；网卡选择、参与者端口、防火墙与重启行为都需要核对。</p>
+<p>分别测“冷启动到首次匹配”“节点重启后的恢复时间”和“稳定运行时的数据年龄”。它们是三个问题，不应只给出一个平均延迟。</p>
+<h2 id="调整顺序">调整顺序<a class="heading-anchor" href="#调整顺序" aria-label="锚点">#</a></h2>
+<p>先确认两端匹配，再检查数据过期与回调积压，然后评估队列、可靠性和传输路径，最后结合 CPU 与执行器调度优化。每一步都保留能够回退的配置和相同条件下的测量。</p>
+<p>继续阅读：<a href="/posts/realtime-control-loop/">控制回路的实时性</a> · <a href="/projects/dds-middleware-kit/">中间件项目记录</a>。</p></div>
 
       <div class="post-end">
         <span class="end-mark" aria-hidden="true">◆</span>
@@ -372,9 +387,9 @@ ros2 run my_tools latency_probe <span class="tok-operator">--</span>duration <sp
 
       <dl class="footer-stats">
         <div><dt>7</dt><dd>篇文章</dd></div>
-        <div><dt>16</dt><dd>篇文档</dd></div>
+        <div><dt>19</dt><dd>篇文档</dd></div>
         <div><dt>5</dt><dd>个项目</dd></div>
-        <div><dt>267</dt><dd>页幻灯片</dd></div>
+        <div><dt>204</dt><dd>页幻灯片</dd></div>
       </dl>
     </div>
 
@@ -408,22 +423,22 @@ ros2 run my_tools latency_probe <span class="tok-operator">--</span>duration <sp
         
         <a class="footer-link" href="/docs/windows-to-linux/">
           <span class="t">从 Windows 到 Linux</span>
-          <span class="d">5 篇 · 110 页</span>
+          <span class="d">6 篇 · 67 页</span>
         </a>
         
         <a class="footer-link" href="/docs/cpp/">
           <span class="t">从 C 语言到 C++</span>
-          <span class="d">1 篇 · 17 页</span>
+          <span class="d">1 篇 · 10 页</span>
         </a>
         
         <a class="footer-link" href="/docs/vision/">
           <span class="t">ROS 与机器视觉</span>
-          <span class="d">4 篇 · 79 页</span>
+          <span class="d">6 篇 · 72 页</span>
         </a>
         
         <a class="footer-link" href="/docs/learning/">
           <span class="t">从编程开始的学习</span>
-          <span class="d">6 篇 · 61 页</span>
+          <span class="d">6 篇 · 55 页</span>
         </a>
         
         <a class="footer-more" href="/docs/">
@@ -619,6 +634,15 @@ ros2 run my_tools latency_probe <span class="tok-operator">--</span>duration <sp
             <span class="theme-name">暖灯夜色</span>
           </button>
           
+          <button class="theme-card" type="button" data-theme-pick="bocchi" title="波奇光晕">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/bocchi.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#eaa5bc"></i><i style="background:#6acbc9"></i><i style="background:#101b2d"></i>
+              </span>
+            </span>
+            <span class="theme-name">波奇光晕</span>
+          </button>
+          
         </div>
       </section>
 
@@ -660,7 +684,7 @@ ros2 run my_tools latency_probe <span class="tok-operator">--</span>duration <sp
             <button type="button" data-val="wide">宽</button>
           </div>
         </div>
-        <p class="set-note">黑体 / 宋体都随站点自带（子集化的 Noto，约 330 / 430 KB），不依赖你本机装了什么字体。</p>
+        <p class="set-note">黑体 / 宋体随站点自带，不依赖本机字体。</p>
       </section>
 
       <section class="set-group">
@@ -697,7 +721,7 @@ ros2 run my_tools latency_probe <span class="tok-operator">--</span>duration <sp
             <button type="button" data-val="video">动态视频</button>
           </div>
         </div>
-        <p class="set-note">动态视频是 2560×1440 无声循环，已随站点打包；切到「动态视频」后才开始加载当前主题那一条。</p>
+        <p class="set-note">无声循环视频按当前主题加载；切到「动态视频」后才加载，后台标签页会暂停。</p>
         <div class="set-divider"></div>
         <div class="set-field">
           <span class="set-label">可见度 <b data-out="bgOpacity">—</b></span>
@@ -775,9 +799,9 @@ ros2 run my_tools latency_probe <span class="tok-operator">--</span>duration <sp
 </div>
 
 
-<script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.jpg","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.jpg","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.jpg","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.jpg","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.jpg","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.jpg","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.jpg","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.jpg","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.jpg","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.jpg","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.jpg","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.jpg","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.jpg","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.jpg","video":"assets/bg/lumen.mp4"}}</script>
+<script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
 
-<script src="/assets/site.js" defer></script>
+<script src="/assets/site.js?v=77072cd2" defer></script>
 
 </body>
 </html>

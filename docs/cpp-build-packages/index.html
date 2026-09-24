@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="zh-CN"
+      data-theme="dusk"
+      data-mode="dark"
+      data-bg="on"
+      data-bgmode="image"
+      data-tilt="12"
+      data-glass="med"
+      data-font="serif"
+      data-motion="on"
+      data-width="normal"
+      data-cursor="on"
+      data-root=""
+      data-search-url="/search-index.json">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>C++ 的构建与包管理 · 洛叶白</title>
+<meta name="description" content="用一个可下载的 C++17 工程串起 CMake、CTest、依赖发现和包管理，理解可复现构建。">
+<meta name="author" content="洛叶白">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0b0d14" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f7f7f5" media="(prefers-color-scheme: light)">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="洛叶白">
+<meta property="og:title" content="C++ 的构建与包管理">
+<meta property="og:description" content="用一个可下载的 C++17 工程串起 CMake、CTest、依赖发现和包管理，理解可复现构建。">
+<meta property="og:url" content="https://luoyebai.github.io/docs/cpp-build-packages/">
+<meta property="og:image" content="https://luoyebai.github.io/assets/images/favicon.svg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://luoyebai.github.io/docs/cpp-build-packages/">
+<link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
+
+<link rel="stylesheet" href="/assets/themes.css?v=77072cd2">
+<link rel="stylesheet" href="/assets/site.css?v=77072cd2">
+
+<noscript><style>.boot{display:none !important}</style></noscript>
+<link rel="stylesheet" href="/assets/docs.css?v=77072cd2">
+
+
+
+<script>
+/* 在首次绘制前恢复外观偏好；URL 参数优先，便于分享特定主题的链接 */
+(function () {
+  var el = document.documentElement;
+  el.classList.add('js');   /* 只有 JS 可用时才启用进场动画的隐藏态 */
+  var compact = matchMedia('(pointer: coarse)').matches ||
+    (navigator.connection && navigator.connection.saveData) ||
+    (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
+    (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+  el.setAttribute('data-performance', compact ? 'compact' : 'standard');
+  var q = {};
+  try { new URLSearchParams(location.search).forEach(function (v, k) { q[k] = v; }); } catch (e) {}
+  var s = {};
+  try { s = JSON.parse(localStorage.getItem('blog.appearance') || '{}') || {}; } catch (e) {}
+  function pick(k) { return q[k] !== undefined ? q[k] : s[k]; }
+  ['theme', 'mode', 'bg', 'bgmode', 'tilt', 'glass', 'font', 'motion', 'width', 'cursor'].forEach(function (k) {
+    var v = pick(k);
+    if (v) el.setAttribute('data-' + k, v);
+  });
+  var op = pick('bgOpacity');
+  if (op !== undefined && op !== '') el.style.setProperty('--bg-opacity', (Number(op) / 100).toFixed(3));
+  var bl = pick('bgBlur');
+  if (bl !== undefined && bl !== '') el.style.setProperty('--bg-blur', Number(bl) + 'px');
+  var sc = pick('scale');
+  if (sc !== undefined && sc !== '') el.style.setProperty('--font-scale', String(sc));
+  var ac = pick('accent');
+  if (ac) el.style.setProperty('--accent', ac);
+})();
+</script>
+</head>
+<body class="page-doc">
+<a class="skip-link" href="#main">跳到正文</a>
+
+<div class="bg-layer" aria-hidden="true">
+  <div class="bg-image"></div>
+  <video class="bg-video" muted loop playsinline preload="none" disablepictureinpicture></video>
+  <div class="bg-scrim"></div>
+  <div class="bg-aurora"><span></span><span></span><span></span></div>
+  <div class="bg-grid"></div>
+  <div class="bg-vignette"></div>
+</div>
+<div class="grain" aria-hidden="true"></div>
+<div class="spotlight" aria-hidden="true"></div>
+<div class="scroll-progress" aria-hidden="true"><i></i></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">
+      <span class="brand-mark" aria-hidden="true">
+        <!-- 站点标记：两连杆机械臂（造型见 partials/mark.html，页脚用的是同一份） -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M2.6 20.6h5.6" stroke-width="2.2"/>
+  <path d="M7.9 15.9 11.6 6.6" stroke-width="2.8"/>
+  <path d="M13.4 7.2 19.2 11.4" stroke-width="2.8"/>
+  <circle cx="5.6" cy="17.6" r="2.9" fill="currentColor" stroke="none"/>
+  <circle cx="12.2" cy="6.4" r="2.3" fill="currentColor" stroke="none"/>
+  <circle cx="20.4" cy="12.2" r="1.8" fill="currentColor" stroke="none"/>
+</svg>
+
+      </span>
+      <span class="brand-text">
+        <b>洛叶白</b>
+        <i>luoyebai</i>
+      </span>
+    </a>
+
+    <nav class="nav-links" aria-label="主导航">
+      
+      <a href="/">首页</a>
+      
+      <a href="/posts/">文章</a>
+      
+      <a href="/projects/">项目</a>
+      
+      <a href="/docs/" class="is-active" aria-current="page">文档</a>
+      
+      <a href="/graph/">图谱</a>
+      
+      <a href="/archive/">归档</a>
+      
+      <a href="/about/">关于</a>
+      
+    </nav>
+
+    <div class="nav-actions">
+      <button class="icon-btn" type="button" data-open-search aria-label="搜索 (Ctrl+K)" title="搜索  Ctrl+K">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <circle cx="11" cy="11" r="6.5"/><path d="M16.2 16.2 21 21"/>
+        </svg>
+      </button>
+      <button class="icon-btn" type="button" data-toggle-mode aria-label="切换明暗" title="切换明暗">
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+        </svg>
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+          <circle cx="12" cy="12" r="4.2"/>
+          <path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4 17 7M7 17l-1.6 1.6"/>
+        </svg>
+      </button>
+      <button class="icon-btn" type="button" data-open-settings aria-label="外观设置" title="外观设置">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 7h10M18 7h2M4 17h4M12 17h8"/>
+          <circle cx="16" cy="7" r="2.2"/><circle cx="10" cy="17" r="2.2"/>
+        </svg>
+      </button>
+      <button class="icon-btn nav-burger" type="button" data-open-menu aria-label="菜单">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+
+<main id="main">
+
+
+<article class="doc" id="doc"
+         data-slides="12"
+         data-title="C++ 的构建与包管理">
+  <header class="doc-head">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="/docs/">文档</a>
+      <span aria-hidden="true">/</span>
+      <a href="/docs/windows-to-linux/">从 Windows 到 Linux</a>
+      <span aria-hidden="true">/</span>
+      <span class="current">C++ 的构建与包管理</span>
+    </nav>
+
+    <h1 class="doc-title">C++ 的构建与包管理</h1>
+    <p class="doc-lede">用一个可下载的 C++17 工程串起 CMake、CTest、依赖发现和包管理，理解可复现构建。</p>
+
+    <p class="doc-meta">
+      <span class="meta-item"><b>6</b> / 6 篇</span>
+      <span class="meta-item"><b>12</b> 页幻灯片</span>
+      
+    </p>
+  </header>
+
+  <section class="deck is-paged" id="deck" data-deck aria-roledescription="幻灯片" aria-label="C++ 的构建与包管理">
+    <noscript>
+      <style>.deck .slide{display:block !important;margin-top:1.2rem;height:auto !important;overflow:visible !important}</style>
+    </noscript>
+    <div class="deck-bar">
+      <div class="deck-nav">
+        <button type="button" class="deck-btn" data-deck-prev aria-label="上一页" title="上一页  ←">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M15 5 8 12l7 7"/>
+          </svg>
+        </button>
+        <button type="button" class="deck-btn" data-deck-next aria-label="下一页" title="下一页  →">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m9 5 7 7-7 7"/>
+          </svg>
+        </button>
+        <p class="deck-counter" aria-live="polite">
+          <b data-deck-no>1</b> / 12
+        </p>
+      </div>
+
+      <p class="deck-section" data-deck-section aria-live="polite"></p>
+
+      <div class="deck-tools">
+        <button type="button" class="deck-btn deck-btn--text" data-deck-outline aria-expanded="false" aria-controls="deck-outline">目录</button>
+        <div class="deck-seg" role="group" aria-label="阅读方式">
+          <button type="button" data-deck-mode="paged" class="is-on" aria-pressed="true">逐页</button>
+          <button type="button" data-deck-mode="scroll" aria-pressed="false">通读</button>
+        </div>
+        <button type="button" class="deck-btn" data-deck-full aria-label="全屏演示" title="全屏演示  F">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="deck-progress" aria-hidden="true"><i data-deck-progress></i></div>
+
+    <nav class="deck-outline" id="deck-outline" data-deck-outline-panel hidden aria-label="幻灯片目录">
+      <ol>
+        
+        <li class="is-section">
+          <button type="button" data-deck-goto="0">
+            <span class="ol-no">0</span>C++ 的构建与包管理
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="1">
+            <span class="ol-no">1</span>三个阶段分别负责什么
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="2">
+            <span class="ol-no">2</span>获取完整示例
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="3">
+            <span class="ol-no">3</span>把依赖挂到目标上
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="4">
+            <span class="ol-no">4</span>配置、构建、测试
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="5">
+            <span class="ol-no">5</span>PRIVATE、PUBLIC、INTERFACE
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="6">
+            <span class="ol-no">6</span>让测试在 Release 中也有效
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="7">
+            <span class="ol-no">7</span>findpackage 并不负责下载
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="8">
+            <span class="ol-no">8</span>vcpkg：用清单声明依赖
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="9">
+            <span class="ol-no">9</span>Conan 2：显式安装与工具链
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="10">
+            <span class="ol-no">10</span>构建缓存不是源代码
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="11">
+            <span class="ol-no">11</span>练习与参考
+          </button>
+        </li>
+        
+      </ol>
+    </nav>
+
+    <div class="deck-stage" id="deck-stage" data-deck-stage tabindex="0"
+         aria-label="幻灯片内容，用左右方向键翻页">
+      
+      <section class="slide slide--section" data-slide="0"
+               data-title="C++ 的构建与包管理" data-section="1">
+        <div class="slide-inner"><h1>C++ 的构建与包管理</h1>
+<div class="deck-fragment"><p>目标：从空目录构建一个库、应用与测试，再理解如何引入外部包。</p></div>
+<div class="deck-fragment"><p>基线：C++17 编译器、CMake ≥ 3.20。示例不需要联网下载第三方依赖。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="1"
+               data-title="三个阶段分别负责什么">
+        <div class="slide-inner"><h2>三个阶段分别负责什么</h2>
+<div class="deck-fragment"><div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-text">配置 configure → 检查环境、建立目标与依赖
+生成 generate  → 输出 Ninja / Make / IDE 构建文件
+构建 build     → 编译、归档、链接</code></pre></div></div>
+<div class="deck-fragment"><p>CMake 不替代编译器；包管理器不替代 CMake。
+依赖能下载，不代表架构、ABI、编译选项与当前项目兼容。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="2"
+               data-title="获取完整示例">
+        <div class="slide-inner"><h2>获取完整示例</h2>
+<div class="deck-fragment"><p>下载 <a href="/assets/docs/cpp-build-packages/starter.zip">工程 ZIP</a>，解压后进入含 <code>CMakeLists.txt</code> 的目录。</p></div>
+<div class="deck-fragment"><div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-text">CMakeLists.txt
+include/lesson/clamp.hpp
+src/clamp.cpp
+src/main.cpp
+tests/test_clamp.cpp</code></pre></div></div>
+<div class="deck-fragment"><p>函数 <code>clamp_value</code> 将整数限制在闭区间内；区间上下界反转时抛出 <code>std::invalid_argument</code>。
+练习关注工程组织，不依赖复杂算法。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="3"
+               data-title="把依赖挂到目标上">
+        <div class="slide-inner"><h2>把依赖挂到目标上</h2>
+<div class="deck-fragment"><div class="code-block" data-lang="cmake"><div class="code-head"><span class="code-lang">cmake</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cmake"><span class="tok-keyword">cmake_minimum_required</span><span class="tok-punct">(</span><span class="tok-type">VERSION</span> <span class="tok-number">3</span>.<span class="tok-number">20</span><span class="tok-punct">)</span>
+<span class="tok-keyword">project</span><span class="tok-punct">(</span>lesson <span class="tok-type">LANGUAGES</span> <span class="tok-type">CXX</span><span class="tok-punct">)</span>
+<span class="tok-keyword">add_library</span><span class="tok-punct">(</span>lesson src<span class="tok-operator">/</span>clamp.cpp<span class="tok-punct">)</span>
+<span class="tok-function">target_include_directories</span><span class="tok-punct">(</span>lesson <span class="tok-type">PUBLIC</span> <span class="tok-keyword">include</span><span class="tok-punct">)</span>
+<span class="tok-function">target_compile_features</span><span class="tok-punct">(</span>lesson <span class="tok-type">PUBLIC</span> cxx_std_17<span class="tok-punct">)</span>
+<span class="tok-keyword">add_executable</span><span class="tok-punct">(</span>lesson_demo src<span class="tok-operator">/</span>main.cpp<span class="tok-punct">)</span>
+<span class="tok-keyword">target_link_libraries</span><span class="tok-punct">(</span>lesson_demo <span class="tok-type">PRIVATE</span> lesson<span class="tok-punct">)</span>
+<span class="tok-keyword">include</span><span class="tok-punct">(</span><span class="tok-type">CTest</span><span class="tok-punct">)</span>
+<span class="tok-keyword">if</span><span class="tok-punct">(</span><span class="tok-type">BUILD_TESTING</span><span class="tok-punct">)</span>
+  <span class="tok-keyword">add_executable</span><span class="tok-punct">(</span>lesson_tests tests<span class="tok-operator">/</span>test_clamp.cpp<span class="tok-punct">)</span>
+  <span class="tok-keyword">target_link_libraries</span><span class="tok-punct">(</span>lesson_tests <span class="tok-type">PRIVATE</span> lesson<span class="tok-punct">)</span>
+  <span class="tok-function">add_test</span><span class="tok-punct">(</span><span class="tok-type">NAME</span> clamp_contract <span class="tok-type">COMMAND</span> lesson_tests<span class="tok-punct">)</span>
+<span class="tok-keyword">endif</span><span class="tok-punct">(</span><span class="tok-punct">)</span></code></pre></div></div>
+<div class="deck-fragment"><p>消费者链接 <code>lesson</code> 时也获得其 PUBLIC 头文件路径与标准要求。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="4"
+               data-title="配置、构建、测试">
+        <div class="slide-inner"><h2>配置、构建、测试</h2>
+<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">cmake <span class="tok-operator">-</span><span class="tok-type">S</span> . <span class="tok-operator">-</span><span class="tok-type">B</span> build <span class="tok-operator">-</span><span class="tok-type">DCMAKE_BUILD_TYPE</span><span class="tok-operator">=</span><span class="tok-type">Debug</span>
+cmake <span class="tok-operator">--</span>build build <span class="tok-operator">--</span>config <span class="tok-type">Debug</span>
+ctest <span class="tok-operator">--</span>test-dir build <span class="tok-operator">-</span><span class="tok-type">C</span> <span class="tok-type">Debug</span> <span class="tok-operator">--</span>output-on-failure</code></pre></div></div>
+<div class="deck-fragment"><p>Ninja / Make 单配置生成器使用 <code>CMAKE_BUILD_TYPE</code>；Visual Studio 等多配置生成器在构建与测试时选配置。</p></div>
+<div class="deck-fragment"><p>单配置运行 <code>./build/lesson_demo</code>；Windows Visual Studio 通常运行 <code>build\Debug\lesson_demo.exe</code>。
+预期输出 <code>10</code>，测试报告 <code>clamp_contract</code> 通过。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="5"
+               data-title="PRIVATE、PUBLIC、INTERFACE">
+        <div class="slide-inner"><h2>PRIVATE、PUBLIC、INTERFACE</h2>
+<div class="deck-fragment"><div class="table-wrap" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
+<thead><tr><th>关键字</th><th>当前目标使用</th><th>消费者继承</th></tr></thead>
+<tbody>
+<tr><td>PRIVATE</td><td>是</td><td>否</td></tr>
+<tr><td>PUBLIC</td><td>是</td><td>是</td></tr>
+<tr><td>INTERFACE</td><td>否</td><td>是</td></tr>
+</tbody></table></div></div>
+<div class="deck-fragment"><p>实现文件内部需要的库通常 PRIVATE；公开头文件使用某依赖的类型时，消费者也需要对应使用要求。
+静态库最终链接还有传递链接语义，不能把 PRIVATE 简化为“最终程序永远不需要该库”。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="6"
+               data-title="让测试在 Release 中也有效">
+        <div class="slide-inner"><h2>让测试在 Release 中也有效</h2>
+<div class="deck-fragment"><p>下载示例通过条件判断和非零退出码报告失败，不依赖会受 <code>NDEBUG</code> 影响的 assert。</p></div>
+<div class="deck-fragment"><p>测试包含：范围内、低于下界、高于上界、上下界相同、反转区间。</p></div>
+<div class="deck-fragment"><p>练习：暂时把函数写成总返回输入值，测试应失败；恢复实现后再通过。
+能识别故意引入的错误，才证明测试覆盖到了这个行为。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="7"
+               data-title="findpackage 并不负责下载">
+        <div class="slide-inner"><h2>find_package 并不负责下载</h2>
+<div class="deck-fragment"><p>引入 fmt 的消费端配置示意：</p></div>
+<div class="deck-fragment"><div class="code-block" data-lang="cmake"><div class="code-head"><span class="code-lang">cmake</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cmake"><span class="tok-keyword">find_package</span><span class="tok-punct">(</span>fmt <span class="tok-type">CONFIG</span> <span class="tok-type">REQUIRED</span><span class="tok-punct">)</span>
+<span class="tok-keyword">target_link_libraries</span><span class="tok-punct">(</span>lesson_demo <span class="tok-type">PRIVATE</span> fmt::fmt<span class="tok-punct">)</span></code></pre></div></div>
+<div class="deck-fragment"><p>它查找已安装或由工具链提供的包配置与 imported target。
+头文件找不到、链接符号找不到、运行时共享库找不到，分别属于不同阶段。</p></div>
+<div class="deck-fragment"><p>避免手工硬编码某台电脑上的绝对 include/lib 路径。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="8"
+               data-title="vcpkg：用清单声明依赖">
+        <div class="slide-inner"><h2>vcpkg：用清单声明依赖</h2>
+<div class="deck-fragment"><p>已安装 vcpkg 并设置 <code>VCPKG_ROOT</code> 后，可在项目添加：</p></div>
+<div class="deck-fragment"><div class="code-block" data-lang="json"><div class="code-head"><span class="code-lang">json</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-json"><span class="tok-punct">{</span><span class="tok-key">&quot;name&quot;</span><span class="tok-punct">:</span><span class="tok-string">&quot;lesson-app&quot;</span><span class="tok-punct">,</span><span class="tok-key">&quot;version-string&quot;</span><span class="tok-punct">:</span><span class="tok-string">&quot;0.1.0&quot;</span><span class="tok-punct">,</span><span class="tok-key">&quot;dependencies&quot;</span><span class="tok-punct">:</span><span class="tok-punct">[</span><span class="tok-string">&quot;fmt&quot;</span><span class="tok-punct">]</span><span class="tok-punct">}</span></code></pre></div></div>
+<div class="deck-fragment"><p>Bash 示例，使用独立构建目录：</p></div>
+<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">cmake <span class="tok-operator">-</span><span class="tok-type">S</span> . <span class="tok-operator">-</span><span class="tok-type">B</span> build-vcpkg \
+  <span class="tok-operator">-</span><span class="tok-type">DCMAKE_TOOLCHAIN_FILE</span><span class="tok-operator">=</span><span class="tok-string">&quot;$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake&quot;</span>
+cmake <span class="tok-operator">--</span>build build-vcpkg</code></pre></div></div>
+<div class="deck-fragment"><p>清单保存为 <code>vcpkg.json</code>，并配合上一页的 <code>find_package</code>。
+团队项目还应记录 baseline / registry 和目标 triplet；仅写包名不能锁定完整依赖状态。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="9"
+               data-title="Conan 2：显式安装与工具链">
+        <div class="slide-inner"><h2>Conan 2：显式安装与工具链</h2>
+<div class="deck-fragment"><p>替代路线：已安装 Conan 2 后，在 <code>conanfile.txt</code> 声明依赖与生成器：</p></div>
+<div class="deck-fragment"><div class="code-block" data-lang="ini"><div class="code-head"><span class="code-lang">ini</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-ini">[requires]
+fmt/11.0.2
+[generators]
+CMakeDeps
+CMakeToolchain</code></pre></div></div>
+<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">conan profile detect
+conan install . <span class="tok-operator">--</span>output-folder<span class="tok-operator">=</span>build-conan <span class="tok-operator">--</span>build<span class="tok-operator">=</span>missing <span class="tok-operator">-</span>s build_type<span class="tok-operator">=</span><span class="tok-type">Release</span>
+cmake <span class="tok-operator">-</span><span class="tok-type">S</span> . <span class="tok-operator">-</span><span class="tok-type">B</span> build-conan <span class="tok-operator">-</span><span class="tok-type">DCMAKE_TOOLCHAIN_FILE</span><span class="tok-operator">=</span>conan_toolchain.cmake <span class="tok-operator">-</span><span class="tok-type">DCMAKE_BUILD_TYPE</span><span class="tok-operator">=</span><span class="tok-type">Release</span>
+cmake <span class="tok-operator">--</span>build build-conan <span class="tok-operator">--</span>config <span class="tok-type">Release</span></code></pre></div></div>
+<div class="deck-fragment"><p>固定版本是教学示例，远端配方可用性需核对。检测出的 profile 需检查，团队应保留锁文件与配置。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="10"
+               data-title="构建缓存不是源代码">
+        <div class="slide-inner"><h2>构建缓存不是源代码</h2>
+<div class="deck-fragment"><p>更换编译器、工具链或 ABI 时使用新的构建目录，避免旧 cache 残留。</p></div>
+<div class="deck-fragment"><p>记录：</p></div>
+<div class="deck-fragment"><ul><li>编译器与标准库版本、目标架构。</li></ul></div>
+<div class="deck-fragment"><ul><li>包版本、baseline / lockfile、工具链配置。</li></ul></div>
+<div class="deck-fragment"><ul><li>Debug / Release、静态或动态链接等选项。</li></ul></div>
+<div class="deck-fragment"><ul><li>同一套配置下的测试结果。</li></ul></div>
+<div class="deck-fragment"><p>交叉编译还要区分构建机和目标机；构建成功不代表程序可以在宿主运行。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="11"
+               data-title="练习与参考">
+        <div class="slide-inner"><h2>练习与参考</h2>
+<div class="deck-fragment"><p>给库增加 <code>is_in_range(value, low, high)</code>，定义反转区间行为，再加入测试。</p></div>
+<div class="deck-fragment"><p>验收：一个新目录内三条命令完成配置、构建、测试；修改实现后测试可发现错误；README 不依赖本机私有路径。</p></div>
+<div class="deck-fragment"><p>参考：<a href="https://cmake.org/cmake/help/latest/guide/tutorial/index.html" target="_blank" rel="noopener">CMake 教程</a>、<a href="https://learn.microsoft.com/en-us/vcpkg/consume/manifest-mode" target="_blank" rel="noopener">vcpkg 清单模式</a>、<a href="https://docs.conan.io/2/tutorial/consuming_packages/build_simple_cmake_project.html" target="_blank" rel="noopener">Conan 2 CMake 教程</a>。</p></div></div>
+      </section>
+      
+    </div>
+
+    <p class="deck-hint">
+      <kbd>←</kbd><kbd>→</kbd> 逐步收起 / 展开，展开完翻页 · <kbd>F</kbd> 全屏 · <kbd>Esc</kbd> 退出
+    </p>
+
+    
+    <button type="button" class="deck-zone deck-zone--prev" data-deck-prev aria-label="上一页" tabindex="-1">
+      <span aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></svg>
+      </span>
+    </button>
+    <button type="button" class="deck-zone deck-zone--next" data-deck-next aria-label="下一页" tabindex="-1">
+      <span aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg>
+      </span>
+    </button>
+  </section>
+
+  <nav class="doc-nav" aria-label="上下篇">
+    
+    <a class="doc-nav-item prev" href="/docs/build-and-maintain/">
+      <span class="dir">← 上一篇</span>
+      <span class="t">工程的构建与维护</span>
+    </a>
+    
+    <span class="doc-nav-item empty"></span>
+  </nav>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="footer-glow" aria-hidden="true"></div>
+  <div class="footer-grid" aria-hidden="true"></div>
+  <span class="footer-corner tl" aria-hidden="true"></span>
+  <span class="footer-corner tr" aria-hidden="true"></span>
+
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="brand-mark lg" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M2.6 20.6h5.6" stroke-width="2.2"/>
+  <path d="M7.9 15.9 11.6 6.6" stroke-width="2.8"/>
+  <path d="M13.4 7.2 19.2 11.4" stroke-width="2.8"/>
+  <circle cx="5.6" cy="17.6" r="2.9" fill="currentColor" stroke="none"/>
+  <circle cx="12.2" cy="6.4" r="2.3" fill="currentColor" stroke="none"/>
+  <circle cx="20.4" cy="12.2" r="1.8" fill="currentColor" stroke="none"/>
+</svg>
+
+      </div>
+      <p class="footer-title">洛叶白</p>
+      <p class="footer-tag">中间件 · 运动控制 · 强化学习</p>
+
+      
+      <p class="footer-now"><span class="pulse" aria-hidden="true"></span>轮式双臂机器人（智元 G2）的工业场景落地与工具链</p>
+      
+
+      <div class="footer-social">
+        
+        <a class="footer-chip" href="https://github.com/luoyebai" rel="noopener">GitHub</a>
+        
+        <a class="footer-chip" href="mailto:2112216825@qq.com" rel="noopener">邮箱</a>
+        
+        <a class="footer-chip" href="mailto:luoyebai4444@gmail.com" rel="noopener">Gmail</a>
+        
+        <a class="footer-chip" href="tel:13407209575" rel="noopener">电话</a>
+        
+      </div>
+
+      <dl class="footer-stats">
+        <div><dt>7</dt><dd>篇文章</dd></div>
+        <div><dt>19</dt><dd>篇文档</dd></div>
+        <div><dt>5</dt><dd>个项目</dd></div>
+        <div><dt>204</dt><dd>页幻灯片</dd></div>
+      </dl>
+    </div>
+
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h4>最新文章</h4>
+        
+        <a class="footer-link" href="/posts/runnable-demos/">
+          <span class="t">可运行示例：让文章里的代码真的跑起来</span>
+          <span class="d">2026 年 9 月 24 日</span>
+        </a>
+        
+        <a class="footer-link" href="/posts/dds-qos-tuning/">
+          <span class="t">DDS 选型与调参：从 QoS 到零拷贝</span>
+          <span class="d">2026 年 4 月 12 日</span>
+        </a>
+        
+        <a class="footer-link" href="/posts/quadruped-mpc-wbc/">
+          <span class="t">四足运控：MPC 与 WBC 的分层结构</span>
+          <span class="d">2026 年 3 月 8 日</span>
+        </a>
+        
+        <a class="footer-more" href="/posts/">
+          全部文章
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/></svg>
+        </a>
+      </div>
+
+      <div class="footer-col">
+        <h4>文档课程</h4>
+        
+        <a class="footer-link" href="/docs/windows-to-linux/">
+          <span class="t">从 Windows 到 Linux</span>
+          <span class="d">6 篇 · 67 页</span>
+        </a>
+        
+        <a class="footer-link" href="/docs/cpp/">
+          <span class="t">从 C 语言到 C++</span>
+          <span class="d">1 篇 · 10 页</span>
+        </a>
+        
+        <a class="footer-link" href="/docs/vision/">
+          <span class="t">ROS 与机器视觉</span>
+          <span class="d">6 篇 · 72 页</span>
+        </a>
+        
+        <a class="footer-link" href="/docs/learning/">
+          <span class="t">从编程开始的学习</span>
+          <span class="d">6 篇 · 55 页</span>
+        </a>
+        
+        <a class="footer-more" href="/docs/">
+          文档总览
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/></svg>
+        </a>
+      </div>
+
+      <div class="footer-col">
+        <h4>导航</h4>
+        <nav class="footer-nav" aria-label="页脚导航">
+          <a href="/">首页</a><a href="/posts/">文章</a><a href="/projects/">项目</a><a href="/docs/">文档</a><a href="/graph/">图谱</a><a href="/archive/">归档</a><a href="/about/">关于</a>
+        </nav>
+
+        <h4 class="footer-h4-gap">站点</h4>
+        <nav class="footer-nav" aria-label="站点资源">
+          <a href="/tags/">标签</a>
+          <a href="/archive/">归档</a>
+          
+          <a href="/sitemap.xml">站点地图</a>
+          <a href="/search-index.json">搜索索引</a>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p class="footer-colophon">
+      <span>© 2022–2026 洛叶白</span>
+      <span class="sep" aria-hidden="true">·</span>
+      <span>除注明外均为原创，转载请注明出处</span>
+      <span class="sep" aria-hidden="true">·</span>
+      <span>构建于 <time datetime="2026-09-24">2026-09-24</time></span>
+    </p>
+    <p class="footer-meta">
+      <span class="footer-meta-label">字体</span>
+      <span class="footer-meta-item">Noto Serif SC<i>正文 · 宋体档</i></span><span class="footer-meta-item">Noto Sans SC<i>正文 · 黑体档</i></span><span class="footer-meta-item">FiraCode Nerd<i>代码与数学</i></span>
+      <span class="footer-meta-item is-accent">无第三方依赖 · 无追踪 · 无 Cookie</span>
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" type="button" data-to-top aria-label="回到顶部">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19V5"/><path d="m5.5 11.5 6.5-6.5 6.5 6.5"/>
+  </svg>
+</button>
+
+<div class="settings" id="settings" hidden>
+  <div class="settings-backdrop" data-close-settings></div>
+  <aside class="settings-panel" role="dialog" aria-modal="true" aria-label="外观设置">
+    <header class="settings-head">
+      <div>
+        <h2>外观设置</h2>
+        <p>设置会保存在本机浏览器，刷新后保持</p>
+      </div>
+      <button class="icon-btn" type="button" data-close-settings aria-label="关闭">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path d="M6 6l12 12M18 6 6 18"/>
+        </svg>
+      </button>
+    </header>
+
+    <div class="settings-body">
+
+      <section class="set-group">
+        <h3>主题</h3>
+        <div class="theme-grid">
+          
+          <button class="theme-card" type="button" data-theme-pick="dusk" title="暮色风车">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/dusk.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#ff9d5c"></i><i style="background:#7aa2ff"></i><i style="background:#0b1020"></i>
+              </span>
+            </span>
+            <span class="theme-name">暮色风车</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="neon" title="霓虹机房">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/neon.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#c04bff"></i><i style="background:#22d3ee"></i><i style="background:#0a0718"></i>
+              </span>
+            </span>
+            <span class="theme-name">霓虹机房</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="cyber" title="夜城投递">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/cyber.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#ff7ab6"></i><i style="background:#5ee7c4"></i><i style="background:#141019"></i>
+              </span>
+            </span>
+            <span class="theme-name">夜城投递</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="sakura" title="樱色光爆">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/sakura.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#ff6fa5"></i><i style="background:#b78bff"></i><i style="background:#120a14"></i>
+              </span>
+            </span>
+            <span class="theme-name">樱色光爆</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="void" title="虚空龙息">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/void.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#6ea8ff"></i><i style="background:#ffd166"></i><i style="background:#06080f"></i>
+              </span>
+            </span>
+            <span class="theme-name">虚空龙息</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="mono" title="黑白编辑">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/mono.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#e8e8e8"></i><i style="background:#9aa0a6"></i><i style="background:#0c0c0d"></i>
+              </span>
+            </span>
+            <span class="theme-name">黑白编辑</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="paper" title="留白纸面">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/paper.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#17b8a6"></i><i style="background:#f0a04b"></i><i style="background:#fbfcfc"></i>
+              </span>
+            </span>
+            <span class="theme-name">留白纸面</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="alpine" title="远山夜湖">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/alpine.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#5b8dd9"></i><i style="background:#78d9c8"></i><i style="background:#0a1220"></i>
+              </span>
+            </span>
+            <span class="theme-name">远山夜湖</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="moonlit" title="皎月水面">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/moonlit.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#7fd4f0"></i><i style="background:#ffd9a0"></i><i style="background:#050b1c"></i>
+              </span>
+            </span>
+            <span class="theme-name">皎月水面</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="comet" title="彗星山晚">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/comet.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#e07a5f"></i><i style="background:#9b8cff"></i><i style="background:#1c2242"></i>
+              </span>
+            </span>
+            <span class="theme-name">彗星山晚</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="lantern" title="林间提灯">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/lantern.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#e8a45c"></i><i style="background:#66d6a8"></i><i style="background:#141121"></i>
+              </span>
+            </span>
+            <span class="theme-name">林间提灯</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="sketch" title="素描线稿">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/sketch.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#5a6b96"></i><i style="background:#8a6f52"></i><i style="background:#1f2024"></i>
+              </span>
+            </span>
+            <span class="theme-name">素描线稿</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="manga" title="漫画分格">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/manga.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#cf4436"></i><i style="background:#4a6fa8"></i><i style="background:#242428"></i>
+              </span>
+            </span>
+            <span class="theme-name">漫画分格</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="lumen" title="暖灯夜色">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/lumen.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#ffbe4d"></i><i style="background:#7ad3e8"></i><i style="background:#0d1a28"></i>
+              </span>
+            </span>
+            <span class="theme-name">暖灯夜色</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="bocchi" title="波奇光晕">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/bocchi.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#eaa5bc"></i><i style="background:#6acbc9"></i><i style="background:#101b2d"></i>
+              </span>
+            </span>
+            <span class="theme-name">波奇光晕</span>
+          </button>
+          
+        </div>
+      </section>
+
+      <section class="set-group">
+        <h3>配色</h3>
+        <div class="set-field">
+          <span class="set-label">明暗模式</span>
+          <div class="seg" data-seg="mode">
+            <button type="button" data-val="dark">深色</button>
+            <button type="button" data-val="light">浅色</button>
+          </div>
+        </div>
+        <div class="set-field set-field--inline">
+          <span class="set-label">强调色覆盖</span>
+          <input type="color" data-color="accent" value="#ff9d5c" aria-label="强调色">
+        </div>
+        <p class="set-note">强调色默认由主题的种子色推导；想临时改一个色就动这里，留空色块即为跟随主题。</p>
+      </section>
+
+      <section class="set-group">
+        <h3>排版</h3>
+        <div class="set-field">
+          <span class="set-label">正文字体</span>
+          <div class="seg" data-seg="font">
+            <button type="button" data-val="sans">黑体</button>
+            <button type="button" data-val="serif">宋体</button>
+            <button type="button" data-val="mono">等宽</button>
+          </div>
+        </div>
+        <div class="set-field">
+          <span class="set-label">字号 <b data-out="scale">—</b></span>
+          <input type="range" data-range="scale" min="0.9" max="1.25" step="0.01" value="1" aria-label="字号">
+        </div>
+        <div class="set-field">
+          <span class="set-label">阅读宽度</span>
+          <div class="seg" data-seg="width">
+            <button type="button" data-val="narrow">窄</button>
+            <button type="button" data-val="normal">标准</button>
+            <button type="button" data-val="wide">宽</button>
+          </div>
+        </div>
+        <p class="set-note">黑体 / 宋体随站点自带，不依赖本机字体。</p>
+      </section>
+
+      <section class="set-group">
+        <h3>玻璃材质</h3>
+        <div class="set-field">
+          <span class="set-label">质感档位</span>
+          <div class="seg" data-seg="glass">
+            <button type="button" data-val="off">关闭</button>
+            <button type="button" data-val="low">弱</button>
+            <button type="button" data-val="med">中</button>
+            <button type="button" data-val="high">强</button>
+          </div>
+        </div>
+        <div class="set-field">
+          <span class="set-label">不透明度 <b data-out="glassAlpha">—</b></span>
+          <input type="range" data-range="glassAlpha" min="40" max="100" step="1" value="72" aria-label="玻璃不透明度">
+        </div>
+        <p class="set-note">越低越透、背后的壁纸越明显；低于 60% 时文字在花哨壁纸上会不太好读。选「关闭」为实底。</p>
+      </section>
+
+      <section class="set-group">
+        <h3>背景壁纸</h3>
+        <div class="set-field">
+          <span class="set-label">显示</span>
+          <div class="seg" data-seg="bg">
+            <button type="button" data-val="on">显示</button>
+            <button type="button" data-val="off">隐藏</button>
+          </div>
+        </div>
+        <div class="set-field">
+          <span class="set-label">来源</span>
+          <div class="seg" data-seg="bgmode">
+            <button type="button" data-val="image">静态图</button>
+            <button type="button" data-val="video">动态视频</button>
+          </div>
+        </div>
+        <p class="set-note">无声循环视频按当前主题加载；切到「动态视频」后才加载，后台标签页会暂停。</p>
+        <div class="set-divider"></div>
+        <div class="set-field">
+          <span class="set-label">可见度 <b data-out="bgOpacity">—</b></span>
+          <input type="range" data-range="bgOpacity" min="0" max="100" step="2" value="62" aria-label="壁纸可见度">
+        </div>
+        <div class="set-field">
+          <span class="set-label">模糊 <b data-out="bgBlur">—</b></span>
+          <input type="range" data-range="bgBlur" min="0" max="40" step="1" value="0" aria-label="壁纸模糊">
+        </div>
+      </section>
+
+      <section class="set-group">
+        <h3>交互</h3>
+        <div class="set-field">
+          <span class="set-label">卡片 3D 倾斜</span>
+          <div class="seg" data-seg="tilt">
+            <button type="button" data-val="0">关闭</button>
+            <button type="button" data-val="6">轻微</button>
+            <button type="button" data-val="12">标准</button>
+            <button type="button" data-val="20">明显</button>
+          </div>
+        </div>
+        <p class="set-note">鼠标移到文章 / 项目卡片上时跟着倾斜的角度，仅在精确指针设备生效。</p>
+        <div class="set-divider"></div>
+        <div class="set-field">
+          <span class="set-label">页面动效</span>
+          <div class="seg" data-seg="motion">
+            <button type="button" data-val="on">开启</button>
+            <button type="button" data-val="off">关闭</button>
+          </div>
+        </div>
+        <div class="set-field">
+          <span class="set-label">鼠标指针</span>
+          <div class="seg" data-seg="cursor">
+            <button type="button" data-val="on">自定义</button>
+            <button type="button" data-val="off">系统</button>
+          </div>
+        </div>
+        <p class="set-note">自定义指针是一个反相圆环，悬停会变形并显示提示；文字输入框仍用系统指针，触屏设备自动忽略。</p>
+      </section>
+
+    </div>
+
+    <footer class="settings-foot">
+      <button class="btn ghost" type="button" data-reset-appearance>恢复默认</button>
+      <button class="btn primary" type="button" data-close-settings>完成</button>
+    </footer>
+  </aside>
+</div>
+
+<div class="search" id="search" hidden>
+  <div class="search-backdrop" data-close-search></div>
+  <div class="search-panel" role="dialog" aria-modal="true" aria-label="搜索">
+    <div class="search-input">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <circle cx="11" cy="11" r="6.5"/><path d="M16.2 16.2 21 21"/>
+      </svg>
+      <input type="search" placeholder="搜索文章、项目、标签…" autocomplete="off" spellcheck="false" data-search-input>
+      <kbd>Esc</kbd>
+    </div>
+    <div class="search-results" data-search-results>
+      <p class="search-hint">输入关键词开始搜索 · ↑↓ 选择 · Enter 打开</p>
+    </div>
+  </div>
+</div>
+
+<div class="mobile-menu" id="mobile-menu" hidden>
+  <div class="mobile-menu-backdrop" data-close-menu></div>
+  <nav class="mobile-menu-panel">
+    <a href="/">首页</a><a href="/posts/">文章</a><a href="/projects/">项目</a><a href="/docs/">文档</a><a href="/graph/">图谱</a><a href="/archive/">归档</a><a href="/about/">关于</a>
+    <div class="mobile-menu-social">
+      <a href="https://github.com/luoyebai" rel="noopener">GitHub</a><a href="mailto:2112216825@qq.com" rel="noopener">邮箱</a><a href="mailto:luoyebai4444@gmail.com" rel="noopener">Gmail</a><a href="tel:13407209575" rel="noopener">电话</a>
+    </div>
+  </nav>
+</div>
+
+
+<script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
+
+<script src="/assets/site.js?v=77072cd2" defer></script>
+<script src="/assets/docs.js?v=77072cd2" defer></script>
+
+</body>
+</html>
+

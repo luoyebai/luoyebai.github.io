@@ -16,7 +16,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>简单的人脸识别 · 洛叶白</title>
-<meta name="description" content="从「一张图在计算机里是什么」开始，把灰度化、卷积、人脸检测与特征比对串起来，最后说清楚工业现场最常见的几个翻车点。">
+<meta name="description" content="正确区分图像处理、检测与身份比对，完成一个可运行的人脸检测示例，并理解模型与阈值验证。">
 <meta name="author" content="洛叶白">
 <meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#0b0d14" media="(prefers-color-scheme: dark)">
@@ -24,18 +24,18 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="洛叶白">
 <meta property="og:title" content="简单的人脸识别">
-<meta property="og:description" content="从「一张图在计算机里是什么」开始，把灰度化、卷积、人脸检测与特征比对串起来，最后说清楚工业现场最常见的几个翻车点。">
+<meta property="og:description" content="正确区分图像处理、检测与身份比对，完成一个可运行的人脸检测示例，并理解模型与阈值验证。">
 <meta property="og:url" content="https://luoyebai.github.io/docs/face-recognition/">
 <meta property="og:image" content="https://luoyebai.github.io/assets/images/favicon.svg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://luoyebai.github.io/docs/face-recognition/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css">
-<link rel="stylesheet" href="/assets/site.css">
+<link rel="stylesheet" href="/assets/themes.css?v=77072cd2">
+<link rel="stylesheet" href="/assets/site.css?v=77072cd2">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
-<link rel="stylesheet" href="/assets/docs.css">
+<link rel="stylesheet" href="/assets/docs.css?v=77072cd2">
 
 
 
@@ -44,6 +44,11 @@
 (function () {
   var el = document.documentElement;
   el.classList.add('js');   /* 只有 JS 可用时才启用进场动画的隐藏态 */
+  var compact = matchMedia('(pointer: coarse)').matches ||
+    (navigator.connection && navigator.connection.saveData) ||
+    (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
+    (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+  el.setAttribute('data-performance', compact ? 'compact' : 'standard');
   var q = {};
   try { new URLSearchParams(location.search).forEach(function (v, k) { q[k] = v; }); } catch (e) {}
   var s = {};
@@ -153,7 +158,7 @@
 
 
 <article class="doc" id="doc"
-         data-slides="20"
+         data-slides="12"
          data-title="简单的人脸识别">
   <header class="doc-head">
     <nav class="crumbs" aria-label="面包屑">
@@ -165,18 +170,18 @@
     </nav>
 
     <h1 class="doc-title">简单的人脸识别</h1>
-    <p class="doc-lede">从「一张图在计算机里是什么」开始，把灰度化、卷积、人脸检测与特征比对串起来，最后说清楚工业现场最常见的几个翻车点。</p>
+    <p class="doc-lede">正确区分图像处理、检测与身份比对，完成一个可运行的人脸检测示例，并理解模型与阈值验证。</p>
 
     <p class="doc-meta">
-      <span class="meta-item"><b>10</b> / 4 篇</span>
-      <span class="meta-item"><b>20</b> 页幻灯片</span>
+      <span class="meta-item"><b>4</b> / 6 篇</span>
+      <span class="meta-item"><b>12</b> 页幻灯片</span>
       
     </p>
   </header>
 
   <section class="deck is-paged" id="deck" data-deck aria-roledescription="幻灯片" aria-label="简单的人脸识别">
     <noscript>
-      <style>.deck .slide{display:block !important;margin-top:1.2rem}</style>
+      <style>.deck .slide{display:block !important;margin-top:1.2rem;height:auto !important;overflow:visible !important}</style>
     </noscript>
     <div class="deck-bar">
       <div class="deck-nav">
@@ -191,7 +196,7 @@
           </svg>
         </button>
         <p class="deck-counter" aria-live="polite">
-          <b data-deck-no>1</b> / 20
+          <b data-deck-no>1</b> / 12
         </p>
       </div>
 
@@ -224,115 +229,67 @@
         
         <li>
           <button type="button" data-deck-goto="1">
-            <span class="ol-no">1</span>概述
+            <span class="ol-no">1</span>图像的形状与类型
           </button>
         </li>
         
-        <li class="is-section">
+        <li>
           <button type="button" data-deck-goto="2">
-            <span class="ol-no">2</span>Q1. 一张图在计算机里是什么
+            <span class="ol-no">2</span>安装一个 OpenCV 包
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="3">
-            <span class="ol-no">3</span>三维数组，仅此而已
+            <span class="ol-no">3</span>读入与处理时检查失败
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="4">
-            <span class="ol-no">4</span>三个必须记住的坑
+            <span class="ol-no">4</span>灰度化并非所有模型的第一步
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="5">
-            <span class="ol-no">5</span>灰度化：为什么第一步总是它
+            <span class="ol-no">5</span>图像处理不只有卷积
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="6">
-            <span class="ol-no">6</span>试一个：把一张图画成灰度
+            <span class="ol-no">6</span>完整的人脸检测实验
           </button>
         </li>
         
-        <li class="is-section">
+        <li>
           <button type="button" data-deck-goto="7">
-            <span class="ol-no">7</span>Q2. OpenCV 怎么用
+            <span class="ol-no">7</span>从检测走到识别
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="8">
-            <span class="ol-no">8</span>它是什么
+            <span class="ol-no">8</span>使用模型时保持预处理一致
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="9">
-            <span class="ol-no">9</span>五个函数够你起步
+            <span class="ol-no">9</span>分数不等于概率
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="10">
-            <span class="ol-no">10</span>卷积：图像处理里唯一的那个动作
+            <span class="ol-no">10</span>阈值需要独立验证
           </button>
         </li>
         
-        <li class="is-section">
+        <li>
           <button type="button" data-deck-goto="11">
-            <span class="ol-no">11</span>Q3. 人脸识别到底分几步
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="12">
-            <span class="ol-no">12</span>四步，一步都不能跳
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="13">
-            <span class="ol-no">13</span>检测：三代方法
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="14">
-            <span class="ol-no">14</span>对齐：最容易被跳过、也最影响结果的一步
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="15">
-            <span class="ol-no">15</span>提特征与比对
-          </button>
-        </li>
-        
-        <li class="is-section">
-          <button type="button" data-deck-goto="16">
-            <span class="ol-no">16</span>工程上的坑
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="17">
-            <span class="ol-no">17</span>现场最常见的四件事
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="18">
-            <span class="ol-no">18</span>一条务实的验收清单
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="19">
-            <span class="ol-no">19</span>小结
+            <span class="ol-no">11</span>练习与参考
           </button>
         </li>
         
@@ -344,25 +301,15 @@
       
       <section class="slide slide--section" data-slide="0"
                data-title="简单的人脸识别" data-section="1">
-        <div class="slide-inner"><h1>简单的人脸识别</h1></div>
+        <div class="slide-inner"><h1>简单的人脸识别</h1>
+<div class="deck-fragment"><p>目标：理解图像数组，运行人脸检测，并解释识别链路中的模型、对齐和阈值。</p></div>
+<div class="deck-fragment"><p>本课检测实验使用 OpenCV 4.x Python 绑定；检测框不等于识别出了某个人。</p></div></div>
       </section>
       
       <section class="slide" data-slide="1"
-               data-title="概述">
-        <div class="slide-inner"><h2>概述</h2>
-<ul><li><strong>Q1.</strong> 一张图在计算机里是什么？</li><li><strong>Q2.</strong> OpenCV 怎么用？</li><li><strong>Q3.</strong> 人脸识别到底分几步？</li><li><del>Q4. 深度学习是不是不用学这些了</del></li></ul>
-<blockquote><p>先剧透：<span class="ink ink-blue">检测和识别是两件完全不同的事</span>，混在一起讲是大部分教程的通病。</p></blockquote></div>
-      </section>
-      
-      <section class="slide slide--section" data-slide="2"
-               data-title="Q1. 一张图在计算机里是什么" data-section="1">
-        <div class="slide-inner"><h1><strong>Q1.</strong> 一张图在计算机里是什么</h1></div>
-      </section>
-      
-      <section class="slide" data-slide="3"
-               data-title="三维数组，仅此而已">
-        <div class="slide-inner"><h2>三维数组，仅此而已</h2>
-<figure class="docfig-wrap" data-fig="image-pixels">
+               data-title="图像的形状与类型">
+        <div class="slide-inner"><h2>图像的形状与类型</h2>
+<div class="deck-fragment"><figure class="docfig-wrap" data-fig="image-pixels">
 <svg class="docfig" viewBox="0 0 800 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="一张彩色图 = 高 × 宽 × 通道的三维数组；OpenCV 里通道顺序是 BGR">
   <defs><marker id="f39ebb56-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" class="fg-head"/></marker></defs>
   <rect class="fg-box is-accent" x="60" y="60" width="200" height="190" rx="6"/>
@@ -390,112 +337,55 @@
   <text class="fg-note" x="438" y="74" text-anchor="middle" font-size="11">0~255</text>
   <rect class="fg-box" x="580" y="92" width="180" height="120" rx="9"/>
   <text class="fg-t" x="670.0" y="152.0" text-anchor="middle" font-size="15">shape = (H, W, C)</text>
-  <text class="fg-s" x="670" y="132" text-anchor="middle" font-size="12">灰度图 C = 1</text>
+  <text class="fg-s" x="670" y="132" text-anchor="middle" font-size="12">灰度通常为 (H, W)</text>
   <text class="fg-s" x="670" y="158" text-anchor="middle" font-size="12">彩色图 C = 3</text>
   <text class="fg-s" x="670" y="184" text-anchor="middle" font-size="12">带 alpha 是 4</text>
   <text class="fg-note" x="60" y="306" text-anchor="start" font-size="12">坑：OpenCV 读进来是 BGR，matplotlib / PIL 是 RGB。直接互传会得到一张红蓝互换的图。</text>
 </svg>
 <figcaption>一张彩色图 = 高 × 宽 × 通道的三维数组；OpenCV 里通道顺序是 BGR</figcaption>
-</figure>
-<ul><li>彩色图 = 高 × 宽 × 通道 的三维数组，每个数 0~255。</li><li>灰度图就是通道数为 1 的情况。</li><li>「图像处理」= 对这个数组做各种运算；「计算机视觉」= 从运算结果里读出含义。</li></ul>
-<div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">import</span> cv2
-img <span class="tok-operator">=</span> cv2<span class="tok-punct">.</span><span class="tok-function">imread</span><span class="tok-punct">(</span><span class="tok-string">&#x27;face.jpg&#x27;</span><span class="tok-punct">)</span>
-<span class="tok-builtin">print</span><span class="tok-punct">(</span>img<span class="tok-punct">.</span>shape<span class="tok-punct">)</span>        <span class="tok-comment"># (480, 640, 3)  → H, W, C</span>
-<span class="tok-builtin">print</span><span class="tok-punct">(</span>img<span class="tok-punct">[</span><span class="tok-number">100</span><span class="tok-punct">,</span> <span class="tok-number">200</span><span class="tok-punct">]</span><span class="tok-punct">)</span>    <span class="tok-comment"># [B, G, R] 三个数，就是那一个像素</span></code></pre></div></div>
+</figure></div>
+<div class="deck-fragment"><p>常见 8 位彩色图像是 <code>(高, 宽, 3)</code> 的 uint8 数组，像素分量取值 0–255；灰度图通常是 <code>(高, 宽)</code> 二维数组。
+图像也可以是浮点、16 位、带 alpha 或其他格式，不能把所有图像都限定为 0–255。</p></div>
+<div class="deck-fragment"><p>OpenCV 默认彩色 <code>imread</code> 得到 BGR；索引是 <code>img[y, x]</code>，<code>resize</code> 的尺寸参数是 <code>(宽, 高)</code>。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="2"
+               data-title="安装一个 OpenCV 包">
+        <div class="slide-inner"><h2>安装一个 OpenCV 包</h2>
+<div class="deck-fragment"><p>在已激活的虚拟环境中：</p></div>
+<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">python <span class="tok-operator">-</span>m pip install opencv-python
+python <span class="tok-operator">-</span>c <span class="tok-string">&quot;import cv2; print(cv2.__version__)&quot;</span></code></pre></div></div>
+<div class="deck-fragment"><p><code>opencv-python</code>、<code>opencv-contrib-python</code> 及其 headless 变体共享 <code>cv2</code> 命名空间，同一个环境选择一个，不要同时安装。
+只有需要额外 contrib 模块时才换相应包；SIFT 已在现代 OpenCV 主模块中。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="3"
+               data-title="读入与处理时检查失败">
+        <div class="slide-inner"><h2>读入与处理时检查失败</h2>
+<div class="deck-fragment"><div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">import</span> cv2
+image <span class="tok-operator">=</span> cv2<span class="tok-punct">.</span><span class="tok-function">imread</span><span class="tok-punct">(</span><span class="tok-string">&#x27;input.jpg&#x27;</span><span class="tok-punct">)</span>
+<span class="tok-keyword">if</span> image <span class="tok-keyword">is</span> <span class="tok-keyword">None</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">raise</span> <span class="tok-function">FileNotFoundError</span><span class="tok-punct">(</span><span class="tok-string">&#x27;Cannot read input.jpg&#x27;</span><span class="tok-punct">)</span>
+gray <span class="tok-operator">=</span> cv2<span class="tok-punct">.</span><span class="tok-function">cvtColor</span><span class="tok-punct">(</span>image<span class="tok-punct">,</span> cv2<span class="tok-punct">.</span><span class="tok-type">COLOR_BGR2GRAY</span><span class="tok-punct">)</span>
+blurred <span class="tok-operator">=</span> cv2<span class="tok-punct">.</span><span class="tok-function">GaussianBlur</span><span class="tok-punct">(</span>gray<span class="tok-punct">,</span> <span class="tok-punct">(</span><span class="tok-number">5</span><span class="tok-punct">,</span> <span class="tok-number">5</span><span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-number">0</span><span class="tok-punct">)</span>
+edges <span class="tok-operator">=</span> cv2<span class="tok-punct">.</span><span class="tok-function">Canny</span><span class="tok-punct">(</span>blurred<span class="tok-punct">,</span> <span class="tok-number">80</span><span class="tok-punct">,</span> <span class="tok-number">160</span><span class="tok-punct">)</span>
+<span class="tok-keyword">if</span> <span class="tok-keyword">not</span> cv2<span class="tok-punct">.</span><span class="tok-function">imwrite</span><span class="tok-punct">(</span><span class="tok-string">&#x27;edges.png&#x27;</span><span class="tok-punct">,</span> edges<span class="tok-punct">)</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">raise</span> <span class="tok-function">OSError</span><span class="tok-punct">(</span><span class="tok-string">&#x27;Cannot write edges.png&#x27;</span><span class="tok-punct">)</span></code></pre></div></div>
+<div class="deck-fragment"><p>阈值仅为教学起点，需根据输入检查结果；错误路径应保留具体文件名。</p></div></div>
       </section>
       
       <section class="slide" data-slide="4"
-               data-title="三个必须记住的坑">
-        <div class="slide-inner"><h2>三个必须记住的坑</h2>
-<p><span class="ink ink-red"><strong>1. OpenCV 是 BGR，不是 RGB。</strong></span><br>
-<code>cv2.imread</code> 读进来通道顺序是 B-G-R，而 matplotlib / PIL 是 R-G-B。
-直接互传会得到一张红蓝互换的图 —— 人脸会变得很吓人。</p>
-<div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python">rgb <span class="tok-operator">=</span> cv2<span class="tok-punct">.</span><span class="tok-function">cvtColor</span><span class="tok-punct">(</span>img<span class="tok-punct">,</span> cv2<span class="tok-punct">.</span><span class="tok-type">COLOR_BGR2RGB</span><span class="tok-punct">)</span>
-plt<span class="tok-punct">.</span><span class="tok-function">imshow</span><span class="tok-punct">(</span>rgb<span class="tok-punct">)</span></code></pre></div>
-<p><span class="ink ink-red"><strong>2. 坐标是 <code>img[y, x]</code>，不是 <code>img[x, y]</code>。</strong></span><br>
-先横后竖是数学，先行后列是矩阵。OpenCV 站在矩阵那边。</p>
-<p><span class="ink ink-red"><strong>3. 尺寸是 <code>(宽, 高)</code>，但 shape 是 <code>(高, 宽, 通道)</code>。</strong></span><br>
-<code>cv2.resize(img, (640, 480))</code> 里的 640 是<strong>宽</strong>。</p></div>
+               data-title="灰度化并非所有模型的第一步">
+        <div class="slide-inner"><h2>灰度化并非所有模型的第一步</h2>
+<div class="deck-fragment"><p>常见转换使用近似权重 <code>Y = 0.299R + 0.587G + 0.114B</code>。
+灰度化丢弃色彩信息，适合部分传统算法；深度模型应遵循训练时的通道顺序、归一化和尺寸要求。</p></div>
+<div class="deck-fragment"><p>不能为了“更快”把需要 RGB 输入的模型随意改成灰度输入。</p></div></div>
       </section>
       
       <section class="slide" data-slide="5"
-               data-title="灰度化：为什么第一步总是它">
-        <div class="slide-inner"><h2>灰度化：为什么第一步总是它</h2>
-<ul><li>颜色对「这是不是一张脸」几乎没有帮助，但对计算量影响很大：<strong>数据量降到 1/3</strong>。</li><li>最朴素的灰度化是加权平均 —— 人眼对绿色最敏感，所以权重不同：</li></ul>
-<div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-text">gray = 0.299·R + 0.587·G + 0.114·B</code></pre></div>
-<ul><li>这不是随便取的系数，是当年从人眼亮度响应曲线上量出来的。</li></ul></div>
-      </section>
-      
-      <section class="slide" data-slide="6"
-               data-title="试一个：把一张图画成灰度">
-        <div class="slide-inner"><h2>试一个：把一张图画成灰度</h2>
-<p>下面这段直接操作像素，把「灰度化 + 阈值」在浏览器里跑出来。
-改改阈值，看看二值化之后还剩多少信息。</p>
-<div class="demo" data-demo="js"><div class="demo-head"><span class="demo-badge">可运行示例</span><span class="demo-lang">JavaScript</span><div class="demo-actions"><button class="demo-toggle" type="button" data-demo-toggle aria-expanded="false"><span data-demo-toggle-label>查看代码</span><svg class="demo-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button><button class="demo-run" type="button" data-demo-run><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg><span data-demo-run-label>运行</span></button><button class="demo-reset" type="button" data-demo-reset hidden>重置</button></div></div><pre class="code-pre" data-demo-code hidden><code class="language-js"><span class="tok-comment">// 造一张 12x12 的“图”，中间画一个亮方块充当“脸”</span>
-<span class="tok-keyword">const</span> <span class="tok-type">W</span> <span class="tok-operator">=</span> <span class="tok-number">12</span><span class="tok-punct">,</span> <span class="tok-type">H</span> <span class="tok-operator">=</span> <span class="tok-number">12</span><span class="tok-punct">;</span>
-<span class="tok-keyword">const</span> img <span class="tok-operator">=</span> <span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">;</span>
-<span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-keyword">let</span> y <span class="tok-operator">=</span> <span class="tok-number">0</span><span class="tok-punct">;</span> y <span class="tok-operator">&lt;</span> <span class="tok-type">H</span><span class="tok-punct">;</span> y<span class="tok-operator">++</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
-  <span class="tok-keyword">const</span> row <span class="tok-operator">=</span> <span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">;</span>
-  <span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-keyword">let</span> x <span class="tok-operator">=</span> <span class="tok-number">0</span><span class="tok-punct">;</span> x <span class="tok-operator">&lt;</span> <span class="tok-type">W</span><span class="tok-punct">;</span> x<span class="tok-operator">++</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
-    <span class="tok-keyword">const</span> inFace <span class="tok-operator">=</span> x <span class="tok-operator">&gt;=</span> <span class="tok-number">3</span> <span class="tok-operator">&amp;&amp;</span> x <span class="tok-operator">&lt;=</span> <span class="tok-number">8</span> <span class="tok-operator">&amp;&amp;</span> y <span class="tok-operator">&gt;=</span> <span class="tok-number">2</span> <span class="tok-operator">&amp;&amp;</span> y <span class="tok-operator">&lt;=</span> <span class="tok-number">9</span><span class="tok-punct">;</span>
-    <span class="tok-keyword">const</span> edge <span class="tok-operator">=</span> <span class="tok-punct">(</span>x <span class="tok-operator">===</span> <span class="tok-number">3</span> <span class="tok-operator">||</span> x <span class="tok-operator">===</span> <span class="tok-number">8</span> <span class="tok-operator">||</span> y <span class="tok-operator">===</span> <span class="tok-number">2</span> <span class="tok-operator">||</span> y <span class="tok-operator">===</span> <span class="tok-number">9</span><span class="tok-punct">)</span> <span class="tok-operator">&amp;&amp;</span> inFace<span class="tok-punct">;</span>
-    row<span class="tok-punct">.</span><span class="tok-function">push</span><span class="tok-punct">(</span>edge <span class="tok-operator">?</span> <span class="tok-punct">[</span><span class="tok-number">40</span><span class="tok-punct">,</span> <span class="tok-number">42</span><span class="tok-punct">,</span> <span class="tok-number">48</span><span class="tok-punct">]</span> <span class="tok-operator">:</span> inFace <span class="tok-operator">?</span> <span class="tok-punct">[</span><span class="tok-number">220</span><span class="tok-punct">,</span> <span class="tok-number">205</span><span class="tok-punct">,</span> <span class="tok-number">190</span><span class="tok-punct">]</span> <span class="tok-operator">:</span> <span class="tok-punct">[</span><span class="tok-number">70</span><span class="tok-punct">,</span> <span class="tok-number">80</span><span class="tok-punct">,</span> <span class="tok-number">95</span><span class="tok-punct">]</span><span class="tok-punct">)</span><span class="tok-punct">;</span>  <span class="tok-comment">// 假装是 BGR</span>
-  <span class="tok-punct">}</span>
-  img<span class="tok-punct">.</span><span class="tok-function">push</span><span class="tok-punct">(</span>row<span class="tok-punct">)</span><span class="tok-punct">;</span>
-<span class="tok-punct">}</span>
-
-<span class="tok-keyword">const</span> toGray <span class="tok-operator">=</span> <span class="tok-punct">(</span><span class="tok-punct">[</span>b<span class="tok-punct">,</span> g<span class="tok-punct">,</span> r<span class="tok-punct">]</span><span class="tok-punct">)</span> <span class="tok-operator">=&gt;</span> <span class="tok-builtin">Math</span><span class="tok-punct">.</span><span class="tok-function">round</span><span class="tok-punct">(</span><span class="tok-number">0.114</span> <span class="tok-operator">*</span> b <span class="tok-operator">+</span> <span class="tok-number">0.587</span> <span class="tok-operator">*</span> g <span class="tok-operator">+</span> <span class="tok-number">0.299</span> <span class="tok-operator">*</span> r<span class="tok-punct">)</span><span class="tok-punct">;</span>
-<span class="tok-keyword">const</span> gray <span class="tok-operator">=</span> img<span class="tok-punct">.</span><span class="tok-function">map</span><span class="tok-punct">(</span>row <span class="tok-operator">=&gt;</span> row<span class="tok-punct">.</span><span class="tok-function">map</span><span class="tok-punct">(</span>toGray<span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-
-<span class="tok-keyword">const</span> art <span class="tok-operator">=</span> <span class="tok-punct">(</span>arr<span class="tok-punct">,</span> fmt<span class="tok-punct">)</span> <span class="tok-operator">=&gt;</span> arr<span class="tok-punct">.</span><span class="tok-function">map</span><span class="tok-punct">(</span>row <span class="tok-operator">=&gt;</span> row<span class="tok-punct">.</span><span class="tok-function">map</span><span class="tok-punct">(</span>fmt<span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-function">join</span><span class="tok-punct">(</span><span class="tok-string">&#x27;&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-function">join</span><span class="tok-punct">(</span><span class="tok-string">&#x27;\n&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-<span class="tok-keyword">const</span> ramp <span class="tok-operator">=</span> v <span class="tok-operator">=&gt;</span> <span class="tok-string">&#x27; .:-=+*#%@&#x27;</span><span class="tok-punct">[</span><span class="tok-builtin">Math</span><span class="tok-punct">.</span><span class="tok-function">min</span><span class="tok-punct">(</span><span class="tok-number">9</span><span class="tok-punct">,</span> <span class="tok-builtin">Math</span><span class="tok-punct">.</span><span class="tok-function">floor</span><span class="tok-punct">(</span>v <span class="tok-operator">/</span> <span class="tok-number">25.6</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">]</span><span class="tok-punct">;</span>
-demo<span class="tok-punct">.</span><span class="tok-function">log</span><span class="tok-punct">(</span><span class="tok-string">&#x27;灰度图（越亮字符越密）：&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-demo<span class="tok-punct">.</span><span class="tok-function">log</span><span class="tok-punct">(</span><span class="tok-function">art</span><span class="tok-punct">(</span>gray<span class="tok-punct">,</span> v <span class="tok-operator">=&gt;</span> <span class="tok-function">ramp</span><span class="tok-punct">(</span>v<span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-
-<span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-keyword">const</span> t <span class="tok-keyword">of</span> <span class="tok-punct">[</span><span class="tok-number">100</span><span class="tok-punct">,</span> <span class="tok-number">150</span><span class="tok-punct">,</span> <span class="tok-number">180</span><span class="tok-punct">]</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
-  demo<span class="tok-punct">.</span><span class="tok-function">log</span><span class="tok-punct">(</span><span class="tok-string">&#x27;&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-  demo<span class="tok-punct">.</span><span class="tok-function">log</span><span class="tok-punct">(</span><span class="tok-string">&#x27;二值化，阈值 &#x27;</span> <span class="tok-operator">+</span> t <span class="tok-operator">+</span> <span class="tok-string">&#x27;：&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-  demo<span class="tok-punct">.</span><span class="tok-function">log</span><span class="tok-punct">(</span><span class="tok-function">art</span><span class="tok-punct">(</span>gray<span class="tok-punct">,</span> v <span class="tok-operator">=&gt;</span> <span class="tok-punct">(</span>v <span class="tok-operator">&gt;</span> t <span class="tok-operator">?</span> <span class="tok-string">&#x27;█&#x27;</span> <span class="tok-operator">:</span> <span class="tok-string">&#x27;·&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-<span class="tok-punct">}</span>
-demo<span class="tok-punct">.</span><span class="tok-function">log</span><span class="tok-punct">(</span><span class="tok-string">&#x27;&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-demo<span class="tok-punct">.</span><span class="tok-function">log</span><span class="tok-punct">(</span><span class="tok-string">&#x27;阈值 100 时脸和背景都还在；到 180，背景被抹平，只剩脸最亮的那块。&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre><div class="demo-stage" data-demo-stage hidden><div class="demo-frame-wrap" data-demo-mount></div><div class="demo-log" data-demo-log hidden></div><p class="demo-status" data-demo-status></p></div><noscript><p class="demo-noscript">这段示例需要 JavaScript 才能运行。</p></noscript><script type="application/json" data-demo-src>"// 造一张 12x12 的“图”，中间画一个亮方块充当“脸”\nconst W = 12, H = 12;\nconst img = [];\nfor (let y = 0; y \u003c H; y++) {\n  const row = [];\n  for (let x = 0; x \u003c W; x++) {\n    const inFace = x >= 3 && x \u003c= 8 && y >= 2 && y \u003c= 9;\n    const edge = (x === 3 || x === 8 || y === 2 || y === 9) && inFace;\n    row.push(edge ? [40, 42, 48] : inFace ? [220, 205, 190] : [70, 80, 95]);  // 假装是 BGR\n  }\n  img.push(row);\n}\n\nconst toGray = ([b, g, r]) => Math.round(0.114 * b + 0.587 * g + 0.299 * r);\nconst gray = img.map(row => row.map(toGray));\n\nconst art = (arr, fmt) => arr.map(row => row.map(fmt).join('')).join('\\n');\nconst ramp = v => ' .:-=+*#%@'[Math.min(9, Math.floor(v / 25.6))];\ndemo.log('灰度图（越亮字符越密）：');\ndemo.log(art(gray, v => ramp(v)));\n\nfor (const t of [100, 150, 180]) {\n  demo.log('');\n  demo.log('二值化，阈值 ' + t + '：');\n  demo.log(art(gray, v => (v > t ? '█' : '·')));\n}\ndemo.log('');\ndemo.log('阈值 100 时脸和背景都还在；到 180，背景被抹平，只剩脸最亮的那块。');"</script></div>
-<p><span class="ink ink-blue">阈值这个数字不是拍出来的，要看直方图。</span></p></div>
-      </section>
-      
-      <section class="slide slide--section" data-slide="7"
-               data-title="Q2. OpenCV 怎么用" data-section="1">
-        <div class="slide-inner"><h1><strong>Q2.</strong> OpenCV 怎么用</h1></div>
-      </section>
-      
-      <section class="slide" data-slide="8"
-               data-title="它是什么">
-        <div class="slide-inner"><h2>它是什么</h2>
-<ul><li>OpenCV 是一个<strong>用 C++ 写的</strong>图像处理库，Python 只是它的一个绑定。</li><li>所以：调用开销小、底层是优化过的、但<strong>接口风格很 C</strong>（到处是 <code>dst=</code> 参数）。</li></ul>
-<div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">pip install opencv-python          <span class="tok-comment"># 主包</span>
-pip install opencv-contrib-python  <span class="tok-comment"># 含 SIFT、人脸模块等额外算法</span></code></pre></div>
-<blockquote><p>命名空间是 <code>cv2</code> 而不是 <code>cv</code>，那是历史原因（第一版是 C 的 <code>cv</code>）。</p></blockquote></div>
-      </section>
-      
-      <section class="slide" data-slide="9"
-               data-title="五个函数够你起步">
-        <div class="slide-inner"><h2>五个函数够你起步</h2>
-<div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">import</span> cv2
-
-img <span class="tok-operator">=</span> cv2<span class="tok-punct">.</span><span class="tok-function">imread</span><span class="tok-punct">(</span><span class="tok-string">&#x27;in.jpg&#x27;</span><span class="tok-punct">)</span>                       <span class="tok-comment"># 读</span>
-h<span class="tok-punct">,</span> w <span class="tok-operator">=</span> img<span class="tok-punct">.</span>shape<span class="tok-punct">[</span><span class="tok-punct">:</span><span class="tok-number">2</span><span class="tok-punct">]</span>
-img <span class="tok-operator">=</span> cv2<span class="tok-punct">.</span><span class="tok-function">resize</span><span class="tok-punct">(</span>img<span class="tok-punct">,</span> <span class="tok-punct">(</span>w <span class="tok-operator">//</span> <span class="tok-number">2</span><span class="tok-punct">,</span> h <span class="tok-operator">//</span> <span class="tok-number">2</span><span class="tok-punct">)</span><span class="tok-punct">)</span>          <span class="tok-comment"># 缩</span>
-gray <span class="tok-operator">=</span> cv2<span class="tok-punct">.</span><span class="tok-function">cvtColor</span><span class="tok-punct">(</span>img<span class="tok-punct">,</span> cv2<span class="tok-punct">.</span><span class="tok-type">COLOR_BGR2GRAY</span><span class="tok-punct">)</span>     <span class="tok-comment"># 转灰度</span>
-blur <span class="tok-operator">=</span> cv2<span class="tok-punct">.</span><span class="tok-function">GaussianBlur</span><span class="tok-punct">(</span>gray<span class="tok-punct">,</span> <span class="tok-punct">(</span><span class="tok-number">5</span><span class="tok-punct">,</span> <span class="tok-number">5</span><span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-number">0</span><span class="tok-punct">)</span>         <span class="tok-comment"># 去噪</span>
-edges <span class="tok-operator">=</span> cv2<span class="tok-punct">.</span><span class="tok-function">Canny</span><span class="tok-punct">(</span>blur<span class="tok-punct">,</span> <span class="tok-number">80</span><span class="tok-punct">,</span> <span class="tok-number">160</span><span class="tok-punct">)</span>                 <span class="tok-comment"># 找边缘</span>
-cv2<span class="tok-punct">.</span><span class="tok-function">imwrite</span><span class="tok-punct">(</span><span class="tok-string">&#x27;out.png&#x27;</span><span class="tok-punct">,</span> edges<span class="tok-punct">)</span>                    <span class="tok-comment"># 写</span></code></pre></div>
-<ul><li><code>imread</code> 读不到文件时<strong>不报错</strong>，返回 <code>None</code>。
-<span class="ink ink-red">所以下一行报 <code>'NoneType' has no attribute</code>，其实错在上一行。</span></li></ul></div>
-      </section>
-      
-      <section class="slide" data-slide="10"
-               data-title="卷积：图像处理里唯一的那个动作">
-        <div class="slide-inner"><h2>卷积：图像处理里唯一的那个动作</h2>
-<figure class="docfig-wrap" data-fig="conv-kernel">
+               data-title="图像处理不只有卷积">
+        <div class="slide-inner"><h2>图像处理不只有卷积</h2>
+<div class="deck-fragment"><figure class="docfig-wrap" data-fig="conv-kernel">
 <svg class="docfig" viewBox="0 0 780 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="卷积：一个 3×3 的核在图上滑动，每个位置做加权求和，结果写进输出图的对应像素">
   <defs><marker id="ff194044-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" class="fg-head"/></marker></defs>
   <rect class="fg-cell" x="50" y="60" width="30" height="30"/>
@@ -568,28 +458,45 @@ cv2<span class="tok-punct">.</span><span class="tok-function">imwrite</span><spa
   <rect class="fg-grid" x="520" y="60" width="120" height="120"/>
   <text class="fg-s" x="580.0" y="202" text-anchor="middle" font-size="12">输出 (H-2)×(W-2)</text>
   <path class="fg-line" d="M 440 150 L 518 150" fill="none" marker-end="url(#ff194044-a)"/>
-  <text class="fg-note" x="50" y="300" text-anchor="start" font-size="12">核里的数就是「权重」，训练就是要学出这 9 个数；换成不同权重，就得到边缘检测、模糊、锐化。</text>
+  <text class="fg-note" x="50" y="300" text-anchor="start" font-size="12">示意步幅 1、无填充的 3×3 滤波；filter2D 默认保留尺寸，并计算相关运算。</text>
 </svg>
 <figcaption>卷积：一个 3×3 的核在图上滑动，每个位置做加权求和，结果写进输出图的对应像素</figcaption>
-</figure>
-<ul><li>模糊、锐化、边缘检测，全都是「换一个核」。</li><li>3×3 的核在图上滑动，每个位置做加权求和 —— 这就是<strong>卷积</strong>。</li><li>深度学习做的事，说到底也是学这些核，只是层数更多、核更大、非线性更多。</li></ul>
-<div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">import</span> numpy <span class="tok-keyword">as</span> np
-kernel <span class="tok-operator">=</span> np<span class="tok-punct">.</span><span class="tok-function">array</span><span class="tok-punct">(</span><span class="tok-punct">[</span><span class="tok-punct">[</span><span class="tok-operator">-</span><span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-operator">-</span><span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-operator">-</span><span class="tok-number">1</span><span class="tok-punct">]</span><span class="tok-punct">,</span>
-                   <span class="tok-punct">[</span><span class="tok-operator">-</span><span class="tok-number">1</span><span class="tok-punct">,</span>  <span class="tok-number">8</span><span class="tok-punct">,</span> <span class="tok-operator">-</span><span class="tok-number">1</span><span class="tok-punct">]</span><span class="tok-punct">,</span>
-                   <span class="tok-punct">[</span><span class="tok-operator">-</span><span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-operator">-</span><span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-operator">-</span><span class="tok-number">1</span><span class="tok-punct">]</span><span class="tok-punct">]</span><span class="tok-punct">)</span>            <span class="tok-comment"># 拉普拉斯：边缘增强</span>
-sharp <span class="tok-operator">=</span> cv2<span class="tok-punct">.</span><span class="tok-function">filter2D</span><span class="tok-punct">(</span>gray<span class="tok-punct">,</span> <span class="tok-operator">-</span><span class="tok-number">1</span><span class="tok-punct">,</span> kernel<span class="tok-punct">)</span></code></pre></div>
-<blockquote><p><span class="ink ink-blue">理解了卷积，你就理解了 90% 的经典图像处理和一半的深度学习。</span></p></blockquote></div>
+</figure></div>
+<div class="deck-fragment"><p>线性滤波可以通过核与局部像素的加权和描述；OpenCV <code>filter2D</code> 实际计算相关运算，不自动翻转核。
+中值滤波、形态学、几何变换和直方图方法不是简单的“换一个卷积核”。</p></div>
+<div class="deck-fragment"><p>计算可能出现负值的响应时，用浮点输出避免 uint8 截断：</p></div>
+<div class="deck-fragment"><div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">import</span> numpy <span class="tok-keyword">as</span> np
+kernel <span class="tok-operator">=</span> np<span class="tok-punct">.</span><span class="tok-function">array</span><span class="tok-punct">(</span><span class="tok-punct">[</span><span class="tok-punct">[</span><span class="tok-number">0</span><span class="tok-punct">,</span> <span class="tok-operator">-</span><span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-number">0</span><span class="tok-punct">]</span><span class="tok-punct">,</span> <span class="tok-punct">[</span><span class="tok-operator">-</span><span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-number">4</span><span class="tok-punct">,</span> <span class="tok-operator">-</span><span class="tok-number">1</span><span class="tok-punct">]</span><span class="tok-punct">,</span> <span class="tok-punct">[</span><span class="tok-number">0</span><span class="tok-punct">,</span> <span class="tok-operator">-</span><span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-number">0</span><span class="tok-punct">]</span><span class="tok-punct">]</span><span class="tok-punct">,</span> dtype<span class="tok-operator">=</span>np<span class="tok-punct">.</span>float32<span class="tok-punct">)</span>
+response <span class="tok-operator">=</span> cv2<span class="tok-punct">.</span><span class="tok-function">filter2D</span><span class="tok-punct">(</span>gray<span class="tok-punct">,</span> cv2<span class="tok-punct">.</span><span class="tok-type">CV_32F</span><span class="tok-punct">,</span> kernel<span class="tok-punct">)</span></code></pre></div></div>
+<div class="deck-fragment"><p>这里 <code>gray</code> 来自前面的读图示例。</p></div></div>
       </section>
       
-      <section class="slide slide--section" data-slide="11"
-               data-title="Q3. 人脸识别到底分几步" data-section="1">
-        <div class="slide-inner"><h1><strong>Q3.</strong> 人脸识别到底分几步</h1></div>
+      <section class="slide" data-slide="6"
+               data-title="完整的人脸检测实验">
+        <div class="slide-inner"><h2>完整的人脸检测实验</h2>
+<div class="deck-fragment"><p>保存为 <code>detect_faces.py</code>，准备一张 <code>input.jpg</code>：</p></div>
+<div class="deck-fragment"><div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">import</span> cv2
+image <span class="tok-operator">=</span> cv2<span class="tok-punct">.</span><span class="tok-function">imread</span><span class="tok-punct">(</span><span class="tok-string">&#x27;input.jpg&#x27;</span><span class="tok-punct">)</span>
+<span class="tok-keyword">if</span> image <span class="tok-keyword">is</span> <span class="tok-keyword">None</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">raise</span> <span class="tok-function">FileNotFoundError</span><span class="tok-punct">(</span><span class="tok-string">&#x27;Cannot read input.jpg&#x27;</span><span class="tok-punct">)</span>
+cascade <span class="tok-operator">=</span> cv2<span class="tok-punct">.</span><span class="tok-function">CascadeClassifier</span><span class="tok-punct">(</span>
+    cv2<span class="tok-punct">.</span>data<span class="tok-punct">.</span>haarcascades <span class="tok-operator">+</span> <span class="tok-string">&#x27;haarcascade_frontalface_default.xml&#x27;</span><span class="tok-punct">)</span>
+<span class="tok-keyword">if</span> cascade<span class="tok-punct">.</span><span class="tok-function">empty</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">raise</span> <span class="tok-function">RuntimeError</span><span class="tok-punct">(</span><span class="tok-string">&#x27;Cannot load cascade&#x27;</span><span class="tok-punct">)</span>
+gray <span class="tok-operator">=</span> cv2<span class="tok-punct">.</span><span class="tok-function">cvtColor</span><span class="tok-punct">(</span>image<span class="tok-punct">,</span> cv2<span class="tok-punct">.</span><span class="tok-type">COLOR_BGR2GRAY</span><span class="tok-punct">)</span>
+faces <span class="tok-operator">=</span> cascade<span class="tok-punct">.</span><span class="tok-function">detectMultiScale</span><span class="tok-punct">(</span>gray<span class="tok-punct">,</span> <span class="tok-number">1.1</span><span class="tok-punct">,</span> <span class="tok-number">5</span><span class="tok-punct">,</span> minSize<span class="tok-operator">=</span><span class="tok-punct">(</span><span class="tok-number">48</span><span class="tok-punct">,</span> <span class="tok-number">48</span><span class="tok-punct">)</span><span class="tok-punct">)</span>
+<span class="tok-keyword">for</span> x<span class="tok-punct">,</span> y<span class="tok-punct">,</span> width<span class="tok-punct">,</span> height <span class="tok-keyword">in</span> faces<span class="tok-punct">:</span>
+    cv2<span class="tok-punct">.</span><span class="tok-function">rectangle</span><span class="tok-punct">(</span>image<span class="tok-punct">,</span> <span class="tok-punct">(</span>x<span class="tok-punct">,</span> y<span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-punct">(</span>x <span class="tok-operator">+</span> width<span class="tok-punct">,</span> y <span class="tok-operator">+</span> height<span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-punct">(</span><span class="tok-number">0</span><span class="tok-punct">,</span> <span class="tok-number">255</span><span class="tok-punct">,</span> <span class="tok-number">0</span><span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-number">2</span><span class="tok-punct">)</span>
+<span class="tok-keyword">if</span> <span class="tok-keyword">not</span> cv2<span class="tok-punct">.</span><span class="tok-function">imwrite</span><span class="tok-punct">(</span><span class="tok-string">&#x27;faces.png&#x27;</span><span class="tok-punct">,</span> image<span class="tok-punct">)</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">raise</span> <span class="tok-function">OSError</span><span class="tok-punct">(</span><span class="tok-string">&#x27;Cannot write faces.png&#x27;</span><span class="tok-punct">)</span>
+<span class="tok-builtin">print</span><span class="tok-punct">(</span><span class="tok-string">f&#x27;detected: {len(faces)}&#x27;</span><span class="tok-punct">)</span></code></pre></div></div>
+<div class="deck-fragment"><p>运行 <code>python detect_faces.py</code>。无检测结果也可能是算法限制，不能保证任意图片都检出。</p></div></div>
       </section>
       
-      <section class="slide" data-slide="12"
-               data-title="四步，一步都不能跳">
-        <div class="slide-inner"><h2>四步，一步都不能跳</h2>
-<figure class="docfig-wrap" data-fig="face-pipeline">
+      <section class="slide" data-slide="7"
+               data-title="从检测走到识别">
+        <div class="slide-inner"><h2>从检测走到识别</h2>
+<div class="deck-fragment"><figure class="docfig-wrap" data-fig="face-pipeline">
 <svg class="docfig" viewBox="0 0 840 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="人脸识别分四步：检测框 → 对齐 → 提特征 → 比对；每一步的失败都会一路传下去">
   <defs><marker id="fba6f96c-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" class="fg-head"/></marker></defs>
   <rect class="fg-box is-accent" x="30" y="70" width="180" height="96" rx="9"/>
@@ -612,95 +519,70 @@ sharp <span class="tok-operator">=</span> cv2<span class="tok-punct">.</span><sp
   <text class="fg-s" x="744" y="108" text-anchor="middle" font-size="12">算余弦距离</text>
   <text class="fg-note" x="744" y="132" text-anchor="middle" font-size="11">阈值判定</text>
   <text class="fg-note" x="30" y="216" text-anchor="start" font-size="12">检测和识别是两件事：检测回答「脸在哪」，识别回答「这是谁」。</text>
-  <text class="fg-s" x="30" y="250" text-anchor="start" font-size="12">工业现场最常见的翻车点是第 2 步：不对齐的话，侧脸和正脸的特征距离会被拉得很远。</text>
+  <text class="fg-s" x="30" y="250" text-anchor="start" font-size="12">对齐方式、输入尺寸和归一化必须遵循模型约定；每一步都应单独验证。</text>
 </svg>
 <figcaption>人脸识别分四步：检测框 → 对齐 → 提特征 → 比对；每一步的失败都会一路传下去</figcaption>
-</figure>
-<div class="table-wrap"><table>
-<thead><tr><th>步骤</th><th>输入</th><th>输出</th><th>出错会怎样</th></tr></thead>
+</figure></div>
+<div class="deck-fragment"><div class="table-wrap" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
+<thead><tr><th>阶段</th><th>输入与输出</th></tr></thead>
 <tbody>
-<tr><td>检测</td><td>整张图</td><td>人脸框</td><td>漏检 / 误检，后面全白搭</td></tr>
-<tr><td>对齐</td><td>人脸框</td><td>摆正的脸</td><td>侧脸和正脸距离被拉远</td></tr>
-<tr><td>提特征</td><td>摆正的脸</td><td>128/512 维向量</td><td>同类距离不稳定</td></tr>
-<tr><td>比对</td><td>两个向量</td><td>相似度</td><td>阈值定不下</td></tr>
+<tr><td>检测</td><td>图像 → 人脸框及可选关键点</td></tr>
+<tr><td>对齐</td><td>关键点 → 模型要求的脸部裁剪</td></tr>
+<tr><td>特征</td><td>裁剪 → embedding</td></tr>
+<tr><td>比对</td><td>特征与参考样本 → 分数与决策</td></tr>
 </tbody></table></div></div>
+<div class="deck-fragment"><p>具体流程由模型约定决定。Haar 检测器不直接提供身份特征或五点关键点。</p></div></div>
       </section>
       
-      <section class="slide" data-slide="13"
-               data-title="检测：三代方法">
-        <div class="slide-inner"><h2>检测：三代方法</h2>
-<div class="table-wrap"><table>
-<thead><tr><th>方法</th><th>原理</th><th>速度</th><th>准确</th><th>现状</th></tr></thead>
-<tbody>
-<tr><td>Haar 级联</td><td>手工特征 + 级联分类器</td><td>很快</td><td>一般，侧脸差</td><td>老代码里还在用</td></tr>
-<tr><td>HOG + SVM</td><td>梯度方向直方图</td><td>快</td><td>中</td><td>dlib 的经典实现</td></tr>
-<tr><td>CNN（DNN 模块）</td><td>学出来的特征</td><td>中（可 GPU）</td><td><strong>好</strong></td><td>现在的默认选择</td></tr>
-</tbody></table></div>
-<div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-comment"># OpenCV 自带的 Haar 分类器，一行就能跑（虽然老，但零依赖）</span>
-cascade <span class="tok-operator">=</span> cv2<span class="tok-punct">.</span><span class="tok-function">CascadeClassifier</span><span class="tok-punct">(</span>
-    cv2<span class="tok-punct">.</span>data<span class="tok-punct">.</span>haarcascades <span class="tok-operator">+</span> <span class="tok-string">&#x27;haarcascade_frontalface_default.xml&#x27;</span><span class="tok-punct">)</span>
-faces <span class="tok-operator">=</span> cascade<span class="tok-punct">.</span><span class="tok-function">detectMultiScale</span><span class="tok-punct">(</span>gray<span class="tok-punct">,</span> scaleFactor<span class="tok-operator">=</span><span class="tok-number">1.1</span><span class="tok-punct">,</span>
-                                 minNeighbors<span class="tok-operator">=</span><span class="tok-number">5</span><span class="tok-punct">,</span> minSize<span class="tok-operator">=</span><span class="tok-punct">(</span><span class="tok-number">48</span><span class="tok-punct">,</span> <span class="tok-number">48</span><span class="tok-punct">)</span><span class="tok-punct">)</span>
-<span class="tok-keyword">for</span> <span class="tok-punct">(</span>x<span class="tok-punct">,</span> y<span class="tok-punct">,</span> w<span class="tok-punct">,</span> h<span class="tok-punct">)</span> <span class="tok-keyword">in</span> faces<span class="tok-punct">:</span>
-    cv2<span class="tok-punct">.</span><span class="tok-function">rectangle</span><span class="tok-punct">(</span>img<span class="tok-punct">,</span> <span class="tok-punct">(</span>x<span class="tok-punct">,</span> y<span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-punct">(</span>x <span class="tok-operator">+</span> w<span class="tok-punct">,</span> y <span class="tok-operator">+</span> h<span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-punct">(</span><span class="tok-number">0</span><span class="tok-punct">,</span> <span class="tok-number">255</span><span class="tok-punct">,</span> <span class="tok-number">0</span><span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-number">2</span><span class="tok-punct">)</span></code></pre></div>
-<blockquote><p><code>scaleFactor</code> 决定金字塔多密，<code>minNeighbors</code> 决定多严格。
-<span class="ink ink-blue">这两个参数要按场景调，没有通用值。</span></p></blockquote></div>
+      <section class="slide" data-slide="8"
+               data-title="使用模型时保持预处理一致">
+        <div class="slide-inner"><h2>使用模型时保持预处理一致</h2>
+<div class="deck-fragment"><p>OpenCV 官方 DNN 教程给出 YuNet 检测与 SFace 特征提取流程，配套模型需单独获取。</p></div>
+<div class="deck-fragment"><p>核心 API 顺序：<code>FaceDetectorYN.detect</code> → <code>FaceRecognizerSF.alignCrop</code> → <code>feature</code> → <code>match</code>。
+阅读配套样例确认输入尺寸、输出关键点、模型文件与后端支持。</p></div>
+<div class="deck-fragment"><p>不要把其他模型的 112×112 尺寸或阈值直接搬过来；模型参数和预处理一起构成接口。</p></div></div>
       </section>
       
-      <section class="slide" data-slide="14"
-               data-title="对齐：最容易被跳过、也最影响结果的一步">
-        <div class="slide-inner"><h2>对齐：最容易被跳过、也最影响结果的一步</h2>
-<ul><li>做法：找 5 个关键点（两眼、鼻尖、两嘴角），
-算一个仿射变换，把它们摆到标准位置上。</li><li>为什么必须做：<strong>同一个人的侧脸和正脸，在特征空间里的距离可能比两个不同的人还远</strong>。</li></ul>
-<div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-comment"># 思路（具体实现用 dlib / mediapipe 拿关键点）</span>
-<span class="tok-type">M</span> <span class="tok-operator">=</span> cv2<span class="tok-punct">.</span><span class="tok-function">estimateAffinePartial2D</span><span class="tok-punct">(</span>src_points<span class="tok-punct">,</span> dst_points<span class="tok-punct">)</span><span class="tok-punct">[</span><span class="tok-number">0</span><span class="tok-punct">]</span>
-aligned <span class="tok-operator">=</span> cv2<span class="tok-punct">.</span><span class="tok-function">warpAffine</span><span class="tok-punct">(</span>face<span class="tok-punct">,</span> <span class="tok-type">M</span><span class="tok-punct">,</span> <span class="tok-punct">(</span><span class="tok-number">112</span><span class="tok-punct">,</span> <span class="tok-number">112</span><span class="tok-punct">)</span><span class="tok-punct">)</span></code></pre></div></div>
+      <section class="slide" data-slide="9"
+               data-title="分数不等于概率">
+        <div class="slide-inner"><h2>分数不等于概率</h2>
+<div class="deck-fragment"><p>两个非零向量归一化后，点积才是余弦相似度。</p></div>
+<div class="deck-fragment"><div class="demo" data-demo="js"><div class="demo-head"><span class="demo-badge">可运行示例</span><span class="demo-lang">JavaScript</span><div class="demo-actions"><button class="demo-toggle" type="button" data-demo-toggle aria-expanded="false"><span data-demo-toggle-label>查看代码</span><svg class="demo-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button><button class="demo-run" type="button" data-demo-run><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg><span data-demo-run-label>运行</span></button><button class="demo-reset" type="button" data-demo-reset hidden>重置</button></div></div><pre class="code-pre" data-demo-code hidden><code class="language-js"><span class="tok-keyword">function</span> <span class="tok-function">cosine</span><span class="tok-punct">(</span>a<span class="tok-punct">,</span> b<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+  <span class="tok-keyword">if</span> <span class="tok-punct">(</span>a<span class="tok-punct">.</span>length <span class="tok-operator">!==</span> b<span class="tok-punct">.</span>length <span class="tok-operator">||</span> <span class="tok-operator">!</span>a<span class="tok-punct">.</span>length<span class="tok-punct">)</span> <span class="tok-keyword">throw</span> <span class="tok-keyword">new</span> <span class="tok-builtin">Error</span><span class="tok-punct">(</span><span class="tok-string">&#x27;维度不匹配&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">const</span> norm <span class="tok-operator">=</span> v <span class="tok-operator">=&gt;</span> <span class="tok-builtin">Math</span><span class="tok-punct">.</span><span class="tok-function">sqrt</span><span class="tok-punct">(</span>v<span class="tok-punct">.</span><span class="tok-function">reduce</span><span class="tok-punct">(</span><span class="tok-punct">(</span>s<span class="tok-punct">,</span> x<span class="tok-punct">)</span> <span class="tok-operator">=&gt;</span> s <span class="tok-operator">+</span> x <span class="tok-operator">*</span> x<span class="tok-punct">,</span> <span class="tok-number">0</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">const</span> denominator <span class="tok-operator">=</span> <span class="tok-function">norm</span><span class="tok-punct">(</span>a<span class="tok-punct">)</span> <span class="tok-operator">*</span> <span class="tok-function">norm</span><span class="tok-punct">(</span>b<span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">if</span> <span class="tok-punct">(</span><span class="tok-operator">!</span>denominator<span class="tok-punct">)</span> <span class="tok-keyword">throw</span> <span class="tok-keyword">new</span> <span class="tok-builtin">Error</span><span class="tok-punct">(</span><span class="tok-string">&#x27;零向量&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">return</span> a<span class="tok-punct">.</span><span class="tok-function">reduce</span><span class="tok-punct">(</span><span class="tok-punct">(</span>s<span class="tok-punct">,</span> x<span class="tok-punct">,</span> i<span class="tok-punct">)</span> <span class="tok-operator">=&gt;</span> s <span class="tok-operator">+</span> x <span class="tok-operator">*</span> b<span class="tok-punct">[</span>i<span class="tok-punct">]</span><span class="tok-punct">,</span> <span class="tok-number">0</span><span class="tok-punct">)</span> <span class="tok-operator">/</span> denominator<span class="tok-punct">;</span>
+<span class="tok-punct">}</span>
+demo<span class="tok-punct">.</span><span class="tok-function">log</span><span class="tok-punct">(</span><span class="tok-string">&#x27;相同方向:&#x27;</span><span class="tok-punct">,</span> <span class="tok-function">cosine</span><span class="tok-punct">(</span><span class="tok-punct">[</span><span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-number">2</span><span class="tok-punct">]</span><span class="tok-punct">,</span> <span class="tok-punct">[</span><span class="tok-number">2</span><span class="tok-punct">,</span> <span class="tok-number">4</span><span class="tok-punct">]</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+demo<span class="tok-punct">.</span><span class="tok-function">log</span><span class="tok-punct">(</span><span class="tok-string">&#x27;正交方向:&#x27;</span><span class="tok-punct">,</span> <span class="tok-function">cosine</span><span class="tok-punct">(</span><span class="tok-punct">[</span><span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-number">0</span><span class="tok-punct">]</span><span class="tok-punct">,</span> <span class="tok-punct">[</span><span class="tok-number">0</span><span class="tok-punct">,</span> <span class="tok-number">1</span><span class="tok-punct">]</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre><div class="demo-stage" data-demo-stage hidden><div class="demo-frame-wrap" data-demo-mount></div><div class="demo-log" data-demo-log hidden></div><p class="demo-status" data-demo-status></p></div><noscript><p class="demo-noscript">这段示例需要 JavaScript 才能运行。</p></noscript><script type="application/json" data-demo-src>"function cosine(a, b) {\n  if (a.length !== b.length || !a.length) throw new Error('维度不匹配');\n  const norm = v => Math.sqrt(v.reduce((s, x) => s + x * x, 0));\n  const denominator = norm(a) * norm(b);\n  if (!denominator) throw new Error('零向量');\n  return a.reduce((s, x, i) => s + x * b[i], 0) / denominator;\n}\ndemo.log('相同方向:', cosine([1, 2], [2, 4]));\ndemo.log('正交方向:', cosine([1, 0], [0, 1]));"</script></div></div>
+<div class="deck-fragment"><p>预期约为 1 与 0；这只演示向量几何，不是人脸特征模型。</p></div></div>
       </section>
       
-      <section class="slide" data-slide="15"
-               data-title="提特征与比对">
-        <div class="slide-inner"><h2>提特征与比对</h2>
-<ul><li>现代做法是把对齐后的脸丢进一个网络，得到一个<strong>向量</strong>（embedding）。</li><li>关键性质：同一个人的向量距离近，不同人的远 —— 距离本身有了语义。</li></ul>
-<div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-comment"># 伪代码：emb 是 512 维单位向量</span>
-sim <span class="tok-operator">=</span> <span class="tok-builtin">float</span><span class="tok-punct">(</span>np<span class="tok-punct">.</span><span class="tok-function">dot</span><span class="tok-punct">(</span>emb_a<span class="tok-punct">,</span> emb_b<span class="tok-punct">)</span><span class="tok-punct">)</span>       <span class="tok-comment"># 余弦相似度，-1 ~ 1</span>
-<span class="tok-keyword">if</span> sim <span class="tok-operator">&gt;</span> <span class="tok-number">0.55</span><span class="tok-punct">:</span>                          <span class="tok-comment"># 阈值必须用你自己的数据标定</span>
-    <span class="tok-builtin">print</span><span class="tok-punct">(</span><span class="tok-string">&#x27;同一个人&#x27;</span><span class="tok-punct">)</span></code></pre></div>
-<p><span class="ink ink-red">阈值不能抄别人的。</span>它取决于模型、对齐质量、你的误拒/误识代价。
-拿你自己的数据跑一遍 ROC，再选点。</p></div>
+      <section class="slide" data-slide="10"
+               data-title="阈值需要独立验证">
+        <div class="slide-inner"><h2>阈值需要独立验证</h2>
+<div class="deck-fragment"><p>用与实际光照、姿态、设备相符的数据，分别统计同人对与异人对分数。
+选择阈值使用验证集，最终报告使用独立测试集，避免数据泄漏。</p></div>
+<div class="deck-fragment"><ul><li>FAR：异人对被接受的比例。</li></ul></div>
+<div class="deck-fragment"><ul><li>FRR：同人对被拒绝的比例。</li></ul></div>
+<div class="deck-fragment"><ul><li>同时记录样本量、延迟与失败条件。</li></ul></div>
+<div class="deck-fragment"><p>识别可以判断“不确定并重试”。检测、身份比对和防照片攻击是不同问题，简单眨眼检测不保证防伪能力。</p></div></div>
       </section>
       
-      <section class="slide slide--section" data-slide="16"
-               data-title="工程上的坑" data-section="1">
-        <div class="slide-inner"><h1>工程上的坑</h1></div>
-      </section>
-      
-      <section class="slide" data-slide="17"
-               data-title="现场最常见的四件事">
-        <div class="slide-inner"><h2>现场最常见的四件事</h2>
-<ol><li><strong>光照</strong>：侧光会让脸半边过曝、半边死黑。
-→ 直方图均衡（<code>cv2.equalizeHist</code>）或 CLAHE，先试。</li><li><strong>分辨率不够</strong>：人脸框小于 64×64 时，特征基本不可用。
-→ 要么换镜头，要么限定距离。<del>算法救不回来。</del></li><li><strong>侧脸与遮挡</strong>：戴口罩时的识别率会掉得很明显。
-→ 工程上要给出「置信度低就要求重试」的降级路径。</li><li><strong>活体</strong>：拿张照片就能骗过的系统不能算识别系统。
-→ 需要额外的活体检测（眨眼、深度、红外）。</li></ol></div>
-      </section>
-      
-      <section class="slide" data-slide="18"
-               data-title="一条务实的验收清单">
-        <div class="slide-inner"><h2>一条务实的验收清单</h2>
-<ul><li>采集<strong>你自己的</strong>数据：同一人不同光照/角度，不同人相似长相。</li><li>报告三个数，不要只报准确率：<ul><li><strong>误识率 FAR</strong>：把别人认成你</li><li><strong>误拒率 FRR</strong>：把你认成别人</li><li><strong>通过时间</strong>：现场能不能接受</li></ul></li><li>定一个<strong>降级策略</strong>：置信度低时要求再试一次，而不是硬判。</li></ul>
-<blockquote><p><span class="ink ink-blue">能说清楚「什么情况下它会失败」的系统，才是能交付的系统。</span></p></blockquote></div>
-      </section>
-      
-      <section class="slide" data-slide="19"
-               data-title="小结">
-        <div class="slide-inner"><h2>小结</h2>
-<ol><li>图像就是三维数组；记住 <strong>BGR</strong>、<code>img[y, x]</code>、<code>(宽, 高)</code> 这三个坑。</li><li>OpenCV 是 C++ 库的 Python 绑定，<code>imread</code> 失败返回 <code>None</code> 而不报错。</li><li>卷积是图像处理里唯一的动作，换核就是换效果。</li><li>识别分<strong>检测 → 对齐 → 提特征 → 比对</strong>四步，对齐最容易被跳过也最影响结果。</li><li>阈值要用自己的数据标定，并且必须准备降级策略。</li></ol></div>
+      <section class="slide" data-slide="11"
+               data-title="练习与参考">
+        <div class="slide-inner"><h2>练习与参考</h2>
+<div class="deck-fragment"><p>1000 个异人测试对中 3 个被接受，200 个同人对中 8 个被拒绝。</p></div>
+<div class="deck-fragment"><p><strong>答案</strong>：FAR 为 0.3%，FRR 为 4%；这只是该测试集的点估计，还要交代样本来源与不确定性。</p></div>
+<div class="deck-fragment"><p>改变检测器参数，记录漏检与误检案例；不要仅挑成功图片展示。</p></div>
+<div class="deck-fragment"><p>参考：<a href="https://docs.opencv.org/4.x/d2/d96/tutorial_py_table_of_contents_imgproc.html" target="_blank" rel="noopener">OpenCV 图像处理</a>、<a href="https://docs.opencv.org/4.x/d0/dd4/tutorial_dnn_face.html" target="_blank" rel="noopener">DNN 人脸检测与识别</a>、<a href="https://pypi.org/project/opencv-python/" target="_blank" rel="noopener">OpenCV Python 包说明</a>。</p></div></div>
       </section>
       
     </div>
 
     <p class="deck-hint">
-      <kbd>←</kbd><kbd>→</kbd> 翻页 · <kbd>F</kbd> 全屏 · <kbd>Esc</kbd> 退出 · 也可直接点两侧
+      <kbd>←</kbd><kbd>→</kbd> 逐步收起 / 展开，展开完翻页 · <kbd>F</kbd> 全屏 · <kbd>Esc</kbd> 退出
     </p>
 
     
@@ -723,7 +605,12 @@ sim <span class="tok-operator">=</span> <span class="tok-builtin">float</span><s
       <span class="t">仿真</span>
     </a>
     
-    <span class="doc-nav-item empty"></span>
+    
+    <a class="doc-nav-item next" href="/docs/slam-intro/">
+      <span class="dir">下一篇 →</span>
+      <span class="t">SLAM 入门</span>
+    </a>
+    
   </nav>
 </article>
 
@@ -769,9 +656,9 @@ sim <span class="tok-operator">=</span> <span class="tok-builtin">float</span><s
 
       <dl class="footer-stats">
         <div><dt>7</dt><dd>篇文章</dd></div>
-        <div><dt>16</dt><dd>篇文档</dd></div>
+        <div><dt>19</dt><dd>篇文档</dd></div>
         <div><dt>5</dt><dd>个项目</dd></div>
-        <div><dt>267</dt><dd>页幻灯片</dd></div>
+        <div><dt>204</dt><dd>页幻灯片</dd></div>
       </dl>
     </div>
 
@@ -805,22 +692,22 @@ sim <span class="tok-operator">=</span> <span class="tok-builtin">float</span><s
         
         <a class="footer-link" href="/docs/windows-to-linux/">
           <span class="t">从 Windows 到 Linux</span>
-          <span class="d">5 篇 · 110 页</span>
+          <span class="d">6 篇 · 67 页</span>
         </a>
         
         <a class="footer-link" href="/docs/cpp/">
           <span class="t">从 C 语言到 C++</span>
-          <span class="d">1 篇 · 17 页</span>
+          <span class="d">1 篇 · 10 页</span>
         </a>
         
         <a class="footer-link" href="/docs/vision/">
           <span class="t">ROS 与机器视觉</span>
-          <span class="d">4 篇 · 79 页</span>
+          <span class="d">6 篇 · 72 页</span>
         </a>
         
         <a class="footer-link" href="/docs/learning/">
           <span class="t">从编程开始的学习</span>
-          <span class="d">6 篇 · 61 页</span>
+          <span class="d">6 篇 · 55 页</span>
         </a>
         
         <a class="footer-more" href="/docs/">
@@ -1016,6 +903,15 @@ sim <span class="tok-operator">=</span> <span class="tok-builtin">float</span><s
             <span class="theme-name">暖灯夜色</span>
           </button>
           
+          <button class="theme-card" type="button" data-theme-pick="bocchi" title="波奇光晕">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/bocchi.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#eaa5bc"></i><i style="background:#6acbc9"></i><i style="background:#101b2d"></i>
+              </span>
+            </span>
+            <span class="theme-name">波奇光晕</span>
+          </button>
+          
         </div>
       </section>
 
@@ -1057,7 +953,7 @@ sim <span class="tok-operator">=</span> <span class="tok-builtin">float</span><s
             <button type="button" data-val="wide">宽</button>
           </div>
         </div>
-        <p class="set-note">黑体 / 宋体都随站点自带（子集化的 Noto，约 330 / 430 KB），不依赖你本机装了什么字体。</p>
+        <p class="set-note">黑体 / 宋体随站点自带，不依赖本机字体。</p>
       </section>
 
       <section class="set-group">
@@ -1094,7 +990,7 @@ sim <span class="tok-operator">=</span> <span class="tok-builtin">float</span><s
             <button type="button" data-val="video">动态视频</button>
           </div>
         </div>
-        <p class="set-note">动态视频是 2560×1440 无声循环，已随站点打包；切到「动态视频」后才开始加载当前主题那一条。</p>
+        <p class="set-note">无声循环视频按当前主题加载；切到「动态视频」后才加载，后台标签页会暂停。</p>
         <div class="set-divider"></div>
         <div class="set-field">
           <span class="set-label">可见度 <b data-out="bgOpacity">—</b></span>
@@ -1172,10 +1068,10 @@ sim <span class="tok-operator">=</span> <span class="tok-builtin">float</span><s
 </div>
 
 
-<script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.jpg","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.jpg","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.jpg","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.jpg","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.jpg","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.jpg","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.jpg","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.jpg","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.jpg","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.jpg","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.jpg","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.jpg","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.jpg","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.jpg","video":"assets/bg/lumen.mp4"}}</script>
+<script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
 
-<script src="/assets/site.js" defer></script>
-<script src="/assets/docs.js" defer></script>
+<script src="/assets/site.js?v=77072cd2" defer></script>
+<script src="/assets/docs.js?v=77072cd2" defer></script>
 
 </body>
 </html>

@@ -16,7 +16,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>mini_sh · 手写一个 shell · 洛叶白</title>
-<meta name="description" content="shell 每天在用，但它到底做了什么？从一个 20 行的骨架开始，把读入、分词、fork、exec、管道一步步接起来。">
+<meta name="description" content="用可下载的最小 C Shell 理解 fork、exec、wait，再区分引号解析、管道与作业控制。">
 <meta name="author" content="洛叶白">
 <meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#0b0d14" media="(prefers-color-scheme: dark)">
@@ -24,18 +24,18 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="洛叶白">
 <meta property="og:title" content="mini_sh · 手写一个 shell">
-<meta property="og:description" content="shell 每天在用，但它到底做了什么？从一个 20 行的骨架开始，把读入、分词、fork、exec、管道一步步接起来。">
+<meta property="og:description" content="用可下载的最小 C Shell 理解 fork、exec、wait，再区分引号解析、管道与作业控制。">
 <meta property="og:url" content="https://luoyebai.github.io/docs/mini-sh/">
 <meta property="og:image" content="https://luoyebai.github.io/assets/images/favicon.svg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://luoyebai.github.io/docs/mini-sh/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css">
-<link rel="stylesheet" href="/assets/site.css">
+<link rel="stylesheet" href="/assets/themes.css?v=77072cd2">
+<link rel="stylesheet" href="/assets/site.css?v=77072cd2">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
-<link rel="stylesheet" href="/assets/docs.css">
+<link rel="stylesheet" href="/assets/docs.css?v=77072cd2">
 
 
 
@@ -44,6 +44,11 @@
 (function () {
   var el = document.documentElement;
   el.classList.add('js');   /* 只有 JS 可用时才启用进场动画的隐藏态 */
+  var compact = matchMedia('(pointer: coarse)').matches ||
+    (navigator.connection && navigator.connection.saveData) ||
+    (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
+    (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+  el.setAttribute('data-performance', compact ? 'compact' : 'standard');
   var q = {};
   try { new URLSearchParams(location.search).forEach(function (v, k) { q[k] = v; }); } catch (e) {}
   var s = {};
@@ -153,7 +158,7 @@
 
 
 <article class="doc" id="doc"
-         data-slides="17"
+         data-slides="10"
          data-title="mini_sh · 手写一个 shell">
   <header class="doc-head">
     <nav class="crumbs" aria-label="面包屑">
@@ -165,18 +170,18 @@
     </nav>
 
     <h1 class="doc-title">mini_sh · 手写一个 shell</h1>
-    <p class="doc-lede">shell 每天在用，但它到底做了什么？从一个 20 行的骨架开始，把读入、分词、fork、exec、管道一步步接起来。</p>
+    <p class="doc-lede">用可下载的最小 C Shell 理解 fork、exec、wait，再区分引号解析、管道与作业控制。</p>
 
     <p class="doc-meta">
-      <span class="meta-item"><b>14</b> / 6 篇</span>
-      <span class="meta-item"><b>17</b> 页幻灯片</span>
+      <span class="meta-item"><b>4</b> / 6 篇</span>
+      <span class="meta-item"><b>10</b> 页幻灯片</span>
       
     </p>
   </header>
 
   <section class="deck is-paged" id="deck" data-deck aria-roledescription="幻灯片" aria-label="mini_sh · 手写一个 shell">
     <noscript>
-      <style>.deck .slide{display:block !important;margin-top:1.2rem}</style>
+      <style>.deck .slide{display:block !important;margin-top:1.2rem;height:auto !important;overflow:visible !important}</style>
     </noscript>
     <div class="deck-bar">
       <div class="deck-nav">
@@ -191,7 +196,7 @@
           </svg>
         </button>
         <p class="deck-counter" aria-live="polite">
-          <b data-deck-no>1</b> / 17
+          <b data-deck-no>1</b> / 10
         </p>
       </div>
 
@@ -218,103 +223,61 @@
         
         <li class="is-section">
           <button type="button" data-deck-goto="0">
-            <span class="ol-no">0</span>minish · 手写一个 shell
+            <span class="ol-no">0</span>写一个最小 Shell
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="1">
-            <span class="ol-no">1</span>概述
+            <span class="ol-no">1</span>从一个循环开始
           </button>
         </li>
         
-        <li class="is-section">
+        <li>
           <button type="button" data-deck-goto="2">
-            <span class="ol-no">2</span>1. 命令行里到底发生了什么
+            <span class="ol-no">2</span>获取并运行完整示例
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="3">
-            <span class="ol-no">3</span>你在终端敲下 ls -l /tmp 的那一瞬间
+            <span class="ol-no">3</span>父子进程分别负责什么
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="4">
-            <span class="ol-no">4</span>一句话概括
+            <span class="ol-no">4</span>为什么 cd 在父 Shell 中执行
           </button>
         </li>
         
-        <li class="is-section">
+        <li>
           <button type="button" data-deck-goto="5">
-            <span class="ol-no">5</span>2. 一个最小可用的骨架
+            <span class="ol-no">5</span>完整 Shell 的解析更复杂
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="6">
-            <span class="ol-no">6</span>二十行，能跑命令
+            <span class="ol-no">6</span>交互实验：空字符串也是参数
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="7">
-            <span class="ol-no">7</span>切词这一步比看上去难
+            <span class="ol-no">7</span>管道需要并发启动两端
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="8">
-            <span class="ol-no">8</span>试一个：自己写个分词器
+            <span class="ol-no">8</span>重定向与作业控制
           </button>
         </li>
         
-        <li class="is-section">
+        <li>
           <button type="button" data-deck-goto="9">
-            <span class="ol-no">9</span>3. 管道、重定向、内建命令
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="10">
-            <span class="ol-no">10</span>管道：一条内核缓冲区 + 两个文件描述符
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="11">
-            <span class="ol-no">11</span>重定向其实就是改文件描述符
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="12">
-            <span class="ol-no">12</span>cd 为什么不能是外部程序
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="13">
-            <span class="ol-no">13</span>前台、后台与信号
-          </button>
-        </li>
-        
-        <li class="is-section">
-          <button type="button" data-deck-goto="14">
-            <span class="ol-no">14</span>4. 源码怎么读
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="15">
-            <span class="ol-no">15</span>从最小到完整
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="16">
-            <span class="ol-no">16</span>小结
+            <span class="ol-no">9</span>练习与答案
           </button>
         </li>
         
@@ -325,28 +288,16 @@
          aria-label="幻灯片内容，用左右方向键翻页">
       
       <section class="slide slide--section" data-slide="0"
-               data-title="minish · 手写一个 shell" data-section="1">
-        <div class="slide-inner"><h1>mini_sh · 手写一个 shell</h1></div>
+               data-title="写一个最小 Shell" data-section="1">
+        <div class="slide-inner"><h1>写一个最小 Shell</h1>
+<div class="deck-fragment"><p>目标：理解命令怎样变成进程，而不是一次实现 Bash。</p></div>
+<div class="deck-fragment"><p>环境：Linux / POSIX，C17 编译器。本课完整程序只支持空白分词、<code>cd</code>、<code>exit</code> 与前台外部命令。</p></div></div>
       </section>
       
       <section class="slide" data-slide="1"
-               data-title="概述">
-        <div class="slide-inner"><h2>概述</h2>
-<ul><li><strong>1.</strong> 命令行里到底发生了什么</li><li><strong>2.</strong> 一个最小可用的骨架</li><li><strong>3.</strong> 管道、重定向、内建命令</li><li><strong>4.</strong> 源码怎么读</li></ul>
-<blockquote><p>你以为 shell 是个「程序」，其实它只是<span class="ink ink-blue">一个循环</span>。</p></blockquote></div>
-      </section>
-      
-      <section class="slide slide--section" data-slide="2"
-               data-title="1. 命令行里到底发生了什么" data-section="1">
-        <div class="slide-inner"><h1>1. 命令行里到底发生了什么</h1></div>
-      </section>
-      
-      <section class="slide" data-slide="3"
-               data-title="你在终端敲下 ls -l /tmp 的那一瞬间">
-        <div class="slide-inner"><h2>你在终端敲下 <code>ls -l /tmp</code> 的那一瞬间</h2>
-<p>系统里发生了这些事，而<strong>没有任何一步是魔法</strong>：</p>
-<ul><li>终端把按键交给 shell 进程</li><li>shell 读到一行，按空格切成几个词</li><li>shell 判断：<code>ls</code> 不是我的内建命令 → 我得<span class="ink ink-blue">造一个子进程</span>去跑它</li><li>子进程把自己<strong>换成</strong> <code>ls</code> 这个程序</li><li>父进程（shell）等着，直到子进程结束</li><li>打印下一个提示符，回到第一步</li></ul>
-<figure class="docfig-wrap" data-fig="shell-loop">
+               data-title="从一个循环开始">
+        <div class="slide-inner"><h2>从一个循环开始</h2>
+<div class="deck-fragment"><figure class="docfig-wrap" data-fig="shell-loop">
 <svg class="docfig" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="shell 的主循环：读一行 → 分词 → fork → 子进程 exec → 父进程 wait">
   <defs><marker id="f5a87b87-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" class="fg-head"/></marker></defs>
   <rect class="fg-box is-accent" x="40" y="40" width="150" height="62" rx="9"/>
@@ -383,127 +334,98 @@
 </svg>
 <figcaption>shell 的主循环：读一行 → 分词 → fork → 子进程 exec → 父进程 wait</figcaption>
 </figure></div>
+<div class="deck-fragment"><div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-text">读入一行 → 解析参数 → 判断内建命令
+                    → fork 子进程
+                    → 子进程 exec 外部程序
+                    → 父进程 waitpid 等待</code></pre></div></div>
+<div class="deck-fragment"><p><code>fork</code> 创建子进程；<code>execvp</code> 替换当前进程映像，成功时不返回；<code>waitpid</code> 回收子进程状态。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="2"
+               data-title="获取并运行完整示例">
+        <div class="slide-inner"><h2>获取并运行完整示例</h2>
+<div class="deck-fragment"><p>下载 <a href="/assets/docs/mini-sh/code/mini_sh.c">mini_sh.c</a>，在文件所在目录执行：</p></div>
+<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">cc <span class="tok-operator">-</span>std<span class="tok-operator">=</span>c17 <span class="tok-operator">-</span><span class="tok-type">Wall</span> <span class="tok-operator">-</span><span class="tok-type">Wextra</span> <span class="tok-operator">-</span><span class="tok-type">Wpedantic</span> <span class="tok-operator">-</span>g mini_sh.c <span class="tok-operator">-</span>o mini_sh
+.<span class="tok-operator">/</span>mini_sh</code></pre></div></div>
+<div class="deck-fragment"><p>交互输入 <code>pwd</code>、<code>cd /tmp</code>、<code>pwd</code>、<code>exit</code>。
+预期第二次 <code>pwd</code> 显示 <code>/tmp</code>；不存在的命令应报告错误后继续接受输入。</p></div>
+<div class="deck-fragment"><p>这个版本没有引号、变量展开、管道、重定向或后台作业；出现这些符号会明确拒绝，不会假装支持。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="3"
+               data-title="父子进程分别负责什么">
+        <div class="slide-inner"><h2>父子进程分别负责什么</h2>
+<div class="deck-fragment"><p>核心片段，完整错误处理见下载源码：</p></div>
+<div class="deck-fragment"><div class="code-block" data-lang="c"><div class="code-head"><span class="code-lang">c</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-c">pid_t child = fork();
+if (child == 0) {
+    execvp(argv[0], argv);
+    perror(argv[0]);
+    _exit(127);
+}
+/* 父进程先处理 fork 失败，再循环 waitpid；EINTR 时重试。 */</code></pre></div></div>
+<div class="deck-fragment"><p><code>argv</code> 最后一个元素必须为 <code>NULL</code>。
+子进程执行失败用 <code>_exit</code>，避免重复刷新从父进程继承的 stdio 缓冲区。</p></div></div>
       </section>
       
       <section class="slide" data-slide="4"
-               data-title="一句话概括">
-        <div class="slide-inner"><h2>一句话概括</h2>
-<p><span class="ink ink-red"><strong>shell 的全部工作就是：读一行、切词、造进程、等它结束、重复。</strong></span></p>
-<ul><li>「变成一门语言」的那些东西（变量、引号、通配符、管道）都是在这个循环上长出来的。</li><li>所以你想真正理解它，最好的方式是<strong>自己写一个最小的</strong>。</li></ul>
-<blockquote><p>这也是为什么这一节的代码只有几十行 —— 骨架不长，长的是边角。</p></blockquote></div>
+               data-title="为什么 cd 在父 Shell 中执行">
+        <div class="slide-inner"><h2>为什么 cd 在父 Shell 中执行</h2>
+<div class="deck-fragment"><p>当前工作目录属于进程。如果子进程执行 <code>chdir</code>，父 Shell 的目录不会改变。</p></div>
+<div class="deck-fragment"><p>因此这里的 <code>cd</code> 直接调用父进程中的 <code>chdir</code>，并检查参数数量和返回值。
+<code>exit</code> 结束主循环；遇到 EOF 也应正常结束。</p></div>
+<div class="deck-fragment"><p>下载示例使用 <code>getline</code> 读取整行，避免固定缓冲区把一条长命令误拆为两次执行；参数过多时拒绝执行。</p></div></div>
       </section>
       
-      <section class="slide slide--section" data-slide="5"
-               data-title="2. 一个最小可用的骨架" data-section="1">
-        <div class="slide-inner"><h1>2. 一个最小可用的骨架</h1></div>
+      <section class="slide" data-slide="5"
+               data-title="完整 Shell 的解析更复杂">
+        <div class="slide-inner"><h2>完整 Shell 的解析更复杂</h2>
+<div class="deck-fragment"><div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-text">echo a | cat       → 管道连接两个命令
+echo &#x27;a | cat&#x27;     → 一个字符串参数
+echo a\|cat        → 竖线是参数中的普通字符</code></pre></div></div>
+<div class="deck-fragment"><p>词法分析与语法分析必须保留引号信息；随后按规则展开变量等内容，最后去除引号。
+不能先按所有竖线切开，再尝试修补引号。</p></div>
+<div class="deck-fragment"><p>下面的浏览器实验只演示<strong>空白、单双引号和反斜杠</strong>，不实现完整 Shell 展开。</p></div></div>
       </section>
       
       <section class="slide" data-slide="6"
-               data-title="二十行，能跑命令">
-        <div class="slide-inner"><h2>二十行，能跑命令</h2>
-<div class="code-block" data-lang="c"><div class="code-head"><span class="code-lang">c</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-c">#include &lt;stdio.h&gt;
-#include &lt;unistd.h&gt;
-#include &lt;sys/wait.h&gt;
-#include &lt;string.h&gt;
-
-int main(void) {
-    char line[1024];
-    while (1) {
-        printf(&quot;mini_sh&gt; &quot;);                       /* 1. 提示符 */
-        fflush(stdout);
-        if (!fgets(line, sizeof line, stdin)) break; /* 2. 读一行 */
-        line[strcspn(line, &quot;\n&quot;)] = 0;             /*    去掉换行 */
-
-        char *argv[64] = {0};
-        int argc = 0;                              /* 3. 切词 */
-        for (char *p = strtok(line, &quot; &quot;); p &amp;&amp; argc &lt; 63; p = strtok(NULL, &quot; &quot;))
-            argv[argc++] = p;
-        if (argc == 0) continue;
-
-        pid_t pid = fork();                        /* 4. 造子进程 */
-        if (pid == 0) {
-            execvp(argv[0], argv);                 /*    子进程：换程序 */
-            perror(&quot;exec&quot;);                        /*    换失败才会走到这 */
-            _exit(127);
-        }
-        int status;
-        waitpid(pid, &amp;status, 0);                  /* 5. 父进程：等 */
-    }
-    return 0;
-}</code></pre></div>
-<ul><li>这二十行已经能跑 <code>ls</code>、<code>cat</code>、<code>gcc</code> 了。剩下的全是<strong>边角</strong>。</li></ul></div>
+               data-title="交互实验：空字符串也是参数">
+        <div class="slide-inner"><h2>交互实验：空字符串也是参数</h2>
+<div class="deck-fragment"><div class="demo" data-demo="js"><div class="demo-head"><span class="demo-badge">可运行示例</span><span class="demo-lang">JavaScript</span><div class="demo-actions"><button class="demo-toggle" type="button" data-demo-toggle aria-expanded="false"><span data-demo-toggle-label>查看代码</span><svg class="demo-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button><button class="demo-run" type="button" data-demo-run><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg><span data-demo-run-label>运行</span></button><button class="demo-reset" type="button" data-demo-reset hidden>重置</button></div></div><pre class="code-pre" data-demo-code hidden><code class="language-js"><span class="tok-keyword">function</span> <span class="tok-function">tokenize</span><span class="tok-punct">(</span>line<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+  <span class="tok-keyword">const</span> tokens <span class="tok-operator">=</span> <span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">let</span> buf <span class="tok-operator">=</span> <span class="tok-string">&#x27;&#x27;</span><span class="tok-punct">,</span> quote <span class="tok-operator">=</span> <span class="tok-string">&#x27;&#x27;</span><span class="tok-punct">,</span> started <span class="tok-operator">=</span> false<span class="tok-punct">;</span>
+  <span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-keyword">let</span> i <span class="tok-operator">=</span> <span class="tok-number">0</span><span class="tok-punct">;</span> i <span class="tok-operator">&lt;</span> line<span class="tok-punct">.</span>length<span class="tok-punct">;</span> i<span class="tok-operator">++</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">const</span> c <span class="tok-operator">=</span> line<span class="tok-punct">[</span>i<span class="tok-punct">]</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">if</span> <span class="tok-punct">(</span>quote <span class="tok-operator">===</span> <span class="tok-string">&quot;&#x27;&quot;</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+      <span class="tok-keyword">if</span> <span class="tok-punct">(</span>c <span class="tok-operator">===</span> <span class="tok-string">&quot;&#x27;&quot;</span><span class="tok-punct">)</span> quote <span class="tok-operator">=</span> <span class="tok-string">&#x27;&#x27;</span><span class="tok-punct">;</span> <span class="tok-keyword">else</span> buf <span class="tok-operator">+=</span> c<span class="tok-punct">;</span>
+    <span class="tok-punct">}</span> <span class="tok-keyword">else</span> <span class="tok-keyword">if</span> <span class="tok-punct">(</span>c <span class="tok-operator">===</span> <span class="tok-string">&#x27;\\&#x27;</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+      <span class="tok-keyword">if</span> <span class="tok-punct">(</span>i <span class="tok-operator">+</span> <span class="tok-number">1</span> <span class="tok-operator">===</span> line<span class="tok-punct">.</span>length<span class="tok-punct">)</span> <span class="tok-keyword">return</span> <span class="tok-punct">{</span>tokens<span class="tok-punct">,</span> error<span class="tok-operator">:</span> <span class="tok-string">&#x27;末尾转义未完成&#x27;</span><span class="tok-punct">}</span><span class="tok-punct">;</span>
+      <span class="tok-keyword">const</span> next <span class="tok-operator">=</span> line<span class="tok-punct">[</span>i <span class="tok-operator">+</span> <span class="tok-number">1</span><span class="tok-punct">]</span><span class="tok-punct">;</span>
+      <span class="tok-keyword">if</span> <span class="tok-punct">(</span><span class="tok-operator">!</span>quote <span class="tok-operator">||</span> <span class="tok-punct">[</span><span class="tok-string">&#x27;$&#x27;</span><span class="tok-punct">,</span> <span class="tok-string">&#x27;`&#x27;</span><span class="tok-punct">,</span> <span class="tok-string">&#x27;&quot;&#x27;</span><span class="tok-punct">,</span> <span class="tok-string">&#x27;\\&#x27;</span><span class="tok-punct">,</span> <span class="tok-string">&#x27;\n&#x27;</span><span class="tok-punct">]</span><span class="tok-punct">.</span><span class="tok-function">includes</span><span class="tok-punct">(</span>next<span class="tok-punct">)</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+        i<span class="tok-operator">++</span><span class="tok-punct">;</span>
+        <span class="tok-keyword">if</span> <span class="tok-punct">(</span>next <span class="tok-operator">!==</span> <span class="tok-string">&#x27;\n&#x27;</span><span class="tok-punct">)</span> <span class="tok-punct">{</span> buf <span class="tok-operator">+=</span> next<span class="tok-punct">;</span> started <span class="tok-operator">=</span> true<span class="tok-punct">;</span> <span class="tok-punct">}</span>
+      <span class="tok-punct">}</span> <span class="tok-keyword">else</span> <span class="tok-punct">{</span> buf <span class="tok-operator">+=</span> c<span class="tok-punct">;</span> started <span class="tok-operator">=</span> true<span class="tok-punct">;</span> <span class="tok-punct">}</span>
+    <span class="tok-punct">}</span> <span class="tok-keyword">else</span> <span class="tok-keyword">if</span> <span class="tok-punct">(</span>quote<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+      <span class="tok-keyword">if</span> <span class="tok-punct">(</span>c <span class="tok-operator">===</span> quote<span class="tok-punct">)</span> quote <span class="tok-operator">=</span> <span class="tok-string">&#x27;&#x27;</span><span class="tok-punct">;</span> <span class="tok-keyword">else</span> buf <span class="tok-operator">+=</span> c<span class="tok-punct">;</span>
+    <span class="tok-punct">}</span> <span class="tok-keyword">else</span> <span class="tok-keyword">if</span> <span class="tok-punct">(</span>c <span class="tok-operator">===</span> <span class="tok-string">&#x27;&quot;&#x27;</span> <span class="tok-operator">||</span> c <span class="tok-operator">===</span> <span class="tok-string">&quot;&#x27;&quot;</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+      quote <span class="tok-operator">=</span> c<span class="tok-punct">;</span> started <span class="tok-operator">=</span> true<span class="tok-punct">;</span>
+    <span class="tok-punct">}</span> <span class="tok-keyword">else</span> <span class="tok-keyword">if</span> <span class="tok-punct">(</span><span class="tok-string">/\s/</span><span class="tok-punct">.</span><span class="tok-function">test</span><span class="tok-punct">(</span>c<span class="tok-punct">)</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+      <span class="tok-keyword">if</span> <span class="tok-punct">(</span>started<span class="tok-punct">)</span> <span class="tok-punct">{</span> tokens<span class="tok-punct">.</span><span class="tok-function">push</span><span class="tok-punct">(</span>buf<span class="tok-punct">)</span><span class="tok-punct">;</span> buf <span class="tok-operator">=</span> <span class="tok-string">&#x27;&#x27;</span><span class="tok-punct">;</span> started <span class="tok-operator">=</span> false<span class="tok-punct">;</span> <span class="tok-punct">}</span>
+    <span class="tok-punct">}</span> <span class="tok-keyword">else</span> <span class="tok-punct">{</span> buf <span class="tok-operator">+=</span> c<span class="tok-punct">;</span> started <span class="tok-operator">=</span> true<span class="tok-punct">;</span> <span class="tok-punct">}</span>
+  <span class="tok-punct">}</span>
+  <span class="tok-keyword">if</span> <span class="tok-punct">(</span>quote<span class="tok-punct">)</span> <span class="tok-keyword">return</span> <span class="tok-punct">{</span>tokens<span class="tok-punct">,</span> error<span class="tok-operator">:</span> <span class="tok-string">&#x27;引号未闭合&#x27;</span><span class="tok-punct">}</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">if</span> <span class="tok-punct">(</span>started<span class="tok-punct">)</span> tokens<span class="tok-punct">.</span><span class="tok-function">push</span><span class="tok-punct">(</span>buf<span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">return</span> <span class="tok-punct">{</span>tokens<span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span>
+<span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-keyword">const</span> s <span class="tok-keyword">of</span> <span class="tok-punct">[</span><span class="tok-string">&#x27;ls -l&#x27;</span><span class="tok-punct">,</span> <span class="tok-string">&#x27;echo &quot;a b&quot; &quot;&quot;&#x27;</span><span class="tok-punct">,</span> <span class="tok-string">&quot;echo &#x27;a|b&#x27;&quot;</span><span class="tok-punct">,</span> <span class="tok-string">&#x27;echo &quot;未闭合&#x27;</span><span class="tok-punct">]</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+  demo<span class="tok-punct">.</span><span class="tok-function">log</span><span class="tok-punct">(</span>s<span class="tok-punct">,</span> <span class="tok-string">&#x27;→&#x27;</span><span class="tok-punct">,</span> <span class="tok-builtin">JSON</span><span class="tok-punct">.</span><span class="tok-function">stringify</span><span class="tok-punct">(</span><span class="tok-function">tokenize</span><span class="tok-punct">(</span>s<span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre><div class="demo-stage" data-demo-stage hidden><div class="demo-frame-wrap" data-demo-mount></div><div class="demo-log" data-demo-log hidden></div><p class="demo-status" data-demo-status></p></div><noscript><p class="demo-noscript">这段示例需要 JavaScript 才能运行。</p></noscript><script type="application/json" data-demo-src>"function tokenize(line) {\n  const tokens = [];\n  let buf = '', quote = '', started = false;\n  for (let i = 0; i \u003c line.length; i++) {\n    const c = line[i];\n    if (quote === \"'\") {\n      if (c === \"'\") quote = ''; else buf += c;\n    } else if (c === '\\\\') {\n      if (i + 1 === line.length) return {tokens, error: '末尾转义未完成'};\n      const next = line[i + 1];\n      if (!quote || ['$', '`', '\"', '\\\\', '\\n'].includes(next)) {\n        i++;\n        if (next !== '\\n') { buf += next; started = true; }\n      } else { buf += c; started = true; }\n    } else if (quote) {\n      if (c === quote) quote = ''; else buf += c;\n    } else if (c === '\"' || c === \"'\") {\n      quote = c; started = true;\n    } else if (/\\s/.test(c)) {\n      if (started) { tokens.push(buf); buf = ''; started = false; }\n    } else { buf += c; started = true; }\n  }\n  if (quote) return {tokens, error: '引号未闭合'};\n  if (started) tokens.push(buf);\n  return {tokens};\n}\nfor (const s of ['ls -l', 'echo \"a b\" \"\"', \"echo 'a|b'\", 'echo \"未闭合']) {\n  demo.log(s, '→', JSON.stringify(tokenize(s)));\n}"</script></div></div>
+<div class="deck-fragment"><p>第二项应保留末尾 <code>""</code> 对应的空参数；错误结果不能交给执行器。</p></div></div>
       </section>
       
       <section class="slide" data-slide="7"
-               data-title="切词这一步比看上去难">
-        <div class="slide-inner"><h2>切词这一步比看上去难</h2>
-<p>新手会以为「按空格切」就够了，实际上一行 shell 输入要先过这些：</p>
-<div class="table-wrap"><table>
-<thead><tr><th>输入</th><th>你以为的切法</th><th>实际规则</th></tr></thead>
-<tbody>
-<tr><td><code>echo "a b"</code></td><td><code>echo</code> / <code>"a</code> / <code>b"</code></td><td>引号内的空格不算分隔</td></tr>
-<tr><td><code>echo 'a b'</code></td><td>同上</td><td>单引号里<strong>什么都不解释</strong></td></tr>
-<tr><td><code>echo $HOME</code></td><td>字面量</td><td>先做变量展开</td></tr>
-<tr><td><code>echo *.c</code></td><td>字面量</td><td>先做通配符展开</td></tr>
-<tr><td><code>echo a\|b</code></td><td>三个词</td><td><code>\|</code> 是管道，不是普通字符</td></tr>
-</tbody></table></div>
-<p>顺序也不能换：<strong>切词 → 引号处理 → 展开 → 再切管道</strong>。<br>
-换一下顺序，<code>echo "a | b"</code> 就会被当成管道。</p></div>
-      </section>
-      
-      <section class="slide" data-slide="8"
-               data-title="试一个：自己写个分词器">
-        <div class="slide-inner"><h2>试一个：自己写个分词器</h2>
-<p>下面这段是可运行的 —— 它做的正是 shell 的第一步。
-试着改一改：让它支持单引号，或者让它把 <code>|</code> 单独切出来。</p>
-<div class="demo" data-demo="js"><div class="demo-head"><span class="demo-badge">可运行示例</span><span class="demo-lang">JavaScript</span><div class="demo-actions"><button class="demo-toggle" type="button" data-demo-toggle aria-expanded="false"><span data-demo-toggle-label>查看代码</span><svg class="demo-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button><button class="demo-run" type="button" data-demo-run><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg><span data-demo-run-label>运行</span></button><button class="demo-reset" type="button" data-demo-reset hidden>重置</button></div></div><pre class="code-pre" data-demo-code hidden><code class="language-js"><span class="tok-comment">// 一个最小分词器：处理空格、双引号、反斜杠转义</span>
-<span class="tok-keyword">function</span> <span class="tok-function">tokenize</span><span class="tok-punct">(</span>line<span class="tok-punct">)</span> <span class="tok-punct">{</span>
-  <span class="tok-keyword">const</span> out <span class="tok-operator">=</span> <span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">;</span>
-  <span class="tok-keyword">let</span> buf <span class="tok-operator">=</span> <span class="tok-string">&#x27;&#x27;</span><span class="tok-punct">,</span> quote <span class="tok-operator">=</span> false<span class="tok-punct">,</span> i <span class="tok-operator">=</span> <span class="tok-number">0</span><span class="tok-punct">;</span>
-  <span class="tok-keyword">while</span> <span class="tok-punct">(</span>i <span class="tok-operator">&lt;</span> line<span class="tok-punct">.</span>length<span class="tok-punct">)</span> <span class="tok-punct">{</span>
-    <span class="tok-keyword">const</span> c <span class="tok-operator">=</span> line<span class="tok-punct">[</span>i<span class="tok-punct">]</span><span class="tok-punct">;</span>
-    <span class="tok-keyword">if</span> <span class="tok-punct">(</span>quote<span class="tok-punct">)</span> <span class="tok-punct">{</span>
-      <span class="tok-keyword">if</span> <span class="tok-punct">(</span>c <span class="tok-operator">===</span> <span class="tok-string">&#x27;\\&#x27;</span> <span class="tok-operator">&amp;&amp;</span> i <span class="tok-operator">+</span> <span class="tok-number">1</span> <span class="tok-operator">&lt;</span> line<span class="tok-punct">.</span>length<span class="tok-punct">)</span> <span class="tok-punct">{</span> buf <span class="tok-operator">+=</span> line<span class="tok-punct">[</span><span class="tok-operator">++</span>i<span class="tok-punct">]</span><span class="tok-punct">;</span> i<span class="tok-operator">++</span><span class="tok-punct">;</span> <span class="tok-keyword">continue</span><span class="tok-punct">;</span> <span class="tok-punct">}</span>
-      <span class="tok-keyword">if</span> <span class="tok-punct">(</span>c <span class="tok-operator">===</span> <span class="tok-string">&#x27;&quot;&#x27;</span><span class="tok-punct">)</span> <span class="tok-punct">{</span> quote <span class="tok-operator">=</span> false<span class="tok-punct">;</span> i<span class="tok-operator">++</span><span class="tok-punct">;</span> <span class="tok-keyword">continue</span><span class="tok-punct">;</span> <span class="tok-punct">}</span>
-      buf <span class="tok-operator">+=</span> c<span class="tok-punct">;</span> i<span class="tok-operator">++</span><span class="tok-punct">;</span> <span class="tok-keyword">continue</span><span class="tok-punct">;</span>
-    <span class="tok-punct">}</span>
-    <span class="tok-keyword">if</span> <span class="tok-punct">(</span>c <span class="tok-operator">===</span> <span class="tok-string">&#x27;&quot;&#x27;</span><span class="tok-punct">)</span> <span class="tok-punct">{</span> quote <span class="tok-operator">=</span> true<span class="tok-punct">;</span> i<span class="tok-operator">++</span><span class="tok-punct">;</span> <span class="tok-keyword">continue</span><span class="tok-punct">;</span> <span class="tok-punct">}</span>
-    <span class="tok-keyword">if</span> <span class="tok-punct">(</span>c <span class="tok-operator">===</span> <span class="tok-string">&#x27;\\&#x27;</span> <span class="tok-operator">&amp;&amp;</span> i <span class="tok-operator">+</span> <span class="tok-number">1</span> <span class="tok-operator">&lt;</span> line<span class="tok-punct">.</span>length<span class="tok-punct">)</span> <span class="tok-punct">{</span> buf <span class="tok-operator">+=</span> line<span class="tok-punct">[</span><span class="tok-operator">++</span>i<span class="tok-punct">]</span><span class="tok-punct">;</span> i<span class="tok-operator">++</span><span class="tok-punct">;</span> <span class="tok-keyword">continue</span><span class="tok-punct">;</span> <span class="tok-punct">}</span>
-    <span class="tok-keyword">if</span> <span class="tok-punct">(</span>c <span class="tok-operator">===</span> <span class="tok-string">&#x27; &#x27;</span> <span class="tok-operator">||</span> c <span class="tok-operator">===</span> <span class="tok-string">&#x27;\t&#x27;</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
-      <span class="tok-keyword">if</span> <span class="tok-punct">(</span>buf<span class="tok-punct">)</span> <span class="tok-punct">{</span> out<span class="tok-punct">.</span><span class="tok-function">push</span><span class="tok-punct">(</span>buf<span class="tok-punct">)</span><span class="tok-punct">;</span> buf <span class="tok-operator">=</span> <span class="tok-string">&#x27;&#x27;</span><span class="tok-punct">;</span> <span class="tok-punct">}</span>
-      i<span class="tok-operator">++</span><span class="tok-punct">;</span> <span class="tok-keyword">continue</span><span class="tok-punct">;</span>
-    <span class="tok-punct">}</span>
-    buf <span class="tok-operator">+=</span> c<span class="tok-punct">;</span> i<span class="tok-operator">++</span><span class="tok-punct">;</span>
-  <span class="tok-punct">}</span>
-  <span class="tok-keyword">if</span> <span class="tok-punct">(</span>buf<span class="tok-punct">)</span> out<span class="tok-punct">.</span><span class="tok-function">push</span><span class="tok-punct">(</span>buf<span class="tok-punct">)</span><span class="tok-punct">;</span>
-  <span class="tok-keyword">return</span> <span class="tok-punct">{</span> tokens<span class="tok-operator">:</span> out<span class="tok-punct">,</span> closed<span class="tok-operator">:</span> <span class="tok-operator">!</span>quote <span class="tok-punct">}</span><span class="tok-punct">;</span>
-<span class="tok-punct">}</span>
-
-<span class="tok-keyword">const</span> cases <span class="tok-operator">=</span> <span class="tok-punct">[</span>
-  <span class="tok-string">&#x27;ls -l /tmp&#x27;</span><span class="tok-punct">,</span>
-  <span class="tok-string">&#x27;echo &quot;a  b&quot; -n&#x27;</span><span class="tok-punct">,</span>
-  <span class="tok-string">&#x27;grep &quot;x \\&quot; y&quot; file.c&#x27;</span><span class="tok-punct">,</span>
-  <span class="tok-string">&#x27;echo &quot;没关引号&#x27;</span><span class="tok-punct">,</span>
-<span class="tok-punct">]</span><span class="tok-punct">;</span>
-<span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-keyword">const</span> s <span class="tok-keyword">of</span> cases<span class="tok-punct">)</span> <span class="tok-punct">{</span>
-  <span class="tok-keyword">const</span> r <span class="tok-operator">=</span> <span class="tok-function">tokenize</span><span class="tok-punct">(</span>s<span class="tok-punct">)</span><span class="tok-punct">;</span>
-  demo<span class="tok-punct">.</span><span class="tok-function">log</span><span class="tok-punct">(</span><span class="tok-string">&#x27;输入:&#x27;</span><span class="tok-punct">,</span> s<span class="tok-punct">)</span><span class="tok-punct">;</span>
-  demo<span class="tok-punct">.</span><span class="tok-function">log</span><span class="tok-punct">(</span><span class="tok-string">&#x27;  →  &#x27;</span><span class="tok-punct">,</span> <span class="tok-builtin">JSON</span><span class="tok-punct">.</span><span class="tok-function">stringify</span><span class="tok-punct">(</span>r<span class="tok-punct">.</span>tokens<span class="tok-punct">)</span><span class="tok-punct">,</span> r<span class="tok-punct">.</span>closed <span class="tok-operator">?</span> <span class="tok-string">&#x27;&#x27;</span> <span class="tok-operator">:</span> <span class="tok-string">&#x27;⚠ 引号没闭合&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-<span class="tok-punct">}</span></code></pre><div class="demo-stage" data-demo-stage hidden><div class="demo-frame-wrap" data-demo-mount></div><div class="demo-log" data-demo-log hidden></div><p class="demo-status" data-demo-status></p></div><noscript><p class="demo-noscript">这段示例需要 JavaScript 才能运行。</p></noscript><script type="application/json" data-demo-src>"// 一个最小分词器：处理空格、双引号、反斜杠转义\nfunction tokenize(line) {\n  const out = [];\n  let buf = '', quote = false, i = 0;\n  while (i \u003c line.length) {\n    const c = line[i];\n    if (quote) {\n      if (c === '\\\\' && i + 1 \u003c line.length) { buf += line[++i]; i++; continue; }\n      if (c === '\"') { quote = false; i++; continue; }\n      buf += c; i++; continue;\n    }\n    if (c === '\"') { quote = true; i++; continue; }\n    if (c === '\\\\' && i + 1 \u003c line.length) { buf += line[++i]; i++; continue; }\n    if (c === ' ' || c === '\\t') {\n      if (buf) { out.push(buf); buf = ''; }\n      i++; continue;\n    }\n    buf += c; i++;\n  }\n  if (buf) out.push(buf);\n  return { tokens: out, closed: !quote };\n}\n\nconst cases = [\n  'ls -l /tmp',\n  'echo \"a  b\" -n',\n  'grep \"x \\\\\" y\" file.c',\n  'echo \"没关引号',\n];\nfor (const s of cases) {\n  const r = tokenize(s);\n  demo.log('输入:', s);\n  demo.log('  →  ', JSON.stringify(r.tokens), r.closed ? '' : '⚠ 引号没闭合');\n}"</script></div>
-<p><span class="ink ink-red">注意最后一条</span>：真实的 shell 遇到没闭合的引号会<strong>再要一行</strong>，
-而不是硬着头皮执行。这就是「交互式」和「批处理」的区别。</p></div>
-      </section>
-      
-      <section class="slide slide--section" data-slide="9"
-               data-title="3. 管道、重定向、内建命令" data-section="1">
-        <div class="slide-inner"><h1>3. 管道、重定向、内建命令</h1></div>
-      </section>
-      
-      <section class="slide" data-slide="10"
-               data-title="管道：一条内核缓冲区 + 两个文件描述符">
-        <div class="slide-inner"><h2>管道：一条内核缓冲区 + 两个文件描述符</h2>
-<p><code>ls | grep c</code> 里的 <code>|</code> 不是把命令串起来，而是造了一根<strong>管子</strong>。</p>
-<figure class="docfig-wrap" data-fig="pipe-fd">
+               data-title="管道需要并发启动两端">
+        <div class="slide-inner"><h2>管道需要并发启动两端</h2>
+<div class="deck-fragment"><figure class="docfig-wrap" data-fig="pipe-fd">
 <svg class="docfig" viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="管道是一条内核缓冲区，两端各是一个文件描述符；dup2 把它接到 0/1 上">
   <defs><marker id="ffb42a98-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" class="fg-head"/></marker></defs>
   <rect class="fg-box is-accent" x="40" y="120" width="150" height="70" rx="9"/>
@@ -523,79 +445,38 @@ int main(void) {
   <text class="fg-s" x="40" y="274" text-anchor="start" font-size="12">B 里：dup2(fd[0], 0)  → B 的 stdin  变成管道读端</text>
 </svg>
 <figcaption>管道是一条内核缓冲区，两端各是一个文件描述符；dup2 把它接到 0/1 上</figcaption>
-</figure>
-<p>实现顺序很固定：</p>
-<ul><li>父进程 <code>pipe(fd)</code> —— 拿到读写两端</li><li><code>fork</code> 两次，得到左右两个孩子</li><li>左孩子在 <code>exec</code> <strong>之前</strong> <code>dup2(fd[1], 1)</code>，把 stdout 接到写端</li><li>右孩子在 <code>exec</code> <strong>之前</strong> <code>dup2(fd[0], 0)</code>，把 stdin 接到读端</li><li>两边都把自己的 fd 关掉，<code>wait</code> 收尸</li></ul>
-<blockquote><p><span class="ink ink-blue">顺序错了就死锁</span>：忘了在父进程里关掉 fd，读端永远等不到 EOF。</p></blockquote></div>
+</figure></div>
+<div class="deck-fragment"><ol><li>父进程 <code>pipe(fd)</code> 创建读端与写端。</li></ol></div>
+<div class="deck-fragment"><ol><li>创建左右两个子进程，分别把写端映射到 stdout、读端映射到 stdin。</li></ol></div>
+<div class="deck-fragment"><ol><li>每个进程关闭不使用的原始描述符；父进程也关闭两端。</li></ol></div>
+<div class="deck-fragment"><ol><li>两个子进程都启动后，父进程才等待它们。</li></ol></div>
+<div class="deck-fragment"><p>如果先等左侧结束再启动右侧，较大的输出可能填满管道而阻塞。
+仍有进程持有写端时，读端不会因为某一个写进程退出就自动收到 EOF。</p></div></div>
       </section>
       
-      <section class="slide" data-slide="11"
-               data-title="重定向其实就是改文件描述符">
-        <div class="slide-inner"><h2>重定向其实就是改文件描述符</h2>
-<ul><li><code>&gt; file</code>：<code>open(file, O_WRONLY|O_CREAT|O_TRUNC)</code> 之后 <code>dup2(fd, 1)</code>。</li><li><code>&lt; file</code>：同理 <code>dup2(fd, 0)</code>。</li><li><code>2&gt;&amp;1</code>：把 fd 2 也指到 fd 1 现在指的地方 —— <strong>注意是「现在」</strong>。</li></ul>
-<div class="code-block" data-lang="shell"><div class="code-head"><span class="code-lang">shell</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-shell"><span class="tok-comment"># 这两条不一样，顺序有意义</span>
-cmd <span class="tok-operator">&gt;</span> out.txt <span class="tok-number">2</span><span class="tok-operator">&gt;&amp;</span><span class="tok-number">1</span>     <span class="tok-comment"># stdout 和 stderr 都进 out.txt</span>
-cmd <span class="tok-number">2</span><span class="tok-operator">&gt;&amp;</span><span class="tok-number">1</span> <span class="tok-operator">&gt;</span> out.txt     <span class="tok-comment"># stderr 进终端，stdout 进文件</span></code></pre></div></div>
+      <section class="slide" data-slide="8"
+               data-title="重定向与作业控制">
+        <div class="slide-inner"><h2>重定向与作业控制</h2>
+<div class="deck-fragment"><p>输出文件使用 <code>open(path, O_WRONLY | O_CREAT | O_TRUNC, 0666)</code>，权限再由 umask 限制。
+检查返回值后 <code>dup2(fd, STDOUT_FILENO)</code>，最后关闭原始 fd。</p></div>
+<div class="deck-fragment"><p>后台作业不能简单“不等待”：Shell 仍需要通过 <code>waitpid(..., WNOHANG)</code> 等方式回收子进程。
+完整交互 Shell 还管理进程组、控制终端与信号；Ctrl+C 发给终端的前台进程组。</p></div>
+<div class="deck-fragment"><p>下载程序没有实现这些作业控制语义，不能用它替代日常 Shell。</p></div></div>
       </section>
       
-      <section class="slide" data-slide="12"
-               data-title="cd 为什么不能是外部程序">
-        <div class="slide-inner"><h2><code>cd</code> 为什么不能是外部程序</h2>
-<p>这是 shell 设计里最漂亮的一处约束：</p>
-<ul><li>每个进程有自己的「当前工作目录」，它是<strong>进程的属性</strong>。</li><li><code>cd</code> 如果是外部程序，它跑在<strong>子进程</strong>里，改的是子进程的目录。</li><li>子进程一退出，改动就没了，父进程（shell）的工作目录纹丝不动。</li></ul>
-<p><span class="ink ink-red">所以 <code>cd</code> 必须是内建命令。</span><br>
-同样必须是内建的还有：<code>export</code>、<code>alias</code>、<code>umask</code>、<code>jobs</code>、<code>fg</code>、<code>bg</code> —— 
-它们改的都是 <strong>shell 进程自己的状态</strong>。</p>
-<blockquote><p>判断标准很简单：<strong>这条命令有没有副作用落在「当前这个 shell」身上。</strong></p></blockquote></div>
-      </section>
-      
-      <section class="slide" data-slide="13"
-               data-title="前台、后台与信号">
-        <div class="slide-inner"><h2>前台、后台与信号</h2>
-<ul><li><code>&amp;</code> 让子进程进后台，shell 不 <code>wait</code> 它，直接打印下一个提示符。</li><li>但 shell 不能不管它 —— 它在<strong>作业表</strong>里记着，<code>jobs</code> 能查、<code>fg</code> 能捞回来。</li><li><code>Ctrl+C</code> 不是 shell 处理的，是终端把 <code>SIGINT</code> 发给<strong>前台进程组</strong>。
-shell 自己也要处理这个信号，否则一按就把自己杀了。</li></ul>
-<div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-text">你想清楚三件事，mini shell 就完整了：
-  1) 谁是前台进程组
-  2) 谁负责 wait
-  3) 信号发给谁</code></pre></div></div>
-      </section>
-      
-      <section class="slide slide--section" data-slide="14"
-               data-title="4. 源码怎么读" data-section="1">
-        <div class="slide-inner"><h1>4. 源码怎么读</h1></div>
-      </section>
-      
-      <section class="slide" data-slide="15"
-               data-title="从最小到完整">
-        <div class="slide-inner"><h2>从最小到完整</h2>
-<div class="table-wrap"><table>
-<thead><tr><th>文件</th><th>做什么</th><th>大概多少行</th></tr></thead>
-<tbody>
-<tr><td><code>mini_sh.c</code></td><td>只有循环 + fork/exec</td><td>几十行</td></tr>
-<tr><td><code>sh-xv6.c</code></td><td>加了重定向、管道、内建命令</td><td>三百行左右</td></tr>
-<tr><td><code>test.c</code></td><td>测试用例</td><td>—</td></tr>
-</tbody></table></div>
-<ul><li>读的顺序：<strong>先读 <code>mini_sh.c</code> 把主干记住，再读 <code>sh-xv6.c</code> 看它补了哪些边角</strong>。</li><li>不要从头读到尾 —— 先找 <code>fork</code>、<code>exec</code>、<code>wait</code> 这三个词，
-把主干抽出来，剩下的都是分支。</li></ul>
-<div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash"><span class="tok-comment"># 想直接上手：编译、跑、然后自己加一个内建命令</span>
-make
-.<span class="tok-operator">/</span>mini_sh</code></pre></div>
-<blockquote><p>源码就在本站：<span class="ink ink-blue"><code>assets/docs/mini-sh/code/</code></span> 下，
-页面右侧点文件名就能看。建议先自己敲一遍 <code>mini_sh.c</code>，再对照。</p></blockquote></div>
-      </section>
-      
-      <section class="slide" data-slide="16"
-               data-title="小结">
-        <div class="slide-inner"><h2>小结</h2>
-<ol><li>shell 是一个<strong>循环</strong>：读 → 切词 → fork → exec → wait。</li><li>切词的顺序不能换，<strong>引号要先于管道</strong>。</li><li>管道是内核缓冲区 + <code>dup2</code>；重定向本质是改文件描述符。</li><li>内建命令之所以内建，是因为它们要改 <strong>shell 自己的状态</strong>。</li></ol>
-<p><del>写完你会对所有「命令行」祛魅。</del><br>
-<span class="ink ink-blue">然后你会发现，祛魅之后反而更好用。</span></p></div>
+      <section class="slide" data-slide="9"
+               data-title="练习与答案">
+        <div class="slide-inner"><h2>练习与答案</h2>
+<div class="deck-fragment"><p><strong>练习</strong>：加入内建 <code>pwd</code>，并验证外部命令失败不会结束 Shell。</p></div>
+<div class="deck-fragment"><p><strong>答案方向</strong>：在 fork 前识别 <code>pwd</code>，调用 <code>getcwd</code> 并检查失败；仅子进程在 <code>execvp</code> 失败后退出。</p></div>
+<div class="deck-fragment"><p>测试输入：<code>pwd</code> → <code>cd /tmp</code> → <code>pwd</code> → <code>command_that_does_not_exist</code> → <code>pwd</code> → <code>exit</code>。</p></div>
+<div class="deck-fragment"><p>参考：<a href="https://pubs.opengroup.org/onlinepubs/9799919799/utilities/V3_chap02.html" target="_blank" rel="noopener">POSIX Shell 命令语言</a>、<a href="https://pubs.opengroup.org/onlinepubs/9799919799/functions/exec.html" target="_blank" rel="noopener">POSIX exec</a>。</p></div></div>
       </section>
       
     </div>
 
     <p class="deck-hint">
-      <kbd>←</kbd><kbd>→</kbd> 翻页 · <kbd>F</kbd> 全屏 · <kbd>Esc</kbd> 退出 · 也可直接点两侧
+      <kbd>←</kbd><kbd>→</kbd> 逐步收起 / 展开，展开完翻页 · <kbd>F</kbd> 全屏 · <kbd>Esc</kbd> 退出
     </p>
 
     
@@ -669,9 +550,9 @@ make
 
       <dl class="footer-stats">
         <div><dt>7</dt><dd>篇文章</dd></div>
-        <div><dt>16</dt><dd>篇文档</dd></div>
+        <div><dt>19</dt><dd>篇文档</dd></div>
         <div><dt>5</dt><dd>个项目</dd></div>
-        <div><dt>267</dt><dd>页幻灯片</dd></div>
+        <div><dt>204</dt><dd>页幻灯片</dd></div>
       </dl>
     </div>
 
@@ -705,22 +586,22 @@ make
         
         <a class="footer-link" href="/docs/windows-to-linux/">
           <span class="t">从 Windows 到 Linux</span>
-          <span class="d">5 篇 · 110 页</span>
+          <span class="d">6 篇 · 67 页</span>
         </a>
         
         <a class="footer-link" href="/docs/cpp/">
           <span class="t">从 C 语言到 C++</span>
-          <span class="d">1 篇 · 17 页</span>
+          <span class="d">1 篇 · 10 页</span>
         </a>
         
         <a class="footer-link" href="/docs/vision/">
           <span class="t">ROS 与机器视觉</span>
-          <span class="d">4 篇 · 79 页</span>
+          <span class="d">6 篇 · 72 页</span>
         </a>
         
         <a class="footer-link" href="/docs/learning/">
           <span class="t">从编程开始的学习</span>
-          <span class="d">6 篇 · 61 页</span>
+          <span class="d">6 篇 · 55 页</span>
         </a>
         
         <a class="footer-more" href="/docs/">
@@ -916,6 +797,15 @@ make
             <span class="theme-name">暖灯夜色</span>
           </button>
           
+          <button class="theme-card" type="button" data-theme-pick="bocchi" title="波奇光晕">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/bocchi.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#eaa5bc"></i><i style="background:#6acbc9"></i><i style="background:#101b2d"></i>
+              </span>
+            </span>
+            <span class="theme-name">波奇光晕</span>
+          </button>
+          
         </div>
       </section>
 
@@ -957,7 +847,7 @@ make
             <button type="button" data-val="wide">宽</button>
           </div>
         </div>
-        <p class="set-note">黑体 / 宋体都随站点自带（子集化的 Noto，约 330 / 430 KB），不依赖你本机装了什么字体。</p>
+        <p class="set-note">黑体 / 宋体随站点自带，不依赖本机字体。</p>
       </section>
 
       <section class="set-group">
@@ -994,7 +884,7 @@ make
             <button type="button" data-val="video">动态视频</button>
           </div>
         </div>
-        <p class="set-note">动态视频是 2560×1440 无声循环，已随站点打包；切到「动态视频」后才开始加载当前主题那一条。</p>
+        <p class="set-note">无声循环视频按当前主题加载；切到「动态视频」后才加载，后台标签页会暂停。</p>
         <div class="set-divider"></div>
         <div class="set-field">
           <span class="set-label">可见度 <b data-out="bgOpacity">—</b></span>
@@ -1072,10 +962,10 @@ make
 </div>
 
 
-<script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.jpg","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.jpg","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.jpg","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.jpg","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.jpg","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.jpg","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.jpg","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.jpg","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.jpg","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.jpg","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.jpg","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.jpg","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.jpg","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.jpg","video":"assets/bg/lumen.mp4"}}</script>
+<script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
 
-<script src="/assets/site.js" defer></script>
-<script src="/assets/docs.js" defer></script>
+<script src="/assets/site.js?v=77072cd2" defer></script>
+<script src="/assets/docs.js?v=77072cd2" defer></script>
 
 </body>
 </html>

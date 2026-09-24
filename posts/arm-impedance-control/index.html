@@ -16,7 +16,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>机械臂运控：阻抗控制与力位混合 · 洛叶白</title>
-<meta name="description" content="位置控制只能应付自由空间，一旦接触工件，位置环会把力误差一路放大到撞坏东西。这篇讲阻抗控制的核心式子和参数怎么定，以及和力位混合控制到底该选哪个。">
+<meta name="description" content="从接口、量纲与坐标系出发区分阻抗、导纳和力位混合控制，给出可运行的一维示例与接触任务的验证方法。">
 <meta name="author" content="洛叶白">
 <meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#0b0d14" media="(prefers-color-scheme: dark)">
@@ -24,15 +24,15 @@
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="洛叶白">
 <meta property="og:title" content="机械臂运控：阻抗控制与力位混合">
-<meta property="og:description" content="位置控制只能应付自由空间，一旦接触工件，位置环会把力误差一路放大到撞坏东西。这篇讲阻抗控制的核心式子和参数怎么定，以及和力位混合控制到底该选哪个。">
+<meta property="og:description" content="从接口、量纲与坐标系出发区分阻抗、导纳和力位混合控制，给出可运行的一维示例与接触任务的验证方法。">
 <meta property="og:url" content="https://luoyebai.github.io/posts/arm-impedance-control/">
 <meta property="og:image" content="https://luoyebai.github.io/assets/images/favicon.svg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://luoyebai.github.io/posts/arm-impedance-control/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css">
-<link rel="stylesheet" href="/assets/site.css">
+<link rel="stylesheet" href="/assets/themes.css?v=77072cd2">
+<link rel="stylesheet" href="/assets/site.css?v=77072cd2">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
 
@@ -47,6 +47,11 @@
 (function () {
   var el = document.documentElement;
   el.classList.add('js');   /* 只有 JS 可用时才启用进场动画的隐藏态 */
+  var compact = matchMedia('(pointer: coarse)').matches ||
+    (navigator.connection && navigator.connection.saveData) ||
+    (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
+    (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+  el.setAttribute('data-performance', compact ? 'compact' : 'standard');
   var q = {};
   try { new URLSearchParams(location.search).forEach(function (v, k) { q[k] = v; }); } catch (e) {}
   var s = {};
@@ -189,7 +194,7 @@
       
 
       <h1 class="phero-title reveal">机械臂运控：阻抗控制与力位混合</h1>
-      <p class="phero-lede reveal">位置控制只能应付自由空间，一旦接触工件，位置环会把力误差一路放大到撞坏东西。这篇讲阻抗控制的核心式子和参数怎么定，以及和力位混合控制到底该选哪个。</p>
+      <p class="phero-lede reveal">从接口、量纲与坐标系出发区分阻抗、导纳和力位混合控制，给出可运行的一维示例与接触任务的验证方法。</p>
 
       <div class="phero-meta reveal">
         <span class="meta-item">
@@ -202,8 +207,10 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
             <circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>
           </svg>
-          5 分钟
+          4 分钟
         </span>
+        
+        <span class="meta-item muted">更新于 2026 年 9 月 24 日</span>
         
       </div>
     </div>
@@ -216,17 +223,19 @@
         <p class="toc-title">目录</p>
         <ul>
           
-          <li class="toc-l2"><a href="#阻抗控制把机器人变成弹簧阻尼">阻抗控制：把机器人变成弹簧阻尼</a></li>
+          <li class="toc-l2"><a href="#三种方式输入和输出不同">三种方式，输入和输出不同</a></li>
           
-          <li class="toc-l2"><a href="#参数怎么定">参数怎么定</a></li>
+          <li class="toc-l2"><a href="#先把符号与单位写对">先把符号与单位写对</a></li>
           
-          <li class="toc-l2"><a href="#导纳控制位置环机器人也能用力控">导纳控制：位置环机器人也能用力控</a></li>
+          <li class="toc-l2"><a href="#一个可运行的一维计算">一个可运行的一维计算</a></li>
           
-          <li class="toc-l2"><a href="#力位混合控制任务空间分解">力位混合控制：任务空间分解</a></li>
+          <li class="toc-l2"><a href="#导纳把力反馈变成运动参考">导纳：把力反馈变成运动参考</a></li>
           
-          <li class="toc-l2"><a href="#什么时候用哪个">什么时候用哪个</a></li>
+          <li class="toc-l2"><a href="#力位混合先选对坐标系">力位混合：先选对坐标系</a></li>
           
-          <li class="toc-l2"><a href="#踩过的坑">踩过的坑</a></li>
+          <li class="toc-l2"><a href="#参数调试的顺序">参数调试的顺序</a></li>
+          
+          <li class="toc-l2"><a href="#评价一次接触任务">评价一次接触任务</a></li>
           
         </ul>
       </nav>
@@ -234,66 +243,64 @@
     
 
     <div class="post-main">
-      <div class="prose reveal"><p>机械臂只做位置控制有个硬伤：<strong>它不知道自己使了多大劲</strong>。轨迹上多出 2 mm 的工件，位置环就会一直加压直到电机堵转或者工件变形。</p>
-<p>力控的三种主流做法：阻抗控制、导纳控制、力位混合控制。它们解决的问题不同，选错会很难用。</p>
-<h2 id="阻抗控制把机器人变成弹簧阻尼">阻抗控制：把机器人变成弹簧阻尼<a class="heading-anchor" href="#阻抗控制把机器人变成弹簧阻尼" aria-label="锚点">#</a></h2>
-<p>核心思想是不再控制位置，而是<strong>建立力与位置偏差之间的动态关系</strong>：</p>
-<div class="math-block" data-tex="\mathbf{M}_d (\ddot{\mathbf{x}} - \ddot{\mathbf{x}}_d) + \mathbf{D}_d (\dot{\mathbf{x}} - \dot{\mathbf{x}}_d) + \mathbf{K}_d (\mathbf{x} - \mathbf{x}_d) = -\mathbf{F}_{ext}">$$\mathbf{M}_d (\ddot{\mathbf{x}} - \ddot{\mathbf{x}}_d) + \mathbf{D}_d (\dot{\mathbf{x}} - \dot{\mathbf{x}}_d) + \mathbf{K}_d (\mathbf{x} - \mathbf{x}_d) = -\mathbf{F}_{ext}$$</div>
-<p>翻译成人话：外部施加 <span class="math-inline" data-tex="\mathbf{F}_{ext}">\mathbf{F}_{ext}</span> 时，末端偏移多少由 <span class="math-inline" data-tex="\mathbf{K}_d">\mathbf{K}_d</span> 决定，偏移多快由 <span class="math-inline" data-tex="\mathbf{D}_d">\mathbf{D}_d</span> 决定，加速度响应由 <span class="math-inline" data-tex="\mathbf{M}_d">\mathbf{M}_d</span> 决定。三个矩阵就是你要调的全部参数。</p>
-<p>关节力矩由下面的控制律给出：</p>
-<div class="math-block" data-tex="\boldsymbol{\tau} = \mathbf{J}^\top \Big( \mathbf{M}_d^{-1}\big( \mathbf{D}_d \dot{\tilde{\mathbf{x}}} + \mathbf{K}_d \tilde{\mathbf{x}} - \mathbf{F}_{ext} \big) \Big) + \mathbf{C}(\mathbf{q},\dot{\mathbf{q}})\dot{\mathbf{q}} + \mathbf{g}(\mathbf{q})">$$\boldsymbol{\tau} = \mathbf{J}^\top \Big( \mathbf{M}_d^{-1}\big( \mathbf{D}_d \dot{\tilde{\mathbf{x}}} + \mathbf{K}_d \tilde{\mathbf{x}} - \mathbf{F}_{ext} \big) \Big) + \mathbf{C}(\mathbf{q},\dot{\mathbf{q}})\dot{\mathbf{q}} + \mathbf{g}(\mathbf{q})$$</div>
-<p>其中 <span class="math-inline" data-tex="\tilde{\mathbf{x}} = \mathbf{x}_d - \mathbf{x}">\tilde{\mathbf{x}} = \mathbf{x}_d - \mathbf{x}</span> 是位置偏差。</p>
-<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-type">Eigen</span><span class="tok-operator">::</span><span class="tok-type">VectorXd</span> <span class="tok-function">impedance_control</span><span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-type">RobotState</span><span class="tok-operator">&amp;</span> s<span class="tok-punct">,</span> <span class="tok-keyword">const</span> <span class="tok-type">Target</span><span class="tok-operator">&amp;</span> t<span class="tok-punct">)</span> <span class="tok-punct">{</span>
-    <span class="tok-keyword">const</span> <span class="tok-type">Eigen</span><span class="tok-operator">::</span><span class="tok-type">MatrixXd</span> <span class="tok-type">J</span> <span class="tok-operator">=</span> <span class="tok-function">jacobian</span><span class="tok-punct">(</span>s<span class="tok-punct">.</span>q<span class="tok-punct">)</span><span class="tok-punct">;</span>
-    <span class="tok-keyword">const</span> <span class="tok-type">Eigen</span><span class="tok-operator">::</span><span class="tok-type">Vector3d</span> dx  <span class="tok-operator">=</span> t<span class="tok-punct">.</span>x_des <span class="tok-operator">-</span> s<span class="tok-punct">.</span>x<span class="tok-punct">;</span>          <span class="tok-comment">// 位置偏差</span>
-    <span class="tok-keyword">const</span> <span class="tok-type">Eigen</span><span class="tok-operator">::</span><span class="tok-type">Vector3d</span> dv  <span class="tok-operator">=</span> t<span class="tok-punct">.</span>v_des <span class="tok-operator">-</span> s<span class="tok-punct">.</span>v<span class="tok-punct">;</span>          <span class="tok-comment">// 速度偏差</span>
+      
+      <details class="mobile-toc">
+        <summary>本页目录</summary>
+        <nav aria-label="本页目录"><ul>
+          <li class="toc-l2"><a href="#三种方式输入和输出不同">三种方式，输入和输出不同</a></li><li class="toc-l2"><a href="#先把符号与单位写对">先把符号与单位写对</a></li><li class="toc-l2"><a href="#一个可运行的一维计算">一个可运行的一维计算</a></li><li class="toc-l2"><a href="#导纳把力反馈变成运动参考">导纳：把力反馈变成运动参考</a></li><li class="toc-l2"><a href="#力位混合先选对坐标系">力位混合：先选对坐标系</a></li><li class="toc-l2"><a href="#参数调试的顺序">参数调试的顺序</a></li><li class="toc-l2"><a href="#评价一次接触任务">评价一次接触任务</a></li>
+        </ul></nav>
+      </details>
+      
 
-    <span class="tok-comment">// 期望的笛卡尔加速度</span>
-    <span class="tok-type">Eigen</span><span class="tok-operator">::</span><span class="tok-type">Vector3d</span> a_cmd <span class="tok-operator">=</span>
-        <span class="tok-type">Md_inv</span> <span class="tok-operator">*</span> <span class="tok-punct">(</span><span class="tok-type">Dd</span> <span class="tok-operator">*</span> dv <span class="tok-operator">+</span> <span class="tok-type">Kd</span> <span class="tok-operator">*</span> dx <span class="tok-operator">-</span> s<span class="tok-punct">.</span>f_ext<span class="tok-punct">)</span><span class="tok-punct">;</span>
+      <div class="prose reveal"><p>接触任务里，位置误差可能转化为接触力。误差有多大、接触有多硬、驱动是否限流、控制带宽与延迟如何，都会影响结果。因此，选择力控方案前先确认机器人提供的接口和反馈，而不是只选一个控制器名字。</p>
+<h2 id="三种方式输入和输出不同">三种方式，输入和输出不同<a class="heading-anchor" href="#三种方式输入和输出不同" aria-label="锚点">#</a></h2>
+<div class="table-wrap" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
+<thead><tr><th>方法</th><th>核心关系</th><th>常见实现条件</th></tr></thead>
+<tbody>
+<tr><td>阻抗</td><td>运动偏差产生期望作用力或力矩</td><td>可用的力矩接口，或厂商提供的阻抗模式</td></tr>
+<tr><td>导纳</td><td>测得的外力产生运动修正</td><td>力反馈与可跟踪的位置 / 速度接口</td></tr>
+<tr><td>力位混合</td><td>在任务坐标系中分别指定力与运动目标</td><td>明确的接触几何与相应控制接口</td></tr>
+</tbody></table></div>
+<p>这些分类不意味着某一种方式天然稳定。离散周期、延迟、滤波、饱和、环境刚度和内环行为，都属于闭环的一部分。</p>
+<h2 id="先把符号与单位写对">先把符号与单位写对<a class="heading-anchor" href="#先把符号与单位写对" aria-label="锚点">#</a></h2>
+<p>对单个平移方向，定义偏差 <span class="math-inline" data-tex="e=x-x_d">e=x-x_d</span>，<span class="math-inline" data-tex="F_{ext}">F_{ext}</span> 表示环境施加在机器人上的力。一个期望的阻抗关系是：</p>
+<div class="math-block" data-tex="M_d\ddot e+D_d\dot e+K_de=F_{ext}">$$M_d\ddot e+D_d\dot e+K_de=F_{ext}$$</div>
+<p>三项单位都是牛顿：<span class="math-inline" data-tex="M_d">M_d</span> 是 kg，<span class="math-inline" data-tex="D_d">D_d</span> 是 N·s/m，<span class="math-inline" data-tex="K_d">K_d</span> 是 N/m。改变外力的正方向时，方程右侧符号也必须随之改变。</p>
+<p>对于简单的笛卡尔弹簧阻尼控制，先生成作用力，再用雅可比转置映射到关节力矩：</p>
+<div class="math-block" data-tex="\mathbf F_{cmd}=-\mathbf K\mathbf e-\mathbf D\dot{\mathbf e},\qquad \boldsymbol\tau=\mathbf J^\top\mathbf F_{cmd}+\boldsymbol\tau_{comp}">$$\mathbf F_{cmd}=-\mathbf K\mathbf e-\mathbf D\dot{\mathbf e},\qquad \boldsymbol\tau=\mathbf J^\top\mathbf F_{cmd}+\boldsymbol\tau_{comp}$$</div>
+<p>不能把笛卡尔加速度直接乘 <span class="math-inline" data-tex="J^\top">J^\top</span> 当成关节力矩。完整惯量整形还需要动力学推导；上式只是弹簧阻尼形式，不承诺任意期望惯量都能被准确实现。</p>
+<p>补偿项由接口约定决定。驱动已补偿重力时，再加一遍重力会出错。可对照 <a href="https://frankarobotics.github.io/libfranka/0.15.0/cartesian_impedance_control_8cpp-example.html" target="_blank" rel="noopener">libfranka 的无惯量整形阻抗示例</a>，理解它的误差、雅可比与补偿项约定。</p>
+<h2 id="一个可运行的一维计算">一个可运行的一维计算<a class="heading-anchor" href="#一个可运行的一维计算" aria-label="锚点">#</a></h2>
+<p>下面使用 Python 3 标准库，展示偏差与阻尼如何改变指令力。它只做数值计算，不连接机器人。</p>
+<div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">import</span> math
 
-    <span class="tok-comment">// 关节力矩：J^T 映射 + 补偿项</span>
-    <span class="tok-type">Eigen</span><span class="tok-operator">::</span><span class="tok-type">VectorXd</span> tau <span class="tok-operator">=</span> <span class="tok-type">J</span><span class="tok-punct">.</span><span class="tok-function">transpose</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-operator">*</span> <span class="tok-punct">(</span><span class="tok-type">Md</span> <span class="tok-operator">*</span> a_cmd<span class="tok-punct">)</span>
-                        <span class="tok-operator">+</span> <span class="tok-function">coriolis</span><span class="tok-punct">(</span>s<span class="tok-punct">.</span>q<span class="tok-punct">,</span> s<span class="tok-punct">.</span>dq<span class="tok-punct">)</span> <span class="tok-operator">+</span> <span class="tok-function">gravity</span><span class="tok-punct">(</span>s<span class="tok-punct">.</span>q<span class="tok-punct">)</span><span class="tok-punct">;</span>
-    <span class="tok-keyword">return</span> tau<span class="tok-punct">;</span>
-<span class="tok-punct">}</span></code></pre></div>
-<h2 id="参数怎么定">参数怎么定<a class="heading-anchor" href="#参数怎么定" aria-label="锚点">#</a></h2>
-<p><span class="math-inline" data-tex="\mathbf{M}_d, \mathbf{D}_d, \mathbf{K}_d">\mathbf{M}_d, \mathbf{D}_d, \mathbf{K}_d</span> 都是 6×6（3 平移 + 3 旋转）。实际调试时按下面的顺序：</p>
-<ol><li><strong>先定 <span class="math-inline" data-tex="\mathbf{K}_d">\mathbf{K}_d</span></strong>。它决定"刚度"，也就是接触时机器人有多"硬"。<ul><li>装配插孔：低刚度（平移 200~500 N/m），让机器人能顺应误差</li><li>打磨/抛光：中等（1000~3000 N/m），保持恒定接触力</li><li>搬运重物：高刚度（10000+ N/m），接近位置控制</li></ul></li><li><strong><span class="math-inline" data-tex="\mathbf{D}_d">\mathbf{D}_d</span> 按临界阻尼配</strong>：</li></ol>
-<div class="math-block" data-tex="\mathbf{D}_d = 2\sqrt{\mathbf{M}_d \mathbf{K}_d}">$$\mathbf{D}_d = 2\sqrt{\mathbf{M}_d \mathbf{K}_d}$$</div>
-<p>欠阻尼会振荡，过阻尼响应迟钝。取临界阻尼的 0.8~1.2 倍区间微调。</p>
-<ol><li><strong><span class="math-inline" data-tex="\mathbf{M}_d">\mathbf{M}_d</span> 最后调</strong>。它主要影响动态响应，稳态行为由 <span class="math-inline" data-tex="\mathbf{K}_d">\mathbf{K}_d</span> 决定。多数场景直接取对角阵，数值取任务惯量的量级即可。</li></ol>
-<aside class="callout callout-tip"><div class="callout-title">旋转自由度要单独处理</div><div class="callout-body"><p>平移和旋转的刚度量纲不同（N/m vs N·m/rad），不能用一个数。而且旋转方向的惯量随姿态变化，<span class="math-inline" data-tex="\mathbf{M}_d">\mathbf{M}_d</span> 用定值会导致某些姿态下振荡。实际做法是只对旋转方向做阻尼控制，刚度给 0。</p></div></aside>
-<h2 id="导纳控制位置环机器人也能用力控">导纳控制：位置环机器人也能用力控<a class="heading-anchor" href="#导纳控制位置环机器人也能用力控" aria-label="锚点">#</a></h2>
-<p>阻抗控制需要<strong>力矩接口</strong>。如果你的机械臂只能收位置指令（很多协作臂是这个情况），那就用导纳控制——它是阻抗的对偶：</p>
-<div class="math-block" data-tex="\mathbf{M}_d \ddot{\mathbf{x}} + \mathbf{D}_d \dot{\mathbf{x}} + \mathbf{K}_d (\mathbf{x} - \mathbf{x}_0) = \mathbf{F}_{ext}">$$\mathbf{M}_d \ddot{\mathbf{x}} + \mathbf{D}_d \dot{\mathbf{x}} + \mathbf{K}_d (\mathbf{x} - \mathbf{x}_0) = \mathbf{F}_{ext}$$</div>
-<p>解出 <span class="math-inline" data-tex="\mathbf{x}">\mathbf{x}</span>，作为位置指令发给位置环。区别在于：阻抗控制是"力的控制器"，导纳控制是"位置的修正器"。</p>
-<div class="table-wrap"><table>
-<thead><tr><th></th><th>阻抗控制</th><th>导纳控制</th></tr></thead>
-<tbody>
-<tr><td>需要接口</td><td>力矩</td><td>位置</td></tr>
-<tr><td>接触刚度上限</td><td>高（可做刚性接触）</td><td>低（受位置环带宽限制）</td></tr>
-<tr><td>稳定性</td><td>无源性易保证</td><td>需要额外处理接触刚度</td></tr>
-<tr><td>适用</td><td>自研关节、有力和位混合接口</td><td>商用协作臂</td></tr>
-</tbody></table></div>
-<h2 id="力位混合控制任务空间分解">力位混合控制：任务空间分解<a class="heading-anchor" href="#力位混合控制任务空间分解" aria-label="锚点">#</a></h2>
-<p>如果任务本身可以明确分成"某些方向控位、某些方向控力"，用 Raibert-Craig 的混合控制更直接：</p>
-<div class="math-block" data-tex="\boldsymbol{\tau} = \mathbf{J}^\top \big( \mathbf{S} \mathbf{F}_{pos} + (\mathbf{I} - \mathbf{S}) \mathbf{F}_{force} \big)">$$\boldsymbol{\tau} = \mathbf{J}^\top \big( \mathbf{S} \mathbf{F}_{pos} + (\mathbf{I} - \mathbf{S}) \mathbf{F}_{force} \big)$$</div>
-<p><span class="math-inline" data-tex="\mathbf{S}">\mathbf{S}</span> 是对角选择矩阵：<span class="math-inline" data-tex="\mathbf{S}_{ii}=1">\mathbf{S}_{ii}=1</span> 表示该方向控位，<span class="math-inline" data-tex="=0">=0</span> 表示控力。</p>
-<p>典型场景是<strong>平面接触</strong>：法向控力（比如恒定 20 N 压紧），切向控位（沿表面移动）。这时候混合控制比阻抗控制好调得多，因为两个方向解耦了。</p>
-<aside class="callout callout-warn"><div class="callout-title">选择矩阵不能随便取</div><div class="callout-body"><p><span class="math-inline" data-tex="\mathbf{S}">\mathbf{S}</span> 必须和<strong>约束坐标系</strong>对齐。工件表面是斜面时，如果还在世界坐标系里选方向，法向控力的那个轴就指错了。做法是先估计表面法向，构造约束坐标系再分解。</p></div></aside>
-<h2 id="什么时候用哪个">什么时候用哪个<a class="heading-anchor" href="#什么时候用哪个" aria-label="锚点">#</a></h2>
-<div class="table-wrap"><table>
-<thead><tr><th>场景</th><th>推荐</th><th>理由</th></tr></thead>
-<tbody>
-<tr><td>插孔 / 装配</td><td>阻抗控制（低刚度）</td><td>需要顺应位置误差，接触力不需要精确</td></tr>
-<tr><td>表面打磨 / 抛光</td><td>力位混合 或 力控阻抗</td><td>法向力要恒定，切向要跟轨迹</td></tr>
-<tr><td>人机协作 / 拖动示教</td><td>导纳控制</td><td>只需外力感知，位置接口够用</td></tr>
-<tr><td>抓取易碎物</td><td>阻抗 + 抓取力闭环</td><td>需要柔顺，不能撞</td></tr>
-<tr><td>高速搬运</td><td>位置控制 + 前馈</td><td>力控反而拖慢节拍</td></tr>
-</tbody></table></div>
-<h2 id="踩过的坑">踩过的坑<a class="heading-anchor" href="#踩过的坑" aria-label="锚点">#</a></h2>
-<aside class="callout callout-danger"><div class="callout-title">三个真实事故</div><div class="callout-body"><ol><li><strong>零力补偿没做，机器人"锁死"</strong>。上电时电机抱闸，末端无法被推动，操作员以为力控坏了。阻抗控制必须在任务开始前做重力与摩擦补偿，否则你感受到的是机器人的自重。</li><li><strong>力传感器零漂</strong>。开机时传感器读数有 0.8 N 偏置，插孔时一直往一边顶，工件被顶飞。力控任务前必须做零点标定，且温度变化后要重标。</li><li><strong><span class="math-inline" data-tex="\mathbf{K}_d">\mathbf{K}_d</span> 给了纯对角 0</strong>。想让机器人"完全柔顺"，结果数值上 <span class="math-inline" data-tex="\mathbf{J}^\top">\mathbf{J}^\top</span> 的伪逆发散了。刚度可以小，但不能是 0，至少留一点做数值稳定。</li></ol></div></aside></div>
+<span class="tok-keyword">def</span> <span class="tok-function">spring_damper</span><span class="tok-punct">(</span>error_m<span class="tok-punct">,</span> velocity_mps<span class="tok-punct">,</span> stiffness<span class="tok-punct">,</span> mass<span class="tok-punct">,</span> zeta<span class="tok-operator">=</span><span class="tok-number">1.0</span><span class="tok-punct">)</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">if</span> <span class="tok-keyword">not</span> <span class="tok-builtin">all</span><span class="tok-punct">(</span>math<span class="tok-punct">.</span><span class="tok-function">isfinite</span><span class="tok-punct">(</span>v<span class="tok-punct">)</span> <span class="tok-keyword">for</span> v <span class="tok-keyword">in</span> <span class="tok-punct">(</span>error_m<span class="tok-punct">,</span> velocity_mps<span class="tok-punct">,</span> stiffness<span class="tok-punct">,</span> mass<span class="tok-punct">,</span> zeta<span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">:</span>
+        <span class="tok-keyword">raise</span> <span class="tok-function">ValueError</span><span class="tok-punct">(</span><span class="tok-string">&#x27;参数必须有限&#x27;</span><span class="tok-punct">)</span>
+    <span class="tok-keyword">if</span> mass <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">or</span> stiffness <span class="tok-operator">&lt;</span> <span class="tok-number">0</span> <span class="tok-keyword">or</span> zeta <span class="tok-operator">&lt;</span> <span class="tok-number">0</span><span class="tok-punct">:</span>
+        <span class="tok-keyword">raise</span> <span class="tok-function">ValueError</span><span class="tok-punct">(</span><span class="tok-string">&#x27;质量应为正，刚度和阻尼比不能为负&#x27;</span><span class="tok-punct">)</span>
+    damping <span class="tok-operator">=</span> <span class="tok-number">2.0</span> <span class="tok-operator">*</span> zeta <span class="tok-operator">*</span> math<span class="tok-punct">.</span><span class="tok-function">sqrt</span><span class="tok-punct">(</span>mass <span class="tok-operator">*</span> stiffness<span class="tok-punct">)</span>
+    force <span class="tok-operator">=</span> <span class="tok-operator">-</span>stiffness <span class="tok-operator">*</span> error_m <span class="tok-operator">-</span> damping <span class="tok-operator">*</span> velocity_mps
+    <span class="tok-keyword">return</span> force<span class="tok-punct">,</span> damping
+
+force<span class="tok-punct">,</span> damping <span class="tok-operator">=</span> <span class="tok-function">spring_damper</span><span class="tok-punct">(</span><span class="tok-number">0.01</span><span class="tok-punct">,</span> <span class="tok-number">0.02</span><span class="tok-punct">,</span> <span class="tok-number">400.0</span><span class="tok-punct">,</span> <span class="tok-number">2.0</span><span class="tok-punct">)</span>
+<span class="tok-builtin">print</span><span class="tok-punct">(</span><span class="tok-string">f&#x27;D = {damping:.3f} N·s/m, F = {force:.3f} N&#x27;</span><span class="tok-punct">)</span></code></pre></div>
+<p>这里的临界阻尼公式针对解耦的标量二阶模型。不要把矩阵乘积的逐元素平方根直接推广到任意耦合的六维系统。平移与转动的单位不同，姿态误差也需要合适的旋转表示。</p>
+<h2 id="导纳把力反馈变成运动参考">导纳：把力反馈变成运动参考<a class="heading-anchor" href="#导纳把力反馈变成运动参考" aria-label="锚点">#</a></h2>
+<p>一种一维形式为：</p>
+<div class="math-block" data-tex="M_d\ddot x_r+D_d\dot x_r+K_d(x_r-x_0)=F_{ext}-F_d">$$M_d\ddot x_r+D_d\dot x_r+K_d(x_r-x_0)=F_{ext}-F_d$$</div>
+<p>这里把 <span class="math-inline" data-tex="x_r">x_r</span> 作为运动参考；力的符号和运动方向仍须按传感器与任务约定核对。离散实现需要明确积分方法和实际采样周期，并限制参考速度、加速度与可达位置。</p>
+<p>当位置内环无法及时跟随，外环积累的位移可能在稍后集中释放。调低增益不能替代对延迟、内环带宽、饱和与积分状态的检查。</p>
+<h2 id="力位混合先选对坐标系">力位混合：先选对坐标系<a class="heading-anchor" href="#力位混合先选对坐标系" aria-label="锚点">#</a></h2>
+<p>沿平面移动时，可以让法向跟踪力，切向跟踪运动。在接触坐标系中，用选择矩阵划分方向，再将力和运动量一致地变换到控制坐标系。</p>
+<p>仅凭几个有摩擦的接触力样本，不一定能准确估计表面法向。几何模型、标定误差、摩擦与传感器偏置都可能影响结果。初次接触与稳定接触也应作为不同阶段处理。</p>
+<h2 id="参数调试的顺序">参数调试的顺序<a class="heading-anchor" href="#参数调试的顺序" aria-label="锚点">#</a></h2>
+<ol><li>核对坐标系、力的正负号、传感器零偏、工具质量与重心补偿。</li><li>在可控条件下验证单轴运动，记录实际周期、力反馈和驱动饱和。</li><li>由允许位移与任务力范围估计刚度，再按简化模型选择阻尼起点。</li><li>观察接触与脱离接触的瞬态，检查滤波延迟和积分残留。</li><li>再扩展到耦合方向与完整任务，保留各阶段的配置和记录。</li></ol>
+<p>零刚度在自由方向或拖动模式中可以有意义，不会自动导致雅可比伪逆发散；但它也意味着没有位置恢复力，必须处理漂移、速度和工作空间限制。旋转刚度是否为零同样由任务决定。</p>
+<h2 id="评价一次接触任务">评价一次接触任务<a class="heading-anchor" href="#评价一次接触任务" aria-label="锚点">#</a></h2>
+<p>同时记录峰值力、稳态误差、超调、饱和次数、完成时间和失败原因。比较不同参数时保持工具、工件、接触速度与误差分布一致，并给出试验次数。</p>
+<p>低刚度能改善某些装配误差下的顺应性，却不保证任务更快；力矩限幅也不等于精确限制接触力。应通过对应硬件上的反馈与验证来判断。</p>
+<p>继续阅读：<a href="/projects/arm-impedance-ctrl/">机械臂控制项目</a> · <a href="/docs/camera-handeye-calibration/">相机与手眼标定</a>。</p></div>
 
       <div class="post-end">
         <span class="end-mark" aria-hidden="true">◆</span>
@@ -325,7 +332,7 @@
       </div>
       
       <h3 class="card-title">四足运控：MPC 与 WBC 的分层结构</h3>
-      <p class="card-summary">四足机器人的运控栈基本是「上层 MPC 出地面反作用力，下层 WBC 分配到关节力矩」。这篇讲清两层的接口怎么定、任务优先级怎么排、以及为什么我最后放弃了纯 MPC 方案。</p>
+      <p class="card-summary">梳理单刚体 MPC 与全身控制的模型边界、接触约束和接口约定，说明哪些近似成立、哪些结果必须通过求解与实机验证。</p>
       <div class="card-meta">
         <time datetime="2026-03-08">2026 年 3 月 8 日</time>
         <span class="sep" aria-hidden="true"></span>
@@ -408,9 +415,9 @@
 
       <dl class="footer-stats">
         <div><dt>7</dt><dd>篇文章</dd></div>
-        <div><dt>16</dt><dd>篇文档</dd></div>
+        <div><dt>19</dt><dd>篇文档</dd></div>
         <div><dt>5</dt><dd>个项目</dd></div>
-        <div><dt>267</dt><dd>页幻灯片</dd></div>
+        <div><dt>204</dt><dd>页幻灯片</dd></div>
       </dl>
     </div>
 
@@ -444,22 +451,22 @@
         
         <a class="footer-link" href="/docs/windows-to-linux/">
           <span class="t">从 Windows 到 Linux</span>
-          <span class="d">5 篇 · 110 页</span>
+          <span class="d">6 篇 · 67 页</span>
         </a>
         
         <a class="footer-link" href="/docs/cpp/">
           <span class="t">从 C 语言到 C++</span>
-          <span class="d">1 篇 · 17 页</span>
+          <span class="d">1 篇 · 10 页</span>
         </a>
         
         <a class="footer-link" href="/docs/vision/">
           <span class="t">ROS 与机器视觉</span>
-          <span class="d">4 篇 · 79 页</span>
+          <span class="d">6 篇 · 72 页</span>
         </a>
         
         <a class="footer-link" href="/docs/learning/">
           <span class="t">从编程开始的学习</span>
-          <span class="d">6 篇 · 61 页</span>
+          <span class="d">6 篇 · 55 页</span>
         </a>
         
         <a class="footer-more" href="/docs/">
@@ -655,6 +662,15 @@
             <span class="theme-name">暖灯夜色</span>
           </button>
           
+          <button class="theme-card" type="button" data-theme-pick="bocchi" title="波奇光晕">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/bocchi.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#eaa5bc"></i><i style="background:#6acbc9"></i><i style="background:#101b2d"></i>
+              </span>
+            </span>
+            <span class="theme-name">波奇光晕</span>
+          </button>
+          
         </div>
       </section>
 
@@ -696,7 +712,7 @@
             <button type="button" data-val="wide">宽</button>
           </div>
         </div>
-        <p class="set-note">黑体 / 宋体都随站点自带（子集化的 Noto，约 330 / 430 KB），不依赖你本机装了什么字体。</p>
+        <p class="set-note">黑体 / 宋体随站点自带，不依赖本机字体。</p>
       </section>
 
       <section class="set-group">
@@ -733,7 +749,7 @@
             <button type="button" data-val="video">动态视频</button>
           </div>
         </div>
-        <p class="set-note">动态视频是 2560×1440 无声循环，已随站点打包；切到「动态视频」后才开始加载当前主题那一条。</p>
+        <p class="set-note">无声循环视频按当前主题加载；切到「动态视频」后才加载，后台标签页会暂停。</p>
         <div class="set-divider"></div>
         <div class="set-field">
           <span class="set-label">可见度 <b data-out="bgOpacity">—</b></span>
@@ -811,13 +827,13 @@
 </div>
 
 
-<script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.jpg","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.jpg","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.jpg","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.jpg","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.jpg","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.jpg","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.jpg","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.jpg","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.jpg","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.jpg","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.jpg","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.jpg","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.jpg","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.jpg","video":"assets/bg/lumen.mp4"}}</script>
+<script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
 
 
 <script defer src="/assets/vendor/katex/katex.min.js"></script>
 
 
-<script src="/assets/site.js" defer></script>
+<script src="/assets/site.js?v=77072cd2" defer></script>
 
 </body>
 </html>

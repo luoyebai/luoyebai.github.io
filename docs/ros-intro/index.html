@@ -16,7 +16,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>初识 ROS · 洛叶白</title>
-<meta name="description" content="ROS 不是操作系统，是一套中间件加约定。从「为什么需要它」讲到一次话题通信的完整时序，以及 ROS 1 和 ROS 2 该选谁。">
+<meta name="description" content="以 ROS 2 Jazzy 为实验基线，理解节点、话题、接口和发现机制，并完成一次可观察的通信。">
 <meta name="author" content="洛叶白">
 <meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#0b0d14" media="(prefers-color-scheme: dark)">
@@ -24,18 +24,18 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="洛叶白">
 <meta property="og:title" content="初识 ROS">
-<meta property="og:description" content="ROS 不是操作系统，是一套中间件加约定。从「为什么需要它」讲到一次话题通信的完整时序，以及 ROS 1 和 ROS 2 该选谁。">
+<meta property="og:description" content="以 ROS 2 Jazzy 为实验基线，理解节点、话题、接口和发现机制，并完成一次可观察的通信。">
 <meta property="og:url" content="https://luoyebai.github.io/docs/ros-intro/">
 <meta property="og:image" content="https://luoyebai.github.io/assets/images/favicon.svg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://luoyebai.github.io/docs/ros-intro/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css">
-<link rel="stylesheet" href="/assets/site.css">
+<link rel="stylesheet" href="/assets/themes.css?v=77072cd2">
+<link rel="stylesheet" href="/assets/site.css?v=77072cd2">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
-<link rel="stylesheet" href="/assets/docs.css">
+<link rel="stylesheet" href="/assets/docs.css?v=77072cd2">
 
 
 
@@ -44,6 +44,11 @@
 (function () {
   var el = document.documentElement;
   el.classList.add('js');   /* 只有 JS 可用时才启用进场动画的隐藏态 */
+  var compact = matchMedia('(pointer: coarse)').matches ||
+    (navigator.connection && navigator.connection.saveData) ||
+    (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
+    (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+  el.setAttribute('data-performance', compact ? 'compact' : 'standard');
   var q = {};
   try { new URLSearchParams(location.search).forEach(function (v, k) { q[k] = v; }); } catch (e) {}
   var s = {};
@@ -153,7 +158,7 @@
 
 
 <article class="doc" id="doc"
-         data-slides="18"
+         data-slides="11"
          data-title="初识 ROS">
   <header class="doc-head">
     <nav class="crumbs" aria-label="面包屑">
@@ -165,18 +170,18 @@
     </nav>
 
     <h1 class="doc-title">初识 ROS</h1>
-    <p class="doc-lede">ROS 不是操作系统，是一套中间件加约定。从「为什么需要它」讲到一次话题通信的完整时序，以及 ROS 1 和 ROS 2 该选谁。</p>
+    <p class="doc-lede">以 ROS 2 Jazzy 为实验基线，理解节点、话题、接口和发现机制，并完成一次可观察的通信。</p>
 
     <p class="doc-meta">
-      <span class="meta-item"><b>7</b> / 4 篇</span>
-      <span class="meta-item"><b>18</b> 页幻灯片</span>
+      <span class="meta-item"><b>1</b> / 6 篇</span>
+      <span class="meta-item"><b>11</b> 页幻灯片</span>
       
     </p>
   </header>
 
   <section class="deck is-paged" id="deck" data-deck aria-roledescription="幻灯片" aria-label="初识 ROS">
     <noscript>
-      <style>.deck .slide{display:block !important;margin-top:1.2rem}</style>
+      <style>.deck .slide{display:block !important;margin-top:1.2rem;height:auto !important;overflow:visible !important}</style>
     </noscript>
     <div class="deck-bar">
       <div class="deck-nav">
@@ -191,7 +196,7 @@
           </svg>
         </button>
         <p class="deck-counter" aria-live="polite">
-          <b data-deck-no>1</b> / 18
+          <b data-deck-no>1</b> / 11
         </p>
       </div>
 
@@ -224,103 +229,61 @@
         
         <li>
           <button type="button" data-deck-goto="1">
-            <span class="ol-no">1</span>概述
+            <span class="ol-no">1</span>一台机器人由哪些部分协作
           </button>
         </li>
         
-        <li class="is-section">
+        <li>
           <button type="button" data-deck-goto="2">
-            <span class="ol-no">2</span>Q1. ROS 是什么？
+            <span class="ol-no">2</span>节点不等于进程
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="3">
-            <span class="ol-no">3</span>先把名字里的误会解掉
+            <span class="ol-no">3</span>先运行官方示例
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="4">
-            <span class="ol-no">4</span>一个 ROS 程序长什么样
+            <span class="ol-no">4</span>让通信可观察
           </button>
         </li>
         
-        <li class="is-section">
+        <li>
           <button type="button" data-deck-goto="5">
-            <span class="ol-no">5</span>Q2. 为什么机器人需要它？
+            <span class="ol-no">5</span>时间戳不是所有消息都有
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="6">
-            <span class="ol-no">6</span>先看不用 ROS 会怎样
+            <span class="ol-no">6</span>一个完整的 Python 发布节点
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="7">
-            <span class="ol-no">7</span>解耦：谁也不知道对方是谁
+            <span class="ol-no">7</span>ROS 1 与 ROS 2 的区别
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="8">
-            <span class="ol-no">8</span>顺带解决的三件事
+            <span class="ol-no">8</span>发现与 QoS 是不同的检查层
           </button>
         </li>
         
-        <li class="is-section">
+        <li>
           <button type="button" data-deck-goto="9">
-            <span class="ol-no">9</span>Q3. ROS 1 还是 ROS 2？
+            <span class="ol-no">9</span>浏览器实验：取消一个订阅
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="10">
-            <span class="ol-no">10</span>一句话结论
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="11">
-            <span class="ol-no">11</span>主要差异
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="12">
-            <span class="ol-no">12</span>DDS 意味着什么
-          </button>
-        </li>
-        
-        <li class="is-section">
-          <button type="button" data-deck-goto="13">
-            <span class="ol-no">13</span>Q4. 一次通信长什么样？
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="14">
-            <span class="ol-no">14</span>时序
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="15">
-            <span class="ol-no">15</span>试一个：模拟发布订阅
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="16">
-            <span class="ol-no">16</span>小结
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="17">
-            <span class="ol-no">17</span>下一步
+            <span class="ol-no">10</span>练习与参考
           </button>
         </li>
         
@@ -332,77 +295,15 @@
       
       <section class="slide slide--section" data-slide="0"
                data-title="初识 ROS" data-section="1">
-        <div class="slide-inner"><h1>初识 ROS</h1></div>
+        <div class="slide-inner"><h1>初识 ROS</h1>
+<div class="deck-fragment"><p>ROS 提供机器人软件的通信、工具与约定；进程调度和内存管理仍由操作系统负责。</p></div>
+<div class="deck-fragment"><p>本系列实验基线：<strong>Ubuntu 24.04 + ROS 2 Jazzy</strong>。命令需先完成官方安装并加载环境。</p></div></div>
       </section>
       
       <section class="slide" data-slide="1"
-               data-title="概述">
-        <div class="slide-inner"><h2>概述</h2>
-<ul><li><strong>Q1.</strong> ROS 是什么？——它不是操作系统</li><li><strong>Q2.</strong> 为什么机器人需要它？</li><li><strong>Q3.</strong> ROS 1 还是 ROS 2？</li><li><strong>Q4.</strong> 一次通信长什么样？</li></ul></div>
-      </section>
-      
-      <section class="slide slide--section" data-slide="2"
-               data-title="Q1. ROS 是什么？" data-section="1">
-        <div class="slide-inner"><h1><strong>Q1.</strong> ROS 是什么？</h1></div>
-      </section>
-      
-      <section class="slide" data-slide="3"
-               data-title="先把名字里的误会解掉">
-        <div class="slide-inner"><h2>先把名字里的误会解掉</h2>
-<p><span class="ink ink-red">ROS = Robot Operating System，但它<strong>不是</strong>操作系统。</span></p>
-<ul><li>它不管理内存、不调度进程、不提供文件系统 —— 那些是 Linux 干的活。</li><li>它其实是一套<span class="ink ink-blue"><strong>中间件 + 工具链 + 一堆约定</strong></span>：</li></ul>
-<div class="table-wrap"><table>
-<thead><tr><th>它提供</th><th>它不提供</th></tr></thead>
-<tbody>
-<tr><td>进程之间怎么通信（话题 / 服务 / 动作）</td><td>进程调度、内存管理</td></tr>
-<tr><td>数据怎么描述（<code>.msg</code> / <code>.srv</code> / IDL）</td><td>实时内核</td></tr>
-<tr><td>坐标怎么统一（tf2）</td><td>硬件驱动（驱动要自己写/找）</td></tr>
-<tr><td>一堆调试工具（<code>ros2 topic</code> / rqt / bag）</td><td>控制算法</td></tr>
-</tbody></table></div>
-<blockquote><p><span class="ink ink-blue">ROS 帮你解决的是「一堆程序怎么凑成一个机器人」这件事。</span></p></blockquote></div>
-      </section>
-      
-      <section class="slide" data-slide="4"
-               data-title="一个 ROS 程序长什么样">
-        <div class="slide-inner"><h2>一个 ROS 程序长什么样</h2>
-<p>最小的工作单元叫<strong>节点（node）</strong>，就是一个普通进程。</p>
-<div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">import</span> rclpy
-<span class="tok-keyword">from</span> rclpy<span class="tok-punct">.</span>node <span class="tok-keyword">import</span> <span class="tok-type">Node</span>
-<span class="tok-keyword">from</span> std_msgs<span class="tok-punct">.</span>msg <span class="tok-keyword">import</span> <span class="tok-type">String</span>
-
-<span class="tok-keyword">class</span> <span class="tok-function">Talker</span><span class="tok-punct">(</span><span class="tok-type">Node</span><span class="tok-punct">)</span><span class="tok-punct">:</span>
-    <span class="tok-keyword">def</span> <span class="tok-function">__init__</span><span class="tok-punct">(</span><span class="tok-keyword">self</span><span class="tok-punct">)</span><span class="tok-punct">:</span>
-        <span class="tok-builtin">super</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-function">__init__</span><span class="tok-punct">(</span><span class="tok-string">&#x27;talker&#x27;</span><span class="tok-punct">)</span>
-        <span class="tok-keyword">self</span><span class="tok-punct">.</span>pub <span class="tok-operator">=</span> <span class="tok-keyword">self</span><span class="tok-punct">.</span><span class="tok-function">create_publisher</span><span class="tok-punct">(</span><span class="tok-type">String</span><span class="tok-punct">,</span> <span class="tok-string">&#x27;chatter&#x27;</span><span class="tok-punct">,</span> <span class="tok-number">10</span><span class="tok-punct">)</span>
-        <span class="tok-keyword">self</span><span class="tok-punct">.</span><span class="tok-function">create_timer</span><span class="tok-punct">(</span><span class="tok-number">0.5</span><span class="tok-punct">,</span> <span class="tok-keyword">self</span><span class="tok-punct">.</span>tick<span class="tok-punct">)</span>
-
-    <span class="tok-keyword">def</span> <span class="tok-function">tick</span><span class="tok-punct">(</span><span class="tok-keyword">self</span><span class="tok-punct">)</span><span class="tok-punct">:</span>
-        <span class="tok-keyword">self</span><span class="tok-punct">.</span>pub<span class="tok-punct">.</span><span class="tok-function">publish</span><span class="tok-punct">(</span><span class="tok-function">String</span><span class="tok-punct">(</span>data<span class="tok-operator">=</span><span class="tok-string">&#x27;hello&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">)</span>
-
-rclpy<span class="tok-punct">.</span><span class="tok-function">init</span><span class="tok-punct">(</span><span class="tok-punct">)</span>
-rclpy<span class="tok-punct">.</span><span class="tok-function">spin</span><span class="tok-punct">(</span><span class="tok-function">Talker</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span></code></pre></div>
-<ul><li>没有 <code>main</code> 循环，没有 socket —— 你把「发什么」写出来就行。</li></ul></div>
-      </section>
-      
-      <section class="slide slide--section" data-slide="5"
-               data-title="Q2. 为什么机器人需要它？" data-section="1">
-        <div class="slide-inner"><h1><strong>Q2.</strong> 为什么机器人需要它？</h1></div>
-      </section>
-      
-      <section class="slide" data-slide="6"
-               data-title="先看不用 ROS 会怎样">
-        <div class="slide-inner"><h2>先看不用 ROS 会怎样</h2>
-<p>假设你要做一台移动机器人，上面有这些程序：</p>
-<ul><li>激光雷达驱动 → 里程计</li><li>相机驱动 → 目标检测</li><li>定位 → 路径规划 → 底盘控制</li></ul>
-<p>如果每个箭头都是一段<span class="ink ink-red">自己写的 socket</span>：</p>
-<ul><li>N 个程序两两通信，最多 N² 条链路要维护。</li><li>换一个雷达，驱动接口变了，下游全改。</li><li>想录一段数据回放调试？自己写。</li><li>想看看当前谁在发什么？自己写。</li></ul>
-<p><del>最后你写出来的那坨东西，其实就是一个更差的 ROS。</del></p></div>
-      </section>
-      
-      <section class="slide" data-slide="7"
-               data-title="解耦：谁也不知道对方是谁">
-        <div class="slide-inner"><h2>解耦：谁也不知道对方是谁</h2>
-<figure class="docfig-wrap" data-fig="ros-graph">
+               data-title="一台机器人由哪些部分协作">
+        <div class="slide-inner"><h2>一台机器人由哪些部分协作</h2>
+<div class="deck-fragment"><figure class="docfig-wrap" data-fig="ros-graph">
 <svg class="docfig" viewBox="0 0 820 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ROS 2 的计算图：节点之间靠话题（多对多）、服务（一问一答）、动作（长任务）连接">
   <defs><marker id="f9da41ff-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" class="fg-head"/></marker></defs>
   <rect class="fg-box is-accent" x="40" y="60" width="170" height="70" rx="9"/>
@@ -427,122 +328,134 @@ rclpy<span class="tok-punct">.</span><span class="tok-function">spin</span><span
   <text class="fg-s" x="640" y="330" text-anchor="middle" font-size="11">控制器请求</text>
 </svg>
 <figcaption>ROS 2 的计算图：节点之间靠话题（多对多）、服务（一问一答）、动作（长任务）连接</figcaption>
-</figure>
-<p>用了 ROS 之后：</p>
-<ul><li>发布者只管往话题上写，<strong>不知道有几个订阅者、它们是谁</strong>。</li><li>订阅者只管从话题读，<strong>不知道数据从哪来</strong>。</li><li>加一个新的「录制节点」不需要通知任何人。</li></ul>
-<p><span class="ink ink-blue">这就是「解耦」的实际含义：把「谁跟谁说话」从代码里拿掉，交给运行时。</span></p>
-<blockquote><p>代价也在这里：出问题时你不能靠读一处代码搞明白，得去看<strong>运行时的图</strong>
-—— <code>rqt_graph</code> 就是干这个的。</p></blockquote></div>
+</figure></div>
+<div class="deck-fragment"><p>相机驱动发布图像，检测模块输出目标，规划器生成轨迹，控制器跟踪指令。</p></div>
+<div class="deck-fragment"><p>统一消息接口与通信机制，可以让模块分别开发与替换。
+ROS 生态包含驱动和算法包，但具体硬件兼容性、控制性能和系统可靠性仍需验证。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="2"
+               data-title="节点不等于进程">
+        <div class="slide-inner"><h2>节点不等于进程</h2>
+<div class="deck-fragment"><ul><li><strong>节点</strong>：有名称、参数和通信接口的逻辑组件。</li></ul></div>
+<div class="deck-fragment"><ul><li><strong>进程</strong>：操作系统管理的执行容器，一个进程可以包含多个节点。</li></ul></div>
+<div class="deck-fragment"><ul><li><strong>话题</strong>：按名称与消息类型组织的数据流。</li></ul></div>
+<div class="deck-fragment"><ul><li><strong>包</strong>：源码、接口、配置和可执行程序的组织单位。</li></ul></div>
+<div class="deck-fragment"><p>独立进程便于隔离故障；组合节点可以减少部分通信开销，但共享崩溃影响与执行资源。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="3"
+               data-title="先运行官方示例">
+        <div class="slide-inner"><h2>先运行官方示例</h2>
+<div class="deck-fragment"><p>安装了示例包后，在两个终端分别执行：</p></div>
+<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash"><span class="tok-keyword">source</span> <span class="tok-operator">/</span>opt<span class="tok-operator">/</span>ros<span class="tok-operator">/</span>jazzy<span class="tok-operator">/</span>setup.bash
+ros2 run demo_nodes_cpp talker</code></pre></div></div>
+<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash"><span class="tok-keyword">source</span> <span class="tok-operator">/</span>opt<span class="tok-operator">/</span>ros<span class="tok-operator">/</span>jazzy<span class="tok-operator">/</span>setup.bash
+ros2 run demo_nodes_py listener</code></pre></div></div>
+<div class="deck-fragment"><p>预期 listener 持续收到消息。停止使用 Ctrl+C。
+若包未安装，按 <a href="https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html" target="_blank" rel="noopener">Jazzy 安装文档</a> 安装相应 demo 包。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="4"
+               data-title="让通信可观察">
+        <div class="slide-inner"><h2>让通信可观察</h2>
+<div class="deck-fragment"><p>第三个已加载环境的终端：</p></div>
+<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">ros2 node list
+ros2 topic list <span class="tok-operator">-</span>t
+ros2 topic info <span class="tok-operator">/</span>chatter <span class="tok-operator">--</span>verbose
+ros2 topic echo <span class="tok-operator">/</span>chatter</code></pre></div></div>
+<div class="deck-fragment"><p>分别查看节点、话题类型、端点配置与实际消息。
+接口类型相同不代表业务含义自动一致；单位、坐标系、采样时间仍需约定。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="5"
+               data-title="时间戳不是所有消息都有">
+        <div class="slide-inner"><h2>时间戳不是所有消息都有</h2>
+<div class="deck-fragment"><p><code>std_msgs/msg/String</code> 只有字符串内容，没有 Header。
+图像和点云等常用消息包含 Header，供接收方解释采样时间与坐标系。</p></div>
+<div class="deck-fragment"><p>录包时的接收时间，也不一定等于传感器采样时间。
+多机时钟和仿真 <code>/clock</code> 必须统一，否则数据可能存在却无法在对应时间查询 TF。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="6"
+               data-title="一个完整的 Python 发布节点">
+        <div class="slide-inner"><h2>一个完整的 Python 发布节点</h2>
+<div class="deck-fragment"><p>保存为 <code>talker.py</code>，在加载 ROS 环境后执行 <code>python3 talker.py</code>：</p></div>
+<div class="deck-fragment"><div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">import</span> rclpy
+<span class="tok-keyword">from</span> rclpy<span class="tok-punct">.</span>node <span class="tok-keyword">import</span> <span class="tok-type">Node</span>
+<span class="tok-keyword">from</span> std_msgs<span class="tok-punct">.</span>msg <span class="tok-keyword">import</span> <span class="tok-type">String</span>
+
+<span class="tok-keyword">def</span> <span class="tok-function">main</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">:</span>
+    rclpy<span class="tok-punct">.</span><span class="tok-function">init</span><span class="tok-punct">(</span><span class="tok-punct">)</span>
+    node <span class="tok-operator">=</span> <span class="tok-function">Node</span><span class="tok-punct">(</span><span class="tok-string">&#x27;lesson_talker&#x27;</span><span class="tok-punct">)</span>
+    publisher <span class="tok-operator">=</span> node<span class="tok-punct">.</span><span class="tok-function">create_publisher</span><span class="tok-punct">(</span><span class="tok-type">String</span><span class="tok-punct">,</span> <span class="tok-string">&#x27;chatter&#x27;</span><span class="tok-punct">,</span> <span class="tok-number">10</span><span class="tok-punct">)</span>
+    timer <span class="tok-operator">=</span> node<span class="tok-punct">.</span><span class="tok-function">create_timer</span><span class="tok-punct">(</span><span class="tok-number">0.5</span><span class="tok-punct">,</span> <span class="tok-keyword">lambda</span><span class="tok-punct">:</span> publisher<span class="tok-punct">.</span><span class="tok-function">publish</span><span class="tok-punct">(</span><span class="tok-function">String</span><span class="tok-punct">(</span>data<span class="tok-operator">=</span><span class="tok-string">&#x27;hello&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">)</span>
+    <span class="tok-keyword">try</span><span class="tok-punct">:</span>
+        rclpy<span class="tok-punct">.</span><span class="tok-function">spin</span><span class="tok-punct">(</span>node<span class="tok-punct">)</span>
+    <span class="tok-keyword">except</span> <span class="tok-type">KeyboardInterrupt</span><span class="tok-punct">:</span>
+        <span class="tok-keyword">pass</span>
+    <span class="tok-keyword">finally</span><span class="tok-punct">:</span>
+        node<span class="tok-punct">.</span><span class="tok-function">destroy_node</span><span class="tok-punct">(</span><span class="tok-punct">)</span>
+        <span class="tok-keyword">if</span> rclpy<span class="tok-punct">.</span><span class="tok-function">ok</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">:</span>
+            rclpy<span class="tok-punct">.</span><span class="tok-function">shutdown</span><span class="tok-punct">(</span><span class="tok-punct">)</span>
+
+<span class="tok-keyword">if</span> __name__ <span class="tok-operator">==</span> <span class="tok-string">&#x27;__main__&#x27;</span><span class="tok-punct">:</span>
+    <span class="tok-function">main</span><span class="tok-punct">(</span><span class="tok-punct">)</span></code></pre></div></div>
+<div class="deck-fragment"><p><code>spin</code> 驱动回调执行；定时器不是独立的硬实时调度保证。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="7"
+               data-title="ROS 1 与 ROS 2 的区别">
+        <div class="slide-inner"><h2>ROS 1 与 ROS 2 的区别</h2>
+<div class="deck-fragment"><p>ROS 1 Noetic 已于 2025 年 5 月 31 日结束官方支持。新项目应结合驱动与依赖优先评估受支持的 ROS 2 发行版。</p></div>
+<div class="deck-fragment"><p>ROS 2 通过 RMW 抽象通信实现，常见实现基于 DDS；具体发现与传输配置取决于所用 RMW。
+QoS、生命周期与安全机制提供配置能力，但不会自动带来硬实时性或完整系统安全。</p></div>
+<div class="deck-fragment"><p>ROS 1 的 master 故障会影响注册与发现；已建立的连接不一定立即停止。ROS 1 也存在 nodelet 组合方式。</p></div></div>
       </section>
       
       <section class="slide" data-slide="8"
-               data-title="顺带解决的三件事">
-        <div class="slide-inner"><h2>顺带解决的三件事</h2>
-<ol><li><strong>数据格式统一</strong>：<code>.msg</code> 定义了消息长什么样，生成各语言的代码。</li><li><strong>时间与坐标统一</strong>：所有话题带时间戳，所有坐标系挂在同一棵 tf2 树上。</li><li><strong>可回放</strong>：<code>ros2 bag record -a</code> 把一切录下来，之后离线重放，
-离线调试比在真机上反复试高效得多。</li></ol>
-<blockquote><p>ps：第三条是很多人低估的。<span class="ink ink-red"><strong>能复现</strong>才是工程。</span></p></blockquote></div>
+               data-title="发现与 QoS 是不同的检查层">
+        <div class="slide-inner"><h2>发现与 QoS 是不同的检查层</h2>
+<div class="deck-fragment"><ol><li>网络、域与发现配置决定端点是否能够看见彼此。</li></ol></div>
+<div class="deck-fragment"><ol><li>话题名和类型决定要连接哪种数据。</li></ol></div>
+<div class="deck-fragment"><ol><li>QoS 兼容规则决定端点能否通信。</li></ol></div>
+<div class="deck-fragment"><ol><li>Executor 与回调执行决定数据何时被业务处理。</li></ol></div>
+<div class="deck-fragment"><p>可靠发布者可以匹配 best-effort 订阅者；best-effort 发布者不能满足 reliable 订阅者。
+不兼容可通过事件或部分实现的警告发现，不能一概说“默认永远不报错”。</p></div></div>
       </section>
       
-      <section class="slide slide--section" data-slide="9"
-               data-title="Q3. ROS 1 还是 ROS 2？" data-section="1">
-        <div class="slide-inner"><h1><strong>Q3.</strong> ROS 1 还是 ROS 2？</h1></div>
+      <section class="slide" data-slide="9"
+               data-title="浏览器实验：取消一个订阅">
+        <div class="slide-inner"><h2>浏览器实验：取消一个订阅</h2>
+<div class="deck-fragment"><p>这里模拟同步发布订阅关系，不模拟 DDS 的网络、队列或 QoS。</p></div>
+<div class="deck-fragment"><div class="demo" data-demo="js"><div class="demo-head"><span class="demo-badge">可运行示例</span><span class="demo-lang">JavaScript</span><div class="demo-actions"><button class="demo-toggle" type="button" data-demo-toggle aria-expanded="false"><span data-demo-toggle-label>查看代码</span><svg class="demo-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button><button class="demo-run" type="button" data-demo-run><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg><span data-demo-run-label>运行</span></button><button class="demo-reset" type="button" data-demo-reset hidden>重置</button></div></div><pre class="code-pre" data-demo-code hidden><code class="language-js"><span class="tok-keyword">const</span> listeners <span class="tok-operator">=</span> <span class="tok-keyword">new</span> <span class="tok-builtin">Set</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> subscribe <span class="tok-operator">=</span> callback <span class="tok-operator">=&gt;</span> <span class="tok-punct">{</span>
+  listeners<span class="tok-punct">.</span><span class="tok-function">add</span><span class="tok-punct">(</span>callback<span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">return</span> <span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-operator">=&gt;</span> listeners<span class="tok-punct">.</span><span class="tok-keyword">delete</span><span class="tok-punct">(</span>callback<span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> publish <span class="tok-operator">=</span> message <span class="tok-operator">=&gt;</span> listeners<span class="tok-punct">.</span><span class="tok-function">forEach</span><span class="tok-punct">(</span>fn <span class="tok-operator">=&gt;</span> <span class="tok-function">fn</span><span class="tok-punct">(</span>message<span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> stopDetection <span class="tok-operator">=</span> <span class="tok-function">subscribe</span><span class="tok-punct">(</span>n <span class="tok-operator">=&gt;</span> demo<span class="tok-punct">.</span><span class="tok-function">log</span><span class="tok-punct">(</span><span class="tok-string">&#x27;检测器收到&#x27;</span><span class="tok-punct">,</span> n<span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-function">subscribe</span><span class="tok-punct">(</span>n <span class="tok-operator">=&gt;</span> demo<span class="tok-punct">.</span><span class="tok-function">log</span><span class="tok-punct">(</span><span class="tok-string">&#x27;录制器收到&#x27;</span><span class="tok-punct">,</span> n<span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-keyword">let</span> frame <span class="tok-operator">=</span> <span class="tok-number">1</span><span class="tok-punct">;</span> frame <span class="tok-operator">&lt;=</span> <span class="tok-number">4</span><span class="tok-punct">;</span> frame<span class="tok-operator">++</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+  <span class="tok-function">publish</span><span class="tok-punct">(</span>frame<span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">if</span> <span class="tok-punct">(</span>frame <span class="tok-operator">===</span> <span class="tok-number">2</span><span class="tok-punct">)</span> <span class="tok-function">stopDetection</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre><div class="demo-stage" data-demo-stage hidden><div class="demo-frame-wrap" data-demo-mount></div><div class="demo-log" data-demo-log hidden></div><p class="demo-status" data-demo-status></p></div><noscript><p class="demo-noscript">这段示例需要 JavaScript 才能运行。</p></noscript><script type="application/json" data-demo-src>"const listeners = new Set();\nconst subscribe = callback => {\n  listeners.add(callback);\n  return () => listeners.delete(callback);\n};\nconst publish = message => listeners.forEach(fn => fn(message));\nconst stopDetection = subscribe(n => demo.log('检测器收到', n));\nsubscribe(n => demo.log('录制器收到', n));\nfor (let frame = 1; frame \u003c= 4; frame++) {\n  publish(frame);\n  if (frame === 2) stopDetection();\n}"</script></div></div>
+<div class="deck-fragment"><p>预期：检测器收到第 1、2 帧；录制器收到全部 4 帧。修改订阅关系不需要改变发布循环。</p></div></div>
       </section>
       
       <section class="slide" data-slide="10"
-               data-title="一句话结论">
-        <div class="slide-inner"><h2>一句话结论</h2>
-<p><span class="ink ink-blue"><strong>新项目一律 ROS 2。</strong></span> ROS 1 已经在 2025 年 5 月停止维护（Noetic 是最后一个版本）。</p></div>
-      </section>
-      
-      <section class="slide" data-slide="11"
-               data-title="主要差异">
-        <div class="slide-inner"><h2>主要差异</h2>
-<div class="table-wrap"><table>
-<thead><tr><th>维度</th><th>ROS 1</th><th>ROS 2</th></tr></thead>
-<tbody>
-<tr><td>通信底层</td><td>自己写的 TCPROS</td><td><strong>DDS</strong>（工业级中间件）</td></tr>
-<tr><td>实时性</td><td>基本没有</td><td>支持实时与确定性 QoS</td></tr>
-<tr><td>多机 / 组播</td><td>需要 master 协调</td><td>天然支持，可发现</td></tr>
-<tr><td>单点故障</td><td><code>roscore</code> 挂了全挂</td><td>无中心节点</td></tr>
-<tr><td>进程模型</td><td>一个节点一个进程</td><td>支持组合式节点（同进程多节点）</td></tr>
-<tr><td>生命周期</td><td>无</td><td>托管节点（Lifecycle Node）</td></tr>
-<tr><td>安全</td><td>无</td><td>SROS2（认证 + 加密）</td></tr>
-<tr><td>平台</td><td>主要 Linux</td><td>Linux / Windows / macOS / RTOS</td></tr>
-</tbody></table></div></div>
-      </section>
-      
-      <section class="slide" data-slide="12"
-               data-title="DDS 意味着什么">
-        <div class="slide-inner"><h2>DDS 意味着什么</h2>
-<ul><li>ROS 1 的通信是「够用就好」；ROS 2 直接把工业界用了十几年的 <strong>DDS</strong> 拿来当底座。</li><li>带来的是 <strong>QoS</strong>：可靠性、历史深度、期限、活跃度……全都可以按话题单独配。</li><li>代价是<strong>复杂度</strong>：<span class="ink ink-red">QoS 不匹配时连接根本建立不起来，而且默认不报错</span>。</li></ul>
-<div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-text">发布者 reliable  ←→  订阅者 best_effort   →  没有连接，也没有日志</code></pre></div>
-<blockquote><p>这条坑在《节点和工具》那一篇里单独展开 —— 它是 ROS 2 新手最常见的一次「玄学」。</p></blockquote></div>
-      </section>
-      
-      <section class="slide slide--section" data-slide="13"
-               data-title="Q4. 一次通信长什么样？" data-section="1">
-        <div class="slide-inner"><h1><strong>Q4.</strong> 一次通信长什么样？</h1></div>
-      </section>
-      
-      <section class="slide" data-slide="14"
-               data-title="时序">
-        <div class="slide-inner"><h2>时序</h2>
-<p>以「相机节点发布一帧图像，检测节点订阅」为例：</p>
-<ul><li>两个节点启动，各自连上 DDS 的域（domain）</li><li>DDS 做<strong>发现</strong>：订阅者广播「我要 <code>/image_raw</code>」</li><li>发布者收到，两边协商 QoS，协商通过才建立连接</li><li>发布者调用 <code>publish()</code>，序列化后交给 DDS</li><li>DDS 按 QoS 决定：立刻发 / 排队 / 丢掉最旧的</li><li>订阅者收到，反序列化，调用你的回调</li></ul>
-<p><span class="ink ink-red"><strong>注意第 3 步：协商不通过就没有第 4 步，而且不会有明显的报错。</strong></span></p></div>
-      </section>
-      
-      <section class="slide" data-slide="15"
-               data-title="试一个：模拟发布订阅">
-        <div class="slide-inner"><h2>试一个：模拟发布订阅</h2>
-<p>下面这段是可运行的。它把「话题」抽象成一个只有名字的邮箱 ——
-发布者不知道谁在听，订阅者不知道谁在发，这正是 ROS 的解耦。</p>
-<div class="demo" data-demo="js"><div class="demo-head"><span class="demo-badge">可运行示例</span><span class="demo-lang">JavaScript</span><div class="demo-actions"><button class="demo-toggle" type="button" data-demo-toggle aria-expanded="false"><span data-demo-toggle-label>查看代码</span><svg class="demo-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button><button class="demo-run" type="button" data-demo-run><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg><span data-demo-run-label>运行</span></button><button class="demo-reset" type="button" data-demo-reset hidden>重置</button></div></div><pre class="code-pre" data-demo-code hidden><code class="language-js"><span class="tok-comment">// 极简 pub/sub：把「话题名 → 订阅者列表」放在一个中心表里</span>
-<span class="tok-keyword">const</span> bus <span class="tok-operator">=</span> <span class="tok-keyword">new</span> <span class="tok-builtin">Map</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-<span class="tok-keyword">function</span> <span class="tok-function">advertise</span><span class="tok-punct">(</span>topic<span class="tok-punct">)</span> <span class="tok-punct">{</span>
-  <span class="tok-keyword">if</span> <span class="tok-punct">(</span><span class="tok-operator">!</span>bus<span class="tok-punct">.</span><span class="tok-function">has</span><span class="tok-punct">(</span>topic<span class="tok-punct">)</span><span class="tok-punct">)</span> bus<span class="tok-punct">.</span><span class="tok-keyword">set</span><span class="tok-punct">(</span>topic<span class="tok-punct">,</span> <span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-  <span class="tok-keyword">return</span> <span class="tok-punct">{</span> publish<span class="tok-operator">:</span> <span class="tok-punct">(</span>msg<span class="tok-punct">)</span> <span class="tok-operator">=&gt;</span> <span class="tok-punct">(</span>bus<span class="tok-punct">.</span><span class="tok-keyword">get</span><span class="tok-punct">(</span>topic<span class="tok-punct">)</span> <span class="tok-operator">||</span> <span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-function">forEach</span><span class="tok-punct">(</span>cb <span class="tok-operator">=&gt;</span> <span class="tok-function">cb</span><span class="tok-punct">(</span>msg<span class="tok-punct">)</span><span class="tok-punct">)</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
-<span class="tok-punct">}</span>
-<span class="tok-keyword">function</span> <span class="tok-function">subscribe</span><span class="tok-punct">(</span>topic<span class="tok-punct">,</span> cb<span class="tok-punct">)</span> <span class="tok-punct">{</span>
-  <span class="tok-keyword">if</span> <span class="tok-punct">(</span><span class="tok-operator">!</span>bus<span class="tok-punct">.</span><span class="tok-function">has</span><span class="tok-punct">(</span>topic<span class="tok-punct">)</span><span class="tok-punct">)</span> bus<span class="tok-punct">.</span><span class="tok-keyword">set</span><span class="tok-punct">(</span>topic<span class="tok-punct">,</span> <span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-  bus<span class="tok-punct">.</span><span class="tok-keyword">get</span><span class="tok-punct">(</span>topic<span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-function">push</span><span class="tok-punct">(</span>cb<span class="tok-punct">)</span><span class="tok-punct">;</span>
-  <span class="tok-keyword">return</span> <span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-operator">=&gt;</span> bus<span class="tok-punct">.</span><span class="tok-keyword">set</span><span class="tok-punct">(</span>topic<span class="tok-punct">,</span> bus<span class="tok-punct">.</span><span class="tok-keyword">get</span><span class="tok-punct">(</span>topic<span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-function">filter</span><span class="tok-punct">(</span>x <span class="tok-operator">=&gt;</span> x <span class="tok-operator">!==</span> cb<span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-<span class="tok-punct">}</span>
-
-<span class="tok-comment">// 相机节点：只管发</span>
-<span class="tok-keyword">const</span> cam <span class="tok-operator">=</span> <span class="tok-function">advertise</span><span class="tok-punct">(</span><span class="tok-string">&#x27;/image_raw&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-<span class="tok-comment">// 检测节点：只管收</span>
-<span class="tok-keyword">const</span> stop <span class="tok-operator">=</span> <span class="tok-function">subscribe</span><span class="tok-punct">(</span><span class="tok-string">&#x27;/image_raw&#x27;</span><span class="tok-punct">,</span> <span class="tok-punct">(</span>m<span class="tok-punct">)</span> <span class="tok-operator">=&gt;</span>
-  demo<span class="tok-punct">.</span><span class="tok-function">log</span><span class="tok-punct">(</span><span class="tok-string">&#x27;检测节点收到第&#x27;</span><span class="tok-punct">,</span> m<span class="tok-punct">.</span>seq<span class="tok-punct">,</span> <span class="tok-string">&#x27;帧，&#x27;</span><span class="tok-punct">,</span> m<span class="tok-punct">.</span>kb<span class="tok-punct">,</span> <span class="tok-string">&#x27;KB&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-
-<span class="tok-comment">// 中途再插一个「录制节点」—— 相机节点的代码一行没改</span>
-<span class="tok-function">setTimeout</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-operator">=&gt;</span> <span class="tok-function">subscribe</span><span class="tok-punct">(</span><span class="tok-string">&#x27;/image_raw&#x27;</span><span class="tok-punct">,</span> <span class="tok-punct">(</span>m<span class="tok-punct">)</span> <span class="tok-operator">=&gt;</span> demo<span class="tok-punct">.</span><span class="tok-function">log</span><span class="tok-punct">(</span><span class="tok-string">&#x27;  录制节点也收到了第&#x27;</span><span class="tok-punct">,</span> m<span class="tok-punct">.</span>seq<span class="tok-punct">,</span> <span class="tok-string">&#x27;帧&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-number">0</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-
-<span class="tok-keyword">let</span> seq <span class="tok-operator">=</span> <span class="tok-number">0</span><span class="tok-punct">;</span>
-<span class="tok-keyword">const</span> timer <span class="tok-operator">=</span> <span class="tok-function">setInterval</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-operator">=&gt;</span> <span class="tok-punct">{</span>
-  cam<span class="tok-punct">.</span><span class="tok-function">publish</span><span class="tok-punct">(</span><span class="tok-punct">{</span> seq<span class="tok-operator">:</span> <span class="tok-operator">++</span>seq<span class="tok-punct">,</span> kb<span class="tok-operator">:</span> <span class="tok-number">300</span> <span class="tok-operator">+</span> seq <span class="tok-operator">*</span> <span class="tok-number">7</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-  <span class="tok-keyword">if</span> <span class="tok-punct">(</span>seq <span class="tok-operator">&gt;=</span> <span class="tok-number">4</span><span class="tok-punct">)</span> <span class="tok-punct">{</span> <span class="tok-function">clearInterval</span><span class="tok-punct">(</span>timer<span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-function">stop</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span> demo<span class="tok-punct">.</span><span class="tok-function">log</span><span class="tok-punct">(</span><span class="tok-string">&#x27;检测节点已退出，相机还在发 —— 它不知道&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-punct">}</span>
-<span class="tok-punct">}</span><span class="tok-punct">,</span> <span class="tok-number">260</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre><div class="demo-stage" data-demo-stage hidden><div class="demo-frame-wrap" data-demo-mount></div><div class="demo-log" data-demo-log hidden></div><p class="demo-status" data-demo-status></p></div><noscript><p class="demo-noscript">这段示例需要 JavaScript 才能运行。</p></noscript><script type="application/json" data-demo-src>"// 极简 pub/sub：把「话题名 → 订阅者列表」放在一个中心表里\nconst bus = new Map();\nfunction advertise(topic) {\n  if (!bus.has(topic)) bus.set(topic, []);\n  return { publish: (msg) => (bus.get(topic) || []).forEach(cb => cb(msg)) };\n}\nfunction subscribe(topic, cb) {\n  if (!bus.has(topic)) bus.set(topic, []);\n  bus.get(topic).push(cb);\n  return () => bus.set(topic, bus.get(topic).filter(x => x !== cb));\n}\n\n// 相机节点：只管发\nconst cam = advertise('/image_raw');\n// 检测节点：只管收\nconst stop = subscribe('/image_raw', (m) =>\n  demo.log('检测节点收到第', m.seq, '帧，', m.kb, 'KB'));\n\n// 中途再插一个「录制节点」—— 相机节点的代码一行没改\nsetTimeout(() => subscribe('/image_raw', (m) => demo.log('  录制节点也收到了第', m.seq, '帧')), 0);\n\nlet seq = 0;\nconst timer = setInterval(() => {\n  cam.publish({ seq: ++seq, kb: 300 + seq * 7 });\n  if (seq >= 4) { clearInterval(timer); stop(); demo.log('检测节点已退出，相机还在发 —— 它不知道'); }\n}, 260);"</script></div>
-<p><span class="ink ink-blue">把最后一行注释掉再跑一次</span>，你会看到相机节点完全没有察觉。</p></div>
-      </section>
-      
-      <section class="slide" data-slide="16"
-               data-title="小结">
-        <div class="slide-inner"><h2>小结</h2>
-<ol><li>ROS 是<strong>中间件 + 约定</strong>，不是操作系统。</li><li>它解决的核心问题是「<span class="ink ink-blue">一堆程序怎么凑成一个机器人</span>」，手段是解耦。</li><li>新项目用 <strong>ROS 2</strong>，底座是 DDS，因此有 QoS，也因此有 QoS 的坑。</li><li>记住那次协商：<span class="ink ink-red"><strong>QoS 谈不拢就没有连接，而且默认不报错。</strong></span></li></ol></div>
-      </section>
-      
-      <section class="slide" data-slide="17"
-               data-title="下一步">
-        <div class="slide-inner"><h2>下一步</h2>
-<ul><li>打开《节点和工具》，把话题 / 服务 / 动作 / QoS 的取舍搞清楚。</li><li>想动手的话，装一个 ROS 2（推荐 Ubuntu + <code>apt</code>，或 Docker），
-跑通官方的 talker / listener 例子，然后<strong>用 <code>rqt_graph</code> 看一眼那张图</strong>。</li><li>如果你已经写过 DDS，可以直接跳到 QoS 那一节 —— 那是你熟悉的地方。</li></ul></div>
+               data-title="练习与参考">
+        <div class="slide-inner"><h2>练习与参考</h2>
+<div class="deck-fragment"><p>将发布节点的话题改为 <code>status</code>，listener 是否自动收到？</p></div>
+<div class="deck-fragment"><p><strong>答案</strong>：不会。需要修改订阅配置或使用重映射，例如 <code>--ros-args -r chatter:=status</code>。</p></div>
+<div class="deck-fragment"><p>接着阅读 <a href="/docs/ros-tools/">节点和工具</a>。</p></div>
+<div class="deck-fragment"><p>参考：<a href="https://docs.ros.org/en/jazzy/Concepts/Basic/About-Nodes.html" target="_blank" rel="noopener">ROS 2 节点概念</a>、<a href="https://docs.ros.org/en/jazzy/Concepts/Intermediate/About-Quality-of-Service-Settings.html" target="_blank" rel="noopener">QoS</a>、<a href="https://www.ros.org/blog/noetic-eol/" target="_blank" rel="noopener">Noetic 支持结束公告</a>。</p></div></div>
       </section>
       
     </div>
 
     <p class="deck-hint">
-      <kbd>←</kbd><kbd>→</kbd> 翻页 · <kbd>F</kbd> 全屏 · <kbd>Esc</kbd> 退出 · 也可直接点两侧
+      <kbd>←</kbd><kbd>→</kbd> 逐步收起 / 展开，展开完翻页 · <kbd>F</kbd> 全屏 · <kbd>Esc</kbd> 退出
     </p>
 
     
@@ -611,9 +524,9 @@ rclpy<span class="tok-punct">.</span><span class="tok-function">spin</span><span
 
       <dl class="footer-stats">
         <div><dt>7</dt><dd>篇文章</dd></div>
-        <div><dt>16</dt><dd>篇文档</dd></div>
+        <div><dt>19</dt><dd>篇文档</dd></div>
         <div><dt>5</dt><dd>个项目</dd></div>
-        <div><dt>267</dt><dd>页幻灯片</dd></div>
+        <div><dt>204</dt><dd>页幻灯片</dd></div>
       </dl>
     </div>
 
@@ -647,22 +560,22 @@ rclpy<span class="tok-punct">.</span><span class="tok-function">spin</span><span
         
         <a class="footer-link" href="/docs/windows-to-linux/">
           <span class="t">从 Windows 到 Linux</span>
-          <span class="d">5 篇 · 110 页</span>
+          <span class="d">6 篇 · 67 页</span>
         </a>
         
         <a class="footer-link" href="/docs/cpp/">
           <span class="t">从 C 语言到 C++</span>
-          <span class="d">1 篇 · 17 页</span>
+          <span class="d">1 篇 · 10 页</span>
         </a>
         
         <a class="footer-link" href="/docs/vision/">
           <span class="t">ROS 与机器视觉</span>
-          <span class="d">4 篇 · 79 页</span>
+          <span class="d">6 篇 · 72 页</span>
         </a>
         
         <a class="footer-link" href="/docs/learning/">
           <span class="t">从编程开始的学习</span>
-          <span class="d">6 篇 · 61 页</span>
+          <span class="d">6 篇 · 55 页</span>
         </a>
         
         <a class="footer-more" href="/docs/">
@@ -858,6 +771,15 @@ rclpy<span class="tok-punct">.</span><span class="tok-function">spin</span><span
             <span class="theme-name">暖灯夜色</span>
           </button>
           
+          <button class="theme-card" type="button" data-theme-pick="bocchi" title="波奇光晕">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/bocchi.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#eaa5bc"></i><i style="background:#6acbc9"></i><i style="background:#101b2d"></i>
+              </span>
+            </span>
+            <span class="theme-name">波奇光晕</span>
+          </button>
+          
         </div>
       </section>
 
@@ -899,7 +821,7 @@ rclpy<span class="tok-punct">.</span><span class="tok-function">spin</span><span
             <button type="button" data-val="wide">宽</button>
           </div>
         </div>
-        <p class="set-note">黑体 / 宋体都随站点自带（子集化的 Noto，约 330 / 430 KB），不依赖你本机装了什么字体。</p>
+        <p class="set-note">黑体 / 宋体随站点自带，不依赖本机字体。</p>
       </section>
 
       <section class="set-group">
@@ -936,7 +858,7 @@ rclpy<span class="tok-punct">.</span><span class="tok-function">spin</span><span
             <button type="button" data-val="video">动态视频</button>
           </div>
         </div>
-        <p class="set-note">动态视频是 2560×1440 无声循环，已随站点打包；切到「动态视频」后才开始加载当前主题那一条。</p>
+        <p class="set-note">无声循环视频按当前主题加载；切到「动态视频」后才加载，后台标签页会暂停。</p>
         <div class="set-divider"></div>
         <div class="set-field">
           <span class="set-label">可见度 <b data-out="bgOpacity">—</b></span>
@@ -1014,10 +936,10 @@ rclpy<span class="tok-punct">.</span><span class="tok-function">spin</span><span
 </div>
 
 
-<script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.jpg","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.jpg","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.jpg","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.jpg","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.jpg","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.jpg","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.jpg","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.jpg","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.jpg","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.jpg","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.jpg","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.jpg","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.jpg","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.jpg","video":"assets/bg/lumen.mp4"}}</script>
+<script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
 
-<script src="/assets/site.js" defer></script>
-<script src="/assets/docs.js" defer></script>
+<script src="/assets/site.js?v=77072cd2" defer></script>
+<script src="/assets/docs.js?v=77072cd2" defer></script>
 
 </body>
 </html>

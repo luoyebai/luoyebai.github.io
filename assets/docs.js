@@ -12,7 +12,63 @@
   var outlineBtn = deck.querySelector('[data-deck-outline]');
   var cur = 0;
   var mode = 'paged';
+  var fragments = slides.map(function (slide) { return Array.from(slide.querySelectorAll('.deck-fragment')); });
+  var steps = slides.map(function () { return 0; });
+  var stepInfo = document.createElement('span');
+  stepInfo.className = 'deck-step-info';
+  stepInfo.setAttribute('aria-live', 'polite');
+  if (elSection) elSection.after(stepInfo);
+  function advance(direction) {
+    if (mode === 'paged') {
+      if (direction > 0 && steps[cur] < fragments[cur].length) { steps[cur]++; paint(false); return; }
+      if (direction < 0 && steps[cur] > 0) { steps[cur]--; paint(false); return; }
+      var target = clampNo(cur + direction);
+      if (target !== cur) steps[target] = direction < 0 ? fragments[target].length : 0;
+    }
+    go(cur + direction, true);
+  }
   var STORE = 'blog.deck.mode';
+  function calm() { return matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.getAttribute('data-motion') === 'off'; }
+  slides.forEach(function (slide, i) { slide.setAttribute('data-page-label', String(i + 1).padStart(2, '0') + ' / ' + slides.length); });
+  var jump = document.createElement('input');
+  jump.type = 'number'; jump.min = '1'; jump.max = String(slides.length);
+  jump.className = 'deck-jump'; jump.setAttribute('aria-label', '跳转到页码');
+  if (elNo) { elNo.hidden = true; elNo.after(jump); }
+  function commitJump() {
+    var raw = jump.value.trim(), n = Number(raw);
+    if (raw && Number.isFinite(n)) go(Math.round(n) - 1, true);
+    jump.value = String(cur + 1);
+  }
+  jump.addEventListener('change', commitJump);
+  jump.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      e.preventDefault(); e.stopPropagation();
+      commitJump(); jump.blur(); stage.focus({preventScroll:true});
+    }
+  });
+  if (outline) outline.querySelectorAll('[data-deck-goto]').forEach(function (button) {
+    var index = Number(button.getAttribute('data-deck-goto'));
+    var number = button.querySelector('.ol-no');
+    if (number) number.textContent = String(index + 1).padStart(2, '0');
+    var preview = document.createElement('small');
+    preview.className = 'deck-outline-preview';
+    var source = slides[index].querySelector('p, li');
+    preview.textContent = source ? source.textContent.trim().slice(0, 85) : '章节标题';
+    button.append(preview);
+  });
+  var overflowHint = document.createElement('span');
+  overflowHint.className = 'deck-overflow-hint'; overflowHint.textContent = '本页可向下滚动 ↓'; overflowHint.hidden = true;
+  stage.append(overflowHint);
+  function updateOverflow() {
+    var slide = slides[cur];
+    overflowHint.hidden = mode !== 'paged' || slide.scrollHeight <= slide.clientHeight + 3 || slide.scrollTop + slide.clientHeight >= slide.scrollHeight - 8;
+  }
+  slides.forEach(function (slide) { slide.addEventListener('scroll', updateOverflow, {passive:true}); });
+  if (window.ResizeObserver) {
+    var observer = new ResizeObserver(updateOverflow);
+    slides.forEach(function (slide) { observer.observe(slide); });
+  }
+  stage.addEventListener('load', updateOverflow, true);
   function closest(el, sel) {
     return (el && el.closest) ? el.closest(sel) : null;
   }
@@ -28,7 +84,15 @@
     return Math.max(0, Math.min(slides.length - 1, n));
   }
   function paint(animate) {
+    stepInfo.textContent = mode === 'paged' && fragments[cur].length ? '展开 ' + steps[cur] + ' / ' + fragments[cur].length : '';
     for (var i = 0; i < slides.length; i++) {
+      fragments[i].forEach(function (fragment, index) {
+        var hidden = mode === 'paged' && index >= steps[i];
+        fragment.classList.toggle('is-pending', hidden);
+        fragment.toggleAttribute('inert', hidden);
+        if (hidden) fragment.setAttribute('aria-hidden', 'true');
+        else fragment.removeAttribute('aria-hidden');
+      });
       slides[i].classList.toggle('is-current', i === cur);
       if (mode === 'paged') {
         if (i === cur) slides[i].removeAttribute('aria-hidden');
@@ -38,13 +102,15 @@
       }
     }
     if (elNo) elNo.textContent = String(cur + 1);
+    jump.value = String(cur + 1);
+    requestAnimationFrame(updateOverflow);
     if (elProgress) elProgress.style.width = ((cur + 1) / slides.length * 100).toFixed(2) + '%';
     if (elSection) elSection.textContent = sectionOf(cur);
     var prevBtns = deck.querySelectorAll('[data-deck-prev]');
     var nextBtns = deck.querySelectorAll('[data-deck-next]');
-    for (var p = 0; p < prevBtns.length; p++) prevBtns[p].disabled = (cur === 0 && mode === 'paged');
+    for (var p = 0; p < prevBtns.length; p++) prevBtns[p].disabled = (cur === 0 && steps[cur] === 0 && mode === 'paged');
     for (var q = 0; q < nextBtns.length; q++) {
-      nextBtns[q].disabled = (cur === slides.length - 1 && mode === 'paged');
+      nextBtns[q].disabled = (cur === slides.length - 1 && steps[cur] === fragments[cur].length && mode === 'paged');
     }
     var items = outline ? outline.querySelectorAll('[data-deck-goto]') : [];
     for (var j = 0; j < items.length; j++) {
@@ -59,13 +125,16 @@
   function go(n, animate) {
     n = clampNo(n);
     var moved = n !== cur;
+    deck.setAttribute('data-direction', n < cur ? 'prev' : 'next');
     cur = n;
+    if (moved && mode === 'paged') slides[cur].scrollTop = 0;
     paint(animate);
-    if (!moved || mode !== 'paged') return;
+    if (mode === 'scroll') { slides[cur].scrollIntoView({block: 'start', behavior: 'auto'}); return; }
+    if (!moved || deck.classList.contains('is-full')) return;
     var r = slides[cur].getBoundingClientRect();
     if (r.top < 80 || r.bottom > window.innerHeight - 40) {
       var top = window.pageYOffset + r.top - Math.max(80, (window.innerHeight - r.height) / 2);
-      window.scrollTo({ top: Math.max(0, top), behavior: animate ? 'smooth' : 'auto' });
+      window.scrollTo({ top: Math.max(0, top), behavior: animate && !calm() ? 'smooth' : 'auto' });
     }
   }
   function setMode(next, silent) {
@@ -81,6 +150,7 @@
     paint(false);
     if (!silent) {
       try { localStorage.setItem(STORE, mode); } catch (e) {  }
+      if (mode === 'scroll') slides[cur].scrollIntoView({block:'start', behavior:'auto'});
     }
   }
   deck.addEventListener('click', function (e) {
@@ -89,12 +159,13 @@
     var next = closest(t, '[data-deck-next]');
     var modeBtn = closest(t, '[data-deck-mode]');
     var goto = closest(t, '[data-deck-goto]');
-    if (prev) { go(cur - 1, true); return; }
-    if (next) { go(cur + 1, true); return; }
+    if (prev) { advance(-1); return; }
+    if (next) { advance(1); return; }
     if (modeBtn) { setMode(modeBtn.getAttribute('data-deck-mode')); return; }
     if (goto) {
       go(Number(goto.getAttribute('data-deck-goto')), true);
       toggleOutline(false);
+      stage.focus({preventScroll:true});
       return;
     }
     if (closest(t, '[data-deck-outline]')) { toggleOutline(outline && outline.hidden); return; }
@@ -104,12 +175,16 @@
     if (!outline || !outlineBtn) return;
     outline.hidden = !open;
     outlineBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) {
+      var current = outline.querySelector('.is-current');
+      if (current) { current.scrollIntoView({block:'nearest'}); current.focus({preventScroll:true}); }
+    } else { outlineBtn.focus({preventScroll:true}); }
   }
   function toggleFull() {
     var on = deck.classList.toggle('is-full');
     document.body.classList.toggle('deck-locked', on);
     if (on) {
-      if (deck.requestFullscreen) { try { deck.requestFullscreen(); } catch (e) {} }
+      if (deck.requestFullscreen) { try { var request = deck.requestFullscreen(); if (request && request.catch) request.catch(function () {}); } catch (e) {} }
       stage.focus();
     } else if (document.fullscreenElement && document.exitFullscreen) {
       try { document.exitFullscreen(); } catch (e) {}
@@ -126,6 +201,10 @@
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     var tag = (e.target && e.target.tagName) || '';
     if (/^(INPUT|TEXTAREA|SELECT)$/.test(tag) || (e.target && e.target.isContentEditable)) return;
+    if (closest(e.target, '[role="dialog"]')) return;
+    if (closest(e.target, 'button, a') && (e.key === ' ' || e.key === 'Enter')) return;
+    var bounds = deck.getBoundingClientRect();
+    if (!deck.classList.contains('is-full') && (bounds.bottom < 0 || bounds.top > innerHeight)) return;
     var k = e.key;
     if (k === 'f' || k === 'F') { e.preventDefault(); toggleFull(); return; }
     if (k === 'Escape') {
@@ -136,9 +215,9 @@
     if (k === 'o' || k === 'O') { e.preventDefault(); toggleOutline(outline && outline.hidden); return; }
     if (mode === 'scroll') return;                 
     if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown' || k === ' ') {
-      e.preventDefault(); go(cur + 1, true);
+      e.preventDefault(); advance(1);
     } else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp') {
-      e.preventDefault(); go(cur - 1, true);
+      e.preventDefault(); advance(-1);
     } else if (k === 'Home') { e.preventDefault(); go(0, true); }
     else if (k === 'End') { e.preventDefault(); go(slides.length - 1, true); }
   });
@@ -152,7 +231,7 @@
     var dx = e.changedTouches[0].clientX - tx;
     var dy = e.changedTouches[0].clientY - ty;
     if (Date.now() - tt > 700 || Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy) * 1.4) return;
-    go(cur + (dx < 0 ? 1 : -1), true);
+    advance(dx < 0 ? 1 : -1);
   }, { passive: true });
   var links = deck.querySelectorAll('.slide a[href^="http"]');
   for (var i = 0; i < links.length; i++) {
@@ -164,11 +243,14 @@
   setMode(saved === 'scroll' ? 'scroll' : 'paged', true);
   if (window.matchMedia && window.matchMedia('(hover: none)').matches) {
     var hint = deck.querySelector('.deck-hint');
-    if (hint) hint.innerHTML = '左右滑动翻页 · 也可以点下方的箭头 · <b>目录</b> 可跳转';
+    if (hint) hint.innerHTML = '左右滑动逐步展开 / 收起，展开完翻页 · <b>目录</b> 可跳转';
   }
   var fromHash = parseInt((location.hash || '').replace('#', ''), 10);
   cur = isNaN(fromHash) ? 0 : clampNo(fromHash - 1);
   paint(false);
+  window.addEventListener('hashchange', function () {
+    if (/^#\d+$/.test(location.hash)) go(Number(location.hash.slice(1)) - 1, false);
+  });
   window.__deck = {
     count: slides.length,
     state: function () {

@@ -16,7 +16,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>编程概述 · 洛叶白</title>
-<meta name="description" content="Q1. 为何编程？ Q2. 何为编程？ Q3. 如何编程？🤔🤔 Q4. 形如编程？🤔🤔🤔">
+<meta name="description" content="从输入、状态与算法认识程序，完成一个可运行的小程序，再用边界测试检验它。">
 <meta name="author" content="洛叶白">
 <meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#0b0d14" media="(prefers-color-scheme: dark)">
@@ -24,18 +24,18 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="洛叶白">
 <meta property="og:title" content="编程概述">
-<meta property="og:description" content="Q1. 为何编程？ Q2. 何为编程？ Q3. 如何编程？🤔🤔 Q4. 形如编程？🤔🤔🤔">
+<meta property="og:description" content="从输入、状态与算法认识程序，完成一个可运行的小程序，再用边界测试检验它。">
 <meta property="og:url" content="https://luoyebai.github.io/docs/what-is-programming/">
 <meta property="og:image" content="https://luoyebai.github.io/assets/images/favicon.svg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://luoyebai.github.io/docs/what-is-programming/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css">
-<link rel="stylesheet" href="/assets/site.css">
+<link rel="stylesheet" href="/assets/themes.css?v=77072cd2">
+<link rel="stylesheet" href="/assets/site.css?v=77072cd2">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
-<link rel="stylesheet" href="/assets/docs.css">
+<link rel="stylesheet" href="/assets/docs.css?v=77072cd2">
 
 
 
@@ -44,6 +44,11 @@
 (function () {
   var el = document.documentElement;
   el.classList.add('js');   /* 只有 JS 可用时才启用进场动画的隐藏态 */
+  var compact = matchMedia('(pointer: coarse)').matches ||
+    (navigator.connection && navigator.connection.saveData) ||
+    (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
+    (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+  el.setAttribute('data-performance', compact ? 'compact' : 'standard');
   var q = {};
   try { new URLSearchParams(location.search).forEach(function (v, k) { q[k] = v; }); } catch (e) {}
   var s = {};
@@ -153,7 +158,7 @@
 
 
 <article class="doc" id="doc"
-         data-slides="12"
+         data-slides="8"
          data-title="编程概述">
   <header class="doc-head">
     <nav class="crumbs" aria-label="面包屑">
@@ -165,18 +170,18 @@
     </nav>
 
     <h1 class="doc-title">编程概述</h1>
-    <p class="doc-lede">Q1. 为何编程？ Q2. 何为编程？ Q3. 如何编程？🤔🤔 Q4. 形如编程？🤔🤔🤔</p>
+    <p class="doc-lede">从输入、状态与算法认识程序，完成一个可运行的小程序，再用边界测试检验它。</p>
 
     <p class="doc-meta">
-      <span class="meta-item"><b>11</b> / 6 篇</span>
-      <span class="meta-item"><b>12</b> 页幻灯片</span>
+      <span class="meta-item"><b>1</b> / 6 篇</span>
+      <span class="meta-item"><b>8</b> 页幻灯片</span>
       <span class="meta-item muted">迁移自 <a href="https://github.com/luoyebai/doc_html/blob/HEAD/从编程开始的学习/简单又轻松的编程/编程概述/main.md" rel="noopener" target="_blank">源文档</a></span>
     </p>
   </header>
 
   <section class="deck is-paged" id="deck" data-deck aria-roledescription="幻灯片" aria-label="编程概述">
     <noscript>
-      <style>.deck .slide{display:block !important;margin-top:1.2rem}</style>
+      <style>.deck .slide{display:block !important;margin-top:1.2rem;height:auto !important;overflow:visible !important}</style>
     </noscript>
     <div class="deck-bar">
       <div class="deck-nav">
@@ -191,7 +196,7 @@
           </svg>
         </button>
         <p class="deck-counter" aria-live="polite">
-          <b data-deck-no>1</b> / 12
+          <b data-deck-no>1</b> / 8
         </p>
       </div>
 
@@ -218,73 +223,49 @@
         
         <li class="is-section">
           <button type="button" data-deck-goto="0">
-            <span class="ol-no">0</span>编程概述
+            <span class="ol-no">0</span>什么是编程
           </button>
         </li>
         
-        <li class="is-section">
+        <li>
           <button type="button" data-deck-goto="1">
-            <span class="ol-no">1</span>概述 （Overview）
+            <span class="ol-no">1</span>先把问题说清楚
           </button>
         </li>
         
-        <li class="is-section">
+        <li>
           <button type="button" data-deck-goto="2">
-            <span class="ol-no">2</span>Q1. 为何编程？（Why）
+            <span class="ol-no">2</span>程序由什么组成
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="3">
-            <span class="ol-no">3</span>灵魂拷问：为什么要学习xxx（Anything）
+            <span class="ol-no">3</span>图灵机在讨论什么
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="4">
-            <span class="ol-no">4</span>🧰 学习工具的重要性
+            <span class="ol-no">4</span>如何编程：先写步骤
           </button>
         </li>
         
-        <li class="is-section">
+        <li>
           <button type="button" data-deck-goto="5">
-            <span class="ol-no">5</span>📜 学习思想的重要性
+            <span class="ol-no">5</span>一个完整实现
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="6">
-            <span class="ol-no">6</span>然而，为何要学习编程（Why learn to code）
+            <span class="ol-no">6</span>为什么“跑起来了”还不够
           </button>
         </li>
         
-        <li class="is-section">
+        <li>
           <button type="button" data-deck-goto="7">
-            <span class="ol-no">7</span>Q2. 何为编程（英语：programming）(点击查看)？（What）
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="8">
-            <span class="ol-no">8</span>📖介绍一个东西，总要从历史出发
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="9">
-            <span class="ol-no">9</span>🧮 重点讲讲图灵机 🌶️🌶️
-          </button>
-        </li>
-        
-        <li class="is-section">
-          <button type="button" data-deck-goto="10">
-            <span class="ol-no">10</span>Q4. 形如编程？（Like）
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="11">
-            <span class="ol-no">11</span>TODO
+            <span class="ol-no">7</span>练习与参考答案
           </button>
         </li>
         
@@ -295,102 +276,107 @@
          aria-label="幻灯片内容，用左右方向键翻页">
       
       <section class="slide slide--section" data-slide="0"
-               data-title="编程概述" data-section="1">
-        <div class="slide-inner"><h1><strong>编程概述</strong></h1></div>
+               data-title="什么是编程" data-section="1">
+        <div class="slide-inner"><h1>什么是编程</h1>
+<div class="deck-fragment"><p>把一个问题写成明确的规则，并让计算机重复执行。</p></div>
+<div class="deck-fragment"><p>本课目标：解释程序的输入与输出；把需求拆成步骤；用测试判断结果。</p></div></div>
       </section>
       
-      <section class="slide slide--section" data-slide="1"
-               data-title="概述 （Overview）" data-section="1">
-        <div class="slide-inner"><h2>概述 <strong><em>（Overview）</em></strong></h2>
-<ul><li><strong>Q1.</strong> 为何编程？<strong><em>（Why）</em></strong></li><li><strong>Q2.</strong> 何为编程？<strong><em>（What）</em></strong></li><li><strong>Q3.</strong> 如何编程？<strong><em>（How）</em></strong>🤔🤔</li><li><strong>Q4.</strong> 形如编程？<strong><em>（Like）</em></strong>🤔🤔🤔</li></ul></div>
+      <section class="slide" data-slide="1"
+               data-title="先把问题说清楚">
+        <div class="slide-inner"><h2>先把问题说清楚</h2>
+<div class="deck-fragment"><p>例子：统计一组温度中的最高值。</p></div>
+<div class="deck-fragment"><div class="table-wrap" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
+<thead><tr><th>约定</th><th>本例的选择</th></tr></thead>
+<tbody>
+<tr><td>输入</td><td>一个有限的数值序列，单位为摄氏度</td></tr>
+<tr><td>输出</td><td>最大值，仍使用摄氏度</td></tr>
+<tr><td>空序列</td><td>返回 <code>None</code>，不假装最大值为 0</td></tr>
+<tr><td>非数值 / NaN</td><td>本课不接收；实际接口应校验</td></tr>
+</tbody></table></div></div>
+<div class="deck-fragment"><p>先约定边界，代码才有明确的对错标准。</p></div></div>
       </section>
       
-      <section class="slide slide--section" data-slide="2"
-               data-title="Q1. 为何编程？（Why）" data-section="1">
-        <div class="slide-inner"><h1><strong>Q1.</strong> 为何编程？<strong><em>（Why）</em></strong></h1>
-<blockquote><p>首先考虑第一个重要的问题：<strong>为何</strong><a href="https://zh.wikipedia.org/wiki/%E5%AD%A6%E4%B9%A0" target="_blank" rel="noopener"><strong><em>学习(点击查看)</em></strong></a>？</p></blockquote></div>
+      <section class="slide" data-slide="2"
+               data-title="程序由什么组成">
+        <div class="slide-inner"><h2>程序由什么组成</h2>
+<div class="deck-fragment"><ul><li><strong>数据</strong>：温度列表、名字、时间戳。</li></ul></div>
+<div class="deck-fragment"><ul><li><strong>状态</strong>：当前读到哪里、目前找到的最大值。</li></ul></div>
+<div class="deck-fragment"><ul><li><strong>控制流</strong>：顺序执行、条件分支、重复循环。</li></ul></div>
+<div class="deck-fragment"><ul><li><strong>接口</strong>：输入从哪里来，结果交给谁。</li></ul></div>
+<div class="deck-fragment"><p>算法描述解决问题的方法；程序还需要处理输入、错误、资源和运行环境。</p></div></div>
       </section>
       
       <section class="slide" data-slide="3"
-               data-title="灵魂拷问：为什么要学习xxx（Anything）">
-        <div class="slide-inner"><h2><strong>灵魂拷问</strong>：为什么要学习<strong><em>xxx（Anything）</em></strong></h2>
-<p>可能是萦绕在所有人头顶的一个<span class="ink ink-red">疑问❓</span>：</p>
-<ul><li>为什么要学习？<strong><em>（Why study?）</em></strong><ul><li>比如：<ul><li>为什么要学<a href="https://zh.wikipedia.org/wiki/%E6%95%B0%E5%AD%A6" target="_blank" rel="noopener"><strong><em>工具(点击查看)</em></strong></a></li><li>为什么要学<a href="https://zh.wikipedia.org/wiki/%E6%95%B0%E5%AD%A6" target="_blank" rel="noopener"><strong><em>数学（希腊语：μαθηματικά）(点击查看)</em></strong></a></li><li>为什么要学<a href="https://zh.wikipedia.org/wiki/%E8%AA%9E%E8%A8%80" target="_blank" rel="noopener"><strong><em>语言（英语：language，词源为拉丁语：lingua，意为“舌”）(点击查看)</em></strong></a></li></ul></li></ul></li><li>仅仅是为了所谓的“💯”</li><li>又或只是为了<strong><em>学会xxx（master somthing）？</em></strong></li></ul>
-<p>--</p>
-<ul><li>是，但不仅仅是这样<strong><em>（Yes,but not only）</em></strong><ul><li>不仅是学会</li><li>更是<a href="https://zh.wikipedia.org/wiki/%E5%89%B5%E6%96%B0" target="_blank" rel="noopener"><strong><em>创新（英语：Innovation，源自拉丁语 innovare，“更新”）(点击查看)</em></strong></a></li></ul></li></ul></div>
+               data-title="图灵机在讨论什么">
+        <div class="slide-inner"><h2>图灵机在讨论什么</h2>
+<div class="deck-fragment"><p>图灵机是一种计算模型：读写头读取纸带符号，依据当前状态和转移规则，写入符号、移动并切换状态。</p></div>
+<div class="deck-fragment"><p>它帮助我们讨论“什么可以计算”，不是现代电脑内部结构的施工图。</p></div>
+<div class="deck-fragment"><ul><li><strong>可计算性</strong>：有没有算法能解决这一类问题？</li></ul></div>
+<div class="deck-fragment"><ul><li><strong>复杂度</strong>：输入变大后，时间与空间如何增长？</li></ul></div>
+<div class="deck-fragment"><ul><li><strong>工程实现</strong>：在当前机器和限制下，如何做得可靠？</li></ul></div>
+<div class="deck-fragment"><p>这三个问题相关，但不能互相替代。</p></div></div>
       </section>
       
       <section class="slide" data-slide="4"
-               data-title="🧰 学习工具的重要性">
-        <div class="slide-inner"><h2>🧰 <strong>学习工具</strong>的重要性</h2>
-<p>工具能帮助人类</p>
-<ul><li>能帮助人类做到原先做不到的事情</li><li>能帮助人类更轻松地做到某些事情</li><li>能帮助人类“不需要做某些事情”<ul><li>🤯<a href="https://zh.wikipedia.org/wiki/%E8%87%AA%E5%8B%95%E6%A9%9F" target="_blank" rel="noopener"><strong><em>自动机（英语：Automaton，又称自动机器、自动机械）(点击查看)</em></strong></a></li><li>🤯🤯<a href="https://zh.wikipedia.org/wiki/%E7%94%B5%E5%AD%90%E8%AE%A1%E7%AE%97%E6%9C%BA" target="_blank" rel="noopener"><strong><em>电子计算机（英语：Computer）(点击查看)</em></strong></a></li><li>🤯🤯🤯<a href="https://zh.wikipedia.org/wiki/ChatGPT" target="_blank" rel="noopener"><strong><em>ChatGPT（英语全称：Chat Generative Pre-trained Transformer）(点击查看)</em></strong></a></li></ul></li><li><strong>📐数学/💬语言</strong>也是工具</li></ul>
-<blockquote><p>君子性非异也，善假于物也———[荀子]《劝学》</p></blockquote></div>
+               data-title="如何编程：先写步骤">
+        <div class="slide-inner"><h2>如何编程：先写步骤</h2>
+<div class="deck-fragment"><p>对非空序列：</p></div>
+<div class="deck-fragment"><ol><li>把第一个值当作当前最大值。</li></ol></div>
+<div class="deck-fragment"><ol><li>依次读取后续值。</li></ol></div>
+<div class="deck-fragment"><ol><li>如果新值更大，就更新最大值。</li></ol></div>
+<div class="deck-fragment"><ol><li>读完后返回结果。</li></ol></div>
+<div class="deck-fragment"><p>循环中的不变量：当前最大值始终等于<strong>已读部分</strong>的最大值。</p></div>
+<div class="deck-fragment"><p>每个元素比较一次，时间复杂度 O(n)，额外空间 O(1)。</p></div></div>
       </section>
       
-      <section class="slide slide--section" data-slide="5"
-               data-title="📜 学习思想的重要性" data-section="1">
-        <div class="slide-inner"><h2>📜 <strong>学习思想</strong>的重要性</h2>
-<p>除了学习工具，还有思想</p>
-<ul><li>学习某种<a href="https://zh.wikipedia.org/wiki/%E7%90%86%E8%AB%96" target="_blank" rel="noopener"><strong><em>理论（英语：theory）(点击查看)</em></strong></a><ul><li><a href="https://znetwork.org/wp-content/uploads/zinstructionals/htdocs/RTInstruc/id6.htm" target="_blank" rel="noopener">什么是理论(点击查看)</a></li></ul></li></ul>
-<p>但是，<strong>理论不是一成不变的</strong></p>
-<ul><li><a href="https://undsci.berkeley.edu/understanding-science-101/how-science-works/even-theories-change/" target="_blank" rel="noopener"><strong><em>Even theories change(点击查看)</em></strong></a><ul><li>👨‍🔬<a href="https://zh.wikipedia.org/wiki/%E8%89%BE%E8%90%A8%E5%85%8B%C2%B7%E7%89%9B%E9%A1%BF" target="_blank" rel="noopener"><strong><em>牛顿（英语：Sir Isaac Newton）(点击查看)</em></strong></a>时代<ul><li><a href="https://zh.wikipedia.org/wiki/%E7%BB%8F%E5%85%B8%E5%8A%9B%E5%AD%A6" target="_blank" rel="noopener"><strong><em>经典力学（英语：Classical mechanics）(点击查看)</em></strong></a></li></ul></li><li>👨‍🔬<a href="https://zh.wikipedia.org/wiki/%E9%98%BF%E5%B0%94%E4%BC%AF%E7%89%B9%C2%B7%E7%88%B1%E5%9B%A0%E6%96%AF%E5%9D%A6" target="_blank" rel="noopener"><strong><em>爱因斯坦（德语：Albert Einstein）(点击查看)</em></strong></a>时代<ul><li><a href="https://zh.wikipedia.org/wiki/%E7%9B%B8%E5%AF%B9%E8%AE%BA" target="_blank" rel="noopener"><strong><em>相对论（英语：Theory of relativity）(点击查看)</em></strong></a></li></ul></li></ul></li></ul>
-<blockquote><p>用<a href="https://zh.wikipedia.org/wiki/%E8%BE%A9%E8%AF%81%E6%B3%95" target="_blank" rel="noopener"><strong><em>辩证法（英语：alectics，希腊语：διαλεκτική，dialektikḗ）(点击查看)</em></strong></a>看待理论，这才是学习思想的重要性</p></blockquote></div>
+      <section class="slide" data-slide="5"
+               data-title="一个完整实现">
+        <div class="slide-inner"><h2>一个完整实现</h2>
+<div class="deck-fragment"><p>Python 3，保存为 <code>maximum.py</code>：</p></div>
+<div class="deck-fragment"><div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">def</span> <span class="tok-function">maximum</span><span class="tok-punct">(</span>values<span class="tok-punct">)</span><span class="tok-punct">:</span>
+    it <span class="tok-operator">=</span> <span class="tok-builtin">iter</span><span class="tok-punct">(</span>values<span class="tok-punct">)</span>
+    best <span class="tok-operator">=</span> <span class="tok-builtin">next</span><span class="tok-punct">(</span>it<span class="tok-punct">,</span> <span class="tok-keyword">None</span><span class="tok-punct">)</span>
+    <span class="tok-keyword">if</span> best <span class="tok-keyword">is</span> <span class="tok-keyword">None</span><span class="tok-punct">:</span>
+        <span class="tok-keyword">return</span> <span class="tok-keyword">None</span>
+    <span class="tok-keyword">for</span> value <span class="tok-keyword">in</span> it<span class="tok-punct">:</span>
+        <span class="tok-keyword">if</span> value <span class="tok-operator">&gt;</span> best<span class="tok-punct">:</span>
+            best <span class="tok-operator">=</span> value
+    <span class="tok-keyword">return</span> best
+
+<span class="tok-keyword">assert</span> <span class="tok-function">maximum</span><span class="tok-punct">(</span><span class="tok-punct">[</span><span class="tok-number">18</span><span class="tok-punct">,</span> <span class="tok-number">25</span><span class="tok-punct">,</span> <span class="tok-number">21</span><span class="tok-punct">]</span><span class="tok-punct">)</span> <span class="tok-operator">==</span> <span class="tok-number">25</span>
+<span class="tok-keyword">assert</span> <span class="tok-function">maximum</span><span class="tok-punct">(</span><span class="tok-punct">[</span><span class="tok-operator">-</span><span class="tok-number">8</span><span class="tok-punct">,</span> <span class="tok-operator">-</span><span class="tok-number">2</span><span class="tok-punct">,</span> <span class="tok-operator">-</span><span class="tok-number">5</span><span class="tok-punct">]</span><span class="tok-punct">)</span> <span class="tok-operator">==</span> <span class="tok-operator">-</span><span class="tok-number">2</span>
+<span class="tok-keyword">assert</span> <span class="tok-function">maximum</span><span class="tok-punct">(</span><span class="tok-punct">[</span><span class="tok-number">7</span><span class="tok-punct">]</span><span class="tok-punct">)</span> <span class="tok-operator">==</span> <span class="tok-number">7</span>
+<span class="tok-keyword">assert</span> <span class="tok-function">maximum</span><span class="tok-punct">(</span><span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">)</span> <span class="tok-keyword">is</span> <span class="tok-keyword">None</span>
+<span class="tok-builtin">print</span><span class="tok-punct">(</span><span class="tok-string">&#x27;4 cases passed&#x27;</span><span class="tok-punct">)</span></code></pre></div></div>
+<div class="deck-fragment"><p>在终端运行 <code>python3 maximum.py</code>。实际项目可直接使用内置 <code>max</code>。</p></div></div>
       </section>
       
       <section class="slide" data-slide="6"
-               data-title="然而，为何要学习编程（Why learn to code）">
-        <div class="slide-inner"><h2>然而，<strong><em>为何要学习编程（Why learn to code）</em></strong></h2>
-<p>--</p>
-<p>从学习<strong>工具</strong>的视角看</p>
-<ul><li>🙂我们能使用最些前沿的工具<ul><li>然后就能办到某些看似“遥不可及”的事<ul><li>搭建个人网站</li><li>🎮 编写自己的电子游戏</li><li>对其他学科（数学、物理、生物等）<a href="https://zh.wikipedia.org/wiki/%E4%BB%BF%E7%9C%9F" target="_blank" rel="noopener"><strong><em>仿真模拟（英语：Simulation）(点击查看)</em></strong></a></li></ul></li></ul></li></ul>
-<p>--</p>
-<p>从学习<strong>思想</strong>的视角看</p>
-<ul><li>🙃我们能通过编程了解前沿的理论<span class="ink ink-red"><del>（甚至颠覆）</del></span><ul><li><a href="https://zh.wikipedia.org/wiki/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6" target="_blank" rel="noopener"><strong><em>计算机科学（英语：Computer science，有时缩写为CS）(点击查看)</em></strong></a>相关理论<ul><li>🖇️ 计算机链接了“大多数”学科</li></ul></li></ul></li></ul></div>
+               data-title="为什么“跑起来了”还不够">
+        <div class="slide-inner"><h2>为什么“跑起来了”还不够</h2>
+<div class="deck-fragment"><ul><li>语法正确：解释器能够解析。</li></ul></div>
+<div class="deck-fragment"><ul><li>行为正确：结果符合输入输出约定。</li></ul></div>
+<div class="deck-fragment"><ul><li>边界正确：空输入、负数、重复值不会破坏约定。</li></ul></div>
+<div class="deck-fragment"><ul><li>可维护：别人能理解变量、接口与错误信息。</li></ul></div>
+<div class="deck-fragment"><p>如果初始化 <code>best = 0</code>，正数样例能通过，但全负数样例会失败。
+测试不等于一般性的证明，却能把发现过的错误变成长期检查。</p></div></div>
       </section>
       
-      <section class="slide slide--section" data-slide="7"
-               data-title="Q2. 何为编程（英语：programming）(点击查看)？（What）" data-section="1">
-        <div class="slide-inner"><h1><strong>Q2.</strong> 何为<a href="https://zh.wikipedia.org/wiki/%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" target="_blank" rel="noopener"><strong><em>编程（英语：programming）(点击查看)</em></strong></a>？<strong><em>（What）</em></strong></h1>
-<p>--</p>
-<blockquote><p><strong><em>Programming is like sex. One mistake and you have to support it for the rest of your life ——— Michael Sinz</em></strong></p></blockquote></div>
-      </section>
-      
-      <section class="slide" data-slide="8"
-               data-title="📖介绍一个东西，总要从历史出发">
-        <div class="slide-inner"><h2>📖介绍一个东西，<strong>总要从历史出发</strong></h2>
-<p>所以<strong>来看看历史</strong></p>
-<ul><li><a href="https://zh.wikipedia.org/zh-cn/%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80%E6%AD%B7%E5%8F%B2" target="_blank" rel="noopener">编程语言历史(点击查看)</a><ul><li>🧮 <a href="https://zh.wikipedia.org/wiki/%CE%9B%E6%BC%94%E7%AE%97" target="_blank" rel="noopener"><strong><em>λ演算（英语：lambda calculus，λ-calculus）(点击查看)</em></strong></a></li><li>🧮 <a href="https://zh.wikipedia.org/wiki/%E5%9B%BE%E7%81%B5%E6%9C%BA" target="_blank" rel="noopener"><strong><em>图灵机（英语：Turing machine）(点击查看)</em></strong></a></li></ul></li></ul>
-<p>同样地，<strong>工具的历史</strong></p>
-<ul><li>🖥️<a href="https://zh.wikipedia.org/wiki/%E7%94%B5%E5%AD%90%E8%AE%A1%E7%AE%97%E6%9C%BA" target="_blank" rel="noopener"><strong><em>电子计算机（英语：Computer）(点击查看)</em></strong></a><ul><li>计算机的出现和“<a href="https://zh.wikipedia.org/wiki/%E7%AC%AC%E4%BA%8C%E6%AC%A1%E4%B8%96%E7%95%8C%E5%A4%A7%E6%88%98" target="_blank" rel="noopener"><strong>第二次世界大战(点击查看)</strong></a>”脱不了干系<ul><li>计算机的历史在一定程度上代表了<strong>“最前沿”</strong>的工具发展史</li><li>现在可能是<a href="https://zh.wikipedia.org/wiki/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD" target="_blank" rel="noopener"><strong><em>AI（英语：artificial intelligence）(点击查看)</em></strong></a></li></ul></li></ul></li></ul>
-<blockquote><p>👨‍💻第一个编程语言的出现早于现代的计算机的诞生。首先，这种语言是种<a href="https://zh.wikipedia.org/wiki/%E4%BB%A3%E7%A0%81" target="_blank" rel="noopener"><strong><em>代码（英文：code）(点击查看)</em></strong></a></p></blockquote></div>
-      </section>
-      
-      <section class="slide" data-slide="9"
-               data-title="🧮 重点讲讲图灵机 🌶️🌶️">
-        <div class="slide-inner"><h2>🧮 重点讲讲<strong>图灵机</strong> 🌶️🌶️</h2>
-<ul><li>一台图灵机是一个七元有序组<span class="math-inline" data-tex="（Q,\Sigma,\Gamma,\delta,q_0,q_{accept},q_{reject}）">（Q,\Sigma,\Gamma,\delta,q_0,q_{accept},q_{reject}）</span>都是<a href="https://zh.wikipedia.org/wiki/%E6%9C%89%E9%99%90%E9%9B%86%E5%90%88" target="_blank" rel="noopener">有限集合(点击查看)</a>，且满足：</li></ul>
-<p><img src="/assets/docs/what-is-programming/img/animation.gif" alt="Animation" loading="lazy" decoding="async"></p></div>
-      </section>
-      
-      <section class="slide slide--section" data-slide="10"
-               data-title="Q4. 形如编程？（Like）" data-section="1">
-        <div class="slide-inner"><h1><strong>Q4.</strong> 形如编程？<strong><em>（Like）</em></strong></h1>
-<p>--
-<strong><em>Math like PL(Tools like PL)</em></strong><br>
-<strong><em>Machine like PL(Automaton like PL)</em></strong><br>
-<strong><em>The World like PL(Everything like PL)</em></strong><br></p></div>
-      </section>
-      
-      <section class="slide" data-slide="11"
-               data-title="TODO">
-        <div class="slide-inner"><h2>TODO</h2></div>
+      <section class="slide" data-slide="7"
+               data-title="练习与参考答案">
+        <div class="slide-inner"><h2>练习与参考答案</h2>
+<div class="deck-fragment"><p><strong>练习</strong>：扩展函数，同时返回最大值出现的第一个位置。空输入仍返回 <code>None</code>。</p></div>
+<div class="deck-fragment"><p><strong>思路</strong>：保存 <code>(位置, 值)</code>；仅在 <code>value &gt; best</code> 时更新，使用 <code>&gt;=</code> 会选择最后一个位置。</p></div>
+<div class="deck-fragment"><p>验证：<code>[3, 8, 8] → (1, 8)</code>；<code>[-3] → (0, -3)</code>；<code>[] → None</code>。</p></div>
+<div class="deck-fragment"><p>下一步：<a href="/docs/python-first/">先从 Python 开始</a>，把条件、循环和函数串起来。</p></div>
+<div class="deck-fragment"><p>参考：<a href="https://docs.python.org/3/tutorial/controlflow.html" target="_blank" rel="noopener">Python 教程：控制流程</a>。</p></div></div>
       </section>
       
     </div>
 
     <p class="deck-hint">
-      <kbd>←</kbd><kbd>→</kbd> 翻页 · <kbd>F</kbd> 全屏 · <kbd>Esc</kbd> 退出 · 也可直接点两侧
+      <kbd>←</kbd><kbd>→</kbd> 逐步收起 / 展开，展开完翻页 · <kbd>F</kbd> 全屏 · <kbd>Esc</kbd> 退出
     </p>
 
     
@@ -459,9 +445,9 @@
 
       <dl class="footer-stats">
         <div><dt>7</dt><dd>篇文章</dd></div>
-        <div><dt>16</dt><dd>篇文档</dd></div>
+        <div><dt>19</dt><dd>篇文档</dd></div>
         <div><dt>5</dt><dd>个项目</dd></div>
-        <div><dt>267</dt><dd>页幻灯片</dd></div>
+        <div><dt>204</dt><dd>页幻灯片</dd></div>
       </dl>
     </div>
 
@@ -495,22 +481,22 @@
         
         <a class="footer-link" href="/docs/windows-to-linux/">
           <span class="t">从 Windows 到 Linux</span>
-          <span class="d">5 篇 · 110 页</span>
+          <span class="d">6 篇 · 67 页</span>
         </a>
         
         <a class="footer-link" href="/docs/cpp/">
           <span class="t">从 C 语言到 C++</span>
-          <span class="d">1 篇 · 17 页</span>
+          <span class="d">1 篇 · 10 页</span>
         </a>
         
         <a class="footer-link" href="/docs/vision/">
           <span class="t">ROS 与机器视觉</span>
-          <span class="d">4 篇 · 79 页</span>
+          <span class="d">6 篇 · 72 页</span>
         </a>
         
         <a class="footer-link" href="/docs/learning/">
           <span class="t">从编程开始的学习</span>
-          <span class="d">6 篇 · 61 页</span>
+          <span class="d">6 篇 · 55 页</span>
         </a>
         
         <a class="footer-more" href="/docs/">
@@ -706,6 +692,15 @@
             <span class="theme-name">暖灯夜色</span>
           </button>
           
+          <button class="theme-card" type="button" data-theme-pick="bocchi" title="波奇光晕">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/bocchi.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#eaa5bc"></i><i style="background:#6acbc9"></i><i style="background:#101b2d"></i>
+              </span>
+            </span>
+            <span class="theme-name">波奇光晕</span>
+          </button>
+          
         </div>
       </section>
 
@@ -747,7 +742,7 @@
             <button type="button" data-val="wide">宽</button>
           </div>
         </div>
-        <p class="set-note">黑体 / 宋体都随站点自带（子集化的 Noto，约 330 / 430 KB），不依赖你本机装了什么字体。</p>
+        <p class="set-note">黑体 / 宋体随站点自带，不依赖本机字体。</p>
       </section>
 
       <section class="set-group">
@@ -784,7 +779,7 @@
             <button type="button" data-val="video">动态视频</button>
           </div>
         </div>
-        <p class="set-note">动态视频是 2560×1440 无声循环，已随站点打包；切到「动态视频」后才开始加载当前主题那一条。</p>
+        <p class="set-note">无声循环视频按当前主题加载；切到「动态视频」后才加载，后台标签页会暂停。</p>
         <div class="set-divider"></div>
         <div class="set-field">
           <span class="set-label">可见度 <b data-out="bgOpacity">—</b></span>
@@ -862,10 +857,10 @@
 </div>
 
 
-<script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.jpg","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.jpg","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.jpg","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.jpg","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.jpg","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.jpg","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.jpg","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.jpg","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.jpg","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.jpg","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.jpg","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.jpg","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.jpg","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.jpg","video":"assets/bg/lumen.mp4"}}</script>
+<script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
 
-<script src="/assets/site.js" defer></script>
-<script src="/assets/docs.js" defer></script>
+<script src="/assets/site.js?v=77072cd2" defer></script>
+<script src="/assets/docs.js?v=77072cd2" defer></script>
 
 </body>
 </html>

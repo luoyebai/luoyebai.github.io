@@ -24,7 +24,8 @@
   var NEB_R = 560, NEB_DIST = -780, NEB_SQUASH = 0.66;
   var FLOOR_Y = 620, FLOOR_HALF = 1700, FLOOR_STEP = 150;
   var PITCH_MAX = 0.72;
-  var DUST = 150;
+  var compact = root.getAttribute('data-performance') === 'compact';
+  var DUST = compact ? 45 : 85;
   var TAU = Math.PI * 2;
   var HINT = '拖动书脊把书抽出来 · 松手归位 · 拖空白处转书架';
   var state = { layout: 'shelf' };
@@ -32,7 +33,7 @@
   var shelfHeight = 900;      
   var cards = [], links = [], tagList = [], dust = [];
   var hover = null, focusTag = null, query = '';
-  var autoPref = true, dragging = false, dragDist = 0, lastX = 0, lastY = 0, idle = 0;
+  var autoPref = false, dragging = false, dragDist = 0, lastX = 0, lastY = 0, idle = 0;
   var dragId = null, captured = false;
   var DRAG_MIN = 6;           
   var PULL_K = 105, PULL_D = 11.2;
@@ -49,6 +50,14 @@
   var goal = { yaw: 0.0, pitch: -0.04, zoom: 1 };
   var pal = {};
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  var inViewport = true, activeUntil = 0, lastPaint = 0;
+  function motionAllowed() { return !reduce.matches && root.getAttribute('data-motion') !== 'off'; }
+  function wake() {
+    activeUntil = performance.now() + (motionAllowed() ? 1800 : 0);
+    if (!raf && live && inViewport && !document.hidden) {
+      lastT = 0; lastPaint = 0; raf = requestAnimationFrame(frame);
+    }
+  }
   function toRgb(c) {
     if (!c) return null;
     c = String(c).trim();
@@ -90,12 +99,12 @@
     if (neb) {
       dist = NEB_DIST / view.zoom;
     } else {
-      var target = H * 0.92;
+      var target = H * 0.84;
       var lo = -3600, hi = -80;
       for (var it = 0; it < 14; it++) {
         var mid = (lo + hi) / 2;
         var e0 = shelfExtent(mid, f, cp, sp, 0);
-        if (e0.bot - e0.top > target) hi = mid; else lo = mid;
+        if (e0.bot - e0.top > target || Math.max(Math.abs(e0.left), Math.abs(e0.right)) * 2 > W * 0.92) hi = mid; else lo = mid;
       }
       dist = ((lo + hi) / 2) / view.zoom;
       var kRef = scaleAt(0, R, dist, f, cp, sp);
@@ -132,7 +141,7 @@
   function shelfExtent(dist, f, cp, sp, dy) {
     var cyw = Math.cos(view.yaw), syw = Math.sin(view.yaw);
     var hw = CARD_W / 2, hh = CARD_H / 2;
-    var top = Infinity, bot = -Infinity;
+    var top = Infinity, bot = -Infinity, left = Infinity, right = -Infinity;
     for (var i = 0; i < cards.length; i++) {
       var c = cards[i], q = c.pos;
       var cr = Math.cos(c.rotY), sr = Math.sin(c.rotY);
@@ -145,11 +154,13 @@
         var Z = -wx * syw + wz * cyw;
         var kk = f / (f - (wy * sp + Z * cp + dist));
         var yy = (wy * cp - Z * sp + dy) * kk;
+        var xx = (wx * cyw + wz * syw) * kk;
+        left = Math.min(left, xx); right = Math.max(right, xx);
         if (yy < top) top = yy;
         if (yy > bot) bot = yy;
       }
     }
-    return { top: top, bot: bot };
+    return { top: top, bot: bot, left: left, right: right };
   }
   function scaleAt(y, Z, dist, f, cp, sp) {
     return f / (f - (y * sp + Z * cp + dist));
@@ -358,7 +369,7 @@
   }
   function inTag(c) { return !focusTag || c.node.tags.indexOf(focusTag) >= 0; }
   function cruises() {
-    return autoPref && !focusTag && !query && !hover && !dragging && !reduce.matches;
+    return autoPref && !focusTag && !query && !hover && !dragging && motionAllowed();
   }
   function resize() {
     var r = canvas.getBoundingClientRect();
@@ -368,7 +379,7 @@
     CY = r.height / 2;
     if (w === W && h === H) return false;
     W = w; H = h;
-    DPR = Math.min(2, window.devicePixelRatio || 1);
+    DPR = Math.min(compact ? 1 : 1.5, window.devicePixelRatio || 1);
     canvas.width = Math.round(W * DPR);
     canvas.height = Math.round(H * DPR);
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
@@ -380,14 +391,18 @@
     return true;
   }
   function frame(t) {
-    raf = requestAnimationFrame(frame);
+    raf = 0;
+    if (!inViewport || document.hidden) return;
+    var budget = (dragging || grabbing) && !compact ? 1000 / 60 : 1000 / 30;
+    if (lastPaint && t - lastPaint < budget - 1) { raf = requestAnimationFrame(frame); return; }
+    lastPaint = t;
     var dt = lastT ? Math.min(0.05, (t - lastT) / 1000) : 0.016;
     lastT = t;
     if (cruises()) {
       idle += dt;
       if (idle > 1.2) goal.yaw += dt * 0.07;
     }
-    var ease = reduce.matches ? 1 : Math.min(1, dt * 7);
+    var ease = motionAllowed() ? Math.min(1, dt * 7) : 1;
     view.yaw += (goal.yaw - view.yaw) * ease;
     view.pitch += (goal.pitch - view.pitch) * ease;
     view.zoom += (goal.zoom - view.zoom) * ease;
@@ -406,6 +421,10 @@
     placeCards(dt);
     placeLabels();
     paintHud();
+    if (cruises() || dragging || grabbing || cards.some(function (c) { return !!c.pull; }) ||
+        t < activeUntil || Math.abs(goal.yaw-view.yaw)+Math.abs(goal.pitch-view.pitch)+Math.abs(goal.zoom-view.zoom) > 0.0001) {
+      raf = requestAnimationFrame(frame);
+    }
   }
   function placeCards(dt) {
     var cam = camLocal(C);
@@ -506,6 +525,7 @@
     for (var i = 0; i < cards.length; i++) {
       var c = cards[i];
       if (!c.pull || c === grabbing) continue;
+      if (!motionAllowed()) { c.pull = null; c.pv = null; continue; }
       var p = c.pull, v = c.pv || (c.pv = { x: 0, y: 0, z: 0 });
       v.x += (-PULL_K * p.x - PULL_D * v.x) * dt;
       v.y += (-PULL_K * p.y - PULL_D * v.y) * dt;
@@ -656,7 +676,7 @@
     }
   }
   function drawDust(dt) {
-    if (reduce.matches) dt = 0;
+    if (!motionAllowed()) dt = 0;
     for (var i = 0; i < dust.length; i++) {
       var d = dust[i];
       if (dt) {
@@ -958,12 +978,12 @@
     });
   }
   if (window.MutationObserver) {
-    new MutationObserver(readPalette).observe(root, {
-      attributes: true, attributeFilter: ['data-theme', 'data-mode', 'data-glass']
+    new MutationObserver(function () { readPalette(); wake(); }).observe(root, {
+      attributes: true, attributeFilter: ['data-theme', 'data-mode', 'data-glass', 'data-motion', 'style']
     });
   }
   if (reduce.addEventListener) {
-    reduce.addEventListener('change', function () { syncAuto(); });
+    reduce.addEventListener('change', function () { syncAuto(); wake(); });
   }
   function boot() {
     boot0('正在铺书架');
@@ -1100,7 +1120,7 @@
   function onResize() {
     if (!resize() || !live) return;
     relayout();
-    if (!raf) { lastT = 0; raf = requestAnimationFrame(frame); }
+    wake();
   }
   if (window.ResizeObserver) {
     new ResizeObserver(onResize).observe(stage);
@@ -1109,6 +1129,16 @@
   }
   document.addEventListener('visibilitychange', function () {
     if (document.hidden) { if (raf) cancelAnimationFrame(raf); raf = 0; }
-    else if (!raf && live) { lastT = 0; raf = requestAnimationFrame(frame); }
+    else wake();
+  });
+  if (window.IntersectionObserver) new IntersectionObserver(function (entries) {
+    inViewport = entries[0].isIntersecting;
+    if (!inViewport) { if (raf) cancelAnimationFrame(raf); raf = 0; }
+    else wake();
+  }, {rootMargin:'80px'}).observe(stage);
+  ['pointerdown', 'pointermove', 'pointerup', 'pointercancel', 'pointerover', 'pointerout', 'wheel', 'click', 'input', 'focusin', 'focusout', 'keydown'].forEach(function (name) {
+    document.addEventListener(name, function (event) {
+      if (dragging || grabbing || (event.target.closest && event.target.closest('.graph-page, #graph-stage, #graph-q, #graph-layout, #graph-auto, #graph-reset, #graph-legend'))) wake();
+    }, {passive:true});
   });
 })();

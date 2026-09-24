@@ -16,7 +16,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>运控回路的实时性：1 kHz 到底能不能跑满 · 洛叶白</title>
-<meta name="description" content="关节控制周期标称 1 kHz，不代表每周期都能按时完成。这篇把从传感器采样到电机下发的整条链路拆开量一遍，给出抖动来源和真正有效的优化手段，以及在 PREEMPT_RT 上踩的坑。">
+<meta name="description" content="区分周期、执行时间、数据年龄与截止时间，建立有界的测量路径，再评估线程调度、内存与系统配置对控制回路的影响。">
 <meta name="author" content="洛叶白">
 <meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#0b0d14" media="(prefers-color-scheme: dark)">
@@ -24,15 +24,15 @@
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="洛叶白">
 <meta property="og:title" content="运控回路的实时性：1 kHz 到底能不能跑满">
-<meta property="og:description" content="关节控制周期标称 1 kHz，不代表每周期都能按时完成。这篇把从传感器采样到电机下发的整条链路拆开量一遍，给出抖动来源和真正有效的优化手段，以及在 PREEMPT_RT 上踩的坑。">
+<meta property="og:description" content="区分周期、执行时间、数据年龄与截止时间，建立有界的测量路径，再评估线程调度、内存与系统配置对控制回路的影响。">
 <meta property="og:url" content="https://luoyebai.github.io/posts/realtime-control-loop/">
 <meta property="og:image" content="https://luoyebai.github.io/assets/images/favicon.svg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://luoyebai.github.io/posts/realtime-control-loop/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css">
-<link rel="stylesheet" href="/assets/site.css">
+<link rel="stylesheet" href="/assets/themes.css?v=77072cd2">
+<link rel="stylesheet" href="/assets/site.css?v=77072cd2">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
 
@@ -44,6 +44,11 @@
 (function () {
   var el = document.documentElement;
   el.classList.add('js');   /* 只有 JS 可用时才启用进场动画的隐藏态 */
+  var compact = matchMedia('(pointer: coarse)').matches ||
+    (navigator.connection && navigator.connection.saveData) ||
+    (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
+    (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+  el.setAttribute('data-performance', compact ? 'compact' : 'standard');
   var q = {};
   try { new URLSearchParams(location.search).forEach(function (v, k) { q[k] = v; }); } catch (e) {}
   var s = {};
@@ -186,7 +191,7 @@
       
 
       <h1 class="phero-title reveal">运控回路的实时性：1 kHz 到底能不能跑满</h1>
-      <p class="phero-lede reveal">关节控制周期标称 1 kHz，不代表每周期都能按时完成。这篇把从传感器采样到电机下发的整条链路拆开量一遍，给出抖动来源和真正有效的优化手段，以及在 PREEMPT_RT 上踩的坑。</p>
+      <p class="phero-lede reveal">区分周期、执行时间、数据年龄与截止时间，建立有界的测量路径，再评估线程调度、内存与系统配置对控制回路的影响。</p>
 
       <div class="phero-meta reveal">
         <span class="meta-item">
@@ -202,6 +207,8 @@
           4 分钟
         </span>
         
+        <span class="meta-item muted">更新于 2026 年 9 月 24 日</span>
+        
       </div>
     </div>
   </header>
@@ -213,25 +220,19 @@
         <p class="toc-title">目录</p>
         <ul>
           
-          <li class="toc-l2"><a href="#先把抖动量出来">先把抖动量出来</a></li>
+          <li class="toc-l2"><a href="#四个时间概念">四个时间概念</a></li>
           
-          <li class="toc-l2"><a href="#抖动的四个来源">抖动的四个来源</a></li>
+          <li class="toc-l2"><a href="#测量不要成为新的抖动来源">测量不要成为新的抖动来源</a></li>
           
-          <li class="toc-l3"><a href="#1-内存分配与锁最常见的隐性抖动">1. 内存分配与锁（最常见的隐性抖动）</a></li>
+          <li class="toc-l2"><a href="#从应用热路径开始">从应用热路径开始</a></li>
           
-          <li class="toc-l3"><a href="#2-调度与优先级反转">2. 调度与优先级反转</a></li>
+          <li class="toc-l2"><a href="#调度策略是系统配置不是魔法开关">调度策略是系统配置，不是魔法开关</a></li>
           
-          <li class="toc-l3"><a href="#3-中间件">3. 中间件</a></li>
+          <li class="toc-l2"><a href="#系统级测试如何分层">系统级测试如何分层</a></li>
           
-          <li class="toc-l3"><a href="#4-内核与-cpu">4. 内核与 CPU</a></li>
+          <li class="toc-l2"><a href="#怎样呈现结果才有意义">怎样呈现结果才有意义</a></li>
           
-          <li class="toc-l2"><a href="#优化后的结果">优化后的结果</a></li>
-          
-          <li class="toc-l2"><a href="#preempt-rt-的坑">PREEMPT_RT 的坑</a></li>
-          
-          <li class="toc-l2"><a href="#一个反直觉的结论">一个反直觉的结论</a></li>
-          
-          <li class="toc-l2"><a href="#检查清单">检查清单</a></li>
+          <li class="toc-l2"><a href="#周期由闭环需求和测量共同决定">周期由闭环需求和测量共同决定</a></li>
           
         </ul>
       </nav>
@@ -239,91 +240,75 @@
     
 
     <div class="post-main">
-      <div class="prose reveal"><p>"我们控制器跑 1 kHz"——这句话通常只说明<strong>定时器</strong>是 1 kHz。</p>
-<p>一条完整的运控回路：编码器/IMU 采样 → 驱动 → 内核 → 中间件 → 控制计算 → 力矩下发 → 电机。任何一环抖动，都会吃掉相位裕度，表现为关节"嗡嗡"响或者高频颤振。</p>
-<h2 id="先把抖动量出来">先把抖动量出来<a class="heading-anchor" href="#先把抖动量出来" aria-label="锚点">#</a></h2>
-<p><strong>别只看均值。</strong> 实时系统里 p99 和最坏值才是你真正面对的。每个环节打时间戳，跑 30 秒统计分布：</p>
-<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">struct</span> <span class="tok-type">Timing</span> <span class="tok-punct">{</span>
-    <span class="tok-builtin">uint64_t</span> t_recv<span class="tok-punct">,</span> t_calc_begin<span class="tok-punct">,</span> t_calc_end<span class="tok-punct">,</span> t_send<span class="tok-punct">;</span>
-    <span class="tok-keyword">void</span> <span class="tok-function">dump</span><span class="tok-punct">(</span><span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">vector</span><span class="tok-operator">&lt;</span><span class="tok-type">Timing</span><span class="tok-operator">&gt;&amp;</span> log<span class="tok-punct">)</span><span class="tok-punct">;</span>
+      
+      <details class="mobile-toc">
+        <summary>本页目录</summary>
+        <nav aria-label="本页目录"><ul>
+          <li class="toc-l2"><a href="#四个时间概念">四个时间概念</a></li><li class="toc-l2"><a href="#测量不要成为新的抖动来源">测量不要成为新的抖动来源</a></li><li class="toc-l2"><a href="#从应用热路径开始">从应用热路径开始</a></li><li class="toc-l2"><a href="#调度策略是系统配置不是魔法开关">调度策略是系统配置，不是魔法开关</a></li><li class="toc-l2"><a href="#系统级测试如何分层">系统级测试如何分层</a></li><li class="toc-l2"><a href="#怎样呈现结果才有意义">怎样呈现结果才有意义</a></li><li class="toc-l2"><a href="#周期由闭环需求和测量共同决定">周期由闭环需求和测量共同决定</a></li>
+        </ul></nav>
+      </details>
+      
+
+      <div class="prose reveal"><p>“控制器运行在 1 kHz”说明目标周期是 1 ms，却没有说明输入多旧、计算何时结束、驱动何时执行。讨论实时性时，需要把这些时间分开。</p>
+<h2 id="四个时间概念">四个时间概念<a class="heading-anchor" href="#四个时间概念" aria-label="锚点">#</a></h2>
+<div class="table-wrap" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
+<thead><tr><th>指标</th><th>定义</th><th>作用</th></tr></thead>
+<tbody>
+<tr><td>唤醒抖动</td><td>实际开始减去计划开始</td><td>定位调度与定时问题</td></tr>
+<tr><td>执行时间</td><td>本次计算结束减去开始</td><td>评估计算预算</td></tr>
+<tr><td>数据年龄</td><td>使用时刻减去采样时刻</td><td>判断反馈是否新鲜</td></tr>
+<tr><td>截止时间违约</td><td>结束时刻晚于本周期 deadline</td><td>判断按时完成的比例</td></tr>
+</tbody></table></div>
+<p>同一时钟域内使用单调时钟测间隔。跨设备测数据年龄要说明同步精度；ROS 时间发生暂停或跳变时，也不能直接拿它替代所有实时计时。</p>
+<h2 id="测量不要成为新的抖动来源">测量不要成为新的抖动来源<a class="heading-anchor" href="#测量不要成为新的抖动来源" aria-label="锚点">#</a></h2>
+<p>在控制循环里写文件、打印日志或让 <code>std::vector</code> 不断扩容，会改变正在测量的系统。初始化时分配固定容量，运行时只写入，结束后再导出，是最简单的起点。</p>
+<p>下面是 <strong>C++17 独立示例</strong>。它演示有界记录，不运行控制器，也不证明操作系统已经满足实时要求。</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-preproc">#include</span> <span class="tok-operator">&lt;</span>array<span class="tok-operator">&gt;</span>
+<span class="tok-preproc">#include</span> <span class="tok-operator">&lt;</span>cstddef<span class="tok-operator">&gt;</span>
+<span class="tok-preproc">#include</span> <span class="tok-operator">&lt;</span>cstdint<span class="tok-operator">&gt;</span>
+<span class="tok-preproc">#include</span> <span class="tok-operator">&lt;</span>iostream<span class="tok-operator">&gt;</span>
+
+<span class="tok-keyword">struct</span> <span class="tok-type">Timing</span> <span class="tok-punct">{</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">uint64_t</span> start_ns<span class="tok-punct">,</span> finish_ns<span class="tok-punct">,</span> deadline_ns<span class="tok-punct">;</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">template</span><span class="tok-operator">&lt;</span><span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">size_t</span> <span class="tok-type">N</span><span class="tok-operator">&gt;</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">TraceBuffer</span> <span class="tok-punct">{</span>
+    <span class="tok-builtin">std</span><span class="tok-operator">::</span>array<span class="tok-operator">&lt;</span><span class="tok-type">Timing</span><span class="tok-punct">,</span> <span class="tok-type">N</span><span class="tok-operator">&gt;</span> rows<span class="tok-punct">{</span><span class="tok-punct">}</span><span class="tok-punct">;</span>
+    <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">size_t</span> used <span class="tok-operator">=</span> <span class="tok-number">0</span><span class="tok-punct">,</span> dropped <span class="tok-operator">=</span> <span class="tok-number">0</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">void</span> <span class="tok-function">record</span><span class="tok-punct">(</span><span class="tok-type">Timing</span> row<span class="tok-punct">)</span> <span class="tok-keyword">noexcept</span> <span class="tok-punct">{</span>
+        <span class="tok-keyword">if</span> <span class="tok-punct">(</span>used <span class="tok-operator">&lt;</span> <span class="tok-type">N</span><span class="tok-punct">)</span> rows<span class="tok-punct">[</span>used<span class="tok-operator">++</span><span class="tok-punct">]</span> <span class="tok-operator">=</span> row<span class="tok-punct">;</span>
+        <span class="tok-keyword">else</span> <span class="tok-operator">++</span>dropped<span class="tok-punct">;</span>
+    <span class="tok-punct">}</span>
 <span class="tok-punct">}</span><span class="tok-punct">;</span>
 
-<span class="tok-keyword">void</span> <span class="tok-function">control_callback</span><span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-type">JointState</span><span class="tok-operator">::</span><span class="tok-type">SharedPtr</span> msg<span class="tok-punct">)</span> <span class="tok-punct">{</span>
-    <span class="tok-type">Timing</span> t<span class="tok-punct">;</span>
-    t<span class="tok-punct">.</span>t_recv <span class="tok-operator">=</span> <span class="tok-function">now_ns</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-    t<span class="tok-punct">.</span>t_calc_begin <span class="tok-operator">=</span> <span class="tok-function">now_ns</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-    <span class="tok-function">compute_torque</span><span class="tok-punct">(</span>msg<span class="tok-punct">,</span> tau_out_<span class="tok-punct">)</span><span class="tok-punct">;</span>
-    t<span class="tok-punct">.</span>t_calc_end <span class="tok-operator">=</span> <span class="tok-function">now_ns</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-    <span class="tok-function">publish_torque</span><span class="tok-punct">(</span>tau_out_<span class="tok-punct">)</span><span class="tok-punct">;</span>
-    t<span class="tok-punct">.</span>t_send <span class="tok-operator">=</span> <span class="tok-function">now_ns</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-    timing_log<span class="tok-punct">.</span><span class="tok-function">push_back</span><span class="tok-punct">(</span>t<span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">int</span> <span class="tok-function">main</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-type">TraceBuffer</span><span class="tok-operator">&lt;</span><span class="tok-number">2</span><span class="tok-operator">&gt;</span> trace<span class="tok-punct">;</span>
+    trace<span class="tok-punct">.</span><span class="tok-function">record</span><span class="tok-punct">(</span><span class="tok-punct">{</span><span class="tok-number">0</span><span class="tok-punct">,</span> <span class="tok-number">800</span><span class="tok-punct">,</span> <span class="tok-number">1000</span><span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+    trace<span class="tok-punct">.</span><span class="tok-function">record</span><span class="tok-punct">(</span><span class="tok-punct">{</span><span class="tok-number">1000</span><span class="tok-punct">,</span> <span class="tok-number">2100</span><span class="tok-punct">,</span> <span class="tok-number">2000</span><span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+    trace<span class="tok-punct">.</span><span class="tok-function">record</span><span class="tok-punct">(</span><span class="tok-punct">{</span><span class="tok-number">2000</span><span class="tok-punct">,</span> <span class="tok-number">2700</span><span class="tok-punct">,</span> <span class="tok-number">3000</span><span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-comment">// 仅在采样结束后读取；并发读写需要另外设计同步协议。</span>
+    <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">size_t</span> missed <span class="tok-operator">=</span> <span class="tok-number">0</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">size_t</span> i <span class="tok-operator">=</span> <span class="tok-number">0</span><span class="tok-punct">;</span> i <span class="tok-operator">&lt;</span> trace<span class="tok-punct">.</span>used<span class="tok-punct">;</span> <span class="tok-operator">++</span>i<span class="tok-punct">)</span>
+        missed <span class="tok-operator">+=</span> trace<span class="tok-punct">.</span>rows<span class="tok-punct">[</span>i<span class="tok-punct">]</span><span class="tok-punct">.</span>finish_ns <span class="tok-operator">&gt;</span> trace<span class="tok-punct">.</span>rows<span class="tok-punct">[</span>i<span class="tok-punct">]</span><span class="tok-punct">.</span>deadline_ns<span class="tok-punct">;</span>
+    <span class="tok-builtin">std</span><span class="tok-operator">::</span>cout <span class="tok-operator">&lt;&lt;</span> <span class="tok-string">&quot;missed=&quot;</span> <span class="tok-operator">&lt;&lt;</span> missed <span class="tok-operator">&lt;&lt;</span> <span class="tok-string">&quot;, dropped=&quot;</span> <span class="tok-operator">&lt;&lt;</span> trace<span class="tok-punct">.</span>dropped <span class="tok-operator">&lt;&lt;</span> <span class="tok-string">&#x27;\n&#x27;</span><span class="tok-punct">;</span>
 <span class="tok-punct">}</span></code></pre></div>
-<p>四足项目实测（默认 ROS 2 配置，控制周期 1 ms）：</p>
-<div class="table-wrap"><table>
-<thead><tr><th>环节</th><th style="text-align:right">均值</th><th style="text-align:right">p99</th><th style="text-align:right">最坏</th></tr></thead>
-<tbody>
-<tr><td>传感器采样 + 驱动</td><td style="text-align:right">40 µs</td><td style="text-align:right">120 µs</td><td style="text-align:right">480 µs</td></tr>
-<tr><td>中间件传输（默认）</td><td style="text-align:right">180 µs</td><td style="text-align:right">1.9 ms</td><td style="text-align:right">12 ms</td></tr>
-<tr><td>控制计算（WBC）</td><td style="text-align:right">90 µs</td><td style="text-align:right">110 µs</td><td style="text-align:right">140 µs</td></tr>
-<tr><td>力矩下发</td><td style="text-align:right">55 µs</td><td style="text-align:right">160 µs</td><td style="text-align:right">600 µs</td></tr>
-<tr><td><strong>整环</strong></td><td style="text-align:right"><strong>365 µs</strong></td><td style="text-align:right"><strong>2.3 ms</strong></td><td style="text-align:right"><strong>13 ms</strong></td></tr>
-</tbody></table></div>
-<aside class="callout callout-danger"><div class="callout-title">结论很直接</div><div class="callout-body"><p>控制算法只占 90 µs，p99 整环延迟是 2.3 ms——<strong>已经超过 1 ms 周期两倍多</strong>。你的瓶颈从来不是算法。</p></div></aside>
-<h2 id="抖动的四个来源">抖动的四个来源<a class="heading-anchor" href="#抖动的四个来源" aria-label="锚点">#</a></h2>
-<h3 id="1-内存分配与锁最常见的隐性抖动">1. 内存分配与锁（最常见的隐性抖动）<a class="heading-anchor" href="#1-内存分配与锁最常见的隐性抖动" aria-label="锚点">#</a></h3>
-<p>热路径里的 <code>new</code>、<code>std::vector</code> 扩容、<code>std::shared_ptr</code> 的原子引用计数、<code>std::function</code> 的堆分配，单个都是微秒级，但会触发分配器加锁和缺页中断。</p>
-<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-comment">// 反例：回调里构造大对象</span>
-<span class="tok-keyword">void</span> <span class="tok-function">on_state</span><span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-type">JointState</span><span class="tok-operator">::</span><span class="tok-type">SharedPtr</span><span class="tok-operator">&amp;</span> msg<span class="tok-punct">)</span> <span class="tok-punct">{</span>
-    <span class="tok-type">Eigen</span><span class="tok-operator">::</span><span class="tok-type">MatrixXd</span> <span class="tok-function">H</span><span class="tok-punct">(</span><span class="tok-number">23</span><span class="tok-punct">,</span> <span class="tok-number">23</span><span class="tok-punct">)</span><span class="tok-punct">;</span>          <span class="tok-comment">// 堆分配</span>
-    <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">vector</span><span class="tok-operator">&lt;</span><span class="tok-keyword">double</span><span class="tok-operator">&gt;</span> <span class="tok-function">buf</span><span class="tok-punct">(</span>msg<span class="tok-operator">-&gt;</span>size<span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// 又一次</span>
-    <span class="tok-punct">.</span><span class="tok-punct">.</span><span class="tok-punct">.</span>
-<span class="tok-punct">}</span>
-
-<span class="tok-comment">// 正例：构造时预分配，热路径零分配</span>
-<span class="tok-keyword">class</span> <span class="tok-type">Controller</span> <span class="tok-punct">{</span>
-    <span class="tok-type">Eigen</span><span class="tok-operator">::</span><span class="tok-type">Matrix</span><span class="tok-operator">&lt;</span><span class="tok-keyword">double</span><span class="tok-punct">,</span> <span class="tok-number">23</span><span class="tok-punct">,</span> <span class="tok-number">23</span><span class="tok-operator">&gt;</span> <span class="tok-type">H_</span><span class="tok-punct">;</span>   <span class="tok-comment">// 成员变量，栈/对象内</span>
-    <span class="tok-builtin">std</span><span class="tok-operator">::</span>array<span class="tok-operator">&lt;</span><span class="tok-keyword">double</span><span class="tok-punct">,</span> <span class="tok-number">256</span><span class="tok-operator">&gt;</span> buf_<span class="tok-punct">;</span>
-<span class="tok-keyword">public</span><span class="tok-operator">:</span>
-    <span class="tok-keyword">void</span> <span class="tok-function">on_state</span><span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-type">JointState</span><span class="tok-operator">&amp;</span> msg<span class="tok-punct">)</span> <span class="tok-punct">{</span> <span class="tok-comment">/* 只用 H_ / buf_ */</span> <span class="tok-punct">}</span>
-<span class="tok-punct">}</span><span class="tok-punct">;</span></code></pre></div>
-<h3 id="2-调度与优先级反转">2. 调度与优先级反转<a class="heading-anchor" href="#2-调度与优先级反转" aria-label="锚点">#</a></h3>
-<p>默认的 <code>SingleThreadedExecutor</code> 会被任何慢回调阻塞。控制回调必须隔离：</p>
-<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">auto</span> ctrl_group <span class="tok-operator">=</span> node<span class="tok-operator">-&gt;</span><span class="tok-function">create_callback_group</span><span class="tok-punct">(</span>
-    rclcpp<span class="tok-operator">::</span><span class="tok-type">CallbackGroupType</span><span class="tok-operator">::</span><span class="tok-type">MutuallyExclusive</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-<span class="tok-keyword">auto</span> ctrl_exec <span class="tok-operator">=</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">make_shared</span><span class="tok-operator">&lt;</span>rclcpp<span class="tok-operator">::</span>executors<span class="tok-operator">::</span><span class="tok-type">SingleThreadedExecutor</span><span class="tok-operator">&gt;</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-ctrl_exec<span class="tok-operator">-&gt;</span><span class="tok-function">add_callback_group</span><span class="tok-punct">(</span>ctrl_group<span class="tok-punct">,</span> node<span class="tok-operator">-&gt;</span><span class="tok-function">get_node_base_interface</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-<span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-function">thread</span><span class="tok-punct">(</span><span class="tok-punct">[</span>ctrl_exec<span class="tok-punct">]</span> <span class="tok-punct">{</span> ctrl_exec<span class="tok-operator">-&gt;</span><span class="tok-function">spin</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-function">detach</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
-<p>再给这个线程设实时优先级：</p>
-<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp">sched_param param<span class="tok-punct">{</span> <span class="tok-punct">.</span>sched_priority <span class="tok-operator">=</span> <span class="tok-number">80</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
-<span class="tok-function">pthread_setschedparam</span><span class="tok-punct">(</span><span class="tok-function">pthread_self</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-type">SCHED_FIFO</span><span class="tok-punct">,</span> <span class="tok-operator">&amp;</span>param<span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
-<h3 id="3-中间件">3. 中间件<a class="heading-anchor" href="#3-中间件" aria-label="锚点">#</a></h3>
-<p>详见 <a href="/posts/dds-qos-tuning/">DDS 选型与调参</a>：<code>BEST_EFFORT</code> + <code>KEEP_LAST(1)</code> + 进程内零拷贝，能把中间件从 180 µs/p99 1.9 ms 压到 20 µs/p99 40 µs。</p>
-<h3 id="4-内核与-cpu">4. 内核与 CPU<a class="heading-anchor" href="#4-内核与-cpu" aria-label="锚点">#</a></h3>
-<ul><li><strong>CPU 频率调节</strong>：<code>performance</code> 调速器，否则 CPU 降频会让计算时间翻倍</li><li><strong>CPU 隔离</strong>：<code>isolcpus=2,3</code>，控制线程独占核</li><li><strong>中断亲和性</strong>：把网卡/总线中断赶到其它核，别打断控制线程</li><li><strong>内存大页</strong>：减少 TLB miss</li></ul>
-<div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash"><span class="tok-comment"># 内核启动参数</span>
-isolcpus<span class="tok-operator">=</span><span class="tok-number">2</span><span class="tok-punct">,</span><span class="tok-number">3</span> nohz_full<span class="tok-operator">=</span><span class="tok-number">2</span><span class="tok-punct">,</span><span class="tok-number">3</span> rcu_nocbs<span class="tok-operator">=</span><span class="tok-number">2</span><span class="tok-punct">,</span><span class="tok-number">3</span>
-
-<span class="tok-comment"># 运行时</span>
-cpupower frequency-set <span class="tok-operator">-</span>g performance
-chrt <span class="tok-operator">-</span>f <span class="tok-number">80</span> .<span class="tok-operator">/</span>joint_controller
-taskset <span class="tok-operator">-</span>c <span class="tok-number">2</span> .<span class="tok-operator">/</span>joint_controller</code></pre></div>
-<h2 id="优化后的结果">优化后的结果<a class="heading-anchor" href="#优化后的结果" aria-label="锚点">#</a></h2>
-<div class="table-wrap"><table>
-<thead><tr><th>配置</th><th style="text-align:right">延迟均值</th><th style="text-align:right">p99</th><th style="text-align:right">最坏</th></tr></thead>
-<tbody>
-<tr><td>默认</td><td style="text-align:right">365 µs</td><td style="text-align:right">2.3 ms</td><td style="text-align:right">13 ms</td></tr>
-<tr><td>+ QoS + 零拷贝</td><td style="text-align:right">132 µs</td><td style="text-align:right">320 µs</td><td style="text-align:right">1.6 ms</td></tr>
-<tr><td>+ 回调隔离 + 预分配</td><td style="text-align:right">96 µs</td><td style="text-align:right">168 µs</td><td style="text-align:right">620 µs</td></tr>
-<tr><td>+ PREEMPT_RT + 隔离核</td><td style="text-align:right">71 µs</td><td style="text-align:right">104 µs</td><td style="text-align:right">210 µs</td></tr>
-</tbody></table></div>
-<h2 id="preempt-rt-的坑">PREEMPT_RT 的坑<a class="heading-anchor" href="#preempt-rt-的坑" aria-label="锚点">#</a></h2>
-<p>装实时内核不是终点，反而会引入新问题：</p>
-<aside class="callout callout-warn"><div class="callout-title">四个实际踩到的</div><div class="callout-body"><ol><li><strong><code>SCHED_FIFO</code> 优先级给太高（99）</strong>，控制线程把内核线程饿死，系统整体卡顿。80~85 之间比较合适。</li><li><strong>实时内核下 <code>malloc</code> 更慢</strong>。实时补丁为了可预测性牺牲了吞吐，热路径零分配变得更加重要。</li><li><strong>CPU 隔离后没设 <code>rcu_nocbs</code></strong>，RCU 回调仍在隔离核上跑，抖动没降下来。两个参数必须配套。</li><li><strong><code>nohz_full</code> 与某些驱动不兼容</strong>，导致定时器精度反而变差。要逐个驱动验证。</li></ol></div></aside>
-<h2 id="一个反直觉的结论">一个反直觉的结论<a class="heading-anchor" href="#一个反直觉的结论" aria-label="锚点">#</a></h2>
-<p>把控制周期从 1 kHz 降到 500 Hz，控制器性能<strong>没有变差</strong>——因为 p99 延迟从 2.3 ms 降到 1.1 ms，有效控制带宽反而提高了。</p>
-<aside class="callout callout-tip"><div class="callout-title">工程建议</div><div class="callout-body"><p><strong>先测抖动，再定周期。</strong> 与其追求一个跑不满的高频率，不如保证每个周期都按时完成。一个稳定抖动的 500 Hz 回路，胜过抖到 2.3 ms 的 1 kHz。</p></div></aside>
-<h2 id="检查清单">检查清单<a class="heading-anchor" href="#检查清单" aria-label="锚点">#</a></h2>
-<ul class="task-list"><li class="task-item"><input type="checkbox" disabled checked> 每个环节打时间戳，统计 p99 与最坏值</li><li class="task-item"><input type="checkbox" disabled checked> QoS 改 <code>BEST_EFFORT</code> / <code>KEEP_LAST(1)</code></li><li class="task-item"><input type="checkbox" disabled checked> 进程内零拷贝（同进程节点）</li><li class="task-item"><input type="checkbox" disabled checked> 控制回调独立 callback group + 实时优先级</li><li class="task-item"><input type="checkbox" disabled checked> 热路径零分配、零锁、无 <code>std::function</code></li><li class="task-item"><input type="checkbox" disabled checked> CPU 调速器 <code>performance</code></li><li class="task-item"><input type="checkbox" disabled checked> PREEMPT_RT + <code>isolcpus</code> + <code>nohz_full</code> + <code>rcu_nocbs</code></li><li class="task-item"><input type="checkbox" disabled > 用 <code>cyclictest</code> 做 24 小时最坏延迟验证（下一步）</li><li class="task-item"><input type="checkbox" disabled > 长时压力测试下检查内存碎片对分配时间的影响</li></ul></div>
+<p>预期输出是 <code>missed=1, dropped=1</code>。长时间运行可使用有界环形缓冲或单生产者队列，但必须明确满缓冲策略和线程间的内存同步。</p>
+<h2 id="从应用热路径开始">从应用热路径开始<a class="heading-anchor" href="#从应用热路径开始" aria-label="锚点">#</a></h2>
+<p>检查动态内存分配、缺页、无界等待和同步 I/O。固定尺寸对象与预分配有帮助，但不能只凭用了 <code>std::array</code> 就宣布“零抖动”：库调用、消息传递、锁和驱动仍需要测量。ROS 的实时编程资料也强调避免缺页、动态分配及无界阻塞，见 <a href="https://docs.ros.org/en/dashing/Tutorials/Real-Time-Programming.html" target="_blank" rel="noopener">实时编程说明</a>；其中安装示例属于旧发行版，不应直接作为当前部署步骤。</p>
+<p>一个快回调如果排在慢回调后面，仍可能晚执行。ROS 2 中可以隔离 callback group 与 executor，但还应检查组是否被自动加入其他执行器，以及线程的启动、退出和 join 生命周期。不要用一个无管理的 detached 线程掩盖退出问题。</p>
+<h2 id="调度策略是系统配置不是魔法开关">调度策略是系统配置，不是魔法开关<a class="heading-anchor" href="#调度策略是系统配置不是魔法开关" aria-label="锚点">#</a></h2>
+<p><code>SCHED_FIFO</code> 线程持续占用 CPU 时会影响较低优先级任务。设置策略后应检查返回值，并核对权限、实时带宽限制、依赖线程和中断线程的优先级。不存在适合所有设备的“统一优先级 80”。Linux 的 <a href="https://docs.kernel.org/scheduler/sched-rt-group.html" target="_blank" rel="noopener">实时调度文档</a>说明了相关预算机制。</p>
+<p>绑核也要看任务之间的数据与中断路径。把全部中断搬走，可能增加跨核通信；把所有相关工作塞到一个核，又可能造成竞争。先明确拓扑，再对照测量。</p>
+<p>不要把 <code>chrt ./controller</code> 和 <code>taskset ./controller</code> 分别执行当成同一进程的两个设置步骤，那会启动两份程序。正式启动配置应在服务或一个明确的启动命令中组合，并在运行后读取实际调度与亲和性确认。</p>
+<h2 id="系统级测试如何分层">系统级测试如何分层<a class="heading-anchor" href="#系统级测试如何分层" aria-label="锚点">#</a></h2>
+<ol><li>测定时唤醒延迟，记录系统空闲与压力负载两种条件。</li><li>加入计算和内存访问，定位是否由应用热路径造成长尾。</li><li>加入中间件与驱动，测端到端数据年龄及截止时间违约。</li><li>覆盖长时间运行、热状态、网络拥塞和故障恢复。</li></ol>
+<p><code>cyclictest</code> 等工具能提供调度延迟的线索，但不能替代完整控制回路测试。CPU 调速、PREEMPT_RT、内存锁定与隔离设置都应逐项评估，并保留版本与配置。</p>
+<h2 id="怎样呈现结果才有意义">怎样呈现结果才有意义<a class="heading-anchor" href="#怎样呈现结果才有意义" aria-label="锚点">#</a></h2>
+<p>报告样本量、时长、负载、p50/p95/p99、观测最大值与 deadline miss 次数。<strong>各环节的 p99 不能简单相加当作整环 p99</strong>；整环分布应从同一次循环的时间戳计算。</p>
+<p>有限测试中的最大值是“已观察最大值”，不是最坏执行时间证明。一次 30 秒测试没有超时，也不能保证未来不会发生。</p>
+<h2 id="周期由闭环需求和测量共同决定">周期由闭环需求和测量共同决定<a class="heading-anchor" href="#周期由闭环需求和测量共同决定" aria-label="锚点">#</a></h2>
+<p>降低频率可能改善计算余量，但也会改变采样与控制带宽。是否从 1 kHz 改成 500 Hz，需要控制稳定性、驱动行为与任务表现的验证，不能仅凭较低的 p99 决定。</p>
+<p>最终应留下三份可重复使用的产物：时间戳定义、固定条件的测试脚本，以及带版本号的结果记录。这样下一次换内核、驱动或中间件时，才能判断变化来自哪里。</p>
+<p>继续阅读：<a href="/posts/dds-qos-tuning/">DDS 调参与测量</a> · <a href="/posts/quadruped-mpc-wbc/">MPC 与 WBC 的接口</a>。</p></div>
 
       <div class="post-end">
         <span class="end-mark" aria-hidden="true">◆</span>
@@ -391,9 +376,9 @@ taskset <span class="tok-operator">-</span>c <span class="tok-number">2</span> .
 
       <dl class="footer-stats">
         <div><dt>7</dt><dd>篇文章</dd></div>
-        <div><dt>16</dt><dd>篇文档</dd></div>
+        <div><dt>19</dt><dd>篇文档</dd></div>
         <div><dt>5</dt><dd>个项目</dd></div>
-        <div><dt>267</dt><dd>页幻灯片</dd></div>
+        <div><dt>204</dt><dd>页幻灯片</dd></div>
       </dl>
     </div>
 
@@ -427,22 +412,22 @@ taskset <span class="tok-operator">-</span>c <span class="tok-number">2</span> .
         
         <a class="footer-link" href="/docs/windows-to-linux/">
           <span class="t">从 Windows 到 Linux</span>
-          <span class="d">5 篇 · 110 页</span>
+          <span class="d">6 篇 · 67 页</span>
         </a>
         
         <a class="footer-link" href="/docs/cpp/">
           <span class="t">从 C 语言到 C++</span>
-          <span class="d">1 篇 · 17 页</span>
+          <span class="d">1 篇 · 10 页</span>
         </a>
         
         <a class="footer-link" href="/docs/vision/">
           <span class="t">ROS 与机器视觉</span>
-          <span class="d">4 篇 · 79 页</span>
+          <span class="d">6 篇 · 72 页</span>
         </a>
         
         <a class="footer-link" href="/docs/learning/">
           <span class="t">从编程开始的学习</span>
-          <span class="d">6 篇 · 61 页</span>
+          <span class="d">6 篇 · 55 页</span>
         </a>
         
         <a class="footer-more" href="/docs/">
@@ -638,6 +623,15 @@ taskset <span class="tok-operator">-</span>c <span class="tok-number">2</span> .
             <span class="theme-name">暖灯夜色</span>
           </button>
           
+          <button class="theme-card" type="button" data-theme-pick="bocchi" title="波奇光晕">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/bocchi.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#eaa5bc"></i><i style="background:#6acbc9"></i><i style="background:#101b2d"></i>
+              </span>
+            </span>
+            <span class="theme-name">波奇光晕</span>
+          </button>
+          
         </div>
       </section>
 
@@ -679,7 +673,7 @@ taskset <span class="tok-operator">-</span>c <span class="tok-number">2</span> .
             <button type="button" data-val="wide">宽</button>
           </div>
         </div>
-        <p class="set-note">黑体 / 宋体都随站点自带（子集化的 Noto，约 330 / 430 KB），不依赖你本机装了什么字体。</p>
+        <p class="set-note">黑体 / 宋体随站点自带，不依赖本机字体。</p>
       </section>
 
       <section class="set-group">
@@ -716,7 +710,7 @@ taskset <span class="tok-operator">-</span>c <span class="tok-number">2</span> .
             <button type="button" data-val="video">动态视频</button>
           </div>
         </div>
-        <p class="set-note">动态视频是 2560×1440 无声循环，已随站点打包；切到「动态视频」后才开始加载当前主题那一条。</p>
+        <p class="set-note">无声循环视频按当前主题加载；切到「动态视频」后才加载，后台标签页会暂停。</p>
         <div class="set-divider"></div>
         <div class="set-field">
           <span class="set-label">可见度 <b data-out="bgOpacity">—</b></span>
@@ -794,9 +788,9 @@ taskset <span class="tok-operator">-</span>c <span class="tok-number">2</span> .
 </div>
 
 
-<script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.jpg","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.jpg","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.jpg","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.jpg","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.jpg","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.jpg","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.jpg","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.jpg","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.jpg","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.jpg","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.jpg","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.jpg","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.jpg","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.jpg","video":"assets/bg/lumen.mp4"}}</script>
+<script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
 
-<script src="/assets/site.js" defer></script>
+<script src="/assets/site.js?v=77072cd2" defer></script>
 
 </body>
 </html>

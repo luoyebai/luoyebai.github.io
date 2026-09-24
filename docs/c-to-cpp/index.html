@@ -16,7 +16,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>从 C 语言到 C++ 的转变 · 洛叶白</title>
-<meta name="description" content="C++ 不是「带类的 C」。从过程式到泛型，先看清楚它到底补了 C 的哪几个洞，再决定哪些特性值得用。">
+<meta name="description" content="用 RAII、值语义、容器和模板改进 C 风格代码，理解引用、移动与所有权的实际边界。">
 <meta name="author" content="洛叶白">
 <meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#0b0d14" media="(prefers-color-scheme: dark)">
@@ -24,18 +24,18 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="洛叶白">
 <meta property="og:title" content="从 C 语言到 C++ 的转变">
-<meta property="og:description" content="C++ 不是「带类的 C」。从过程式到泛型，先看清楚它到底补了 C 的哪几个洞，再决定哪些特性值得用。">
+<meta property="og:description" content="用 RAII、值语义、容器和模板改进 C 风格代码，理解引用、移动与所有权的实际边界。">
 <meta property="og:url" content="https://luoyebai.github.io/docs/c-to-cpp/">
 <meta property="og:image" content="https://luoyebai.github.io/assets/images/favicon.svg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://luoyebai.github.io/docs/c-to-cpp/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css">
-<link rel="stylesheet" href="/assets/site.css">
+<link rel="stylesheet" href="/assets/themes.css?v=77072cd2">
+<link rel="stylesheet" href="/assets/site.css?v=77072cd2">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
-<link rel="stylesheet" href="/assets/docs.css">
+<link rel="stylesheet" href="/assets/docs.css?v=77072cd2">
 
 
 
@@ -44,6 +44,11 @@
 (function () {
   var el = document.documentElement;
   el.classList.add('js');   /* 只有 JS 可用时才启用进场动画的隐藏态 */
+  var compact = matchMedia('(pointer: coarse)').matches ||
+    (navigator.connection && navigator.connection.saveData) ||
+    (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
+    (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+  el.setAttribute('data-performance', compact ? 'compact' : 'standard');
   var q = {};
   try { new URLSearchParams(location.search).forEach(function (v, k) { q[k] = v; }); } catch (e) {}
   var s = {};
@@ -153,7 +158,7 @@
 
 
 <article class="doc" id="doc"
-         data-slides="17"
+         data-slides="10"
          data-title="从 C 语言到 C++ 的转变">
   <header class="doc-head">
     <nav class="crumbs" aria-label="面包屑">
@@ -165,18 +170,18 @@
     </nav>
 
     <h1 class="doc-title">从 C 语言到 C++ 的转变</h1>
-    <p class="doc-lede">C++ 不是「带类的 C」。从过程式到泛型，先看清楚它到底补了 C 的哪几个洞，再决定哪些特性值得用。</p>
+    <p class="doc-lede">用 RAII、值语义、容器和模板改进 C 风格代码，理解引用、移动与所有权的实际边界。</p>
 
     <p class="doc-meta">
-      <span class="meta-item"><b>6</b> / 1 篇</span>
-      <span class="meta-item"><b>17</b> 页幻灯片</span>
+      <span class="meta-item"><b>1</b> / 1 篇</span>
+      <span class="meta-item"><b>10</b> 页幻灯片</span>
       
     </p>
   </header>
 
   <section class="deck is-paged" id="deck" data-deck aria-roledescription="幻灯片" aria-label="从 C 语言到 C++ 的转变">
     <noscript>
-      <style>.deck .slide{display:block !important;margin-top:1.2rem}</style>
+      <style>.deck .slide{display:block !important;margin-top:1.2rem;height:auto !important;overflow:visible !important}</style>
     </noscript>
     <div class="deck-bar">
       <div class="deck-nav">
@@ -191,7 +196,7 @@
           </svg>
         </button>
         <p class="deck-counter" aria-live="polite">
-          <b data-deck-no>1</b> / 17
+          <b data-deck-no>1</b> / 10
         </p>
       </div>
 
@@ -218,103 +223,61 @@
         
         <li class="is-section">
           <button type="button" data-deck-goto="0">
-            <span class="ol-no">0</span>从 C 语言到 C++ 的转变
+            <span class="ol-no">0</span>从 C 语言到 C++
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="1">
-            <span class="ol-no">1</span>概述（Overview）
+            <span class="ol-no">1</span>从资源清理开始
           </button>
         </li>
         
-        <li class="is-section">
+        <li>
           <button type="button" data-deck-goto="2">
-            <span class="ol-no">2</span>Q1. C 的边界在哪？
+            <span class="ol-no">2</span>RAII：对象负责资源生命周期
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="3">
-            <span class="ol-no">3</span>C 的假设：你自己管好一切
+            <span class="ol-no">3</span>参数类型表达不同责任
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="4">
-            <span class="ol-no">4</span>于是有了这三类经典 bug
+            <span class="ol-no">4</span>优先让容器管理存储
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="5">
-            <span class="ol-no">5</span>真的没有办法吗
+            <span class="ol-no">5</span>模板代替有副作用的宏
           </button>
         </li>
         
-        <li class="is-section">
+        <li>
           <button type="button" data-deck-goto="6">
-            <span class="ol-no">6</span>Q2. C++ 补了哪几个洞？
+            <span class="ol-no">6</span>所有权优先保持简单
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="7">
-            <span class="ol-no">7</span>洞一：让「释放」跟着「作用域」走 —— RAII
+            <span class="ol-no">7</span>std::move 不负责搬运
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="8">
-            <span class="ol-no">8</span>洞二：值语义与引用，把「拷贝」说清楚
+            <span class="ol-no">8</span>constexpr 与泛型的边界
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="9">
-            <span class="ol-no">9</span>洞三：泛型 —— 同一种算法只写一遍
-          </button>
-        </li>
-        
-        <li class="is-section">
-          <button type="button" data-deck-goto="10">
-            <span class="ol-no">10</span>Q3. 哪些特性值得用？
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="11">
-            <span class="ol-no">11</span>优先级清单
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="12">
-            <span class="ol-no">12</span>STL：容器、迭代器、算法
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="13">
-            <span class="ol-no">13</span>智能指针：把所有权说清楚
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="14">
-            <span class="ol-no">14</span>现代 C++ 值得记住的几条
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="15">
-            <span class="ol-no">15</span>最后一句劝告
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="16">
-            <span class="ol-no">16</span>小结
+            <span class="ol-no">9</span>练习与答案
           </button>
         </li>
         
@@ -325,75 +288,33 @@
          aria-label="幻灯片内容，用左右方向键翻页">
       
       <section class="slide slide--section" data-slide="0"
-               data-title="从 C 语言到 C++ 的转变" data-section="1">
-        <div class="slide-inner"><h1>从 C 语言到 C++ 的转变</h1></div>
+               data-title="从 C 语言到 C++" data-section="1">
+        <div class="slide-inner"><h1>从 C 语言到 C++</h1>
+<div class="deck-fragment"><p>本课以 C++17 为基线。目标：用类型表达资源责任，减少分散在各个出口的清理代码。</p></div>
+<div class="deck-fragment"><p>C 和 C++ 都要求理解内存与接口；采用新特性前先说清楚它解决的具体问题。</p></div></div>
       </section>
       
       <section class="slide" data-slide="1"
-               data-title="概述（Overview）">
-        <div class="slide-inner"><h2>概述<strong><em>（Overview）</em></strong></h2>
-<ul><li><strong>Q1.</strong> C 的边界在哪？</li><li><strong>Q2.</strong> C++ 补了哪几个洞？</li><li><strong>Q3.</strong> 哪些特性值得用、哪些是坑？</li><li><del>Q4. 我要不要直接学 Rust</del></li></ul>
-<blockquote><p>这篇不教语法。语法书到处都是，<span class="ink ink-blue">这里只讲「为什么要变」</span>。</p></blockquote></div>
+               data-title="从资源清理开始">
+        <div class="slide-inner"><h2>从资源清理开始</h2>
+<div class="deck-fragment"><div class="code-block" data-lang="c"><div class="code-head"><span class="code-lang">c</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-c">#include &lt;stdio.h&gt;
+int read_first(const char *path) {
+    FILE *file = fopen(path, &quot;r&quot;);
+    if (!file) return -1;
+    int value = fgetc(file);
+    int failed = ferror(file);
+    if (fclose(file) == EOF) failed = 1;
+    return failed ? -1 : value;
+}</code></pre></div></div>
+<div class="deck-fragment"><p>这是“读取首字节”的简化接口，空文件与读取错误都返回负值；需要区分时应设计独立状态码。
+C 可以通过统一清理出口管理资源，但新增分支仍需要检查清理路径。</p></div></div>
       </section>
       
-      <section class="slide slide--section" data-slide="2"
-               data-title="Q1. C 的边界在哪？" data-section="1">
-        <div class="slide-inner"><h1><strong>Q1.</strong> C 的边界在哪？</h1></div>
-      </section>
-      
-      <section class="slide" data-slide="3"
-               data-title="C 的假设：你自己管好一切">
-        <div class="slide-inner"><h2>C 的假设：你自己管好一切</h2>
-<p>C 是一门<strong>贴着机器</strong>的语言，它的每一条设计都在说同一句话：</p>
-<p><span class="ink ink-red">「我不管你，你自己清楚你在干什么。」</span></p>
-<ul><li>内存：<code>malloc</code> / <code>free</code>，配对是你的事。</li><li>资源：文件、锁、socket，关不关是你的事。</li><li>类型：能隐式转换就转，转错了也不拦你。</li><li>错误：多数函数只返回一个数，含义靠约定。</li></ul>
-<p>这套设计带来了极致的可控和可预测 —— 也带来了<span class="ink ink-blue">所有错误都得靠人记</span>。</p></div>
-      </section>
-      
-      <section class="slide" data-slide="4"
-               data-title="于是有了这三类经典 bug">
-        <div class="slide-inner"><h2>于是有了这三类经典 bug</h2>
-<div class="table-wrap"><table>
-<thead><tr><th>类型</th><th>长什么样</th><th>根因</th></tr></thead>
-<tbody>
-<tr><td>资源泄漏</td><td>提前 return、中途抛错，<code>fclose</code> 没走到</td><td>释放点分散在多个出口</td></tr>
-<tr><td>悬垂指针</td><td><code>free(p)</code> 之后又用 <code>p</code></td><td>指针和它的生命周期脱钩</td></tr>
-<tr><td>重复释放 / 未初始化</td><td>有时崩，有时不崩</td><td>状态靠人脑维护</td></tr>
-</tbody></table></div>
-<ul><li>注意第二列：<strong>它们都不是「写错了」，而是「忘了写」</strong>。</li><li>编译器不会因为你少写一行就报错。<del>所以它们能活到线上。</del></li></ul></div>
-      </section>
-      
-      <section class="slide" data-slide="5"
-               data-title="真的没有办法吗">
-        <div class="slide-inner"><h2>真的没有办法吗</h2>
-<ul><li>有，而且 C 程序员一直在用 —— 只是要靠<strong>纪律</strong>：</li></ul>
-<div class="code-block" data-lang="c"><div class="code-head"><span class="code-lang">c</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-c">int load(const char *path, char **out) {
-    FILE *f = fopen(path, &quot;rb&quot;);
-    if (!f) return -1;
-    long n = filesize(f);
-    char *buf = malloc(n);
-    if (!buf) { fclose(f); return -2; }     /* ← 每个出口都得记得 */
-    if (fread(buf, 1, n, f) != (size_t)n) {
-        free(buf); fclose(f); return -3;    /* ← 又是两行 */
-    }
-    fclose(f);
-    *out = buf;
-    return 0;
-}</code></pre></div>
-<ul><li>这段代码没错。但它有 <strong>4 个出口，每个都要写对</strong>。</li><li>加一个「出错时打日志」的需求，就要改 4 处。</li></ul>
-<blockquote><p><span class="ink ink-blue">C++ 想做的，就是把「记得」交给类型系统。</span></p></blockquote></div>
-      </section>
-      
-      <section class="slide slide--section" data-slide="6"
-               data-title="Q2. C++ 补了哪几个洞？" data-section="1">
-        <div class="slide-inner"><h1><strong>Q2.</strong> C++ 补了哪几个洞？</h1></div>
-      </section>
-      
-      <section class="slide" data-slide="7"
-               data-title="洞一：让「释放」跟着「作用域」走 —— RAII">
-        <div class="slide-inner"><h2>洞一：让「释放」跟着「作用域」走 —— RAII</h2>
-<figure class="docfig-wrap" data-fig="cpp-raii">
-<svg class="docfig" viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="RAII：资源在构造函数里拿、在析构函数里放；离开作用域就一定回收，包括抛异常">
+      <section class="slide" data-slide="2"
+               data-title="RAII：对象负责资源生命周期">
+        <div class="slide-inner"><h2>RAII：对象负责资源生命周期</h2>
+<div class="deck-fragment"><figure class="docfig-wrap" data-fig="cpp-raii">
+<svg class="docfig" viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="RAII：资源跟随对象生命周期；正常退出作用域和异常展开会调用已构造对象的析构函数">
   <defs><marker id="fc13d926-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" class="fg-head"/></marker></defs>
   <line class="fg-line is-muted" x1="70" y1="240" x2="740" y2="240"/>
   <text class="fg-s" x="70" y="264" text-anchor="start" font-size="12">时间 →</text>
@@ -411,129 +332,112 @@
   <text class="fg-s" x="390" y="40" text-anchor="middle" font-size="12">中途抛异常？析构照样会被调用</text>
   <text class="fg-note" x="70" y="288" text-anchor="start" font-size="12">C 里要记得在每个 return 分支 fclose；C++ 里这个「记得」被交给了类型系统。</text>
 </svg>
-<figcaption>RAII：资源在构造函数里拿、在析构函数里放；离开作用域就一定回收，包括抛异常</figcaption>
-</figure>
-<p>RAII = Resource Acquisition Is Initialization，直译很绕，意思是：</p>
-<p><span class="ink ink-blue"><strong>把资源的生命周期绑到一个对象的生命周期上。</strong></span></p>
-<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">int</span> <span class="tok-function">load</span><span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">string</span> <span class="tok-operator">&amp;</span>path<span class="tok-punct">,</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">vector</span><span class="tok-operator">&lt;</span><span class="tok-keyword">char</span><span class="tok-operator">&gt;</span> <span class="tok-operator">&amp;</span>out<span class="tok-punct">)</span> <span class="tok-punct">{</span>
-    <span class="tok-builtin">std</span><span class="tok-operator">::</span>ifstream <span class="tok-function">f</span><span class="tok-punct">(</span>path<span class="tok-punct">,</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span>ios<span class="tok-operator">::</span>binary<span class="tok-punct">)</span><span class="tok-punct">;</span>   <span class="tok-comment">// 构造即打开</span>
-    <span class="tok-keyword">if</span> <span class="tok-punct">(</span><span class="tok-operator">!</span>f<span class="tok-punct">)</span> <span class="tok-keyword">return</span> <span class="tok-operator">-</span><span class="tok-number">1</span><span class="tok-punct">;</span>
-    out<span class="tok-punct">.</span><span class="tok-function">assign</span><span class="tok-punct">(</span><span class="tok-builtin">std</span><span class="tok-operator">::</span>istreambuf_iterator<span class="tok-operator">&lt;</span><span class="tok-keyword">char</span><span class="tok-operator">&gt;</span><span class="tok-punct">(</span>f<span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-punct">{</span><span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-    <span class="tok-keyword">return</span> <span class="tok-number">0</span><span class="tok-punct">;</span>                                   <span class="tok-comment">// 离开作用域，自动关闭</span>
-<span class="tok-punct">}</span></code></pre></div>
-<ul><li>没有一处 <code>close</code>，也没有一个出口需要特别处理。</li><li><strong>中途抛异常也一样会关</strong> —— 这是 C 里做不到的。</li></ul></div>
+<figcaption>RAII：资源跟随对象生命周期；正常退出作用域和异常展开会调用已构造对象的析构函数</figcaption>
+</figure></div>
+<div class="deck-fragment"><div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-preproc">#include</span> <span class="tok-operator">&lt;</span>fstream<span class="tok-operator">&gt;</span>
+<span class="tok-preproc">#include</span> <span class="tok-operator">&lt;</span>stdexcept<span class="tok-operator">&gt;</span>
+<span class="tok-preproc">#include</span> <span class="tok-operator">&lt;</span><span class="tok-builtin">string</span><span class="tok-operator">&gt;</span>
+<span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">string</span> <span class="tok-function">first_line</span><span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">string</span><span class="tok-operator">&amp;</span> path<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-builtin">std</span><span class="tok-operator">::</span>ifstream <span class="tok-function">file</span><span class="tok-punct">(</span>path<span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">if</span> <span class="tok-punct">(</span><span class="tok-operator">!</span>file<span class="tok-punct">)</span> <span class="tok-keyword">throw</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-function">runtime_error</span><span class="tok-punct">(</span><span class="tok-string">&quot;open failed&quot;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">string</span> line<span class="tok-punct">;</span>
+    <span class="tok-keyword">if</span> <span class="tok-punct">(</span><span class="tok-operator">!</span><span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-function">getline</span><span class="tok-punct">(</span>file<span class="tok-punct">,</span> line<span class="tok-punct">)</span><span class="tok-punct">)</span>
+        <span class="tok-keyword">throw</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-function">runtime_error</span><span class="tok-punct">(</span><span class="tok-string">&quot;no readable first line&quot;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">return</span> line<span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre></div></div>
+<div class="deck-fragment"><p>普通返回和异常展开时，局部流对象析构并关闭文件。RAII 同样适用于锁与内存。
+进程强制终止不保证析构；对写文件，仍需显式检查写入或关闭错误。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="3"
+               data-title="参数类型表达不同责任">
+        <div class="slide-inner"><h2>参数类型表达不同责任</h2>
+<div class="deck-fragment"><div class="table-wrap" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
+<thead><tr><th>参数</th><th>常见含义</th><th>仍需注意</th></tr></thead>
+<tbody>
+<tr><td><code>T value</code></td><td>持有独立参数对象</td><td>可能拷贝或移动</td></tr>
+<tr><td><code>T&amp; value</code></td><td>借用可修改对象</td><td>引用也可能悬垂</td></tr>
+<tr><td><code>const T&amp; value</code></td><td>通过该引用只读</td><td>不能保证其他别名不会修改</td></tr>
+<tr><td><code>T* value</code></td><td>借用地址，可能为空</td><td>说明长度、生命周期与可空性</td></tr>
+</tbody></table></div></div>
+<div class="deck-fragment"><p>引用在有效程序中绑定对象，但不会自动延长任意被引用对象的生命周期。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="4"
+               data-title="优先让容器管理存储">
+        <div class="slide-inner"><h2>优先让容器管理存储</h2>
+<div class="deck-fragment"><div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-preproc">#include</span> <span class="tok-operator">&lt;</span>algorithm<span class="tok-operator">&gt;</span>
+<span class="tok-preproc">#include</span> <span class="tok-operator">&lt;</span><span class="tok-builtin">vector</span><span class="tok-operator">&gt;</span>
+<span class="tok-keyword">int</span> <span class="tok-function">main</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">vector</span><span class="tok-operator">&lt;</span><span class="tok-keyword">int</span><span class="tok-operator">&gt;</span> values<span class="tok-punct">{</span><span class="tok-number">5</span><span class="tok-punct">,</span> <span class="tok-number">2</span><span class="tok-punct">,</span> <span class="tok-number">9</span><span class="tok-punct">,</span> <span class="tok-number">1</span><span class="tok-punct">}</span><span class="tok-punct">;</span>
+    <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-function">sort</span><span class="tok-punct">(</span>values<span class="tok-punct">.</span><span class="tok-function">begin</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">,</span> values<span class="tok-punct">.</span><span class="tok-function">end</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">return</span> values <span class="tok-operator">==</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">vector</span><span class="tok-operator">&lt;</span><span class="tok-keyword">int</span><span class="tok-operator">&gt;</span><span class="tok-punct">{</span><span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-number">2</span><span class="tok-punct">,</span> <span class="tok-number">5</span><span class="tok-punct">,</span> <span class="tok-number">9</span><span class="tok-punct">}</span> <span class="tok-operator">?</span> <span class="tok-number">0</span> <span class="tok-operator">:</span> <span class="tok-number">1</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre></div></div>
+<div class="deck-fragment"><p><code>std::sort</code> 要求随机访问迭代器；<code>std::list</code> 使用自身的 <code>sort</code>。
+<code>vector</code> 扩容可能使原来的指针、引用和迭代器失效，容器不消除生命周期问题。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="5"
+               data-title="模板代替有副作用的宏">
+        <div class="slide-inner"><h2>模板代替有副作用的宏</h2>
+<div class="deck-fragment"><div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">template</span><span class="tok-operator">&lt;</span><span class="tok-keyword">class</span> <span class="tok-type">T</span><span class="tok-operator">&gt;</span>
+<span class="tok-type">T</span> <span class="tok-function">max_value</span><span class="tok-punct">(</span><span class="tok-type">T</span> a<span class="tok-punct">,</span> <span class="tok-type">T</span> b<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">return</span> a <span class="tok-operator">&gt;</span> b <span class="tok-operator">?</span> a <span class="tok-operator">:</span> b<span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre></div></div>
+<div class="deck-fragment"><p>这个按值示例适用于可复制且可比较的小类型，不返回临时对象的引用。</p></div>
+<div class="deck-fragment"><p>宏 <code>MAX(i++, j++)</code> 会先比较两个表达式，再重复求值被选中的表达式，产生额外副作用。
+C 也有 <code>qsort</code> 等通用接口；模板提供另一种类型化复用方式，并非“C 只能复制粘贴”。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="6"
+               data-title="所有权优先保持简单">
+        <div class="slide-inner"><h2>所有权优先保持简单</h2>
+<div class="deck-fragment"><div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-preproc">#include</span> <span class="tok-operator">&lt;</span>memory<span class="tok-operator">&gt;</span>
+<span class="tok-preproc">#include</span> <span class="tok-operator">&lt;</span>utility<span class="tok-operator">&gt;</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">Sensor</span> <span class="tok-punct">{</span> <span class="tok-keyword">int</span> id<span class="tok-punct">;</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">int</span> <span class="tok-function">main</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">auto</span> sensor <span class="tok-operator">=</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">make_unique</span><span class="tok-operator">&lt;</span><span class="tok-type">Sensor</span><span class="tok-operator">&gt;</span><span class="tok-punct">(</span><span class="tok-type">Sensor</span><span class="tok-punct">{</span><span class="tok-number">7</span><span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">auto</span> owner <span class="tok-operator">=</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-function">move</span><span class="tok-punct">(</span>sensor<span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">return</span> <span class="tok-operator">!</span>sensor <span class="tok-operator">&amp;&amp;</span> owner<span class="tok-operator">-&gt;</span>id <span class="tok-operator">==</span> <span class="tok-number">7</span> <span class="tok-operator">?</span> <span class="tok-number">0</span> <span class="tok-operator">:</span> <span class="tok-number">1</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre></div></div>
+<div class="deck-fragment"><p>优先直接持有值；确需动态生命周期时，用 <code>unique_ptr</code> 表达独占。
+只有需要共享所有权时才使用 <code>shared_ptr</code>；<code>weak_ptr</code> 可观察而不增加强引用计数。
+智能指针的大小和成本受删除器等因素影响，不能统称“零开销”。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="7"
+               data-title="std::move 不负责搬运">
+        <div class="slide-inner"><h2>std::move 不负责搬运</h2>
+<div class="deck-fragment"><p><code>std::move</code> 是转换为适合移动重载选择的表达式；真正转移资源的是随后调用的构造或赋值操作。</p></div>
+<div class="deck-fragment"><ul><li>类型没有合适的移动操作时，可能发生复制。</li></ul></div>
+<div class="deck-fragment"><ul><li><code>const</code> 对象经 <code>std::move</code> 后仍带 const，常常不能调用普通移动构造。</li></ul></div>
+<div class="deck-fragment"><ul><li>移动后的标准库对象通常有效但值未指定，除非具体接口承诺更多。</li></ul></div>
+<div class="deck-fragment"><ul><li>移动后的 <code>unique_ptr</code> 明确为空，因此上一页可以检查它。</li></ul></div></div>
       </section>
       
       <section class="slide" data-slide="8"
-               data-title="洞二：值语义与引用，把「拷贝」说清楚">
-        <div class="slide-inner"><h2>洞二：值语义与引用，把「拷贝」说清楚</h2>
-<ul><li>C 里所有东西都是值，想要「别名」只能传指针 —— 然后指针可以为 <code>NULL</code>、
-可以指向已经死掉的对象。</li><li>C++ 把三件事分开表达了：</li></ul>
-<div class="table-wrap"><table>
-<thead><tr><th>写法</th><th>含义</th><th>可不可以为空</th></tr></thead>
-<tbody>
-<tr><td><code>void f(T x)</code></td><td>我拿走一份拷贝</td><td>不适用</td></tr>
-<tr><td><code>void f(T &amp;x)</code></td><td>我要改你</td><td><strong>不可以</strong>（必须传对象）</td></tr>
-<tr><td><code>void f(const T &amp;x)</code></td><td>我只读，且不想拷贝</td><td>不可以</td></tr>
-<tr><td><code>void f(T *x)</code></td><td>可能没有</td><td>可以</td></tr>
-</tbody></table></div>
-<p><span class="ink ink-red">函数签名本身就成了文档。</span>看到 <code>const T&amp;</code> 你就知道它不会改你、也不会拷你。</p></div>
+               data-title="constexpr 与泛型的边界">
+        <div class="slide-inner"><h2>constexpr 与泛型的边界</h2>
+<div class="deck-fragment"><div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">constexpr</span> <span class="tok-keyword">int</span> <span class="tok-function">square</span><span class="tok-punct">(</span><span class="tok-keyword">int</span> x<span class="tok-punct">)</span> <span class="tok-punct">{</span> <span class="tok-keyword">return</span> x <span class="tok-operator">*</span> x<span class="tok-punct">;</span> <span class="tok-punct">}</span>
+<span class="tok-function">static_assert</span><span class="tok-punct">(</span><span class="tok-function">square</span><span class="tok-punct">(</span><span class="tok-number">4</span><span class="tok-punct">)</span> <span class="tok-operator">==</span> <span class="tok-number">16</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div></div>
+<div class="deck-fragment"><p><code>constexpr</code> 函数满足条件时可用于常量求值，也可以在运行时调用。
+模板实例化可以避免某些运行时分派，但编译时间、代码体积和算法成本依然存在。</p></div>
+<div class="deck-fragment"><p>先掌握 RAII、<code>const</code>、容器与标准算法，再为确实存在的变化引入模板或接口继承。</p></div></div>
       </section>
       
       <section class="slide" data-slide="9"
-               data-title="洞三：泛型 —— 同一种算法只写一遍">
-        <div class="slide-inner"><h2>洞三：泛型 —— 同一种算法只写一遍</h2>
-<p>C 里想对 <code>int</code> 和 <code>double</code> 各写一份排序，只能靠宏或者复制粘贴。</p>
-<div class="code-block" data-lang="c"><div class="code-head"><span class="code-lang">c</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-c">/* C 的宏版本：能跑，但报错信息基本没法看 */
-#define MAX(a, b) ((a) &gt; (b) ? (a) : (b))
-MAX(i++, j++)      /* ← 自增了两次 */</code></pre></div>
-<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-comment">// C++ 的模板版本：类型是参数，报错能定位到具体类型</span>
-<span class="tok-keyword">template</span> <span class="tok-operator">&lt;</span><span class="tok-keyword">class</span> <span class="tok-type">T</span><span class="tok-operator">&gt;</span>
-<span class="tok-keyword">const</span> <span class="tok-type">T</span> <span class="tok-operator">&amp;</span><span class="tok-function">maxOf</span><span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-type">T</span> <span class="tok-operator">&amp;</span>a<span class="tok-punct">,</span> <span class="tok-keyword">const</span> <span class="tok-type">T</span> <span class="tok-operator">&amp;</span>b<span class="tok-punct">)</span> <span class="tok-punct">{</span> <span class="tok-keyword">return</span> a <span class="tok-operator">&gt;</span> b <span class="tok-operator">?</span> a <span class="tok-operator">:</span> b<span class="tok-punct">;</span> <span class="tok-punct">}</span></code></pre></div>
-<ul><li>模板是<strong>编译期</strong>展开的，所以没有运行时开销。</li><li>代价是编译变慢、报错变长 —— 这是后面要单独讲的一节。</li></ul></div>
-      </section>
-      
-      <section class="slide slide--section" data-slide="10"
-               data-title="Q3. 哪些特性值得用？" data-section="1">
-        <div class="slide-inner"><h1><strong>Q3.</strong> 哪些特性值得用？</h1></div>
-      </section>
-      
-      <section class="slide" data-slide="11"
-               data-title="优先级清单">
-        <div class="slide-inner"><h2>优先级清单</h2>
-<p>先按这个顺序用，其余的先不碰：</p>
-<ol><li><strong>RAII</strong>：<code>std::string</code>、<code>std::vector</code>、<code>std::ifstream</code>、智能指针。</li><li><strong>引用与 <code>const</code></strong>：把所有「不该改」的地方标出来。</li><li><strong>STL 容器与算法</strong>：别自己写链表和排序。</li><li><strong>模板</strong>：只在真的需要「同一套逻辑多种类型」时用。</li><li><strong>继承与虚函数</strong>：用于<strong>接口</strong>，不用于复用实现。</li></ol>
-<p><span class="ink ink-red">反过来说：不要因为「C++ 有」就去用。</span><br>
-多继承、运算符重载、异常规格、裸 <code>new</code>/<code>delete</code> —— 先当它们不存在。</p></div>
-      </section>
-      
-      <section class="slide" data-slide="12"
-               data-title="STL：容器、迭代器、算法">
-        <div class="slide-inner"><h2>STL：容器、迭代器、算法</h2>
-<p>这是 C++ 最值钱的部分，也是「不像 C」的部分。</p>
-<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-preproc">#include</span> <span class="tok-operator">&lt;</span>algorithm<span class="tok-operator">&gt;</span>
-<span class="tok-preproc">#include</span> <span class="tok-operator">&lt;</span><span class="tok-builtin">vector</span><span class="tok-operator">&gt;</span>
-
-<span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">vector</span><span class="tok-operator">&lt;</span><span class="tok-keyword">int</span><span class="tok-operator">&gt;</span> v<span class="tok-punct">{</span><span class="tok-number">5</span><span class="tok-punct">,</span> <span class="tok-number">2</span><span class="tok-punct">,</span> <span class="tok-number">9</span><span class="tok-punct">,</span> <span class="tok-number">1</span><span class="tok-punct">}</span><span class="tok-punct">;</span>
-<span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-function">sort</span><span class="tok-punct">(</span>v<span class="tok-punct">.</span><span class="tok-function">begin</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">,</span> v<span class="tok-punct">.</span><span class="tok-function">end</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>                       <span class="tok-comment">// 1 2 5 9</span>
-
-<span class="tok-comment">// 迭代器把「容器」和「算法」解耦了：</span>
-<span class="tok-comment">// sort 不知道 v 是 vector 还是数组，它只要一对迭代器</span>
-<span class="tok-keyword">int</span> a<span class="tok-punct">[</span><span class="tok-punct">]</span> <span class="tok-operator">=</span> <span class="tok-punct">{</span><span class="tok-number">3</span><span class="tok-punct">,</span> <span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-number">2</span><span class="tok-punct">}</span><span class="tok-punct">;</span>
-<span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-function">sort</span><span class="tok-punct">(</span><span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-function">begin</span><span class="tok-punct">(</span>a<span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-function">end</span><span class="tok-punct">(</span>a<span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
-<ul><li><strong>算法不关心容器</strong>，这是泛型编程的核心收益。</li><li>记住三个动词：<code>begin</code> / <code>end</code> 划范围，算法吃这个范围。</li></ul></div>
-      </section>
-      
-      <section class="slide" data-slide="13"
-               data-title="智能指针：把所有权说清楚">
-        <div class="slide-inner"><h2>智能指针：把所有权说清楚</h2>
-<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-preproc">#include</span> <span class="tok-operator">&lt;</span>memory<span class="tok-operator">&gt;</span>
-
-<span class="tok-keyword">auto</span> p <span class="tok-operator">=</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">make_unique</span><span class="tok-operator">&lt;</span><span class="tok-type">Widget</span><span class="tok-operator">&gt;</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>        <span class="tok-comment">// 独占：不能拷贝，只能移动</span>
-<span class="tok-keyword">auto</span> q <span class="tok-operator">=</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">make_shared</span><span class="tok-operator">&lt;</span><span class="tok-type">Widget</span><span class="tok-operator">&gt;</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>        <span class="tok-comment">// 共享：引用计数归零才释放</span>
-
-<span class="tok-builtin">std</span><span class="tok-operator">::</span>weak_ptr<span class="tok-operator">&lt;</span><span class="tok-type">Widget</span><span class="tok-operator">&gt;</span> w <span class="tok-operator">=</span> q<span class="tok-punct">;</span>                <span class="tok-comment">// 观察：不增加计数，打破循环引用</span></code></pre></div>
-<ul><li><span class="ink ink-blue"><code>unique_ptr</code> 应该是默认选择</span> —— 它零开销，且表达了「只有一个主人」。</li><li>只有真的需要共享所有权时才上 <code>shared_ptr</code>，因为引用计数有成本。</li><li>一旦用了智能指针，<strong>裸 <code>new</code> 就不应该出现在业务代码里</strong>。</li></ul></div>
-      </section>
-      
-      <section class="slide" data-slide="14"
-               data-title="现代 C++ 值得记住的几条">
-        <div class="slide-inner"><h2>现代 C++ 值得记住的几条</h2>
-<div class="table-wrap"><table>
-<thead><tr><th>特性</th><th>版本</th><th>一句话</th></tr></thead>
-<tbody>
-<tr><td><code>auto</code></td><td>C++11</td><td>让编译器推类型，别手写一长串</td></tr>
-<tr><td>range-for</td><td>C++11</td><td><code>for (auto &amp;x : v)</code>，不用再写迭代器</td></tr>
-<tr><td>移动语义</td><td>C++11</td><td><code>std::move</code> 把资源搬走，不拷贝</td></tr>
-<tr><td><code>nullptr</code></td><td>C++11</td><td>替换 <code>NULL</code>，类型安全</td></tr>
-<tr><td><code>constexpr</code></td><td>C++11/14</td><td>能在编译期算的就别留到运行期</td></tr>
-<tr><td>结构化绑定</td><td>C++17</td><td><code>auto [k, v] = pair;</code></td></tr>
-<tr><td><code>std::optional</code></td><td>C++17</td><td>「可能没有值」写进类型</td></tr>
-<tr><td>概念 concepts</td><td>C++20</td><td>给模板参数加约束，报错终于能看了</td></tr>
-</tbody></table></div>
-<blockquote><p>别一次全用。<span class="ink ink-blue">把 RAII、<code>const</code>、STL 这三样用熟，你就已经写得比大多数「C with class」好了。</span></p></blockquote></div>
-      </section>
-      
-      <section class="slide" data-slide="15"
-               data-title="最后一句劝告">
-        <div class="slide-inner"><h2>最后一句劝告</h2>
-<p><span class="ink ink-red"><strong>不要把 C++ 写成「带类的 C」。</strong></span></p>
-<ul><li>还是手工 <code>malloc/free</code>、还是到处裸指针、还是自己写数组循环 ——
-那就等于付了 C++ 的复杂度，却没拿到它的好处。</li><li>反过来也一样：<span class="ink ink-red"><strong>不要在 C 里假装有 C++。</strong></span>
-用 C 写嵌入式、写内核模块，就老老实实按 C 的纪律来。</li></ul>
-<blockquote><p>语言是工具。<strong>先问「我要解决什么问题」，再问「这门语言为此提供了什么」。</strong></p></blockquote></div>
-      </section>
-      
-      <section class="slide" data-slide="16"
-               data-title="小结">
-        <div class="slide-inner"><h2>小结</h2>
-<ol><li>C 的边界是「<strong>所有清理都得靠人记</strong>」，RAII 把这件事交给了作用域。</li><li>引用 + <code>const</code> 让函数签名本身说明「会不会改你」。</li><li>模板与 STL 让算法只写一遍，且没有运行时开销。</li><li>用法上要有优先级：<span class="ink ink-blue">RAII → const → STL → 模板 → 继承</span>，别倒过来。</li></ol></div>
+               data-title="练习与答案">
+        <div class="slide-inner"><h2>练习与答案</h2>
+<div class="deck-fragment"><p>为什么这个接口危险：<code>const T&amp; maximum(const T&amp; a, const T&amp; b)</code>？</p></div>
+<div class="deck-fragment"><p><strong>答案</strong>：若调用传入临时对象，返回的引用可能在完整表达式结束后悬垂。对小值使用按值返回，或明确限制调用方生命周期。</p></div>
+<div class="deck-fragment"><p>构建示例：<code>c++ -std=c++17 -Wall -Wextra example.cpp -o example</code>。</p></div>
+<div class="deck-fragment"><p>参考：<a href="https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#S-resource" target="_blank" rel="noopener">C++ 核心准则：资源管理</a>、<a href="https://eel.is/c++draft/forward" target="_blank" rel="noopener">C++ 工作草案：move</a>。</p></div></div>
       </section>
       
     </div>
 
     <p class="deck-hint">
-      <kbd>←</kbd><kbd>→</kbd> 翻页 · <kbd>F</kbd> 全屏 · <kbd>Esc</kbd> 退出 · 也可直接点两侧
+      <kbd>←</kbd><kbd>→</kbd> 逐步收起 / 展开，展开完翻页 · <kbd>F</kbd> 全屏 · <kbd>Esc</kbd> 退出
     </p>
 
     
@@ -597,9 +501,9 @@ MAX(i++, j++)      /* ← 自增了两次 */</code></pre></div>
 
       <dl class="footer-stats">
         <div><dt>7</dt><dd>篇文章</dd></div>
-        <div><dt>16</dt><dd>篇文档</dd></div>
+        <div><dt>19</dt><dd>篇文档</dd></div>
         <div><dt>5</dt><dd>个项目</dd></div>
-        <div><dt>267</dt><dd>页幻灯片</dd></div>
+        <div><dt>204</dt><dd>页幻灯片</dd></div>
       </dl>
     </div>
 
@@ -633,22 +537,22 @@ MAX(i++, j++)      /* ← 自增了两次 */</code></pre></div>
         
         <a class="footer-link" href="/docs/windows-to-linux/">
           <span class="t">从 Windows 到 Linux</span>
-          <span class="d">5 篇 · 110 页</span>
+          <span class="d">6 篇 · 67 页</span>
         </a>
         
         <a class="footer-link" href="/docs/cpp/">
           <span class="t">从 C 语言到 C++</span>
-          <span class="d">1 篇 · 17 页</span>
+          <span class="d">1 篇 · 10 页</span>
         </a>
         
         <a class="footer-link" href="/docs/vision/">
           <span class="t">ROS 与机器视觉</span>
-          <span class="d">4 篇 · 79 页</span>
+          <span class="d">6 篇 · 72 页</span>
         </a>
         
         <a class="footer-link" href="/docs/learning/">
           <span class="t">从编程开始的学习</span>
-          <span class="d">6 篇 · 61 页</span>
+          <span class="d">6 篇 · 55 页</span>
         </a>
         
         <a class="footer-more" href="/docs/">
@@ -844,6 +748,15 @@ MAX(i++, j++)      /* ← 自增了两次 */</code></pre></div>
             <span class="theme-name">暖灯夜色</span>
           </button>
           
+          <button class="theme-card" type="button" data-theme-pick="bocchi" title="波奇光晕">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/bocchi.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#eaa5bc"></i><i style="background:#6acbc9"></i><i style="background:#101b2d"></i>
+              </span>
+            </span>
+            <span class="theme-name">波奇光晕</span>
+          </button>
+          
         </div>
       </section>
 
@@ -885,7 +798,7 @@ MAX(i++, j++)      /* ← 自增了两次 */</code></pre></div>
             <button type="button" data-val="wide">宽</button>
           </div>
         </div>
-        <p class="set-note">黑体 / 宋体都随站点自带（子集化的 Noto，约 330 / 430 KB），不依赖你本机装了什么字体。</p>
+        <p class="set-note">黑体 / 宋体随站点自带，不依赖本机字体。</p>
       </section>
 
       <section class="set-group">
@@ -922,7 +835,7 @@ MAX(i++, j++)      /* ← 自增了两次 */</code></pre></div>
             <button type="button" data-val="video">动态视频</button>
           </div>
         </div>
-        <p class="set-note">动态视频是 2560×1440 无声循环，已随站点打包；切到「动态视频」后才开始加载当前主题那一条。</p>
+        <p class="set-note">无声循环视频按当前主题加载；切到「动态视频」后才加载，后台标签页会暂停。</p>
         <div class="set-divider"></div>
         <div class="set-field">
           <span class="set-label">可见度 <b data-out="bgOpacity">—</b></span>
@@ -1000,10 +913,10 @@ MAX(i++, j++)      /* ← 自增了两次 */</code></pre></div>
 </div>
 
 
-<script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.jpg","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.jpg","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.jpg","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.jpg","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.jpg","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.jpg","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.jpg","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.jpg","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.jpg","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.jpg","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.jpg","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.jpg","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.jpg","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.jpg","video":"assets/bg/lumen.mp4"}}</script>
+<script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
 
-<script src="/assets/site.js" defer></script>
-<script src="/assets/docs.js" defer></script>
+<script src="/assets/site.js?v=77072cd2" defer></script>
+<script src="/assets/docs.js?v=77072cd2" defer></script>
 
 </body>
 </html>

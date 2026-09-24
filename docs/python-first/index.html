@@ -16,7 +16,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>从 Python 入手 · 洛叶白</title>
-<meta name="description" content="为什么第一门语言选 Python、它到底是什么、环境怎么搭起来，以及新手一定会踩的那几个坑。">
+<meta name="description" content="从虚拟环境和第一个脚本开始，理解名字与对象、函数、异常和可执行测试。">
 <meta name="author" content="洛叶白">
 <meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#0b0d14" media="(prefers-color-scheme: dark)">
@@ -24,18 +24,18 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="洛叶白">
 <meta property="og:title" content="从 Python 入手">
-<meta property="og:description" content="为什么第一门语言选 Python、它到底是什么、环境怎么搭起来，以及新手一定会踩的那几个坑。">
+<meta property="og:description" content="从虚拟环境和第一个脚本开始，理解名字与对象、函数、异常和可执行测试。">
 <meta property="og:url" content="https://luoyebai.github.io/docs/python-first/">
 <meta property="og:image" content="https://luoyebai.github.io/assets/images/favicon.svg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://luoyebai.github.io/docs/python-first/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css">
-<link rel="stylesheet" href="/assets/site.css">
+<link rel="stylesheet" href="/assets/themes.css?v=77072cd2">
+<link rel="stylesheet" href="/assets/site.css?v=77072cd2">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
-<link rel="stylesheet" href="/assets/docs.css">
+<link rel="stylesheet" href="/assets/docs.css?v=77072cd2">
 
 
 
@@ -44,6 +44,11 @@
 (function () {
   var el = document.documentElement;
   el.classList.add('js');   /* 只有 JS 可用时才启用进场动画的隐藏态 */
+  var compact = matchMedia('(pointer: coarse)').matches ||
+    (navigator.connection && navigator.connection.saveData) ||
+    (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
+    (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+  el.setAttribute('data-performance', compact ? 'compact' : 'standard');
   var q = {};
   try { new URLSearchParams(location.search).forEach(function (v, k) { q[k] = v; }); } catch (e) {}
   var s = {};
@@ -153,7 +158,7 @@
 
 
 <article class="doc" id="doc"
-         data-slides="17"
+         data-slides="11"
          data-title="从 Python 入手">
   <header class="doc-head">
     <nav class="crumbs" aria-label="面包屑">
@@ -165,18 +170,18 @@
     </nav>
 
     <h1 class="doc-title">从 Python 入手</h1>
-    <p class="doc-lede">为什么第一门语言选 Python、它到底是什么、环境怎么搭起来，以及新手一定会踩的那几个坑。</p>
+    <p class="doc-lede">从虚拟环境和第一个脚本开始，理解名字与对象、函数、异常和可执行测试。</p>
 
     <p class="doc-meta">
-      <span class="meta-item"><b>12</b> / 6 篇</span>
-      <span class="meta-item"><b>17</b> 页幻灯片</span>
+      <span class="meta-item"><b>2</b> / 6 篇</span>
+      <span class="meta-item"><b>11</b> 页幻灯片</span>
       
     </p>
   </header>
 
   <section class="deck is-paged" id="deck" data-deck aria-roledescription="幻灯片" aria-label="从 Python 入手">
     <noscript>
-      <style>.deck .slide{display:block !important;margin-top:1.2rem}</style>
+      <style>.deck .slide{display:block !important;margin-top:1.2rem;height:auto !important;overflow:visible !important}</style>
     </noscript>
     <div class="deck-bar">
       <div class="deck-nav">
@@ -191,7 +196,7 @@
           </svg>
         </button>
         <p class="deck-counter" aria-live="polite">
-          <b data-deck-no>1</b> / 17
+          <b data-deck-no>1</b> / 11
         </p>
       </div>
 
@@ -224,97 +229,61 @@
         
         <li>
           <button type="button" data-deck-goto="1">
-            <span class="ol-no">1</span>概述（Overview）
+            <span class="ol-no">1</span>建立独立环境
           </button>
         </li>
         
-        <li class="is-section">
+        <li>
           <button type="button" data-deck-goto="2">
-            <span class="ol-no">2</span>Q1. 为什么第一门语言是它？
+            <span class="ol-no">2</span>第一个可验证的脚本
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="3">
-            <span class="ol-no">3</span>先问一句：第一门语言学什么，真的重要吗
+            <span class="ol-no">3</span>类型属于对象
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="4">
-            <span class="ol-no">4</span>Python 把哪些东西先替你收起来了
+            <span class="ol-no">4</span>名字、别名与复制
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="5">
-            <span class="ol-no">5</span>顺手说清楚：Python 慢，是不是问题
+            <span class="ol-no">5</span>条件、循环与函数
           </button>
         </li>
         
-        <li class="is-section">
+        <li>
           <button type="button" data-deck-goto="6">
-            <span class="ol-no">6</span>Q2. Python 到底是什么？
+            <span class="ol-no">6</span>默认参数只在定义时求值
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="7">
-            <span class="ol-no">7</span>一句话：它是一种解释型的、动态类型的语言
+            <span class="ol-no">7</span>从异常追到输入
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="8">
-            <span class="ol-no">8</span>「名字」和「对象」是两回事
+            <span class="ol-no">8</span>模块与入口
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="9">
-            <span class="ol-no">9</span>那些「奇怪」的报错都从这来
+            <span class="ol-no">9</span>数值比较要表达容差
           </button>
         </li>
         
-        <li class="is-section">
+        <li>
           <button type="button" data-deck-goto="10">
-            <span class="ol-no">10</span>Q3. 从哪一行开始？
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="11">
-            <span class="ol-no">11</span>环境：先把这个坑填了
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="12">
-            <span class="ol-no">12</span>一个脚本 → 一个模块 → 一个包
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="13">
-            <span class="ol-no">13</span>新手一定会踩的五个坑
-          </button>
-        </li>
-        
-        <li class="is-section">
-          <button type="button" data-deck-goto="14">
-            <span class="ol-no">14</span>小结
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="15">
-            <span class="ol-no">15</span>三句话
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="16">
-            <span class="ol-no">16</span>动手
+            <span class="ol-no">10</span>练习与参考
           </button>
         </li>
         
@@ -326,71 +295,54 @@
       
       <section class="slide slide--section" data-slide="0"
                data-title="从 Python 入手" data-section="1">
-        <div class="slide-inner"><h1>从 Python 入手</h1></div>
+        <div class="slide-inner"><h1>从 Python 入手</h1>
+<div class="deck-fragment"><p>本课使用 Python 3。目标：写一个能运行、能解释、能验证的脚本。</p></div>
+<div class="deck-fragment"><p>Python 适合快速表达逻辑与调用库；实际性能取决于实现、算法、数据与底层库，不能固定宣称比 C 慢多少倍。</p></div></div>
       </section>
       
       <section class="slide" data-slide="1"
-               data-title="概述（Overview）">
-        <div class="slide-inner"><h2>概述<strong><em>（Overview）</em></strong></h2>
-<ul><li><strong>Q1.</strong> 为什么第一门语言是它？<strong><em>（Why）</em></strong></li><li><strong>Q2.</strong> Python 到底是什么？<strong><em>（What）</em></strong></li><li><strong>Q3.</strong> 从哪一行开始？<strong><em>（How）</em></strong></li><li><del>Q4. 学会了能干嘛</del> ——写出来才知道</li></ul></div>
+               data-title="建立独立环境">
+        <div class="slide-inner"><h2>建立独立环境</h2>
+<div class="deck-fragment"><p>Linux / macOS：</p></div>
+<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">python3 <span class="tok-operator">-</span>m venv .venv
+<span class="tok-keyword">source</span> .venv<span class="tok-operator">/</span>bin<span class="tok-operator">/</span>activate
+python <span class="tok-operator">--</span>version</code></pre></div></div>
+<div class="deck-fragment"><p>Windows PowerShell（已安装 Python 3）：</p></div>
+<div class="deck-fragment"><div class="code-block" data-lang="powershell"><div class="code-head"><span class="code-lang">powershell</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-powershell">py <span class="tok-operator">-</span><span class="tok-number">3</span> <span class="tok-operator">-</span>m venv <span class="tok-punct">.</span>venv
+<span class="tok-punct">.</span>venv\<span class="tok-type">Scripts</span>\python<span class="tok-punct">.</span>exe <span class="tok-operator">--</span>version</code></pre></div></div>
+<div class="deck-fragment"><p>可以直接使用虚拟环境的解释器，无须修改执行策略。安装依赖时使用对应的 <code>python -m pip</code>。</p></div></div>
       </section>
       
-      <section class="slide slide--section" data-slide="2"
-               data-title="Q1. 为什么第一门语言是它？" data-section="1">
-        <div class="slide-inner"><h1><strong>Q1.</strong> 为什么第一门语言是它？</h1></div>
+      <section class="slide" data-slide="2"
+               data-title="第一个可验证的脚本">
+        <div class="slide-inner"><h2>第一个可验证的脚本</h2>
+<div class="deck-fragment"><p>保存为 <code>temperature.py</code>：</p></div>
+<div class="deck-fragment"><div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">def</span> <span class="tok-function">celsius_to_fahrenheit</span><span class="tok-punct">(</span>celsius<span class="tok-punct">)</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">return</span> celsius <span class="tok-operator">*</span> <span class="tok-number">9</span> <span class="tok-operator">/</span> <span class="tok-number">5</span> <span class="tok-operator">+</span> <span class="tok-number">32</span>
+
+<span class="tok-keyword">if</span> __name__ <span class="tok-operator">==</span> <span class="tok-string">&#x27;__main__&#x27;</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">assert</span> <span class="tok-function">celsius_to_fahrenheit</span><span class="tok-punct">(</span><span class="tok-number">0</span><span class="tok-punct">)</span> <span class="tok-operator">==</span> <span class="tok-number">32</span>
+    <span class="tok-keyword">assert</span> <span class="tok-function">celsius_to_fahrenheit</span><span class="tok-punct">(</span><span class="tok-number">100</span><span class="tok-punct">)</span> <span class="tok-operator">==</span> <span class="tok-number">212</span>
+    <span class="tok-builtin">print</span><span class="tok-punct">(</span><span class="tok-function">celsius_to_fahrenheit</span><span class="tok-punct">(</span><span class="tok-number">25</span><span class="tok-punct">)</span><span class="tok-punct">)</span></code></pre></div></div>
+<div class="deck-fragment"><p>运行 <code>python temperature.py</code>，预期输出 <code>77.0</code>。
+Windows 未激活环境时使用 <code>.venv\Scripts\python.exe temperature.py</code>。</p></div></div>
       </section>
       
       <section class="slide" data-slide="3"
-               data-title="先问一句：第一门语言学什么，真的重要吗">
-        <div class="slide-inner"><h2>先问一句：第一门语言学什么，真的重要吗</h2>
-<ul><li>重要，但<strong>没有你想的那么重要</strong>。</li><li>真正难的是「把一个想法拆成步骤」，这件事换哪种语言都一样。</li><li>所以第一门语言的任务只有一条：<span class="ink ink-blue">让你尽可能快地把想法跑起来</span>，
-而不是让你一次学完所有概念。</li><li>那为什么不从 C 开始？——C 会逼你同时面对三件事：</li></ul>
-<ol><li>语言本身</li><li>内存与地址</li><li>编译、链接、构建</li></ol>
-<p><del>新手同时接三个球，基本都会掉。</del></p></div>
+               data-title="类型属于对象">
+        <div class="slide-inner"><h2>类型属于对象</h2>
+<div class="deck-fragment"><p>常见 CPython 实现先把源码编译为字节码，再执行；“逐行直接解释源码”并不准确。
+Python 是动态类型语言，名称可以绑定到不同类型的对象。</p></div>
+<div class="deck-fragment"><div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python">value <span class="tok-operator">=</span> <span class="tok-number">3</span>
+value <span class="tok-operator">=</span> <span class="tok-string">&#x27;three&#x27;</span>
+<span class="tok-builtin">print</span><span class="tok-punct">(</span><span class="tok-builtin">type</span><span class="tok-punct">(</span>value<span class="tok-punct">)</span><span class="tok-punct">)</span>  <span class="tok-comment"># &lt;class &#x27;str&#x27;&gt;</span></code></pre></div></div>
+<div class="deck-fragment"><p>类型注解表达意图，普通解释器不会自动把所有注解变成运行时校验。</p></div></div>
       </section>
       
       <section class="slide" data-slide="4"
-               data-title="Python 把哪些东西先替你收起来了">
-        <div class="slide-inner"><h2>Python 把哪些东西先替你收起来了</h2>
-<div class="table-wrap"><table>
-<thead><tr><th>你暂时不用管</th><th>什么时候再回来管</th></tr></thead>
-<tbody>
-<tr><td>类型声明</td><td>想写大一点的项目时</td></tr>
-<tr><td>手动管内存</td><td>需要抠性能时（先学会 C）</td></tr>
-<tr><td>编译链接</td><td>需要发布成单文件时</td></tr>
-<tr><td>工程结构</td><td>代码超过几百行时</td></tr>
-</tbody></table></div>
-<blockquote><p><span class="ink ink-blue"><strong>先能跑，再谈好。</strong></span> 这句话对新手和对老手都成立，只是「好」的标准不同。</p></blockquote></div>
-      </section>
-      
-      <section class="slide" data-slide="5"
-               data-title="顺手说清楚：Python 慢，是不是问题">
-        <div class="slide-inner"><h2>顺手说清楚：Python 慢，是不是问题</h2>
-<ul><li>是，也不是。</li><li><strong>纯 Python 的循环</strong>确实比 C 慢一到两个数量级，这是事实。</li><li>但工程里真正的瓶颈往往不在语言，而在<span class="ink ink-red">算法和数据搬运</span>。</li><li>而且 Python 的生态里，吃性能的那部分（numpy / OpenCV / PyTorch）
-本来就是 C/C++ 写的，Python 只是那个「遥控器」。</li></ul>
-<div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-text">你用 Python 描述「要算什么」，
-真正在算的是下面那层 C —— 所以速度未必差。</code></pre></div>
-<blockquote><p>ps：真到了遥控器也不够用的时候，再回去学 C 和指针，那时候你会有明确的目标。</p></blockquote></div>
-      </section>
-      
-      <section class="slide slide--section" data-slide="6"
-               data-title="Q2. Python 到底是什么？" data-section="1">
-        <div class="slide-inner"><h1><strong>Q2.</strong> Python 到底是什么？</h1></div>
-      </section>
-      
-      <section class="slide" data-slide="7"
-               data-title="一句话：它是一种解释型的、动态类型的语言">
-        <div class="slide-inner"><h2>一句话：它是一种<strong>解释型</strong>的、<strong>动态类型</strong>的语言</h2>
-<p>拆开看这两个词：</p>
-<ul><li><strong>解释型</strong> —— 没有「编译成机器码」这一步独立的产物，
-代码交给一个叫解释器的程序，它一边读一边执行。</li><li><strong>动态类型</strong> —— 变量不声明类型，类型跟着<strong>它当时指向的那个对象</strong>走。</li><li>这两条决定了后面所有的行为，包括那些让人困惑的报错。</li></ul></div>
-      </section>
-      
-      <section class="slide" data-slide="8"
-               data-title="「名字」和「对象」是两回事">
-        <div class="slide-inner"><h2>「名字」和「对象」是两回事</h2>
-<p>这是新手到进阶最重要的一道坎。</p>
-<figure class="docfig-wrap" data-fig="py-object">
+               data-title="名字、别名与复制">
+        <div class="slide-inner"><h2>名字、别名与复制</h2>
+<div class="deck-fragment"><figure class="docfig-wrap" data-fig="py-object">
 <svg class="docfig" viewBox="0 0 780 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Python 的变量是「名字」，赋值是把名字绑到对象上；同一个对象可以有多个名字">
   <defs><marker id="fe93df5b-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" class="fg-head"/></marker></defs>
   <rect class="fg-box is-accent" x="50" y="60" width="130" height="56" rx="9"/>
@@ -407,122 +359,99 @@
   <path class="fg-line" d="M 530 145 L 598 145" fill="none" marker-end="url(#fe93df5b-a)"/>
   <text class="fg-s" x="255" y="96" text-anchor="middle" font-size="12">a = [1, 2, 3]</text>
   <text class="fg-s" x="255" y="214" text-anchor="middle" font-size="12">b = a</text>
-  <text class="fg-note" x="50" y="262" text-anchor="start" font-size="12">b = a 没有复制列表，只是又多了一个名字。改 b 就是改 a —— 要真复制得写 b = list(a)。</text>
+  <text class="fg-note" x="50" y="262" text-anchor="start" font-size="12">修改共享列表会被双方观察到；重新绑定 b 不改变 a。list(a) 是浅复制。</text>
 </svg>
 <figcaption>Python 的变量是「名字」，赋值是把名字绑到对象上；同一个对象可以有多个名字</figcaption>
-</figure>
-<ul><li><code>a = [1, 2, 3]</code> 做的是：先造一个 list 对象，再把名字 <code>a</code> 绑到它上面。</li><li><code>b = a</code> 做的是：把 <code>b</code> 也绑到<span class="ink ink-red">同一个</span>对象上。</li><li>所以改 <code>b</code> 就是改 <code>a</code> —— 它们不是两个盒子，是两个标签贴在同一个盒子上。</li></ul>
-<div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python">a <span class="tok-operator">=</span> <span class="tok-punct">[</span><span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-number">2</span><span class="tok-punct">,</span> <span class="tok-number">3</span><span class="tok-punct">]</span>
+</figure></div>
+<div class="deck-fragment"><div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python">a <span class="tok-operator">=</span> <span class="tok-punct">[</span><span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-number">2</span><span class="tok-punct">]</span>
 b <span class="tok-operator">=</span> a
-b<span class="tok-punct">.</span><span class="tok-function">append</span><span class="tok-punct">(</span><span class="tok-number">4</span><span class="tok-punct">)</span>
-<span class="tok-builtin">print</span><span class="tok-punct">(</span>a<span class="tok-punct">)</span>          <span class="tok-comment"># [1, 2, 3, 4]  —— a 也变了</span>
+b<span class="tok-punct">.</span><span class="tok-function">append</span><span class="tok-punct">(</span><span class="tok-number">3</span><span class="tok-punct">)</span>
+<span class="tok-keyword">assert</span> a <span class="tok-operator">==</span> <span class="tok-punct">[</span><span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-number">2</span><span class="tok-punct">,</span> <span class="tok-number">3</span><span class="tok-punct">]</span>
+b <span class="tok-operator">=</span> <span class="tok-punct">[</span><span class="tok-number">9</span><span class="tok-punct">]</span>
+<span class="tok-keyword">assert</span> a <span class="tok-operator">==</span> <span class="tok-punct">[</span><span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-number">2</span><span class="tok-punct">,</span> <span class="tok-number">3</span><span class="tok-punct">]</span></code></pre></div></div>
+<div class="deck-fragment"><p>修改共享列表会被两个名字观察到；重新绑定 <code>b</code> 不会重新绑定 <code>a</code>。
+<code>list(a)</code> 是浅复制，嵌套的可变对象仍可能共享。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="5"
+               data-title="条件、循环与函数">
+        <div class="slide-inner"><h2>条件、循环与函数</h2>
+<div class="deck-fragment"><div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">def</span> <span class="tok-function">positive_values</span><span class="tok-punct">(</span>values<span class="tok-punct">)</span><span class="tok-punct">:</span>
+    result <span class="tok-operator">=</span> <span class="tok-punct">[</span><span class="tok-punct">]</span>
+    <span class="tok-keyword">for</span> value <span class="tok-keyword">in</span> values<span class="tok-punct">:</span>
+        <span class="tok-keyword">if</span> value <span class="tok-operator">&gt;</span> <span class="tok-number">0</span><span class="tok-punct">:</span>
+            result<span class="tok-punct">.</span><span class="tok-function">append</span><span class="tok-punct">(</span>value<span class="tok-punct">)</span>
+    <span class="tok-keyword">return</span> result
 
-c <span class="tok-operator">=</span> <span class="tok-builtin">list</span><span class="tok-punct">(</span>a<span class="tok-punct">)</span>       <span class="tok-comment"># 这才是复制</span>
-c<span class="tok-punct">.</span><span class="tok-function">append</span><span class="tok-punct">(</span><span class="tok-number">5</span><span class="tok-punct">)</span>
-<span class="tok-builtin">print</span><span class="tok-punct">(</span>a<span class="tok-punct">)</span>          <span class="tok-comment"># [1, 2, 3, 4]</span></code></pre></div></div>
+<span class="tok-keyword">assert</span> <span class="tok-function">positive_values</span><span class="tok-punct">(</span><span class="tok-punct">[</span><span class="tok-operator">-</span><span class="tok-number">2</span><span class="tok-punct">,</span> <span class="tok-number">0</span><span class="tok-punct">,</span> <span class="tok-number">3</span><span class="tok-punct">,</span> <span class="tok-number">5</span><span class="tok-punct">]</span><span class="tok-punct">)</span> <span class="tok-operator">==</span> <span class="tok-punct">[</span><span class="tok-number">3</span><span class="tok-punct">,</span> <span class="tok-number">5</span><span class="tok-punct">]</span>
+<span class="tok-keyword">assert</span> <span class="tok-function">positive_values</span><span class="tok-punct">(</span><span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">)</span> <span class="tok-operator">==</span> <span class="tok-punct">[</span><span class="tok-punct">]</span></code></pre></div></div>
+<div class="deck-fragment"><p>用四个空格缩进。先把输入输出约定写清楚，再决定是否改成列表推导式。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="6"
+               data-title="默认参数只在定义时求值">
+        <div class="slide-inner"><h2>默认参数只在定义时求值</h2>
+<div class="deck-fragment"><div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">def</span> <span class="tok-function">append_value</span><span class="tok-punct">(</span>value<span class="tok-punct">,</span> items<span class="tok-operator">=</span><span class="tok-keyword">None</span><span class="tok-punct">)</span><span class="tok-punct">:</span>
+    <span class="tok-keyword">if</span> items <span class="tok-keyword">is</span> <span class="tok-keyword">None</span><span class="tok-punct">:</span>
+        items <span class="tok-operator">=</span> <span class="tok-punct">[</span><span class="tok-punct">]</span>
+    items<span class="tok-punct">.</span><span class="tok-function">append</span><span class="tok-punct">(</span>value<span class="tok-punct">)</span>
+    <span class="tok-keyword">return</span> items
+
+<span class="tok-keyword">assert</span> <span class="tok-function">append_value</span><span class="tok-punct">(</span><span class="tok-number">1</span><span class="tok-punct">)</span> <span class="tok-operator">==</span> <span class="tok-punct">[</span><span class="tok-number">1</span><span class="tok-punct">]</span>
+<span class="tok-keyword">assert</span> <span class="tok-function">append_value</span><span class="tok-punct">(</span><span class="tok-number">2</span><span class="tok-punct">)</span> <span class="tok-operator">==</span> <span class="tok-punct">[</span><span class="tok-number">2</span><span class="tok-punct">]</span></code></pre></div></div>
+<div class="deck-fragment"><p>把默认值写成 <code>items=[]</code> 会让多次调用共享一个列表。
+本例传入现有列表时会修改它，应在接口说明中明确这一点。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="7"
+               data-title="从异常追到输入">
+        <div class="slide-inner"><h2>从异常追到输入</h2>
+<div class="deck-fragment"><div class="table-wrap" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
+<thead><tr><th>异常</th><th>常见调查方向</th></tr></thead>
+<tbody>
+<tr><td><code>TypeError</code></td><td>实际对象类型是否符合操作要求</td></tr>
+<tr><td><code>ValueError</code></td><td>类型可接受，但内容不符合约定</td></tr>
+<tr><td><code>UnboundLocalError</code></td><td>局部名称是否在读取前完成赋值</td></tr>
+<tr><td><code>ModuleNotFoundError</code></td><td>解释器环境、模块名和安装位置</td></tr>
+</tbody></table></div></div>
+<div class="deck-fragment"><p>先看异常类型和消息，再沿 traceback 找到自己的代码。
+拿到 <code>None</code> 可能来自遗漏 return、查找失败或明确的空结果，需要回到产生它的地方。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="8"
+               data-title="模块与入口">
+        <div class="slide-inner"><h2>模块与入口</h2>
+<div class="deck-fragment"><p><code>.py</code> 文件可作为模块导入；是否使用入口判断，不决定它是不是模块。</p></div>
+<div class="deck-fragment"><div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">from</span> temperature <span class="tok-keyword">import</span> celsius_to_fahrenheit
+<span class="tok-builtin">print</span><span class="tok-punct">(</span><span class="tok-function">celsius_to_fahrenheit</span><span class="tok-punct">(</span><span class="tok-operator">-</span><span class="tok-number">40</span><span class="tok-punct">)</span><span class="tok-punct">)</span>  <span class="tok-comment"># -40.0</span></code></pre></div></div>
+<div class="deck-fragment"><p><code>if __name__ == '__main__':</code> 让演示代码只在直接执行时运行。
+普通包常用目录加 <code>__init__.py</code> 组织，命名空间包是无需该文件的另一种机制。</p></div></div>
       </section>
       
       <section class="slide" data-slide="9"
-               data-title="那些「奇怪」的报错都从这来">
-        <div class="slide-inner"><h2>那些「奇怪」的报错都从这来</h2>
-<p><span class="ink ink-red"><code>TypeError: 'NoneType' object is not subscriptable</code></span><br>
-你拿到的不是你想的那个东西。多数情况是某个函数<strong>忘了写 return</strong>。</p>
-<p><span class="ink ink-red"><code>UnboundLocalError: local variable 'x' referenced before assignment</code></span><br>
-函数里给 <code>x</code> 赋过值 → Python 就认为整个函数里 <code>x</code> 都是局部的，
-函数开头那次读取就撞上了「还没绑」。</p>
-<p><span class="ink ink-red"><code>ValueError: too many values to unpack</code></span><br>
-右边的对象和你左边写的名字个数对不上。数一数就行。</p>
-<blockquote><p><span class="ink ink-blue"><strong>看 Python 的报错要从最后一行往回读。</strong></span>
-最后一行是「发生了什么」，往上几行是「在哪发生」。</p></blockquote></div>
+               data-title="数值比较要表达容差">
+        <div class="slide-inner"><h2>数值比较要表达容差</h2>
+<div class="deck-fragment"><div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">import</span> math
+<span class="tok-keyword">from</span> decimal <span class="tok-keyword">import</span> <span class="tok-type">Decimal</span>
+<span class="tok-keyword">assert</span> math<span class="tok-punct">.</span><span class="tok-function">isclose</span><span class="tok-punct">(</span><span class="tok-number">0.1</span> <span class="tok-operator">+</span> <span class="tok-number">0.2</span><span class="tok-punct">,</span> <span class="tok-number">0.3</span><span class="tok-punct">,</span> rel_tol<span class="tok-operator">=</span><span class="tok-number">1e-9</span><span class="tok-punct">,</span> abs_tol<span class="tok-operator">=</span><span class="tok-number">1e-12</span><span class="tok-punct">)</span>
+<span class="tok-keyword">assert</span> <span class="tok-function">Decimal</span><span class="tok-punct">(</span><span class="tok-string">&#x27;0.1&#x27;</span><span class="tok-punct">)</span> <span class="tok-operator">+</span> <span class="tok-function">Decimal</span><span class="tok-punct">(</span><span class="tok-string">&#x27;0.2&#x27;</span><span class="tok-punct">)</span> <span class="tok-operator">==</span> <span class="tok-function">Decimal</span><span class="tok-punct">(</span><span class="tok-string">&#x27;0.3&#x27;</span><span class="tok-punct">)</span></code></pre></div></div>
+<div class="deck-fragment"><p>浮点容差要对应业务单位与规模；接近零时尤其要考虑绝对容差。
+Decimal 也有精度上下文，不等于所有计算无限精确。比较值用 <code>==</code>，判断单例空值用 <code>is None</code>。</p></div></div>
       </section>
       
-      <section class="slide slide--section" data-slide="10"
-               data-title="Q3. 从哪一行开始？" data-section="1">
-        <div class="slide-inner"><h1><strong>Q3.</strong> 从哪一行开始？</h1></div>
-      </section>
-      
-      <section class="slide" data-slide="11"
-               data-title="环境：先把这个坑填了">
-        <div class="slide-inner"><h2>环境：先把这个坑填了</h2>
-<p>新手 90% 的「装不上」都出在这里。</p>
-<div class="table-wrap"><table>
-<thead><tr><th>方案</th><th>适合</th><th>说明</th></tr></thead>
-<tbody>
-<tr><td>官网安装包 + <code>python -m venv</code></td><td>推荐</td><td>一个项目一个虚拟环境，干净</td></tr>
-<tr><td>conda / miniconda</td><td>做科学计算</td><td>能装非 Python 的依赖（CUDA 之类）</td></tr>
-<tr><td>系统自带的 python3</td><td>只写脚本</td><td>别往里装东西，系统工具依赖它</td></tr>
-</tbody></table></div>
-<div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash"><span class="tok-comment"># 一个项目一个环境，这是纪律不是建议</span>
-python <span class="tok-operator">-</span>m venv .venv
-.venv\<span class="tok-type">Scripts</span>\activate        <span class="tok-comment"># Windows</span>
-<span class="tok-keyword">source</span> .venv<span class="tok-operator">/</span>bin<span class="tok-operator">/</span>activate      <span class="tok-comment"># Linux / macOS</span>
-
-pip install numpy              <span class="tok-comment"># 装完记得 freeze 下来</span>
-pip freeze <span class="tok-operator">&gt;</span> requirements.txt</code></pre></div></div>
-      </section>
-      
-      <section class="slide" data-slide="12"
-               data-title="一个脚本 → 一个模块 → 一个包">
-        <div class="slide-inner"><h2>一个脚本 → 一个模块 → 一个包</h2>
-<p>不要一上来就搭目录结构。</p>
-<div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-comment"># 1) 先是一个脚本：直接跑</span>
-<span class="tok-keyword">def</span> <span class="tok-function">area</span><span class="tok-punct">(</span>r<span class="tok-punct">)</span><span class="tok-punct">:</span>
-    <span class="tok-keyword">return</span> <span class="tok-number">3.14159</span> <span class="tok-operator">*</span> r <span class="tok-operator">*</span> r
-
-<span class="tok-builtin">print</span><span class="tok-punct">(</span><span class="tok-function">area</span><span class="tok-punct">(</span><span class="tok-number">2</span><span class="tok-punct">)</span><span class="tok-punct">)</span></code></pre></div>
-<div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-comment"># 2) 想复用的时候，加一个入口判断 —— 它才是「模块」</span>
-<span class="tok-keyword">def</span> <span class="tok-function">area</span><span class="tok-punct">(</span>r<span class="tok-punct">)</span><span class="tok-punct">:</span>
-    <span class="tok-keyword">return</span> <span class="tok-number">3.14159</span> <span class="tok-operator">*</span> r <span class="tok-operator">*</span> r
-
-<span class="tok-keyword">if</span> __name__ <span class="tok-operator">==</span> <span class="tok-string">&#x27;__main__&#x27;</span><span class="tok-punct">:</span>
-    <span class="tok-builtin">print</span><span class="tok-punct">(</span><span class="tok-function">area</span><span class="tok-punct">(</span><span class="tok-number">2</span><span class="tok-punct">)</span><span class="tok-punct">)</span></code></pre></div>
-<div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-text">3) 文件多了再拆目录 + __init__.py，那才叫包。
-   顺序反了的话，你会花一整天在设计目录，而不是在写代码。</code></pre></div>
-<blockquote><p><code>if __name__ == '__main__':</code> 的含义：<strong>「这个文件是被直接运行的，而不是被 import 的」</strong>。
-被 import 时 <code>__name__</code> 是模块名，所以这段不会执行。</p></blockquote></div>
-      </section>
-      
-      <section class="slide" data-slide="13"
-               data-title="新手一定会踩的五个坑">
-        <div class="slide-inner"><h2>新手一定会踩的五个坑</h2>
-<ul><li><strong>可变默认参数</strong>：<code>def f(x, acc=[])</code> —— 那个 <code>[]</code> 只造一次，会跨调用累积。</li></ul>
-<div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">def</span> <span class="tok-function">bad</span><span class="tok-punct">(</span>x<span class="tok-punct">,</span> acc<span class="tok-operator">=</span><span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">)</span><span class="tok-punct">:</span>        <span class="tok-comment"># 别这么写</span>
-    acc<span class="tok-punct">.</span><span class="tok-function">append</span><span class="tok-punct">(</span>x<span class="tok-punct">)</span>
-    <span class="tok-keyword">return</span> acc
-
-<span class="tok-keyword">def</span> <span class="tok-function">good</span><span class="tok-punct">(</span>x<span class="tok-punct">,</span> acc<span class="tok-operator">=</span><span class="tok-keyword">None</span><span class="tok-punct">)</span><span class="tok-punct">:</span>
-    acc <span class="tok-operator">=</span> <span class="tok-punct">[</span><span class="tok-punct">]</span> <span class="tok-keyword">if</span> acc <span class="tok-keyword">is</span> <span class="tok-keyword">None</span> <span class="tok-keyword">else</span> acc
-    acc<span class="tok-punct">.</span><span class="tok-function">append</span><span class="tok-punct">(</span>x<span class="tok-punct">)</span>
-    <span class="tok-keyword">return</span> acc</code></pre></div>
-<ul><li><strong>浮点数</strong>：<code>0.1 + 0.2 != 0.3</code>。要精确就用 <code>decimal</code>，要比较就用 <code>abs(a-b) &lt; eps</code>。</li><li><strong>缩进是语法</strong>：混用 Tab 和空格会报错，选一个，然后让编辑器替你统一。</li><li><strong><code>is</code> 和 <code>==</code></strong>：<code>is</code> 比的是「是不是同一个对象」，比数值请用 <code>==</code>。
-<span class="ink ink-blue">小整数和短字符串会被缓存，所以 <code>is</code> 有时「看起来能用」—— 那是假象。</span></li><li><strong>忘了激活虚拟环境</strong>：装到了系统 Python 里，然后奇怪为什么 <code>import</code> 不到。</li></ul></div>
-      </section>
-      
-      <section class="slide slide--section" data-slide="14"
-               data-title="小结" data-section="1">
-        <div class="slide-inner"><h1>小结</h1></div>
-      </section>
-      
-      <section class="slide" data-slide="15"
-               data-title="三句话">
-        <div class="slide-inner"><h2>三句话</h2>
-<ol><li>第一门语言的任务是<span class="ink ink-blue">让你快跑起来</span>，Python 干这个最合适。</li><li>它的两个关键词是<strong>解释执行</strong>和<strong>动态类型</strong>，记住
-<span class="ink ink-red">「名字」和「对象」是两回事</span>，一大半困惑就没了。</li><li>先把环境弄干净（虚拟环境），再从一个脚本开始长，别提前设计目录。</li></ol>
-<blockquote><p>真到了「遥控器不够快」的那天，再回来看 <span class="ink ink-blue"><strong>从指针来理解程序的执行</strong></span> ——
-那时候你会带着具体的问题去读，效率完全不一样。</p></blockquote></div>
-      </section>
-      
-      <section class="slide" data-slide="16"
-               data-title="动手">
-        <div class="slide-inner"><h2>动手</h2>
-<ul><li>装一个 Python，建一个虚拟环境，写一个只有 10 行的脚本。</li><li>用 <code>print()</code> 和报错信息对话，别怕它。</li><li>明天再去看 <span class="ink ink-blue"><strong>编程概述</strong></span> 里的「Q3 如何编程」，
-你会发现那些抽象的话现在有落脚点了。</li></ul></div>
+      <section class="slide" data-slide="10"
+               data-title="练习与参考">
+        <div class="slide-inner"><h2>练习与参考</h2>
+<div class="deck-fragment"><p>写一个函数把一组摄氏温度转为华氏温度，空列表返回空列表。</p></div>
+<div class="deck-fragment"><p>参考答案：<code>return [celsius_to_fahrenheit(x) for x in values]</code>。
+验证 <code>[0, 100, -40] → [32.0, 212.0, -40.0]</code> 与 <code>[] → []</code>。</p></div>
+<div class="deck-fragment"><p>参考：<a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">Python 教程</a>、<a href="https://docs.python.org/3/library/venv.html" target="_blank" rel="noopener">venv</a>、<a href="https://docs.python.org/3/tutorial/floatingpoint.html" target="_blank" rel="noopener">浮点说明</a>。</p></div></div>
       </section>
       
     </div>
 
     <p class="deck-hint">
-      <kbd>←</kbd><kbd>→</kbd> 翻页 · <kbd>F</kbd> 全屏 · <kbd>Esc</kbd> 退出 · 也可直接点两侧
+      <kbd>←</kbd><kbd>→</kbd> 逐步收起 / 展开，展开完翻页 · <kbd>F</kbd> 全屏 · <kbd>Esc</kbd> 退出
     </p>
 
     
@@ -596,9 +525,9 @@ pip freeze <span class="tok-operator">&gt;</span> requirements.txt</code></pre><
 
       <dl class="footer-stats">
         <div><dt>7</dt><dd>篇文章</dd></div>
-        <div><dt>16</dt><dd>篇文档</dd></div>
+        <div><dt>19</dt><dd>篇文档</dd></div>
         <div><dt>5</dt><dd>个项目</dd></div>
-        <div><dt>267</dt><dd>页幻灯片</dd></div>
+        <div><dt>204</dt><dd>页幻灯片</dd></div>
       </dl>
     </div>
 
@@ -632,22 +561,22 @@ pip freeze <span class="tok-operator">&gt;</span> requirements.txt</code></pre><
         
         <a class="footer-link" href="/docs/windows-to-linux/">
           <span class="t">从 Windows 到 Linux</span>
-          <span class="d">5 篇 · 110 页</span>
+          <span class="d">6 篇 · 67 页</span>
         </a>
         
         <a class="footer-link" href="/docs/cpp/">
           <span class="t">从 C 语言到 C++</span>
-          <span class="d">1 篇 · 17 页</span>
+          <span class="d">1 篇 · 10 页</span>
         </a>
         
         <a class="footer-link" href="/docs/vision/">
           <span class="t">ROS 与机器视觉</span>
-          <span class="d">4 篇 · 79 页</span>
+          <span class="d">6 篇 · 72 页</span>
         </a>
         
         <a class="footer-link" href="/docs/learning/">
           <span class="t">从编程开始的学习</span>
-          <span class="d">6 篇 · 61 页</span>
+          <span class="d">6 篇 · 55 页</span>
         </a>
         
         <a class="footer-more" href="/docs/">
@@ -843,6 +772,15 @@ pip freeze <span class="tok-operator">&gt;</span> requirements.txt</code></pre><
             <span class="theme-name">暖灯夜色</span>
           </button>
           
+          <button class="theme-card" type="button" data-theme-pick="bocchi" title="波奇光晕">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/bocchi.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#eaa5bc"></i><i style="background:#6acbc9"></i><i style="background:#101b2d"></i>
+              </span>
+            </span>
+            <span class="theme-name">波奇光晕</span>
+          </button>
+          
         </div>
       </section>
 
@@ -884,7 +822,7 @@ pip freeze <span class="tok-operator">&gt;</span> requirements.txt</code></pre><
             <button type="button" data-val="wide">宽</button>
           </div>
         </div>
-        <p class="set-note">黑体 / 宋体都随站点自带（子集化的 Noto，约 330 / 430 KB），不依赖你本机装了什么字体。</p>
+        <p class="set-note">黑体 / 宋体随站点自带，不依赖本机字体。</p>
       </section>
 
       <section class="set-group">
@@ -921,7 +859,7 @@ pip freeze <span class="tok-operator">&gt;</span> requirements.txt</code></pre><
             <button type="button" data-val="video">动态视频</button>
           </div>
         </div>
-        <p class="set-note">动态视频是 2560×1440 无声循环，已随站点打包；切到「动态视频」后才开始加载当前主题那一条。</p>
+        <p class="set-note">无声循环视频按当前主题加载；切到「动态视频」后才加载，后台标签页会暂停。</p>
         <div class="set-divider"></div>
         <div class="set-field">
           <span class="set-label">可见度 <b data-out="bgOpacity">—</b></span>
@@ -999,10 +937,10 @@ pip freeze <span class="tok-operator">&gt;</span> requirements.txt</code></pre><
 </div>
 
 
-<script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.jpg","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.jpg","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.jpg","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.jpg","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.jpg","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.jpg","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.jpg","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.jpg","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.jpg","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.jpg","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.jpg","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.jpg","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.jpg","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.jpg","video":"assets/bg/lumen.mp4"}}</script>
+<script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
 
-<script src="/assets/site.js" defer></script>
-<script src="/assets/docs.js" defer></script>
+<script src="/assets/site.js?v=77072cd2" defer></script>
+<script src="/assets/docs.js?v=77072cd2" defer></script>
 
 </body>
 </html>

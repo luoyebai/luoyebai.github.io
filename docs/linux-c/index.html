@@ -16,7 +16,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>尝试在 Linux 上编写 C 程序 · 洛叶白</title>
-<meta name="description" content="Q1 Linux下的C程序要如何运行？ Q2 感觉，。。。不如 Windows 编译？ Q3 Linux正真的强大之处！何在？">
+<meta name="description" content="完成编译、链接、调试与检查的最小闭环，认识退出码、编译警告和常见内存错误。">
 <meta name="author" content="洛叶白">
 <meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#0b0d14" media="(prefers-color-scheme: dark)">
@@ -24,18 +24,18 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="洛叶白">
 <meta property="og:title" content="尝试在 Linux 上编写 C 程序">
-<meta property="og:description" content="Q1 Linux下的C程序要如何运行？ Q2 感觉，。。。不如 Windows 编译？ Q3 Linux正真的强大之处！何在？">
+<meta property="og:description" content="完成编译、链接、调试与检查的最小闭环，认识退出码、编译警告和常见内存错误。">
 <meta property="og:url" content="https://luoyebai.github.io/docs/linux-c/">
 <meta property="og:image" content="https://luoyebai.github.io/assets/images/favicon.svg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://luoyebai.github.io/docs/linux-c/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css">
-<link rel="stylesheet" href="/assets/site.css">
+<link rel="stylesheet" href="/assets/themes.css?v=77072cd2">
+<link rel="stylesheet" href="/assets/site.css?v=77072cd2">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
-<link rel="stylesheet" href="/assets/docs.css">
+<link rel="stylesheet" href="/assets/docs.css?v=77072cd2">
 
 
 
@@ -44,6 +44,11 @@
 (function () {
   var el = document.documentElement;
   el.classList.add('js');   /* 只有 JS 可用时才启用进场动画的隐藏态 */
+  var compact = matchMedia('(pointer: coarse)').matches ||
+    (navigator.connection && navigator.connection.saveData) ||
+    (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
+    (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+  el.setAttribute('data-performance', compact ? 'compact' : 'standard');
   var q = {};
   try { new URLSearchParams(location.search).forEach(function (v, k) { q[k] = v; }); } catch (e) {}
   var s = {};
@@ -153,7 +158,7 @@
 
 
 <article class="doc" id="doc"
-         data-slides="17"
+         data-slides="10"
          data-title="尝试在 Linux 上编写 C 程序">
   <header class="doc-head">
     <nav class="crumbs" aria-label="面包屑">
@@ -165,18 +170,18 @@
     </nav>
 
     <h1 class="doc-title">尝试在 Linux 上编写 C 程序</h1>
-    <p class="doc-lede">Q1 Linux下的C程序要如何运行？ Q2 感觉，。。。不如 Windows 编译？ Q3 Linux正真的强大之处！何在？</p>
+    <p class="doc-lede">完成编译、链接、调试与检查的最小闭环，认识退出码、编译警告和常见内存错误。</p>
 
     <p class="doc-meta">
-      <span class="meta-item"><b>2</b> / 5 篇</span>
-      <span class="meta-item"><b>17</b> 页幻灯片</span>
+      <span class="meta-item"><b>2</b> / 6 篇</span>
+      <span class="meta-item"><b>10</b> 页幻灯片</span>
       <span class="meta-item muted">迁移自 <a href="https://github.com/luoyebai/doc_html/blob/HEAD/视觉组教程/从Windows到Linux/Linux上的C/main.md" rel="noopener" target="_blank">源文档</a></span>
     </p>
   </header>
 
   <section class="deck is-paged" id="deck" data-deck aria-roledescription="幻灯片" aria-label="尝试在 Linux 上编写 C 程序">
     <noscript>
-      <style>.deck .slide{display:block !important;margin-top:1.2rem}</style>
+      <style>.deck .slide{display:block !important;margin-top:1.2rem;height:auto !important;overflow:visible !important}</style>
     </noscript>
     <div class="deck-bar">
       <div class="deck-nav">
@@ -191,7 +196,7 @@
           </svg>
         </button>
         <p class="deck-counter" aria-live="polite">
-          <b data-deck-no>1</b> / 17
+          <b data-deck-no>1</b> / 10
         </p>
       </div>
 
@@ -218,85 +223,61 @@
         
         <li class="is-section">
           <button type="button" data-deck-goto="0">
-            <span class="ol-no">0</span>Linux眼中的 C程序
+            <span class="ol-no">0</span>在 Linux 下编写 C 程序
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="1">
-            <span class="ol-no">1</span>概述
+            <span class="ol-no">1</span>准备工具
           </button>
         </li>
         
-        <li class="is-section">
+        <li>
           <button type="button" data-deck-goto="2">
-            <span class="ol-no">2</span>Q1：Linux下的C程序要如何运行？
+            <span class="ol-no">2</span>第一个程序
+          </button>
+        </li>
+        
+        <li>
+          <button type="button" data-deck-goto="3">
+            <span class="ol-no">3</span>从源码到可执行文件
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="4">
-            <span class="ol-no">4</span>sudo是类似于Win中“使用管理员身份运行”的命令，一般在行首。
+            <span class="ol-no">4</span>声明、定义与链接
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="5">
-            <span class="ol-no">5</span>编写C代码
+            <span class="ol-no">5</span>按错误阶段定位
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="6">
-            <span class="ol-no">6</span>vim的使用
+            <span class="ol-no">6</span>用断点观察程序
           </button>
         </li>
         
         <li>
           <button type="button" data-deck-goto="7">
-            <span class="ol-no">7</span>狠狠地编译
+            <span class="ol-no">7</span>检查边界与内存
           </button>
         </li>
         
-        <li class="is-section">
+        <li>
           <button type="button" data-deck-goto="8">
-            <span class="ol-no">8</span>Q2：感觉，不如...Windows 编译。
+            <span class="ol-no">8</span>给函数加可执行的约定
           </button>
         </li>
         
         <li>
-          <button type="button" data-deck-goto="10">
-            <span class="ol-no">10</span>Linux 能否做到更多？
-          </button>
-        </li>
-        
-        <li class="is-section">
-          <button type="button" data-deck-goto="12">
-            <span class="ol-no">12</span>Q3：Linux真正的强大之处！何在？
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="13">
-            <span class="ol-no">13</span>来看一段奇怪的c代码
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="14">
-            <span class="ol-no">14</span>分析程序的性能
-          </button>
-        </li>
-        
-        <li>
-          <button type="button" data-deck-goto="15">
-            <span class="ol-no">15</span>更清晰的性能分析 Flame Graph（火焰图）
-          </button>
-        </li>
-        
-        <li class="is-section">
-          <button type="button" data-deck-goto="16">
-            <span class="ol-no">16</span>最后
+          <button type="button" data-deck-goto="9">
+            <span class="ol-no">9</span>练习与参考
           </button>
         </li>
         
@@ -307,99 +288,44 @@
          aria-label="幻灯片内容，用左右方向键翻页">
       
       <section class="slide slide--section" data-slide="0"
-               data-title="Linux眼中的 C程序" data-section="1">
-        <div class="slide-inner"><h1><strong><em>Linux眼中的 C程序</em></strong></h1></div>
+               data-title="在 Linux 下编写 C 程序" data-section="1">
+        <div class="slide-inner"><h1>在 Linux 下编写 C 程序</h1>
+<div class="deck-fragment"><p>前置：能使用终端、创建文件。环境：Ubuntu / Debian，GCC 或 Clang。</p></div>
+<div class="deck-fragment"><p>本课完成一个独立程序，并能解释它从源码到执行的过程。</p></div></div>
       </section>
       
       <section class="slide" data-slide="1"
-               data-title="概述">
-        <div class="slide-inner"><h2>概述</h2>
-<ul><li><strong>Q1</strong> Linux下的C程序要如何运行？</li><li><strong>Q2</strong> 感觉，。。。不如 Windows 编译？</li><li><strong>Q3</strong> Linux正真的强大之处！何在？</li></ul></div>
+               data-title="准备工具">
+        <div class="slide-inner"><h2>准备工具</h2>
+<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">sudo apt update
+sudo apt install build-essential gdb
+mkdir <span class="tok-operator">-</span>p <span class="tok-string">&quot;$HOME/c-practice&quot;</span>
+cd <span class="tok-string">&quot;$HOME/c-practice&quot;</span>
+cc <span class="tok-operator">--</span>version</code></pre></div></div>
+<div class="deck-fragment"><p>安装软件需要管理员权限；创建源文件、编译和运行练习使用普通用户即可。</p></div></div>
       </section>
       
-      <section class="slide slide--section" data-slide="2"
-               data-title="Q1：Linux下的C程序要如何运行？" data-section="1">
-        <div class="slide-inner"><h1>Q1：Linux下的C程序要如何运行？</h1></div>
+      <section class="slide" data-slide="2"
+               data-title="第一个程序">
+        <div class="slide-inner"><h2>第一个程序</h2>
+<div class="deck-fragment"><p>保存为 <code>hello.c</code>：</p></div>
+<div class="deck-fragment"><div class="code-block" data-lang="c"><div class="code-head"><span class="code-lang">c</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-c">#include &lt;stdio.h&gt;
+
+int main(void) {
+    puts(&quot;Hello, C!&quot;);
+    return 0;
+}</code></pre></div></div>
+<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">mkdir <span class="tok-operator">-</span>p build
+cc <span class="tok-operator">-</span>std<span class="tok-operator">=</span>c17 <span class="tok-operator">-</span><span class="tok-type">Wall</span> <span class="tok-operator">-</span><span class="tok-type">Wextra</span> <span class="tok-operator">-</span><span class="tok-type">Wpedantic</span> <span class="tok-operator">-</span>g hello.c <span class="tok-operator">-</span>o build<span class="tok-operator">/</span>hello
+.<span class="tok-operator">/</span>build<span class="tok-operator">/</span>hello
+printf <span class="tok-string">&#x27;exit status: %s\n&#x27;</span> <span class="tok-string">&quot;$?&quot;</span></code></pre></div></div>
+<div class="deck-fragment"><p>预期输出问候语，退出码为 0。构建产物放入 <code>build/</code>，源文件继续保留。</p></div></div>
       </section>
       
       <section class="slide" data-slide="3"
-               data-title="">
-        <div class="slide-inner"><p>首先！同时按下<strong>ctrl+alt+t</strong>，启动终端。
-大概这样：
-<img src="/assets/docs/linux-c/img/01.webp" alt="" loading="lazy" decoding="async"></p></div>
-      </section>
-      
-      <section class="slide" data-slide="4"
-               data-title="sudo是类似于Win中“使用管理员身份运行”的命令，一般在行首。">
-        <div class="slide-inner"><p>然后输入</p>
-<div class="code-block" data-lang="shell"><div class="code-head"><span class="code-lang">shell</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-shell"><span class="tok-comment"># sudo是类似于Win中“使用管理员身份运行”的命令，一般在行首。</span>
-sudo passwd root </code></pre></div>
-<p>给<span class="ink ink-blue">root（管理员）</span>设个初始密码。</p>
-<br>
-<br>
-<p>接着，我们就可以<span class="ink ink-red">更新</span>一下了。</p>
-<div class="code-block" data-lang="shell"><div class="code-head"><span class="code-lang">shell</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-shell"><span class="tok-comment"># apt 是ubuntu的包管理命令，类似应用商店。</span>
-sudo apt update</code></pre></div>
-<br>
-<p>为了编译C程序，我们需要安装一些工具。</p>
-<div class="code-block" data-lang="shell"><div class="code-head"><span class="code-lang">shell</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-shell"><span class="tok-comment"># gcc 和 g++ 是用于编译的，gdb 用于调试。</span>
-<span class="tok-comment"># vim 是一个文本编辑器，对初学者可能不太友好（</span>
-sudo apt install gcc g<span class="tok-operator">++</span> gdb vim</code></pre></div></div>
-      </section>
-      
-      <section class="slide" data-slide="5"
-               data-title="编写C代码">
-        <div class="slide-inner"><h2>编写C代码</h2>
-<p>我们先在Linux下创建文件夹用来存放代码。</p>
-<div class="code-block" data-lang="shell"><div class="code-head"><span class="code-lang">shell</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-shell"><span class="tok-comment"># mkdir 是make directory的缩写，-p的意思是递归创建</span>
-<span class="tok-comment"># 这样就会在家目录下创建code文件夹</span>
-<span class="tok-comment"># 然后在code文件夹下创建c文件夹</span>
-mkdir <span class="tok-operator">-</span>p <span class="tok-operator">~/</span>code<span class="tok-operator">/</span>c<span class="tok-operator">/</span>
-<span class="tok-comment"># cd 就是change directory的缩写，也就是切换到c文件夹下</span>
-cd <span class="tok-operator">~/</span>code<span class="tok-operator">/</span>c<span class="tok-operator">/</span>
-<span class="tok-comment"># Linux下使用vim编写frist_c.c文件</span>
-vim frist_c.c</code></pre></div>
-<br>
-<p>在我们使用vim的时候，<span class="ink ink-red"><strong>可怕的事情发生了</strong></span><br><br>
-这玩意？怎么不能输入啊？<br>
-为了解决这个问题，我们决定上网查阅。</p>
-<p><a href="https://www.runoob.com/linux/linux-vim.html" target="_blank" rel="noopener">vim，菜鸟教程</a>(当然，其实vimtutor也不错)</p></div>
-      </section>
-      
-      <section class="slide" data-slide="6"
-               data-title="vim的使用">
-        <div class="slide-inner"><h3>vim的使用</h3>
-<p>好了，我们学成归来，知道了 vim 有很多个模式的，<br>
-按下<strong>i</strong> 进入插入模式（编辑模式）<br></p>
-<blockquote><p>依照惯例，输出hello ubuntu以示尊敬。</p>
-<div class="code-block" data-lang="c"><div class="code-head"><span class="code-lang">c</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-c">#include &lt;stdio.h&gt;
-int main(){
-    puts(&quot;Hello ubuntu!\n&quot;);
-    return 0;
-}</code></pre></div>
-<p>接着按下ESC退出编辑模式，进入命令模式。<br>
-输入<span class="ink ink-blue">:wq</span>(注意最前面的冒号，别漏了)回车，<br>
-我们已经很清楚Linux下有很多缩写了，<br>
-很快我们就意识到，<strong>w是write的缩写，q是quit的缩写。</strong><br>
-这代表我们把刚才的<strong>代码（文字）</strong>写入文件，并退出vim了。</p></blockquote></div>
-      </section>
-      
-      <section class="slide" data-slide="7"
-               data-title="狠狠地编译">
-        <div class="slide-inner"><h3><del>狠狠地</del>编译</h3>
-<p>现在又回到最开始的终端界面了。<br>
-是时候编译了。<br></p>
-<div class="code-block" data-lang="shell"><div class="code-head"><span class="code-lang">shell</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-shell"><span class="tok-comment"># -o 表示输出，没有 -o frist.out的话，默认生成a.out文件</span>
-gcc frist_c.c <span class="tok-operator">-</span>o frist.out
-<span class="tok-comment"># ls，list的缩写，就是列出的意思Windows编译WindoWindows编译</span>
-<span class="tok-comment"># . 代表的是当前文件夹（.. 是上一层文件夹）</span>
-ls .
-<span class="tok-comment"># 我们应该可以看到frist.out文件Windows编译Windows编ndows编译</span>
-<span class="tok-comment"># ./就是运行这个文件，如果这个文件可以运行的话</span>
-.<span class="tok-operator">/</span>frist.out</code></pre></div>
-<p>Linux下该可以在终端界面看到输出的文字了。<br><br></p>
-<ul><li>顺便说清楚,<code>gcc</code> 那一行<strong>其实替你做了四件事</strong>:</li></ul>
-<figure class="docfig-wrap" data-fig="build-flow">
+               data-title="从源码到可执行文件">
+        <div class="slide-inner"><h2>从源码到可执行文件</h2>
+<div class="deck-fragment"><figure class="docfig-wrap" data-fig="build-flow">
 <svg class="docfig" viewBox="0 0 820 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="四步：预处理 → 编译 → 汇编 → 链接；每一步都是一次独立的程序调用">
   <defs><marker id="fda0f858-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" class="fg-head"/></marker></defs>
   <rect class="fg-box is-fg-muted" x="30" y="70" width="118" height="76" rx="9"/>
@@ -434,116 +360,102 @@ ls .
   <text class="fg-note" x="30" y="216" text-anchor="start" font-size="12">平时说的「编译」其实只是第 2 步；gcc 是个驱动器，四步它都替你调。</text>
 </svg>
 <figcaption>四步：预处理 → 编译 → 汇编 → 链接；每一步都是一次独立的程序调用</figcaption>
-</figure>
-<blockquote><p>Linux 下「麻烦」的那一步,只是因为把中间产物摆在了你面前。
-后面讲构建工具时,会发现它们管的就是这四步<strong>哪一步该重做</strong>。</p></blockquote>
-<p>Linux下的编译貌似有点繁琐，感觉，<strong>不如。。。Windows 编译。</strong></p></div>
+</figure></div>
+<div class="deck-fragment"><p>预处理展开头文件与宏；编译形成汇编表示；汇编产生目标文件；链接解析符号并组合程序。</p></div>
+<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">cc <span class="tok-operator">-</span><span class="tok-type">E</span> hello.c <span class="tok-operator">-</span>o build<span class="tok-operator">/</span>hello.i
+cc <span class="tok-operator">-</span><span class="tok-type">S</span> hello.c <span class="tok-operator">-</span>o build<span class="tok-operator">/</span>hello.s
+cc <span class="tok-operator">-</span>c hello.c <span class="tok-operator">-</span>o build<span class="tok-operator">/</span>hello.o
+cc build<span class="tok-operator">/</span>hello.o <span class="tok-operator">-</span>o build<span class="tok-operator">/</span>hello</code></pre></div></div>
+<div class="deck-fragment"><p>日常 <code>cc hello.c -o build/hello</code> 会串起这些步骤。</p></div></div>
       </section>
       
-      <section class="slide slide--section" data-slide="8"
-               data-title="Q2：感觉，不如...Windows 编译。" data-section="1">
-        <div class="slide-inner"><h1>Q2：感觉，<strong>不如...Windows 编译。</strong></h1>
-<p>真的是这样吗？为什么要用这样繁琐的编译方式？</p></div>
+      <section class="slide" data-slide="4"
+               data-title="声明、定义与链接">
+        <div class="slide-inner"><h2>声明、定义与链接</h2>
+<div class="deck-fragment"><p><code>sum.h</code> 声明接口：</p></div>
+<div class="deck-fragment"><div class="code-block" data-lang="c"><div class="code-head"><span class="code-lang">c</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-c">#ifndef SUM_H
+#define SUM_H
+int sum(int a, int b);
+#endif</code></pre></div></div>
+<div class="deck-fragment"><p><code>sum.c</code> 包含该头文件并定义函数：<code>int sum(int a, int b) { return a + b; }</code>。
+<code>main.c</code> 包含头文件后调用 <code>sum(2, 3)</code>。</p></div>
+<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">cc <span class="tok-operator">-</span>std<span class="tok-operator">=</span>c17 <span class="tok-operator">-</span><span class="tok-type">Wall</span> <span class="tok-operator">-</span><span class="tok-type">Wextra</span> main.c sum.c <span class="tok-operator">-</span>o build<span class="tok-operator">/</span>sum-demo</code></pre></div></div>
+<div class="deck-fragment"><p>头文件不是“把库安装进程序”；如果漏编译 <code>sum.c</code>，链接器仍会报告未定义的符号。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="5"
+               data-title="按错误阶段定位">
+        <div class="slide-inner"><h2>按错误阶段定位</h2>
+<div class="deck-fragment"><div class="table-wrap" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
+<thead><tr><th>阶段</th><th>例子</th><th>方向</th></tr></thead>
+<tbody>
+<tr><td>编译</td><td>缺分号、类型不匹配</td><td>查看第一条诊断与源码位置</td></tr>
+<tr><td>链接</td><td><code>undefined reference</code></td><td>是否提供定义、链接对应库</td></tr>
+<tr><td>加载</td><td>找不到共享库</td><td>安装布局与运行时搜索路径</td></tr>
+<tr><td>运行</td><td>崩溃、错误输出</td><td>输入、状态、边界与生命周期</td></tr>
+</tbody></table></div></div>
+<div class="deck-fragment"><p>先读最早的错误；后续几十条可能只是同一个错误引起的连锁反应。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="6"
+               data-title="用断点观察程序">
+        <div class="slide-inner"><h2>用断点观察程序</h2>
+<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">gdb .<span class="tok-operator">/</span>build<span class="tok-operator">/</span>hello</code></pre></div></div>
+<div class="deck-fragment"><p>进入 GDB 后：</p></div>
+<div class="deck-fragment"><div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-text">break main
+run
+next
+backtrace
+continue
+quit</code></pre></div></div>
+<div class="deck-fragment"><p>编译时使用 <code>-g</code> 保留调试信息；优化可能让变量或语句位置不再直观，初学可以先用 <code>-O0</code>。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="7"
+               data-title="检查边界与内存">
+        <div class="slide-inner"><h2>检查边界与内存</h2>
+<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">cc <span class="tok-operator">-</span>std<span class="tok-operator">=</span>c17 <span class="tok-operator">-</span><span class="tok-type">Wall</span> <span class="tok-operator">-</span><span class="tok-type">Wextra</span> <span class="tok-operator">-</span>g <span class="tok-operator">-</span><span class="tok-type">O1</span> \
+  <span class="tok-operator">-</span>fsanitize<span class="tok-operator">=</span>address<span class="tok-punct">,</span>undefined hello.c <span class="tok-operator">-</span>o build<span class="tok-operator">/</span>hello-check
+.<span class="tok-operator">/</span>build<span class="tok-operator">/</span>hello-check</code></pre></div></div>
+<div class="deck-fragment"><p>AddressSanitizer 帮助检测越界、释放后使用等错误；UBSan 检测部分未定义行为。</p></div>
+<div class="deck-fragment"><p>没有报告不代表不存在错误；工具只检查实际执行到的路径，并且各平台支持不同。</p></div></div>
+      </section>
+      
+      <section class="slide" data-slide="8"
+               data-title="给函数加可执行的约定">
+        <div class="slide-inner"><h2>给函数加可执行的约定</h2>
+<div class="deck-fragment"><div class="code-block" data-lang="c"><div class="code-head"><span class="code-lang">c</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-c">#include &lt;assert.h&gt;
+#include &lt;stddef.h&gt;
+int sum_small(const int *a, size_t n) {
+    int total = 0;
+    for (size_t i = 0; i &lt; n; ++i) total += a[i];
+    return total;
+}
+int main(void) {
+    int values[] = {2, -1, 4};
+    assert(sum_small(values, 3) == 5);
+    assert(sum_small(NULL, 0) == 0);
+    return 0;
+}</code></pre></div></div>
+<div class="deck-fragment"><p>本例约定每次累加都在 <code>int</code> 可表示范围内；面向任意外部输入时还要检查溢出。
+<code>assert</code> 可被 <code>NDEBUG</code> 禁用，不能替代输入校验。</p></div></div>
       </section>
       
       <section class="slide" data-slide="9"
-               data-title="">
-        <div class="slide-inner"><blockquote><p>思考：Windows 下的编译和 Linux 有什么不同？</p></blockquote>
-<p>无论是devc++，Visual Studio，还是别的IDE<br>
-本质上都需要调用编译器来编译。<br></p>
-<blockquote><p>gcc 就是一个编译器。<a href="https://gcc.gnu.org/onlinedocs/gcc-13.2.0/gcc/" target="_blank" rel="noopener">手册捏</a></p></blockquote>
-<p>同样地，Linux下也是有诸多IDE的。<br>
-它们都同样会去调用CLI（命令行）下的工具---编译器。<br>
-所以，其实不存在Linux编译不如Windows的情况。（大抵如此）<br></p>
-<br>
-<p>而Linux的命令行工具，很大程度上给了我们自由。<br>
-我可以很清楚地知道，我的命令是干什么的。<br>
-<del>（当然Windows也可以做到，但是Linux更方便）</del><br></p></div>
-      </section>
-      
-      <section class="slide" data-slide="10"
-               data-title="Linux 能否做到更多？">
-        <div class="slide-inner"><p>很自然地，我们想问</p>
-<h2>Linux 能否做到更多？</h2>
-<p>是的，这是肯定的，Linux 能做到更多。<br></p>
-<h3><span class="ink ink-red">先从CLI开始。</span><br></h3>
-<p>例 :</p>
-<hr>
-<ul><li>补全 </li></ul>
-<p>Linux 可以在命令行终端下按<strong>Tab</strong>来补全命令。</p>
-<div class="code-block" data-lang="shell"><div class="code-head"><span class="code-lang">shell</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-shell">cd <span class="tok-operator">&lt;</span><span class="tok-type">Tab</span><span class="tok-operator">&gt;</span> <span class="tok-operator">&lt;</span><span class="tok-type">Tab</span><span class="tok-operator">&gt;</span></code></pre></div>
-<ul><li>脚本 </li></ul>
-<p>Linux 下的所有命令都可以作为脚本的一部分来执行。<br></p>
-<div class="code-block" data-lang="shell"><div class="code-head"><span class="code-lang">shell</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-shell"><span class="tok-comment">#!/bin/bash </span>
-<span class="tok-comment"># 编译后只保留.out文件</span>
-gcc .<span class="tok-operator">/*</span>.c <span class="tok-operator">&amp;&amp;</span> rm .<span class="tok-operator">/*</span>.c</code></pre></div>
-<hr></div>
-      </section>
-      
-      <section class="slide" data-slide="11"
-               data-title="">
-        <div class="slide-inner"><p>这些简单的例子貌似无法体现出Linux的强大。<br>
-那么让我们领略<span class="ink ink-blue">Linux真正的强大之处吧。</span><br>
-<span class="ink ink-red">从gdb开撕c语言，Linux的彪悍之处</span></p>
-<blockquote><p>Talk is cheap,show your code!</p></blockquote></div>
-      </section>
-      
-      <section class="slide slide--section" data-slide="12"
-               data-title="Q3：Linux真正的强大之处！何在？" data-section="1">
-        <div class="slide-inner"><h1>Q3：Linux真正的强大之处！何在？</h1>
-<p>从rr开始的彪悍调试人生！</p></div>
-      </section>
-      
-      <section class="slide" data-slide="13"
-               data-title="来看一段奇怪的c代码">
-        <div class="slide-inner"><h2>来看一段奇怪的c代码</h2>
-<p><a href="/assets/docs/linux-c/code/munmap_chunk.c">随机死亡</a></p>
-<p>这个代码很好理解，我们经常也会遇到类似的事情<br>
-明明是个很正常的代码，为什么会有些情况下会报错？<br>
-这太不可理喻了，但是想一想，我们真的只能一次又一次地去运行<br>
-或者像无头苍蝇一样看代码吗？<br></p>
-<blockquote><p>也许我们可以把错误的情况完整地保存下来。
-<a href="https://rr-project.org/" target="_blank" rel="noopener">工具---rr</a></p></blockquote>
-<div class="code-block" data-lang="shell"><div class="code-head"><span class="code-lang">shell</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-shell">sudo apt install rr
-rr record .<span class="tok-operator">/</span>a.out
-rr replay</code></pre></div>
-<p>rr可以记录错误的那一次的代码。<br>
-这很好理解，它把所有本该<span class="ink ink-red">随机</span>的情况改为<span class="ink ink-blue">确定</span>了。<br>
-利用这个工具，我们可以调试，回放，调试。。。</p></div>
-      </section>
-      
-      <section class="slide" data-slide="14"
-               data-title="分析程序的性能">
-        <div class="slide-inner"><h2>分析程序的性能</h2>
-<p><img src="/assets/docs/linux-c/img/02.webp" alt="" loading="lazy" decoding="async">
-Windows码农查看程序性能 be like:</p>
-<div class="code-block" data-lang="shell"><div class="code-head"><span class="code-lang">shell</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-shell">工具好复杂<span class="tok-punct">,</span>😭不想用了。</code></pre></div>
-<p>Linux be like:</p>
-<div class="code-block" data-lang="shell"><div class="code-head"><span class="code-lang">shell</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-shell">apt-get install linux-tools-<span class="tok-string">&quot;$(uname -r)&quot;</span>
-perf stat .<span class="tok-operator">/</span>a.out</code></pre></div></div>
-      </section>
-      
-      <section class="slide" data-slide="15"
-               data-title="更清晰的性能分析 Flame Graph（火焰图）">
-        <div class="slide-inner"><h2>更清晰的性能分析 Flame Graph（火焰图）</h2>
-<div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-text"># github上有用法
-git clone https://github.com/brendangregg/FlameGraph.git</code></pre></div>
-<p><a href="/assets/docs/linux-c/code/test.c">代码</a><br>
-大致的火焰图<br>
-<a href="/assets/docs/linux-c/img/perf.svg">svg</a></p></div>
-      </section>
-      
-      <section class="slide slide--section" data-slide="16"
-               data-title="最后" data-section="1">
-        <div class="slide-inner"><h1>最后</h1>
-<p>Linux胜在工具多，对c语言来说，是一个宝地。<br>
-不要害怕命令行，用到后面相信你一定会🥰爱上它的。</p></div>
+               data-title="练习与参考">
+        <div class="slide-inner"><h2>练习与参考</h2>
+<div class="deck-fragment"><p>把求和函数拆到 <code>sum.c</code> / <code>sum.h</code>，测试程序放在 <code>test_sum.c</code>。</p></div>
+<div class="deck-fragment"><p>验收：能分别编译目标文件、链接测试程序，空数组与混合正负数样例通过，警告清零。</p></div>
+<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">cc <span class="tok-operator">-</span>std<span class="tok-operator">=</span>c17 <span class="tok-operator">-</span><span class="tok-type">Wall</span> <span class="tok-operator">-</span><span class="tok-type">Wextra</span> <span class="tok-operator">-</span>g <span class="tok-operator">-</span>c sum.c <span class="tok-operator">-</span>o build<span class="tok-operator">/</span>sum.o
+cc <span class="tok-operator">-</span>std<span class="tok-operator">=</span>c17 <span class="tok-operator">-</span><span class="tok-type">Wall</span> <span class="tok-operator">-</span><span class="tok-type">Wextra</span> <span class="tok-operator">-</span>g test_sum.c build<span class="tok-operator">/</span>sum.o <span class="tok-operator">-</span>o build<span class="tok-operator">/</span>test_sum
+.<span class="tok-operator">/</span>build<span class="tok-operator">/</span>test_sum</code></pre></div></div>
+<div class="deck-fragment"><p>参考：<a href="https://gcc.gnu.org/onlinedocs/gcc/Overall-Options.html" target="_blank" rel="noopener">GCC 编译选项</a>、<a href="https://sourceware.org/gdb/current/onlinedocs/gdb.html/" target="_blank" rel="noopener">GDB 手册</a>、<a href="https://clang.llvm.org/docs/AddressSanitizer.html" target="_blank" rel="noopener">Clang AddressSanitizer</a>。</p></div></div>
       </section>
       
     </div>
 
     <p class="deck-hint">
-      <kbd>←</kbd><kbd>→</kbd> 翻页 · <kbd>F</kbd> 全屏 · <kbd>Esc</kbd> 退出 · 也可直接点两侧
+      <kbd>←</kbd><kbd>→</kbd> 逐步收起 / 展开，展开完翻页 · <kbd>F</kbd> 全屏 · <kbd>Esc</kbd> 退出
     </p>
 
     
@@ -617,9 +529,9 @@ git clone https://github.com/brendangregg/FlameGraph.git</code></pre></div>
 
       <dl class="footer-stats">
         <div><dt>7</dt><dd>篇文章</dd></div>
-        <div><dt>16</dt><dd>篇文档</dd></div>
+        <div><dt>19</dt><dd>篇文档</dd></div>
         <div><dt>5</dt><dd>个项目</dd></div>
-        <div><dt>267</dt><dd>页幻灯片</dd></div>
+        <div><dt>204</dt><dd>页幻灯片</dd></div>
       </dl>
     </div>
 
@@ -653,22 +565,22 @@ git clone https://github.com/brendangregg/FlameGraph.git</code></pre></div>
         
         <a class="footer-link" href="/docs/windows-to-linux/">
           <span class="t">从 Windows 到 Linux</span>
-          <span class="d">5 篇 · 110 页</span>
+          <span class="d">6 篇 · 67 页</span>
         </a>
         
         <a class="footer-link" href="/docs/cpp/">
           <span class="t">从 C 语言到 C++</span>
-          <span class="d">1 篇 · 17 页</span>
+          <span class="d">1 篇 · 10 页</span>
         </a>
         
         <a class="footer-link" href="/docs/vision/">
           <span class="t">ROS 与机器视觉</span>
-          <span class="d">4 篇 · 79 页</span>
+          <span class="d">6 篇 · 72 页</span>
         </a>
         
         <a class="footer-link" href="/docs/learning/">
           <span class="t">从编程开始的学习</span>
-          <span class="d">6 篇 · 61 页</span>
+          <span class="d">6 篇 · 55 页</span>
         </a>
         
         <a class="footer-more" href="/docs/">
@@ -864,6 +776,15 @@ git clone https://github.com/brendangregg/FlameGraph.git</code></pre></div>
             <span class="theme-name">暖灯夜色</span>
           </button>
           
+          <button class="theme-card" type="button" data-theme-pick="bocchi" title="波奇光晕">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/bocchi.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#eaa5bc"></i><i style="background:#6acbc9"></i><i style="background:#101b2d"></i>
+              </span>
+            </span>
+            <span class="theme-name">波奇光晕</span>
+          </button>
+          
         </div>
       </section>
 
@@ -905,7 +826,7 @@ git clone https://github.com/brendangregg/FlameGraph.git</code></pre></div>
             <button type="button" data-val="wide">宽</button>
           </div>
         </div>
-        <p class="set-note">黑体 / 宋体都随站点自带（子集化的 Noto，约 330 / 430 KB），不依赖你本机装了什么字体。</p>
+        <p class="set-note">黑体 / 宋体随站点自带，不依赖本机字体。</p>
       </section>
 
       <section class="set-group">
@@ -942,7 +863,7 @@ git clone https://github.com/brendangregg/FlameGraph.git</code></pre></div>
             <button type="button" data-val="video">动态视频</button>
           </div>
         </div>
-        <p class="set-note">动态视频是 2560×1440 无声循环，已随站点打包；切到「动态视频」后才开始加载当前主题那一条。</p>
+        <p class="set-note">无声循环视频按当前主题加载；切到「动态视频」后才加载，后台标签页会暂停。</p>
         <div class="set-divider"></div>
         <div class="set-field">
           <span class="set-label">可见度 <b data-out="bgOpacity">—</b></span>
@@ -1020,10 +941,10 @@ git clone https://github.com/brendangregg/FlameGraph.git</code></pre></div>
 </div>
 
 
-<script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.jpg","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.jpg","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.jpg","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.jpg","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.jpg","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.jpg","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.jpg","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.jpg","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.jpg","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.jpg","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.jpg","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.jpg","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.jpg","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.jpg","video":"assets/bg/lumen.mp4"}}</script>
+<script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
 
-<script src="/assets/site.js" defer></script>
-<script src="/assets/docs.js" defer></script>
+<script src="/assets/site.js?v=77072cd2" defer></script>
+<script src="/assets/docs.js?v=77072cd2" defer></script>
 
 </body>
 </html>

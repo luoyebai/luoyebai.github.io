@@ -7,11 +7,13 @@
   var root = document.documentElement;
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
   var TAU = Math.PI * 2;
-  var TILT = 1.06;              
+  var TILT = 0.64;              
   var ARMS = 3;                 
   var TIGHT = 2.05;             
-  var MAXP = 1400, MINP = 380;
-  var Q = 0.6;                  
+  var compact = root.getAttribute('data-performance') === 'compact';
+  var MAXP = compact ? 650 : 1250, MINP = compact ? 280 : 460;
+  var Q = compact ? 0.55 : 0.7;
+  var lastPaint = 0, frameBudget = 1000 / 30;
   var LEVELS = [0.26, 0.46, 0.66, 0.92];
   var parts = [], sprites = [], warm = [255, 180, 120], cool = [120, 160, 255];
   var buf = document.createElement('canvas');
@@ -20,6 +22,8 @@
   var cx = 0, cy = 0, RAD = 240, PSPR = 3.4;
   var raf = 0, last = 0, live = false, visible = true;
   var yaw = 0.6;
+  var paused = false;
+  var pauseBtn = document.querySelector('[data-galaxy-pause]');
   var px = 0, py = 0, tpx = 0, tpy = 0;      
   function toRgb(c) {
     if (!c) return null;
@@ -93,8 +97,9 @@
     var y2 = p.y * Math.cos(TILT) - z * Math.sin(TILT);
     var z2 = p.y * Math.sin(TILT) + z * Math.cos(TILT);
     var k = 2.35 / (2.35 + z2);
-    out.x = cx + x * RAD * k + px * (0.16 + 0.5 * p.r) * RAD * 0.13;
-    out.y = cy + y2 * RAD * k + py * (0.10 + 0.3 * p.r) * RAD * 0.10;
+    var roll = -0.28, cr = Math.cos(roll), sr = Math.sin(roll);
+    out.x = cx + (x * cr - y2 * sr) * RAD * k + px * (0.16 + 0.5 * p.r) * RAD * 0.13;
+    out.y = cy + (x * sr + y2 * cr) * RAD * k + py * (0.10 + 0.3 * p.r) * RAD * 0.10;
     out.k = k;
     out.depth = z2;
     return out;
@@ -120,7 +125,8 @@
       if (pt.x < -40 || pt.x > BW + 40 || pt.y < -40 || pt.y > BH + 40) continue;
       var depth = 0.55 + 0.45 * (1 - Math.min(1, Math.max(0, (pt.depth + 1) / 2)));
       var tier = p.r < 0.3 ? 1 : 2;
-      var size = p.s * PSPR * pt.k * (p.r < 0.18 ? 1.9 : 1);
+      var size = p.s * PSPR * pt.k * (p.r < 0.18 ? 1.3 : 1);
+      if (p.r < 0.10) tier = 0;
       if (size < 1.3) { tier = 0; size = 1.3; }
       var lv = (p.lv + (depth > 0.86 ? 1 : 0)) % LEVELS.length;
       bctx.drawImage(sprites[tier][lv], pt.x - size, pt.y - size, size * 2, size * 2);
@@ -136,21 +142,23 @@
     var h = Math.max(280, Math.round(r.height));
     if (w === W && h === H) return false;
     W = w; H = h;
-    DPR = Math.min(2, window.devicePixelRatio || 1);
+    DPR = Math.min(compact ? 1 : 1.5, window.devicePixelRatio || 1);
     cv.width = Math.round(W * DPR);
     cv.height = Math.round(H * DPR);
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     BW = Math.max(200, Math.round(W * Q));
     BH = Math.max(180, Math.round(H * Q));
     buf.width = BW; buf.height = BH;
-    cx = BW * 0.66;              
+    cx = BW * 0.76;              
     cy = BH * 0.48;
-    RAD = Math.min(BW * 0.40, BH * 0.62);
-    PSPR = Math.max(2.8, RAD / 52);
+    RAD = Math.min(BW * 0.35, BH * 0.66);
+    PSPR = Math.max(1.7, RAD / 100);
     return true;
   }
   function frame(t) {
     raf = requestAnimationFrame(frame);
+    if (lastPaint && t - lastPaint < frameBudget - 1) return;
+    lastPaint = t;
     var dt = last ? Math.min(0.05, (t - last) / 1000) : 0.016;
     last = t;
     yaw += dt * 0.055;
@@ -159,12 +167,13 @@
     draw();
   }
   function frozen() {
-    return reduce.matches || root.getAttribute('data-motion') === 'off';
+    return paused || reduce.matches || root.getAttribute('data-motion') === 'off';
   }
   function start() {
     if (raf || !live) return;
     if (frozen()) { draw(); return; }
     last = 0;
+    lastPaint = 0;
     raf = requestAnimationFrame(frame);
   }
   function stop() {
@@ -177,6 +186,12 @@
     if (visible && !document.hidden && !frozen()) start();
     else { stop(); draw(); }
   }
+  if (pauseBtn) pauseBtn.addEventListener('click', function () {
+    paused = !paused;
+    pauseBtn.setAttribute('aria-pressed', String(paused));
+    pauseBtn.textContent = paused ? '继续星系动效' : '暂停星系动效';
+    sync();
+  });
   if (window.MutationObserver) {
     new MutationObserver(function () { readPalette(); draw(); sync(); })
       .observe(root, { attributes: true, attributeFilter: ['data-theme', 'data-mode', 'data-motion'] });
@@ -184,6 +199,7 @@
   if (reduce.addEventListener) reduce.addEventListener('change', sync);
   document.addEventListener('visibilitychange', sync);
   window.addEventListener('pointermove', function (e) {
+    if (!visible || frozen() || compact || document.hidden) return;
     var r = hero.getBoundingClientRect();
     tpx = Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width - 0.5) * 2));
     tpy = Math.max(-1, Math.min(1, ((e.clientY - r.top) / r.height - 0.5) * 2));
