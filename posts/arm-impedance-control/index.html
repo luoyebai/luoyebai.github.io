@@ -31,8 +31,8 @@
 <link rel="canonical" href="https://luoyebai.github.io/posts/arm-impedance-control/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=afafd87f">
-<link rel="stylesheet" href="/assets/site.css?v=afafd87f">
+<link rel="stylesheet" href="/assets/themes.css?v=26c9d981">
+<link rel="stylesheet" href="/assets/site.css?v=26c9d981">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
 
@@ -220,8 +220,18 @@
     
     <aside class="post-aside">
       <nav class="toc" data-toc aria-label="目录">
-        <p class="toc-title">目录</p>
-        <ul>
+        <button class="toc-head" type="button" data-toc-toggle aria-expanded="true"
+                aria-controls="toc-list" aria-label="折叠或展开目录">
+          <span class="toc-title">目录</span>
+          
+          <span class="toc-current" data-toc-current aria-hidden="true"></span>
+          <span class="toc-count">7 节</span>
+          <svg class="toc-caret" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <ul id="toc-list">
           
           <li class="toc-l2"><a href="#三种方式输入和输出不同">三种方式，输入和输出不同</a></li>
           
@@ -272,7 +282,7 @@
 <p>补偿项由接口约定决定。驱动已补偿重力时，再加一遍重力会出错。可对照 <a href="https://frankarobotics.github.io/libfranka/0.15.0/cartesian_impedance_control_8cpp-example.html" target="_blank" rel="noopener">libfranka 的无惯量整形阻抗示例</a>，理解它的误差、雅可比与补偿项约定。</p>
 <h2 id="一个可运行的一维计算">一个可运行的一维计算<a class="heading-anchor" href="#一个可运行的一维计算" aria-label="锚点">#</a></h2>
 <p>下面使用 Python 3 标准库，展示偏差与阻尼如何改变指令力。它只做数值计算，不连接机器人。</p>
-<div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">import</span> math
+<div class="code-block" data-lang="python" data-foldable="13"><div class="code-head"><span class="code-lang">python</span><div class="code-tools"><button class="code-fold" type="button" data-fold aria-expanded="true"><span data-fold-label>收起</span><svg class="code-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">import</span> math
 
 <span class="tok-keyword">def</span> <span class="tok-function">spring_damper</span><span class="tok-punct">(</span>error_m<span class="tok-punct">,</span> velocity_mps<span class="tok-punct">,</span> stiffness<span class="tok-punct">,</span> mass<span class="tok-punct">,</span> zeta<span class="tok-operator">=</span><span class="tok-number">1.0</span><span class="tok-punct">)</span><span class="tok-punct">:</span>
     <span class="tok-keyword">if</span> <span class="tok-keyword">not</span> <span class="tok-builtin">all</span><span class="tok-punct">(</span>math<span class="tok-punct">.</span><span class="tok-function">isfinite</span><span class="tok-punct">(</span>v<span class="tok-punct">)</span> <span class="tok-keyword">for</span> v <span class="tok-keyword">in</span> <span class="tok-punct">(</span>error_m<span class="tok-punct">,</span> velocity_mps<span class="tok-punct">,</span> stiffness<span class="tok-punct">,</span> mass<span class="tok-punct">,</span> zeta<span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">:</span>
@@ -284,7 +294,7 @@
     <span class="tok-keyword">return</span> force<span class="tok-punct">,</span> damping
 
 force<span class="tok-punct">,</span> damping <span class="tok-operator">=</span> <span class="tok-function">spring_damper</span><span class="tok-punct">(</span><span class="tok-number">0.01</span><span class="tok-punct">,</span> <span class="tok-number">0.02</span><span class="tok-punct">,</span> <span class="tok-number">400.0</span><span class="tok-punct">,</span> <span class="tok-number">2.0</span><span class="tok-punct">)</span>
-<span class="tok-builtin">print</span><span class="tok-punct">(</span><span class="tok-string">f&#x27;D = {damping:.3f} N·s/m, F = {force:.3f} N&#x27;</span><span class="tok-punct">)</span></code></pre></div>
+<span class="tok-builtin">print</span><span class="tok-punct">(</span><span class="tok-string">f&#x27;D = {damping:.3f} N·s/m, F = {force:.3f} N&#x27;</span><span class="tok-punct">)</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
 <p>这里的临界阻尼公式针对解耦的标量二阶模型。不要把矩阵乘积的逐元素平方根直接推广到任意耦合的六维系统。平移与转动的单位不同，姿态误差也需要合适的旋转表示。</p>
 <h2 id="导纳把力反馈变成运动参考">导纳：把力反馈变成运动参考<a class="heading-anchor" href="#导纳把力反馈变成运动参考" aria-label="锚点">#</a></h2>
 <p>一种一维形式为：</p>
@@ -336,7 +346,7 @@ force<span class="tok-punct">,</span> damping <span class="tok-operator">=</span
       <div class="card-meta">
         <time datetime="2026-03-08">2026 年 3 月 8 日</time>
         <span class="sep" aria-hidden="true"></span>
-        <span>7 分钟</span>
+        <span>27 分钟</span>
         <span class="card-meta-end">
           
           
@@ -913,7 +923,7 @@ force<span class="tok-punct">,</span> damping <span class="tok-operator">=</span
 <script defer src="/assets/vendor/katex/katex.min.js"></script>
 
 
-<script src="/assets/site.js?v=afafd87f" defer></script>
+<script src="/assets/site.js?v=26c9d981" defer></script>
 
 </body>
 </html>

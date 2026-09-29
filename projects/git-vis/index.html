@@ -31,8 +31,8 @@
 <link rel="canonical" href="https://luoyebai.github.io/projects/git-vis/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=afafd87f">
-<link rel="stylesheet" href="/assets/site.css?v=afafd87f">
+<link rel="stylesheet" href="/assets/themes.css?v=26c9d981">
+<link rel="stylesheet" href="/assets/site.css?v=26c9d981">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
 
@@ -242,11 +242,11 @@
 <ul><li>历史图支持横向、纵向布局，以及搜索、缩放和提交差异查看；分支按名称中的斜杠分组。</li><li>回放按照提交关系重建历史。界面区分 reflog 记录与推测命令，不能把回放理解为原作者真实操作的录像。</li><li>工作区可以查看未暂存、已暂存改动，编辑文本、暂存文件并提交；合并冲突提供三方视图。</li><li>Git 命令先预览文件和引用变化，再明确确认执行。支持范围包含 status、log、diff、branch、switch、add、restore --staged、commit、merge、fetch、pull 和普通 push。</li></ul>
 <h2 id="快速开始">快速开始<a class="heading-anchor" href="#快速开始" aria-label="锚点">#</a></h2>
 <p>需要 Node.js 22.12 或更新版本、Git 2.34 或更新版本，以及 npm。以下命令来自项目 README：</p>
-<div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">git clone https:<span class="tok-operator">//</span>github.com<span class="tok-operator">/</span>luoyebai<span class="tok-operator">/</span>git-vis.git
+<div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">git clone https:<span class="tok-operator">//</span>github.com<span class="tok-operator">/</span>luoyebai<span class="tok-operator">/</span>git-vis.git
 cd git-vis
 npm ci
 npm run build
-npm start</code></pre></div>
+npm start</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
 <p>启动后访问 <code>http://127.0.0.1:3210</code>，输入仓库的绝对路径。项目也提供 <code>scripts/setup.sh</code>、<code>scripts/start.sh</code> 和对应的 PowerShell 脚本。普通仓库与 linked worktree 均在支持范围内。</p>
 <p>想先体验历史图和冲突场景，可以运行 <code>npm run demo</code>。它建立独立的临时演示仓库，包含分支、合并、标签、未提交改动和本地远端。</p>
 <h2 id="预览如何连接到执行">预览如何连接到执行<a class="heading-anchor" href="#预览如何连接到执行" aria-label="锚点">#</a></h2>
@@ -717,7 +717,7 @@ npm start</code></pre></div>
 
 <script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
 
-<script src="/assets/site.js?v=afafd87f" defer></script>
+<script src="/assets/site.js?v=26c9d981" defer></script>
 
 </body>
 </html>

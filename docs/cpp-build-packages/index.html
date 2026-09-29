@@ -31,11 +31,11 @@
 <link rel="canonical" href="https://luoyebai.github.io/docs/cpp-build-packages/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=afafd87f">
-<link rel="stylesheet" href="/assets/site.css?v=afafd87f">
+<link rel="stylesheet" href="/assets/themes.css?v=26c9d981">
+<link rel="stylesheet" href="/assets/site.css?v=26c9d981">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
-<link rel="stylesheet" href="/assets/docs.css?v=afafd87f">
+<link rel="stylesheet" href="/assets/docs.css?v=26c9d981">
 
 
 
@@ -309,9 +309,9 @@
       <section class="slide" data-slide="1"
                data-title="三个阶段分别负责什么">
         <div class="slide-inner"><h2>三个阶段分别负责什么</h2>
-<div class="deck-fragment"><div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-text">配置 configure → 检查环境、建立目标与依赖
+<div class="deck-fragment"><div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-text">配置 configure → 检查环境、建立目标与依赖
 生成 generate  → 输出 Ninja / Make / IDE 构建文件
-构建 build     → 编译、归档、链接</code></pre></div></div>
+构建 build     → 编译、归档、链接</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p>CMake 不替代编译器；包管理器不替代 CMake。
 依赖能下载，不代表架构、ABI、编译选项与当前项目兼容。</p></div></div>
       </section>
@@ -320,11 +320,11 @@
                data-title="获取完整示例">
         <div class="slide-inner"><h2>获取完整示例</h2>
 <div class="deck-fragment"><p>下载 <a href="/assets/docs/cpp-build-packages/starter.zip">工程 ZIP</a>，解压后进入含 <code>CMakeLists.txt</code> 的目录。</p></div>
-<div class="deck-fragment"><div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-text">CMakeLists.txt
+<div class="deck-fragment"><div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-text">CMakeLists.txt
 include/lesson/clamp.hpp
 src/clamp.cpp
 src/main.cpp
-tests/test_clamp.cpp</code></pre></div></div>
+tests/test_clamp.cpp</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p>函数 <code>clamp_value</code> 将整数限制在闭区间内；区间上下界反转时抛出 <code>std::invalid_argument</code>。
 练习关注工程组织，不依赖复杂算法。</p></div></div>
       </section>
@@ -332,7 +332,7 @@ tests/test_clamp.cpp</code></pre></div></div>
       <section class="slide" data-slide="3"
                data-title="把依赖挂到目标上">
         <div class="slide-inner"><h2>把依赖挂到目标上</h2>
-<div class="deck-fragment"><div class="code-block" data-lang="cmake"><div class="code-head"><span class="code-lang">cmake</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cmake"><span class="tok-keyword">cmake_minimum_required</span><span class="tok-punct">(</span><span class="tok-type">VERSION</span> <span class="tok-number">3</span>.<span class="tok-number">20</span><span class="tok-punct">)</span>
+<div class="deck-fragment"><div class="code-block" data-lang="cmake" data-foldable="13"><div class="code-head"><span class="code-lang">cmake</span><div class="code-tools"><button class="code-fold" type="button" data-fold aria-expanded="true"><span data-fold-label>收起</span><svg class="code-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-cmake"><span class="tok-keyword">cmake_minimum_required</span><span class="tok-punct">(</span><span class="tok-type">VERSION</span> <span class="tok-number">3</span>.<span class="tok-number">20</span><span class="tok-punct">)</span>
 <span class="tok-keyword">project</span><span class="tok-punct">(</span>lesson <span class="tok-type">LANGUAGES</span> <span class="tok-type">CXX</span><span class="tok-punct">)</span>
 <span class="tok-keyword">add_library</span><span class="tok-punct">(</span>lesson src<span class="tok-operator">/</span>clamp.cpp<span class="tok-punct">)</span>
 <span class="tok-function">target_include_directories</span><span class="tok-punct">(</span>lesson <span class="tok-type">PUBLIC</span> <span class="tok-keyword">include</span><span class="tok-punct">)</span>
@@ -344,16 +344,16 @@ tests/test_clamp.cpp</code></pre></div></div>
   <span class="tok-keyword">add_executable</span><span class="tok-punct">(</span>lesson_tests tests<span class="tok-operator">/</span>test_clamp.cpp<span class="tok-punct">)</span>
   <span class="tok-keyword">target_link_libraries</span><span class="tok-punct">(</span>lesson_tests <span class="tok-type">PRIVATE</span> lesson<span class="tok-punct">)</span>
   <span class="tok-function">add_test</span><span class="tok-punct">(</span><span class="tok-type">NAME</span> clamp_contract <span class="tok-type">COMMAND</span> lesson_tests<span class="tok-punct">)</span>
-<span class="tok-keyword">endif</span><span class="tok-punct">(</span><span class="tok-punct">)</span></code></pre></div></div>
+<span class="tok-keyword">endif</span><span class="tok-punct">(</span><span class="tok-punct">)</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p>消费者链接 <code>lesson</code> 时也获得其 PUBLIC 头文件路径与标准要求。</p></div></div>
       </section>
       
       <section class="slide" data-slide="4"
                data-title="配置、构建、测试">
         <div class="slide-inner"><h2>配置、构建、测试</h2>
-<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">cmake <span class="tok-operator">-</span><span class="tok-type">S</span> . <span class="tok-operator">-</span><span class="tok-type">B</span> build <span class="tok-operator">-</span><span class="tok-type">DCMAKE_BUILD_TYPE</span><span class="tok-operator">=</span><span class="tok-type">Debug</span>
+<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">cmake <span class="tok-operator">-</span><span class="tok-type">S</span> . <span class="tok-operator">-</span><span class="tok-type">B</span> build <span class="tok-operator">-</span><span class="tok-type">DCMAKE_BUILD_TYPE</span><span class="tok-operator">=</span><span class="tok-type">Debug</span>
 cmake <span class="tok-operator">--</span>build build <span class="tok-operator">--</span>config <span class="tok-type">Debug</span>
-ctest <span class="tok-operator">--</span>test-dir build <span class="tok-operator">-</span><span class="tok-type">C</span> <span class="tok-type">Debug</span> <span class="tok-operator">--</span>output-on-failure</code></pre></div></div>
+ctest <span class="tok-operator">--</span>test-dir build <span class="tok-operator">-</span><span class="tok-type">C</span> <span class="tok-type">Debug</span> <span class="tok-operator">--</span>output-on-failure</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p>Ninja / Make 单配置生成器使用 <code>CMAKE_BUILD_TYPE</code>；Visual Studio 等多配置生成器在构建与测试时选配置。</p></div>
 <div class="deck-fragment"><p>单配置运行 <code>./build/lesson_demo</code>；Windows Visual Studio 通常运行 <code>build\Debug\lesson_demo.exe</code>。
 预期输出 <code>10</code>，测试报告 <code>clamp_contract</code> 通过。</p></div></div>
@@ -386,8 +386,8 @@ ctest <span class="tok-operator">--</span>test-dir build <span class="tok-operat
                data-title="findpackage 并不负责下载">
         <div class="slide-inner"><h2>find_package 并不负责下载</h2>
 <div class="deck-fragment"><p>引入 fmt 的消费端配置示意：</p></div>
-<div class="deck-fragment"><div class="code-block" data-lang="cmake"><div class="code-head"><span class="code-lang">cmake</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cmake"><span class="tok-keyword">find_package</span><span class="tok-punct">(</span>fmt <span class="tok-type">CONFIG</span> <span class="tok-type">REQUIRED</span><span class="tok-punct">)</span>
-<span class="tok-keyword">target_link_libraries</span><span class="tok-punct">(</span>lesson_demo <span class="tok-type">PRIVATE</span> fmt::fmt<span class="tok-punct">)</span></code></pre></div></div>
+<div class="deck-fragment"><div class="code-block" data-lang="cmake"><div class="code-head"><span class="code-lang">cmake</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-cmake"><span class="tok-keyword">find_package</span><span class="tok-punct">(</span>fmt <span class="tok-type">CONFIG</span> <span class="tok-type">REQUIRED</span><span class="tok-punct">)</span>
+<span class="tok-keyword">target_link_libraries</span><span class="tok-punct">(</span>lesson_demo <span class="tok-type">PRIVATE</span> fmt::fmt<span class="tok-punct">)</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p>它查找已安装或由工具链提供的包配置与 imported target。
 头文件找不到、链接符号找不到、运行时共享库找不到，分别属于不同阶段。</p></div>
 <div class="deck-fragment"><p>避免手工硬编码某台电脑上的绝对 include/lib 路径。</p></div></div>
@@ -397,11 +397,11 @@ ctest <span class="tok-operator">--</span>test-dir build <span class="tok-operat
                data-title="vcpkg：用清单声明依赖">
         <div class="slide-inner"><h2>vcpkg：用清单声明依赖</h2>
 <div class="deck-fragment"><p>已安装 vcpkg 并设置 <code>VCPKG_ROOT</code> 后，可在项目添加：</p></div>
-<div class="deck-fragment"><div class="code-block" data-lang="json"><div class="code-head"><span class="code-lang">json</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-json"><span class="tok-punct">{</span><span class="tok-key">&quot;name&quot;</span><span class="tok-punct">:</span><span class="tok-string">&quot;lesson-app&quot;</span><span class="tok-punct">,</span><span class="tok-key">&quot;version-string&quot;</span><span class="tok-punct">:</span><span class="tok-string">&quot;0.1.0&quot;</span><span class="tok-punct">,</span><span class="tok-key">&quot;dependencies&quot;</span><span class="tok-punct">:</span><span class="tok-punct">[</span><span class="tok-string">&quot;fmt&quot;</span><span class="tok-punct">]</span><span class="tok-punct">}</span></code></pre></div></div>
+<div class="deck-fragment"><div class="code-block" data-lang="json"><div class="code-head"><span class="code-lang">json</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-json"><span class="tok-punct">{</span><span class="tok-key">&quot;name&quot;</span><span class="tok-punct">:</span><span class="tok-string">&quot;lesson-app&quot;</span><span class="tok-punct">,</span><span class="tok-key">&quot;version-string&quot;</span><span class="tok-punct">:</span><span class="tok-string">&quot;0.1.0&quot;</span><span class="tok-punct">,</span><span class="tok-key">&quot;dependencies&quot;</span><span class="tok-punct">:</span><span class="tok-punct">[</span><span class="tok-string">&quot;fmt&quot;</span><span class="tok-punct">]</span><span class="tok-punct">}</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p>Bash 示例，使用独立构建目录：</p></div>
-<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">cmake <span class="tok-operator">-</span><span class="tok-type">S</span> . <span class="tok-operator">-</span><span class="tok-type">B</span> build-vcpkg \
+<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">cmake <span class="tok-operator">-</span><span class="tok-type">S</span> . <span class="tok-operator">-</span><span class="tok-type">B</span> build-vcpkg \
   <span class="tok-operator">-</span><span class="tok-type">DCMAKE_TOOLCHAIN_FILE</span><span class="tok-operator">=</span><span class="tok-string">&quot;$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake&quot;</span>
-cmake <span class="tok-operator">--</span>build build-vcpkg</code></pre></div></div>
+cmake <span class="tok-operator">--</span>build build-vcpkg</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p>清单保存为 <code>vcpkg.json</code>，并配合上一页的 <code>find_package</code>。
 团队项目还应记录 baseline / registry 和目标 triplet；仅写包名不能锁定完整依赖状态。</p></div></div>
       </section>
@@ -410,15 +410,15 @@ cmake <span class="tok-operator">--</span>build build-vcpkg</code></pre></div></
                data-title="Conan 2：显式安装与工具链">
         <div class="slide-inner"><h2>Conan 2：显式安装与工具链</h2>
 <div class="deck-fragment"><p>替代路线：已安装 Conan 2 后，在 <code>conanfile.txt</code> 声明依赖与生成器：</p></div>
-<div class="deck-fragment"><div class="code-block" data-lang="ini"><div class="code-head"><span class="code-lang">ini</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-ini">[requires]
+<div class="deck-fragment"><div class="code-block" data-lang="ini"><div class="code-head"><span class="code-lang">ini</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-ini">[requires]
 fmt/11.0.2
 [generators]
 CMakeDeps
-CMakeToolchain</code></pre></div></div>
-<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">conan profile detect
+CMakeToolchain</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
+<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">conan profile detect
 conan install . <span class="tok-operator">--</span>output-folder<span class="tok-operator">=</span>build-conan <span class="tok-operator">--</span>build<span class="tok-operator">=</span>missing <span class="tok-operator">-</span>s build_type<span class="tok-operator">=</span><span class="tok-type">Release</span>
 cmake <span class="tok-operator">-</span><span class="tok-type">S</span> . <span class="tok-operator">-</span><span class="tok-type">B</span> build-conan <span class="tok-operator">-</span><span class="tok-type">DCMAKE_TOOLCHAIN_FILE</span><span class="tok-operator">=</span>conan_toolchain.cmake <span class="tok-operator">-</span><span class="tok-type">DCMAKE_BUILD_TYPE</span><span class="tok-operator">=</span><span class="tok-type">Release</span>
-cmake <span class="tok-operator">--</span>build build-conan <span class="tok-operator">--</span>config <span class="tok-type">Release</span></code></pre></div></div>
+cmake <span class="tok-operator">--</span>build build-conan <span class="tok-operator">--</span>config <span class="tok-type">Release</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p>固定版本是教学示例，远端配方可用性需核对。检测出的 profile 需检查，团队应保留锁文件与配置。</p></div></div>
       </section>
       
@@ -928,8 +928,8 @@ cmake <span class="tok-operator">--</span>build build-conan <span class="tok-ope
 
 <script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
 
-<script src="/assets/site.js?v=afafd87f" defer></script>
-<script src="/assets/docs.js?v=afafd87f" defer></script>
+<script src="/assets/site.js?v=26c9d981" defer></script>
+<script src="/assets/docs.js?v=26c9d981" defer></script>
 
 </body>
 </html>

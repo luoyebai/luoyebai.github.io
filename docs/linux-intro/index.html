@@ -31,11 +31,11 @@
 <link rel="canonical" href="https://luoyebai.github.io/docs/linux-intro/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=afafd87f">
-<link rel="stylesheet" href="/assets/site.css?v=afafd87f">
+<link rel="stylesheet" href="/assets/themes.css?v=26c9d981">
+<link rel="stylesheet" href="/assets/site.css?v=26c9d981">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
-<link rel="stylesheet" href="/assets/docs.css?v=afafd87f">
+<link rel="stylesheet" href="/assets/docs.css?v=26c9d981">
 
 
 
@@ -329,12 +329,12 @@
       <section class="slide" data-slide="4"
                data-title="路径：知道自己在哪里">
         <div class="slide-inner"><h2>路径：知道自己在哪里</h2>
-<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">pwd
+<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">pwd
 mkdir <span class="tok-operator">-</span>p <span class="tok-string">&quot;$HOME/linux-practice/notes&quot;</span>
 cd <span class="tok-string">&quot;$HOME/linux-practice&quot;</span>
 printf <span class="tok-string">&#x27;hello\n&#x27;</span> <span class="tok-operator">&gt;</span> notes<span class="tok-operator">/</span>hello.txt
 ls <span class="tok-operator">-</span>l notes
-cat notes<span class="tok-operator">/</span>hello.txt</code></pre></div></div>
+cat notes<span class="tok-operator">/</span>hello.txt</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p><code>/</code> 开头是绝对路径；<code>notes/hello.txt</code> 是相对路径；<code>.</code> 是当前目录，<code>..</code> 是父目录。
 大小写通常有区别，带空格的路径应加引号。</p></div></div>
       </section>
@@ -342,10 +342,10 @@ cat notes<span class="tok-operator">/</span>hello.txt</code></pre></div></div>
       <section class="slide" data-slide="5"
                data-title="文件操作与检查">
         <div class="slide-inner"><h2>文件操作与检查</h2>
-<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">cp notes<span class="tok-operator">/</span>hello.txt notes<span class="tok-operator">/</span>hello-copy.txt
+<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">cp notes<span class="tok-operator">/</span>hello.txt notes<span class="tok-operator">/</span>hello-copy.txt
 mv notes<span class="tok-operator">/</span>hello-copy.txt notes<span class="tok-operator">/</span>greeting.txt
 find notes <span class="tok-operator">-</span>type f <span class="tok-operator">-</span>name <span class="tok-string">&#x27;*.txt&#x27;</span>
-wc <span class="tok-operator">-</span>l notes<span class="tok-operator">/</span>hello.txt</code></pre></div></div>
+wc <span class="tok-operator">-</span>l notes<span class="tok-operator">/</span>hello.txt</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p>执行修改前先看路径与文件名。Shell 的通配符会展开，<code>'*.txt'</code> 在这里交给 <code>find</code> 解释。</p></div>
 <div class="deck-fragment"><p>编辑配置前保留可恢复副本；不要把不理解的删除命令直接复制到终端。</p></div></div>
       </section>
@@ -353,9 +353,9 @@ wc <span class="tok-operator">-</span>l notes<span class="tok-operator">/</span>
       <section class="slide" data-slide="6"
                data-title="用户与权限">
         <div class="slide-inner"><h2>用户与权限</h2>
-<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">id
+<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">id
 ls <span class="tok-operator">-</span>l notes<span class="tok-operator">/</span>hello.txt
-chmod u<span class="tok-operator">+</span>rw notes<span class="tok-operator">/</span>hello.txt</code></pre></div></div>
+chmod u<span class="tok-operator">+</span>rw notes<span class="tok-operator">/</span>hello.txt</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p>权限分所有者、组和其他用户，<code>r/w/x</code> 分别控制读、写、执行；目录的 <code>x</code> 表示可遍历。</p></div>
 <div class="deck-fragment"><p><code>sudo</code> 仅用于确实需要管理员权限的操作。日常写代码和编译不需要设置 root 密码或以 root 身份工作。</p></div></div>
       </section>
@@ -364,9 +364,9 @@ chmod u<span class="tok-operator">+</span>rw notes<span class="tok-operator">/</
                data-title="软件包与更新">
         <div class="slide-inner"><h2>软件包与更新</h2>
 <div class="deck-fragment"><p>Ubuntu / Debian 示例：</p></div>
-<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">sudo apt update
+<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">sudo apt update
 apt show build-essential
-sudo apt install build-essential gdb</code></pre></div></div>
+sudo apt install build-essential gdb</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p><code>update</code> 刷新软件包索引，<code>upgrade</code> 才更新已安装的软件包。
 发行版包、项目依赖和 Python 虚拟环境承担不同职责，不要混成一个全局环境。</p></div></div>
       </section>
@@ -390,11 +390,11 @@ sudo apt install build-essential gdb</code></pre></div></div>
         <div class="slide-inner"><h2>练习与下一步</h2>
 <div class="deck-fragment"><p>建立 <code>linux-practice/logs</code>，写入两行文本，复制到 <code>backup.txt</code>，用 <code>wc -l</code> 验证行数。</p></div>
 <div class="deck-fragment"><p>参考答案：</p></div>
-<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">mkdir <span class="tok-operator">-</span>p <span class="tok-string">&quot;$HOME/linux-practice/logs&quot;</span>
+<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">mkdir <span class="tok-operator">-</span>p <span class="tok-string">&quot;$HOME/linux-practice/logs&quot;</span>
 cd <span class="tok-string">&quot;$HOME/linux-practice/logs&quot;</span>
 printf <span class="tok-string">&#x27;first\nsecond\n&#x27;</span> <span class="tok-operator">&gt;</span> sample.txt
 cp sample.txt backup.txt
-wc <span class="tok-operator">-</span>l backup.txt</code></pre></div></div>
+wc <span class="tok-operator">-</span>l backup.txt</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p>预期行数为 2。接着学习 <a href="/docs/linux-c/">Linux 下的 C 语言</a>。</p></div>
 <div class="deck-fragment"><p>参考：<a href="https://ubuntu.com/tutorials/command-line-for-beginners" target="_blank" rel="noopener">Ubuntu 命令行教程</a>、<a href="https://learn.microsoft.com/windows/wsl/install" target="_blank" rel="noopener">WSL 安装说明</a>。</p></div></div>
       </section>
@@ -885,8 +885,8 @@ wc <span class="tok-operator">-</span>l backup.txt</code></pre></div></div>
 
 <script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
 
-<script src="/assets/site.js?v=afafd87f" defer></script>
-<script src="/assets/docs.js?v=afafd87f" defer></script>
+<script src="/assets/site.js?v=26c9d981" defer></script>
+<script src="/assets/docs.js?v=26c9d981" defer></script>
 
 </body>
 </html>

@@ -31,11 +31,11 @@
 <link rel="canonical" href="https://luoyebai.github.io/docs/ros-tools/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=afafd87f">
-<link rel="stylesheet" href="/assets/site.css?v=afafd87f">
+<link rel="stylesheet" href="/assets/themes.css?v=26c9d981">
+<link rel="stylesheet" href="/assets/site.css?v=26c9d981">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
-<link rel="stylesheet" href="/assets/docs.css?v=afafd87f">
+<link rel="stylesheet" href="/assets/docs.css?v=26c9d981">
 
 
 
@@ -400,11 +400,11 @@ Lifespan 限制消息有效期；可靠传输不能使过期数据重新有效�
       <section class="slide" data-slide="6"
                data-title="收不到数据：逐层排查">
         <div class="slide-inner"><h2>收不到数据：逐层排查</h2>
-<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">ros2 node list
+<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">ros2 node list
 ros2 topic list <span class="tok-operator">-</span>t
 ros2 topic info <span class="tok-operator">/</span>image_raw <span class="tok-operator">--</span>verbose
 ros2 topic echo <span class="tok-operator">/</span>image_raw <span class="tok-operator">--</span>qos-reliability best_effort <span class="tok-operator">--</span>once
-ros2 topic hz <span class="tok-operator">/</span>image_raw</code></pre></div></div>
+ros2 topic hz <span class="tok-operator">/</span>image_raw</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p>确认话题名、类型、端点数量、QoS，然后检查 <code>ROS_DOMAIN_ID</code>、网络和发现配置。
 CLI 也是订阅者；<code>hz</code> 测得的是它接收到的频率，可能受 QoS、负载与网络影响。
 大图像的文本输出很多，可优先查看元数据或使用图像工具。</p></div></div>
@@ -440,8 +440,8 @@ CLI 也是订阅者；<code>hz</code> 测得的是它接收到的频率，可能
 </figure></div>
 <div class="deck-fragment"><p>常见链路：<code>map → odom → base_link → camera_link</code>。
 每个子坐标系应只有一个父坐标系，避免环与重复发布者。</p></div>
-<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">ros2 run tf2_ros tf2_echo base_link camera_link
-ros2 run tf2_tools view_frames</code></pre></div></div>
+<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">ros2 run tf2_ros tf2_echo base_link camera_link
+ros2 run tf2_tools view_frames</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p>环、断树和时间过期是不同问题。<code>TF_OLD_DATA</code> 通常指旧时间数据，不能直接当成“存在环”的诊断。</p></div></div>
       </section>
       
@@ -457,9 +457,9 @@ ros2 run tf2_tools view_frames</code></pre></div></div>
       <section class="slide" data-slide="9"
                data-title="用录包保留现场">
         <div class="slide-inner"><h2>用录包保留现场</h2>
-<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">ros2 bag record <span class="tok-operator">/</span>scan <span class="tok-operator">/</span>tf <span class="tok-operator">/</span>tf_static <span class="tok-operator">/</span>odom
+<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">ros2 bag record <span class="tok-operator">/</span>scan <span class="tok-operator">/</span>tf <span class="tok-operator">/</span>tf_static <span class="tok-operator">/</span>odom
 ros2 bag info .<span class="tok-operator">/</span>你的录包目录
-ros2 bag play .<span class="tok-operator">/</span>你的录包目录 <span class="tok-operator">--</span>clock</code></pre></div></div>
+ros2 bag play .<span class="tok-operator">/</span>你的录包目录 <span class="tok-operator">--</span>clock</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p>回放时让相关节点使用仿真时间，避免同时运行原始传感器或重复 TF 发布者。
 确认静态 TF 与必要配置已被保存；录制与回放 QoS 有特殊需求时使用覆盖配置。</p></div></div>
       </section>
@@ -468,14 +468,14 @@ ros2 bag play .<span class="tok-operator">/</span>你的录包目录 <span class
                data-title="launch 描述接线">
         <div class="slide-inner"><h2>launch 描述接线</h2>
 <div class="deck-fragment"><p>下面是结构示意；<code>camera</code> 与 <code>detector</code> 需替换为实际安装的包和可执行程序。</p></div>
-<div class="deck-fragment"><div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">from</span> launch <span class="tok-keyword">import</span> <span class="tok-type">LaunchDescription</span>
+<div class="deck-fragment"><div class="code-block" data-lang="python" data-foldable="8"><div class="code-head"><span class="code-lang">python</span><div class="code-tools"><button class="code-fold" type="button" data-fold aria-expanded="true"><span data-fold-label>收起</span><svg class="code-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">from</span> launch <span class="tok-keyword">import</span> <span class="tok-type">LaunchDescription</span>
 <span class="tok-keyword">from</span> launch_ros<span class="tok-punct">.</span>actions <span class="tok-keyword">import</span> <span class="tok-type">Node</span>
 <span class="tok-keyword">def</span> <span class="tok-function">generate_launch_description</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">:</span>
     <span class="tok-keyword">return</span> <span class="tok-function">LaunchDescription</span><span class="tok-punct">(</span><span class="tok-punct">[</span>
         <span class="tok-function">Node</span><span class="tok-punct">(</span>package<span class="tok-operator">=</span><span class="tok-string">&#x27;camera&#x27;</span><span class="tok-punct">,</span> executable<span class="tok-operator">=</span><span class="tok-string">&#x27;camera_node&#x27;</span><span class="tok-punct">,</span> namespace<span class="tok-operator">=</span><span class="tok-string">&#x27;robot1&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">,</span>
         <span class="tok-function">Node</span><span class="tok-punct">(</span>package<span class="tok-operator">=</span><span class="tok-string">&#x27;detector&#x27;</span><span class="tok-punct">,</span> executable<span class="tok-operator">=</span><span class="tok-string">&#x27;detect_node&#x27;</span><span class="tok-punct">,</span>
              remappings<span class="tok-operator">=</span><span class="tok-punct">[</span><span class="tok-punct">(</span><span class="tok-string">&#x27;image_raw&#x27;</span><span class="tok-punct">,</span> <span class="tok-string">&#x27;/robot1/image_raw&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">]</span><span class="tok-punct">)</span><span class="tok-punct">,</span>
-    <span class="tok-punct">]</span><span class="tok-punct">)</span></code></pre></div></div>
+    <span class="tok-punct">]</span><span class="tok-punct">)</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p>参数配置算法行为，命名空间与重映射配置连接关系。日志中保留节点名、时间和关键状态变化。</p></div></div>
       </section>
       
@@ -978,8 +978,8 @@ ros2 bag play .<span class="tok-operator">/</span>你的录包目录 <span class
 
 <script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
 
-<script src="/assets/site.js?v=afafd87f" defer></script>
-<script src="/assets/docs.js?v=afafd87f" defer></script>
+<script src="/assets/site.js?v=26c9d981" defer></script>
+<script src="/assets/docs.js?v=26c9d981" defer></script>
 
 </body>
 </html>

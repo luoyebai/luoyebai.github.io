@@ -31,8 +31,8 @@
 <link rel="canonical" href="https://luoyebai.github.io/posts/parallel-ankle-kinematics/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=afafd87f">
-<link rel="stylesheet" href="/assets/site.css?v=afafd87f">
+<link rel="stylesheet" href="/assets/themes.css?v=26c9d981">
+<link rel="stylesheet" href="/assets/site.css?v=26c9d981">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
 
@@ -218,8 +218,18 @@
     
     <aside class="post-aside">
       <nav class="toc" data-toc aria-label="目录">
-        <p class="toc-title">目录</p>
-        <ul>
+        <button class="toc-head" type="button" data-toc-toggle aria-expanded="true"
+                aria-controls="toc-list" aria-label="折叠或展开目录">
+          <span class="toc-title">目录</span>
+          
+          <span class="toc-current" data-toc-current aria-hidden="true"></span>
+          <span class="toc-count">13 节</span>
+          <svg class="toc-caret" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <ul id="toc-list">
           
           <li class="toc-l2"><a href="#脚踝并联解算需求">脚踝并联解算需求</a></li>
           
@@ -268,13 +278,13 @@
 <p>实现以下函数</p>
 <p>输入：脚踝目标欧拉角、电机当前角度、电机当前转速</p>
 <p>得到输出：电机目标角度、脚踝当前欧拉角、脚踝当前角速度</p>
-<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-type">ParallelCal</span><span class="tok-operator">::</span><span class="tok-type">CalOutData</span> <span class="tok-type">ParallelCal</span><span class="tok-operator">::</span><span class="tok-function">calculate</span><span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-type">ParallelCal</span><span class="tok-operator">::</span><span class="tok-type">Euler</span><span class="tok-operator">&amp;</span> euler<span class="tok-punct">,</span> <span class="tok-keyword">const</span> <span class="tok-type">ParallelCal</span><span class="tok-operator">::</span><span class="tok-type">Q</span><span class="tok-operator">&amp;</span> q<span class="tok-punct">,</span> <span class="tok-keyword">const</span> <span class="tok-type">ParallelCal</span><span class="tok-operator">::</span><span class="tok-type">Dq</span><span class="tok-operator">&amp;</span> dq<span class="tok-punct">)</span> <span class="tok-keyword">const</span> <span class="tok-punct">{</span>
+<div class="code-block" data-lang="cpp" data-foldable="7"><div class="code-head"><span class="code-lang">cpp</span><div class="code-tools"><button class="code-fold" type="button" data-fold aria-expanded="true"><span data-fold-label>收起</span><svg class="code-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-cpp"><span class="tok-type">ParallelCal</span><span class="tok-operator">::</span><span class="tok-type">CalOutData</span> <span class="tok-type">ParallelCal</span><span class="tok-operator">::</span><span class="tok-function">calculate</span><span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-type">ParallelCal</span><span class="tok-operator">::</span><span class="tok-type">Euler</span><span class="tok-operator">&amp;</span> euler<span class="tok-punct">,</span> <span class="tok-keyword">const</span> <span class="tok-type">ParallelCal</span><span class="tok-operator">::</span><span class="tok-type">Q</span><span class="tok-operator">&amp;</span> q<span class="tok-punct">,</span> <span class="tok-keyword">const</span> <span class="tok-type">ParallelCal</span><span class="tok-operator">::</span><span class="tok-type">Dq</span><span class="tok-operator">&amp;</span> dq<span class="tok-punct">)</span> <span class="tok-keyword">const</span> <span class="tok-punct">{</span>
     <span class="tok-type">ParallelCal</span><span class="tok-operator">::</span><span class="tok-type">Q</span> q_c <span class="tok-operator">=</span> <span class="tok-keyword">this</span><span class="tok-operator">-&gt;</span><span class="tok-function">iKCal</span><span class="tok-punct">(</span>euler<span class="tok-punct">)</span><span class="tok-punct">;</span>
     <span class="tok-type">ParallelCal</span><span class="tok-operator">::</span><span class="tok-type">Euler</span> e_c <span class="tok-operator">=</span> <span class="tok-keyword">this</span><span class="tok-operator">-&gt;</span><span class="tok-function">fKCal</span><span class="tok-punct">(</span>q<span class="tok-punct">)</span><span class="tok-punct">;</span>
     <span class="tok-type">ParallelCal</span><span class="tok-operator">::</span><span class="tok-type">Gyro</span> gyro <span class="tok-operator">=</span> <span class="tok-keyword">this</span><span class="tok-operator">-&gt;</span><span class="tok-function">dqToGryo</span><span class="tok-punct">(</span>e_c<span class="tok-punct">,</span> q<span class="tok-punct">,</span> dq<span class="tok-punct">)</span><span class="tok-punct">;</span>
 
     <span class="tok-keyword">return</span> <span class="tok-type">ParallelCal</span><span class="tok-operator">::</span><span class="tok-type">CalOutData</span><span class="tok-punct">{</span>q_c<span class="tok-punct">,</span> e_c<span class="tok-punct">,</span> gyro<span class="tok-punct">}</span><span class="tok-punct">;</span>
-<span class="tok-punct">}</span></code></pre></div>
+<span class="tok-punct">}</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
 <p>2种实现方式</p>
 <ol><li>通过采集数据进行插值打表或函数拟合</li><li>通过正逆运动学解算得到答案（最精准）</li></ol>
 <h2 id="通过采集数据进行函数拟合">通过采集数据进行函数拟合<a class="heading-anchor" href="#通过采集数据进行函数拟合" aria-label="锚点">#</a></h2>
@@ -288,13 +298,13 @@
 <p>演示：</p>
 <figure class="docvideo media-shim"><video src="/assets/feishu/parallel-ankle-kinematics/video-01.mp4" poster="/assets/feishu/parallel-ankle-kinematics/video-01.jpg" preload="metadata" muted loop playsinline controls aria-label="符号回归拟合出的函数与评估结果"></video><button class="docvideo-play" type="button" aria-label="播放视频"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 5.6v12.8L19 12z"/></svg><span>播放</span></button><figcaption>符号回归拟合出的函数与评估结果</figcaption></figure>
 <p>安装依赖</p>
-<div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">pip install pysr sympy pandas numpy matplotlib scikit-learn</code></pre></div>
+<div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">pip install pysr sympy pandas numpy matplotlib scikit-learn</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
 <p>修改参数</p>
-<div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-comment"># 修改以下参数，n为迭代次数</span>
-config <span class="tok-operator">=</span> <span class="tok-punct">{</span><span class="tok-string">&#x27;data_path&#x27;</span><span class="tok-punct">:</span><span class="tok-string">&#x27;data.csv&#x27;</span><span class="tok-punct">,</span><span class="tok-string">&#x27;name_dict&#x27;</span><span class="tok-punct">:</span><span class="tok-punct">[</span><span class="tok-string">&#x27;high_motor&#x27;</span><span class="tok-punct">,</span><span class="tok-string">&#x27;low_motor&#x27;</span><span class="tok-punct">,</span><span class="tok-string">&#x27;pitch&#x27;</span><span class="tok-punct">,</span><span class="tok-string">&#x27;roll&#x27;</span><span class="tok-punct">]</span><span class="tok-punct">,</span><span class="tok-string">&#x27;min_max&#x27;</span><span class="tok-punct">:</span><span class="tok-punct">{</span><span class="tok-string">&#x27;high&#x27;</span><span class="tok-punct">:</span><span class="tok-punct">[</span><span class="tok-number">0</span><span class="tok-punct">,</span><span class="tok-number">180</span><span class="tok-punct">]</span><span class="tok-punct">,</span><span class="tok-string">&#x27;low&#x27;</span><span class="tok-punct">:</span><span class="tok-punct">[</span><span class="tok-number">0</span><span class="tok-punct">,</span><span class="tok-number">180</span><span class="tok-punct">]</span><span class="tok-punct">,</span><span class="tok-string">&#x27;pitch&#x27;</span><span class="tok-punct">:</span><span class="tok-punct">[</span><span class="tok-operator">-</span><span class="tok-number">90</span><span class="tok-punct">,</span><span class="tok-number">90</span><span class="tok-punct">]</span><span class="tok-punct">,</span><span class="tok-string">&#x27;roll&#x27;</span><span class="tok-punct">:</span><span class="tok-punct">[</span><span class="tok-operator">-</span><span class="tok-number">90</span><span class="tok-punct">,</span><span class="tok-number">90</span><span class="tok-punct">]</span><span class="tok-punct">}</span><span class="tok-punct">,</span><span class="tok-string">&#x27;n&#x27;</span><span class="tok-punct">:</span><span class="tok-number">100</span><span class="tok-punct">,</span><span class="tok-string">&#x27;figsize&#x27;</span><span class="tok-punct">:</span><span class="tok-punct">(</span><span class="tok-number">18</span><span class="tok-punct">,</span><span class="tok-number">8</span><span class="tok-punct">)</span><span class="tok-punct">}</span></code></pre></div>
+<div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-python"><span class="tok-comment"># 修改以下参数，n为迭代次数</span>
+config <span class="tok-operator">=</span> <span class="tok-punct">{</span><span class="tok-string">&#x27;data_path&#x27;</span><span class="tok-punct">:</span><span class="tok-string">&#x27;data.csv&#x27;</span><span class="tok-punct">,</span><span class="tok-string">&#x27;name_dict&#x27;</span><span class="tok-punct">:</span><span class="tok-punct">[</span><span class="tok-string">&#x27;high_motor&#x27;</span><span class="tok-punct">,</span><span class="tok-string">&#x27;low_motor&#x27;</span><span class="tok-punct">,</span><span class="tok-string">&#x27;pitch&#x27;</span><span class="tok-punct">,</span><span class="tok-string">&#x27;roll&#x27;</span><span class="tok-punct">]</span><span class="tok-punct">,</span><span class="tok-string">&#x27;min_max&#x27;</span><span class="tok-punct">:</span><span class="tok-punct">{</span><span class="tok-string">&#x27;high&#x27;</span><span class="tok-punct">:</span><span class="tok-punct">[</span><span class="tok-number">0</span><span class="tok-punct">,</span><span class="tok-number">180</span><span class="tok-punct">]</span><span class="tok-punct">,</span><span class="tok-string">&#x27;low&#x27;</span><span class="tok-punct">:</span><span class="tok-punct">[</span><span class="tok-number">0</span><span class="tok-punct">,</span><span class="tok-number">180</span><span class="tok-punct">]</span><span class="tok-punct">,</span><span class="tok-string">&#x27;pitch&#x27;</span><span class="tok-punct">:</span><span class="tok-punct">[</span><span class="tok-operator">-</span><span class="tok-number">90</span><span class="tok-punct">,</span><span class="tok-number">90</span><span class="tok-punct">]</span><span class="tok-punct">,</span><span class="tok-string">&#x27;roll&#x27;</span><span class="tok-punct">:</span><span class="tok-punct">[</span><span class="tok-operator">-</span><span class="tok-number">90</span><span class="tok-punct">,</span><span class="tok-number">90</span><span class="tok-punct">]</span><span class="tok-punct">}</span><span class="tok-punct">,</span><span class="tok-string">&#x27;n&#x27;</span><span class="tok-punct">:</span><span class="tok-number">100</span><span class="tok-punct">,</span><span class="tok-string">&#x27;figsize&#x27;</span><span class="tok-punct">:</span><span class="tok-punct">(</span><span class="tok-number">18</span><span class="tok-punct">,</span><span class="tok-number">8</span><span class="tok-punct">)</span><span class="tok-punct">}</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
 <p>运行代码</p>
-<div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash"><span class="tok-comment"># 运行即可</span>
-python3 pysr_sim.py</code></pre></div>
+<div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash"><span class="tok-comment"># 运行即可</span>
+python3 pysr_sim.py</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
 <p>结果包括：</p>
 <p>采集数据的3d图像</p>
 <p><img src="/assets/feishu/parallel-ankle-kinematics/fig-02.webp" alt="图片.png" loading="lazy" decoding="async"></p>
@@ -536,7 +546,8 @@ q_2
 <div class="math-block" data-tex="\boldsymbol{\tau_q} = \boldsymbol{J}^{-T} (\boldsymbol{\tau_\theta^{(ext)}}+\boldsymbol{\tau_\theta^{(g)}})">$$\boldsymbol{\tau_q} = \boldsymbol{J}^{-T} (\boldsymbol{\tau_\theta^{(ext)}}+\boldsymbol{\tau_\theta^{(g)}})$$</div>
 <hr>
 <p>参考论文：</p>
-<p>DraftOntheComprehensiveKinematicsAnalysisofaHumanoidParallelAnkleMechanism.pdf</p></div>
+<blockquote><p><em>A Draft on the Comprehensive Kinematics Analysis of a Humanoid Parallel Ankle Mechanism.</em>
+本文的几何关系与雅可比推导与它同源；原 PDF 是第三方论文，不随本文转载。</p></blockquote></div>
 
       <div class="post-end">
         <span class="end-mark" aria-hidden="true">◆</span>
@@ -572,7 +583,7 @@ q_2
       <div class="card-meta">
         <time datetime="2026-03-08">2026 年 3 月 8 日</time>
         <span class="sep" aria-hidden="true"></span>
-        <span>7 分钟</span>
+        <span>27 分钟</span>
         <span class="card-meta-end">
           
           
@@ -652,7 +663,7 @@ q_2
       <div class="card-meta">
         <time datetime="2026-02-14">2026 年 2 月 14 日</time>
         <span class="sep" aria-hidden="true"></span>
-        <span>19 分钟</span>
+        <span>13 分钟</span>
         <span class="card-meta-end">
           
           
@@ -1149,7 +1160,7 @@ q_2
 <script defer src="/assets/vendor/katex/katex.min.js"></script>
 
 
-<script src="/assets/site.js?v=afafd87f" defer></script>
+<script src="/assets/site.js?v=26c9d981" defer></script>
 
 </body>
 </html>

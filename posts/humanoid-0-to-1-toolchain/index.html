@@ -31,8 +31,8 @@
 <link rel="canonical" href="https://luoyebai.github.io/posts/humanoid-0-to-1-toolchain/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=afafd87f">
-<link rel="stylesheet" href="/assets/site.css?v=afafd87f">
+<link rel="stylesheet" href="/assets/themes.css?v=26c9d981">
+<link rel="stylesheet" href="/assets/site.css?v=26c9d981">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
 
@@ -206,7 +206,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
             <circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>
           </svg>
-          19 分钟
+          13 分钟
         </span>
         
       </div>
@@ -217,8 +217,18 @@
     
     <aside class="post-aside">
       <nav class="toc" data-toc aria-label="目录">
-        <p class="toc-title">目录</p>
-        <ul>
+        <button class="toc-head" type="button" data-toc-toggle aria-expanded="true"
+                aria-controls="toc-list" aria-label="折叠或展开目录">
+          <span class="toc-title">目录</span>
+          
+          <span class="toc-current" data-toc-current aria-hidden="true"></span>
+          <span class="toc-count">18 节</span>
+          <svg class="toc-caret" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <ul id="toc-list">
           
           <li class="toc-l2"><a href="#小型人形机器人研发0到1方案介绍">小型人形机器人研发0到1方案介绍</a></li>
           
@@ -242,17 +252,9 @@
           
           <li class="toc-l3"><a href="#小机器人真机后台程序">小机器人真机后台程序</a></li>
           
-          <li class="toc-l4"><a href="#后台程相关模块">后台程相关模块</a></li>
+          <li class="toc-l4"><a href="#四层各自负责什么">四层各自负责什么</a></li>
           
-          <li class="toc-l4"><a href="#通用层common文件夹下的核心实现">通用层common文件夹下的核心实现</a></li>
-          
-          <li class="toc-l4"><a href="#硬件抽象层coponent文件夹下的核心实现">硬件抽象层coponent文件夹下的核心实现</a></li>
-          
-          <li class="toc-l4"><a href="#机器人通讯层robot文件夹下的核心实现">机器人通讯层robot文件夹下的核心实现</a></li>
-          
-          <li class="toc-l4"><a href="#后台执行层">后台执行层</a></li>
-          
-          <li class="toc-l4"><a href="#总结">总结</a></li>
+          <li class="toc-l4"><a href="#这套架构的取舍">这套架构的取舍</a></li>
           
           <li class="toc-l3"><a href="#小机器人部署调试代码">小机器人部署调试代码</a></li>
           
@@ -274,7 +276,7 @@
       <details class="mobile-toc">
         <summary>本页目录</summary>
         <nav aria-label="本页目录"><ul>
-          <li class="toc-l2"><a href="#小型人形机器人研发0到1方案介绍">小型人形机器人研发0到1方案介绍</a></li><li class="toc-l3"><a href="#小机器人导出urdf展示">小机器人导出URDF展示</a></li><li class="toc-l4"><a href="#零件检查">零件检查</a></li><li class="toc-l4"><a href="#关节检查">关节检查</a></li><li class="toc-l3"><a href="#小机器人通讯sdk">小机器人通讯SDK</a></li><li class="toc-l4"><a href="#小机器人通讯中间件">小机器人通讯中间件</a></li><li class="toc-l4"><a href="#小机器人sdk封装">小机器人SDK封装</a></li><li class="toc-l3"><a href="#小机器人mujoco仿真">小机器人Mujoco仿真</a></li><li class="toc-l4"><a href="#urdf导出为mjcf">URDF导出为MJCF</a></li><li class="toc-l4"><a href="#提前验证">提前验证</a></li><li class="toc-l3"><a href="#小机器人真机后台程序">小机器人真机后台程序</a></li><li class="toc-l4"><a href="#后台程相关模块">后台程相关模块</a></li><li class="toc-l4"><a href="#通用层common文件夹下的核心实现">通用层common文件夹下的核心实现</a></li><li class="toc-l4"><a href="#硬件抽象层coponent文件夹下的核心实现">硬件抽象层coponent文件夹下的核心实现</a></li><li class="toc-l4"><a href="#机器人通讯层robot文件夹下的核心实现">机器人通讯层robot文件夹下的核心实现</a></li><li class="toc-l4"><a href="#后台执行层">后台执行层</a></li><li class="toc-l4"><a href="#总结">总结</a></li><li class="toc-l3"><a href="#小机器人部署调试代码">小机器人部署调试代码</a></li><li class="toc-l4"><a href="#部署代码">部署代码</a></li><li class="toc-l4"><a href="#调试代码">调试代码</a></li><li class="toc-l3"><a href="#小机器人客户端">小机器人客户端</a></li><li class="toc-l3"><a href="#最终效果">最终效果</a></li>
+          <li class="toc-l2"><a href="#小型人形机器人研发0到1方案介绍">小型人形机器人研发0到1方案介绍</a></li><li class="toc-l3"><a href="#小机器人导出urdf展示">小机器人导出URDF展示</a></li><li class="toc-l4"><a href="#零件检查">零件检查</a></li><li class="toc-l4"><a href="#关节检查">关节检查</a></li><li class="toc-l3"><a href="#小机器人通讯sdk">小机器人通讯SDK</a></li><li class="toc-l4"><a href="#小机器人通讯中间件">小机器人通讯中间件</a></li><li class="toc-l4"><a href="#小机器人sdk封装">小机器人SDK封装</a></li><li class="toc-l3"><a href="#小机器人mujoco仿真">小机器人Mujoco仿真</a></li><li class="toc-l4"><a href="#urdf导出为mjcf">URDF导出为MJCF</a></li><li class="toc-l4"><a href="#提前验证">提前验证</a></li><li class="toc-l3"><a href="#小机器人真机后台程序">小机器人真机后台程序</a></li><li class="toc-l4"><a href="#四层各自负责什么">四层各自负责什么</a></li><li class="toc-l4"><a href="#这套架构的取舍">这套架构的取舍</a></li><li class="toc-l3"><a href="#小机器人部署调试代码">小机器人部署调试代码</a></li><li class="toc-l4"><a href="#部署代码">部署代码</a></li><li class="toc-l4"><a href="#调试代码">调试代码</a></li><li class="toc-l3"><a href="#小机器人客户端">小机器人客户端</a></li><li class="toc-l3"><a href="#最终效果">最终效果</a></li>
         </ul></nav>
       </details>
       
@@ -309,7 +311,7 @@
 <p>小机器人通讯sdk使用fastdds作为通讯中间件，IDL（Interface description language）作为统一的接口管理。</p>
 <p><a href="https://github.com/eProsima/Fast-DDS" target="_blank" rel="noopener">https://github.com/eProsima/Fast-DDS</a></p>
 <p>在编写相关sdk时，需要先确定IDL的内容，如</p>
-<div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">idl
+<div class="code-block" data-lang="bash" data-foldable="10"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-fold" type="button" data-fold aria-expanded="true"><span data-fold-label>收起</span><svg class="code-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">idl
 ├── <span class="tok-type">BmsState</span>.idl
 ├── <span class="tok-type">ButtonEventType</span>.idl
 ├── <span class="tok-type">ImuState</span>.idl
@@ -318,7 +320,7 @@
 ├── <span class="tok-type">MotorCmd</span>.idl
 ├── <span class="tok-type">MotorState</span>.idl
 ├── <span class="tok-type">RpcReqMsg</span>.idl
-└── <span class="tok-type">RpcRespMsg</span>.idl</code></pre></div>
+└── <span class="tok-type">RpcRespMsg</span>.idl</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
 <p>其中，BmsState为电池信息、ButtonEventType为遥控按钮信息、ImuState为IMU信息、MotorCmd为发送给关节电机的信息、MotorState为关节电机返回的信息、LowCmd整合了可以发送的底层信息、LowState整合了接收到的所有底层状态信息、RpcReqMsg和RpcRespMsg用于实现RPC的数据包装。</p>
 <h4 id="小机器人sdk封装">小机器人SDK封装<a class="heading-anchor" href="#小机器人sdk封装" aria-label="锚点">#</a></h4>
 <p>通过fastddsgen，将idl生成为对应的C++代码。</p>
@@ -330,7 +332,7 @@
 <p>通过自定义stg文件可以做到自动生成idl对应的pybind11封装：</p>
 <p><img src="/assets/feishu/humanoid-0-to-1-toolchain/fig-08.webp" alt="image.png" loading="lazy" decoding="async"></p>
 <p>以LRLowStateSubscriber为例：</p>
-<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-comment">// 具体实现</span>
+<div class="code-block" data-lang="cpp" data-foldable="24"><div class="code-head"><span class="code-lang">cpp</span><div class="code-tools"><button class="code-fold" type="button" data-fold aria-expanded="true"><span data-fold-label>收起</span><svg class="code-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-cpp"><span class="tok-comment">// 具体实现</span>
 <span class="tok-keyword">class</span> <span class="tok-function">__attribute__</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-function">visibility</span><span class="tok-punct">(</span><span class="tok-string">&quot;hidden&quot;</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">)</span> <span class="tok-type">LRLowStateSubscriber</span>
     <span class="tok-operator">:</span> <span class="tok-keyword">public</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span>enable_shared_from_this<span class="tok-operator">&lt;</span><span class="tok-type">LRLowStateSubscriber</span><span class="tok-operator">&gt;</span> <span class="tok-punct">{</span>
    <span class="tok-keyword">public</span><span class="tok-operator">:</span>
@@ -353,7 +355,7 @@ py<span class="tok-operator">::</span>class_<span class="tok-operator">&lt;</spa
         )pbdoc&quot;</span><span class="tok-punct">)</span>
     <span class="tok-punct">.</span><span class="tok-function">def</span><span class="tok-punct">(</span><span class="tok-string">&quot;InitChannel&quot;</span><span class="tok-punct">,</span> <span class="tok-operator">&amp;</span>robot<span class="tok-operator">::</span>little_robot<span class="tok-operator">::</span><span class="tok-type">LRLowStateSubscriber</span><span class="tok-operator">::</span><span class="tok-type">InitChannel</span><span class="tok-punct">,</span> <span class="tok-string">&quot;Init low state subscription channel&quot;</span><span class="tok-punct">)</span>
     <span class="tok-punct">.</span><span class="tok-function">def</span><span class="tok-punct">(</span><span class="tok-string">&quot;CloseChannel&quot;</span><span class="tok-punct">,</span> <span class="tok-operator">&amp;</span>robot<span class="tok-operator">::</span>little_robot<span class="tok-operator">::</span><span class="tok-type">LRLowStateSubscriber</span><span class="tok-operator">::</span><span class="tok-type">CloseChannel</span><span class="tok-punct">,</span>
-         <span class="tok-string">&quot;Close low state subscription channel&quot;</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
+         <span class="tok-string">&quot;Close low state subscription channel&quot;</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
 <p>将其安装到系统即可使用相关python sdk，这是小机器人封装sdk的方式，也可以直接通过python相关的dds通讯直接实现python sdk。</p>
 <p>然后就可以通过sdk编写一些程序来进行可视化/调试。详细见1.6小节。</p>
 <hr>
@@ -361,16 +363,16 @@ py<span class="tok-operator">::</span>class_<span class="tok-operator">&lt;</spa
 <p>使用uniree_mujoco作为模板，将unitree_sdk2切换到小机器人所使用的sdk。</p>
 <p><a href="https://github.com/unitreerobotics/unitree_mujoco" target="_blank" rel="noopener">https://github.com/unitreerobotics/unitree_mujoco</a></p>
 <p>并添加了能单独设置硬件更新频率的配置：</p>
-<div class="code-block" data-lang="yaml"><div class="code-head"><span class="code-lang">yaml</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-yaml"><span class="tok-key">dds_hz</span><span class="tok-punct">:</span> <span class="tok-number">500</span> <span class="tok-comment"># 以 500hz 发送仿真状态数据</span>
+<div class="code-block" data-lang="yaml"><div class="code-head"><span class="code-lang">yaml</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-yaml"><span class="tok-key">dds_hz</span><span class="tok-punct">:</span> <span class="tok-number">500</span> <span class="tok-comment"># 以 500hz 发送仿真状态数据</span>
 <span class="tok-key">imu_hz</span><span class="tok-punct">:</span> <span class="tok-number">400</span> <span class="tok-comment"># 以 400hz 更新IMU数据</span>
-<span class="tok-key">motor_hz</span><span class="tok-punct">:</span> <span class="tok-number">500</span> <span class="tok-comment"># 以 500hz 更新/控制电机</span></code></pre></div>
+<span class="tok-key">motor_hz</span><span class="tok-punct">:</span> <span class="tok-number">500</span> <span class="tok-comment"># 以 500hz 更新/控制电机</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
 <h4 id="urdf导出为mjcf">URDF导出为MJCF<a class="heading-anchor" href="#urdf导出为mjcf" aria-label="锚点">#</a></h4>
 <p>通过mujoco程序compile导出为mjcf</p>
-<div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash"><span class="tok-operator">&lt;</span><span class="tok-type">MUJOCO_INSTALL_PATH</span><span class="tok-operator">&gt;/</span>compile
+<div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash"><span class="tok-operator">&lt;</span><span class="tok-type">MUJOCO_INSTALL_PATH</span><span class="tok-operator">&gt;/</span>compile
  <span class="tok-type">Usage</span>:  compile infile outfile
    infile can be <span class="tok-keyword">in</span> mjcf<span class="tok-punct">,</span> urdf<span class="tok-punct">,</span> mjb format
    outfile can be <span class="tok-keyword">in</span> mjcf<span class="tok-punct">,</span> mjb<span class="tok-punct">,</span> txt format
- <span class="tok-type">Example</span>: compile model.xml model.mjb</code></pre></div>
+ <span class="tok-type">Example</span>: compile model.xml model.mjb</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
 <p>其格式如下：</p>
 <p><a href="https://mujoco.readthedocs.io/en/stable/XMLreference.html" target="_blank" rel="noopener">https://mujoco.readthedocs.io/en/stable/XMLreference.html</a></p>
 <p>如果需要加载地形，可通过unitree_mujoco中工具进行地形生成</p>
@@ -388,494 +390,154 @@ py<span class="tok-operator">::</span>class_<span class="tok-operator">&lt;</spa
 <ul><li>若存在电机完全无法满足要求的情况，需要进行重新硬件选型。</li><li>若算法存在完全无法使用该结构设计的情况，需要重新进行结构设计或更换算法方案。</li></ul>
 <hr>
 <h3 id="小机器人真机后台程序">小机器人真机后台程序<a class="heading-anchor" href="#小机器人真机后台程序" aria-label="锚点">#</a></h3>
-<p>所有的机器人后台都会有一份或多份程序来实现整体机器人的控制、通讯、后台日志等功能。</p>
-<p>小机器人实现后台程序的封装架构：</p>
-<p>这部分是最为复杂和繁琐的，小机器人实现的完整后台程序代码封装包括以下部分：</p>
-<h4 id="后台程相关模块">后台程相关模块<a class="heading-anchor" href="#后台程相关模块" aria-label="锚点">#</a></h4>
-<div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">include                                            <span class="tok-operator">//</span> 均为头文件，具体实现在src中
-├── common                                         <span class="tok-operator">//</span> 通用文件夹
-│   ├── dds
-│   │   └── ...                                   <span class="tok-operator">//</span> dds相关通讯代码
-│   ├── robotlog
-│   │   └── robotlog.hpp                            <span class="tok-operator">//</span> 日志管理和记录实现
-│   ├── serial.hpp                                 <span class="tok-operator">//</span> 基础硬件通讯<span class="tok-operator">-&gt;</span>串口通讯
-│   ├── can_utils.hpp                              <span class="tok-operator">//</span> 基础硬件通讯<span class="tok-operator">-&gt;</span><span class="tok-type">Can通讯</span>
-│   └── <span class="tok-keyword">time</span>
-│       ├── fps_counter.hpp                        <span class="tok-operator">//</span> 帧率统计
-│       └── high_timer.hpp                         <span class="tok-operator">//</span> 高精度定时器
-├── component                                       <span class="tok-operator">//</span> 硬件相关组件文件夹
-│   ├── hal_impl                                   <span class="tok-operator">//</span> <span class="tok-type">HAL实现</span>
-│   │   ├── bms
-│   │   │   └── jbd_bms.hpp                       <span class="tok-operator">//</span> 嘉佰达bms的通讯实现
-│   │   ├── dcu
-│   │   │   ├── robot_dcu.hpp                       <span class="tok-operator">//</span> little_robot制作的dcu通讯实现
-│   │   │   └── usb_can.hpp                       <span class="tok-operator">//</span> usb转can模块的通讯实现
-│   │   └── imu
-│   │       └── robot_imu.hpp                        <span class="tok-operator">//</span> little_robot imu模块通讯实现
-│   └── hal_interface                               <span class="tok-operator">//</span> <span class="tok-type">HAL接口</span>
-│       ├── common.hpp                              <span class="tok-operator">//</span> 通用<span class="tok-type">HAL接口定义</span>、错误码和<span class="tok-type">CRC校验等通用功能</span>
-│       ├── ibms.hpp                                <span class="tok-operator">//</span> <span class="tok-type">BMS模块接口</span>
-│       ├── idcu.hpp                                <span class="tok-operator">//</span> <span class="tok-type">DCU模块接口</span>
-│       ├── iimu.hpp                                <span class="tok-operator">//</span> <span class="tok-type">IMU模块接口</span>
-│       └── imotor.hpp                              <span class="tok-operator">//</span> 电机模块接口
-├── idl
-│   ├── little_robot                                <span class="tok-operator">//</span> 具体的机器人通讯数据接口类型（idl生成）
-│   │   └── ...
-│   └── rpc                                         <span class="tok-operator">//</span> 通用的<span class="tok-type">RPC接口类型</span>
-│       ├── <span class="tok-type">RpcReqMsg</span>.hpp
-│       └── <span class="tok-type">RpcRespMsg</span>.hpp
-└── robot                                            <span class="tok-operator">//</span> 机器人相关定义
-    ├── channel
-    │   ├── channel_factory.hpp                     <span class="tok-operator">//</span> 通道工厂
-    │   ├── channel_publisher.hpp                   <span class="tok-operator">//</span> 发布者
-    │   └── channel_subscriber.hpp                  <span class="tok-operator">//</span> 订阅者
-    ├── common                                       <span class="tok-operator">//</span> 通用机器人模块
-    │   ├── entities.hpp                            <span class="tok-operator">//</span> 通用数据类型转换（<span class="tok-type">RPC转CPP类型</span>）
-    │   ├── fsm_state.hpp                           <span class="tok-operator">//</span> 有限状态机代码
-    │   └── robot_shared.hpp                        <span class="tok-operator">//</span> 通用的机器人参数，包括状态机模式等
-    ├── little_robot                                 <span class="tok-operator">//</span> 具体的小机器人相关代码
-    │   ├── lr_ankle_parallel.hpp                   <span class="tok-operator">//</span> 脚踝并链解算带代码
-    │   ├── lr_api_const.hpp                        <span class="tok-operator">//</span> 小机器人常量，通讯话题名、关节顺序等
-    │   ├── lr_loco_api.hpp                         <span class="tok-operator">//</span> 小机器人<span class="tok-type">API相关参数</span>，<span class="tok-type">API的ID等</span>
-    │   └── lr_loco_client.hpp                      <span class="tok-operator">//</span> 提供给用户的客户端封装
-    └── rpc                                          <span class="tok-operator">//</span> <span class="tok-type">RPC通讯相关实现</span>
-        ├── error.hpp                                <span class="tok-operator">//</span> 错误码
-        ├── request_header.hpp
-        ├── request.hpp
-        ├── response_header.hpp
-        ├── response.hpp
-        ├── rpc_client.hpp                           <span class="tok-operator">//</span> 客户端
-        └── rpc_server.hpp                           <span class="tok-operator">//</span> 服务端</code></pre></div>
-<h4 id="通用层common文件夹下的核心实现">通用层common文件夹下的核心实现<a class="heading-anchor" href="#通用层common文件夹下的核心实现" aria-label="锚点">#</a></h4>
-<ol><li>ROBOTLOG日志系统</li></ol>
-<p>日志库通过spdlog库实现封装，能自动存储日志文件，并防止日志过多造成溢出，日志文件存储在"/var/log/robot/"路径下，核心代码如下：</p>
-<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">void</span> <span class="tok-function">ensure_initialized</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
-    <span class="tok-keyword">if</span> <span class="tok-punct">(</span><span class="tok-operator">!</span>robot_logger<span class="tok-punct">)</span> <span class="tok-punct">{</span>
-        <span class="tok-keyword">if</span> <span class="tok-punct">(</span><span class="tok-type">LOG_ASYNC_MODE</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
-            spdlog<span class="tok-operator">::</span><span class="tok-function">init_thread_pool</span><span class="tok-punct">(</span><span class="tok-type">LOG_Q_SIZE</span><span class="tok-punct">,</span> <span class="tok-type">LOG_THREAD_POOL_SIZE</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-            <span class="tok-keyword">auto</span> console_sink <span class="tok-operator">=</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">make_shared</span><span class="tok-operator">&lt;</span>spdlog<span class="tok-operator">::</span>sinks<span class="tok-operator">::</span>stdout_color_sink_mt<span class="tok-operator">&gt;</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-            robot_logger <span class="tok-operator">=</span>
-                <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">make_shared</span><span class="tok-operator">&lt;</span>spdlog<span class="tok-operator">::</span>async_logger<span class="tok-operator">&gt;</span><span class="tok-punct">(</span><span class="tok-string">&quot;robot-logger(async)&quot;</span><span class="tok-punct">,</span> console_sink<span class="tok-punct">,</span> spdlog<span class="tok-operator">::</span><span class="tok-function">thread_pool</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">,</span>
-                                                       spdlog<span class="tok-operator">::</span>async_overflow_policy<span class="tok-operator">::</span>overrun_oldest<span class="tok-punct">)</span><span class="tok-punct">;</span>
-        <span class="tok-punct">}</span> <span class="tok-keyword">else</span> <span class="tok-punct">{</span>
-            robot_logger <span class="tok-operator">=</span> spdlog<span class="tok-operator">::</span><span class="tok-function">stdout_color_mt</span><span class="tok-punct">(</span><span class="tok-string">&quot;robot-logger&quot;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-        <span class="tok-punct">}</span>
-        robot_logger<span class="tok-operator">-&gt;</span><span class="tok-function">set_level</span><span class="tok-punct">(</span><span class="tok-keyword">static_cast</span><span class="tok-operator">&lt;</span>spdlog<span class="tok-operator">::</span>level<span class="tok-operator">::</span>level_enum<span class="tok-operator">&gt;</span><span class="tok-punct">(</span><span class="tok-type">LOG_DEFAULT_LEVEL</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-        robot_logger<span class="tok-operator">-&gt;</span><span class="tok-function">set_pattern</span><span class="tok-punct">(</span><span class="tok-type">LOG_PATTERN</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-        robot_logger<span class="tok-operator">-&gt;</span><span class="tok-function">enable_backtrace</span><span class="tok-punct">(</span><span class="tok-type">LOG_BACKTRACE_SIZE</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-        spdlog<span class="tok-operator">::</span><span class="tok-function">flush_every</span><span class="tok-punct">(</span><span class="tok-builtin">std</span><span class="tok-operator">::</span>chrono<span class="tok-operator">::</span><span class="tok-function">milliseconds</span><span class="tok-punct">(</span><span class="tok-type">LOG_FLUSH_TIME</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-        spdlog<span class="tok-operator">::</span><span class="tok-function">set_default_logger</span><span class="tok-punct">(</span>robot_logger<span class="tok-punct">)</span><span class="tok-punct">;</span>
-        <span class="tok-keyword">if</span> <span class="tok-punct">(</span><span class="tok-operator">!</span><span class="tok-type">LOG_CONSOLE_SHOW</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
-            <span class="tok-keyword">auto</span><span class="tok-operator">&amp;</span> sinks <span class="tok-operator">=</span> robot_logger<span class="tok-operator">-&gt;</span><span class="tok-function">sinks</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-            sinks<span class="tok-punct">.</span><span class="tok-function">erase</span><span class="tok-punct">(</span><span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-function">remove_if</span><span class="tok-punct">(</span>sinks<span class="tok-punct">.</span><span class="tok-function">begin</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">,</span> sinks<span class="tok-punct">.</span><span class="tok-function">end</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">,</span>
-                                       <span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">(</span><span class="tok-keyword">const</span> spdlog<span class="tok-operator">::</span>sink_ptr<span class="tok-operator">&amp;</span> sink<span class="tok-punct">)</span> <span class="tok-punct">{</span>
-                                           <span class="tok-keyword">return</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span>dynamic_pointer_cast<span class="tok-operator">&lt;</span>spdlog<span class="tok-operator">::</span>sinks<span class="tok-operator">::</span>stdout_color_sink_mt<span class="tok-operator">&gt;</span><span class="tok-punct">(</span>
-                                                      sink<span class="tok-punct">)</span> <span class="tok-operator">!=</span> <span class="tok-keyword">nullptr</span><span class="tok-punct">;</span>
-                                       <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">,</span>
-                        sinks<span class="tok-punct">.</span><span class="tok-function">end</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-        <span class="tok-punct">}</span> <span class="tok-keyword">else</span> <span class="tok-punct">{</span>
-            robot_logger<span class="tok-operator">-&gt;</span><span class="tok-function">info</span><span class="tok-punct">(</span><span class="tok-type">LOG_START</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-        <span class="tok-punct">}</span>
-    <span class="tok-punct">}</span>
-<span class="tok-punct">}</span>
-</code></pre></div>
-<ol><li>实时性能监控</li></ol>
-<p>通过 fps_counter 进行一段时间的帧率统计和丢包率计算，该部分实现较为简单，每个硬件采集线程中调用该类实现的Tick和TickLost（丢包时）函数即可，可配置参数将数据输出到日志系统进行记录。</p>
-<ol><li>DDS/RPC通讯</li></ol>
-<p>具体方案在 1.2 章节小机器人通讯SDK。</p>
-<ol><li>调度辅助器</li></ol>
-<p>通过linux下timerfd_create函数创建定时器文件描述符，来实现定时判断，核心代码如下：</p>
-<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">bool</span> <span class="tok-function">Start</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
-        <span class="tok-keyword">if</span> <span class="tok-punct">(</span>running_<span class="tok-punct">.</span><span class="tok-function">load</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
-            <span class="tok-keyword">return</span> <span class="tok-keyword">false</span><span class="tok-punct">;</span>
-        <span class="tok-punct">}</span>
-
-        <span class="tok-keyword">struct</span> itimerspec timer_spec<span class="tok-punct">;</span>
-        timer_spec<span class="tok-punct">.</span>it_value<span class="tok-punct">.</span>tv_sec <span class="tok-operator">=</span> <span class="tok-number">0</span><span class="tok-punct">;</span>
-        timer_spec<span class="tok-punct">.</span>it_value<span class="tok-punct">.</span>tv_nsec <span class="tok-operator">=</span> <span class="tok-keyword">static_cast</span><span class="tok-operator">&lt;</span><span class="tok-keyword">long</span> <span class="tok-keyword">int</span><span class="tok-operator">&gt;</span><span class="tok-punct">(</span>period_ns_<span class="tok-punct">)</span><span class="tok-punct">;</span>
-        timer_spec<span class="tok-punct">.</span>it_interval<span class="tok-punct">.</span>tv_sec <span class="tok-operator">=</span> <span class="tok-number">0</span><span class="tok-punct">;</span>
-        timer_spec<span class="tok-punct">.</span>it_interval<span class="tok-punct">.</span>tv_nsec <span class="tok-operator">=</span> <span class="tok-keyword">static_cast</span><span class="tok-operator">&lt;</span><span class="tok-keyword">long</span> <span class="tok-keyword">int</span><span class="tok-operator">&gt;</span><span class="tok-punct">(</span>period_ns_<span class="tok-punct">)</span><span class="tok-punct">;</span>
-
-        <span class="tok-keyword">if</span> <span class="tok-punct">(</span><span class="tok-function">timerfd_settime</span><span class="tok-punct">(</span>timer_fd_<span class="tok-punct">,</span> <span class="tok-number">0</span><span class="tok-punct">,</span> <span class="tok-operator">&amp;</span>timer_spec<span class="tok-punct">,</span> <span class="tok-keyword">nullptr</span><span class="tok-punct">)</span> <span class="tok-operator">==</span> <span class="tok-operator">-</span><span class="tok-number">1</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
-            <span class="tok-keyword">return</span> <span class="tok-keyword">false</span><span class="tok-punct">;</span>
-        <span class="tok-punct">}</span>
-
-        running_<span class="tok-punct">.</span><span class="tok-function">store</span><span class="tok-punct">(</span><span class="tok-keyword">true</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-        timer_thread_ <span class="tok-operator">=</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-function">thread</span><span class="tok-punct">(</span><span class="tok-operator">&amp;</span><span class="tok-type">HighTimer</span><span class="tok-operator">::</span><span class="tok-type">TimerLoop</span><span class="tok-punct">,</span> <span class="tok-keyword">this</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-        <span class="tok-keyword">return</span> <span class="tok-keyword">true</span><span class="tok-punct">;</span>
-    <span class="tok-punct">}</span>
-</code></pre></div>
-<ol><li>物理层通讯库</li></ol>
-<p>该部分实现分两种情况：</p>
-<ul><li>所使用的硬件模块，厂商已经提供Linux下的SDK（如USB2CAN模块），只需要引入相关实现即可。</li><li>所使用的硬件模块需要底层通讯支持，如支持CAN通讯的电机，直接通过CAN线连接至主控PC，那则需要对CAN通讯进行封装以方便后续在HAL层实现对电机的控制。</li></ul>
-<p>小机器人所使用的硬件只需要实现USB串口通讯即可。</p>
-<blockquote><p>该层封装一次后遇到相同通讯协议硬件可复用代码</p></blockquote>
-<h4 id="硬件抽象层coponent文件夹下的核心实现">硬件抽象层coponent文件夹下的核心实现<a class="heading-anchor" href="#硬件抽象层coponent文件夹下的核心实现" aria-label="锚点">#</a></h4>
-<ol><li>HAL接口</li></ol>
-<p>主要包定义了各个组件的存储数据的类型（包含错误码）和需要实现的接口，</p>
-<p>该类型的最小聚合单位通常需要符合C++中的平凡类型定义：</p>
-<p><a href="https://en.cppreference.com/w/cpp/language/classes.html#Trivial_class" target="_blank" rel="noopener">https://en.cppreference.com/w/cpp/language/classes.html#Trivial_class</a></p>
-<p>这是为了后续通过DDS通讯进行数据转换时，能通过atomic实现无锁数据读写。</p>
-<p>以下是错误码：</p>
-<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-comment">/**
- * @brief About the HAL interface,contains all relevant error codes
- *
- */</span>
-<span class="tok-keyword">enum</span> <span class="tok-keyword">class</span> <span class="tok-type">HalErrorCode</span> <span class="tok-punct">{</span>
-    <span class="tok-comment">// common</span>
-    <span class="tok-type">SUCCESS</span> <span class="tok-operator">=</span> <span class="tok-number">0</span><span class="tok-punct">,</span>
-    <span class="tok-type">NOT_INITED</span><span class="tok-punct">,</span>
-    <span class="tok-type">INIT_FAILED</span><span class="tok-punct">,</span>
-    <span class="tok-type">TIMEOUT</span><span class="tok-punct">,</span>
-    <span class="tok-type">NODEV_ERROR</span><span class="tok-punct">,</span>
-    <span class="tok-type">CRC_ERROR</span><span class="tok-punct">,</span>
-    <span class="tok-type">INVALID_PARAM</span><span class="tok-punct">,</span>
-    <span class="tok-type">NODATA</span><span class="tok-punct">,</span>
-    <span class="tok-type">UNKNOWN_ERROR</span><span class="tok-punct">,</span>
-
-    <span class="tok-comment">// motor</span>
-    <span class="tok-type">MOTOR_NO_RESPONSE</span> <span class="tok-operator">=</span> <span class="tok-number">100</span><span class="tok-punct">,</span>
-    <span class="tok-type">MOTOR_DATASIZE_ERROR</span><span class="tok-punct">,</span>
-    <span class="tok-type">MOTOR_ID_ERROR</span><span class="tok-punct">,</span>
-    <span class="tok-type">MOTOR_COMM_ERROR</span><span class="tok-punct">,</span>
-    <span class="tok-type">MOTOR_ILLEGAL_COMMAND</span><span class="tok-punct">,</span>
-    <span class="tok-type">MOTOR_OVERLOAD</span><span class="tok-punct">,</span>
-    <span class="tok-type">MOTOR_OVERHEAT_TEMP</span><span class="tok-punct">,</span>
-    <span class="tok-type">MOTOR_OVERHEAT_CURRENT</span><span class="tok-punct">,</span>
-    <span class="tok-type">MOTOR_LOW_VOLTAGE</span><span class="tok-punct">,</span>
-    <span class="tok-type">MOTOR_HIGH_VOLTAGE</span><span class="tok-punct">,</span>
-    <span class="tok-type">MOTOR_ENCODER_ERROR</span><span class="tok-punct">,</span>
-    <span class="tok-type">MOTOR_DRIVE_ERROR</span><span class="tok-punct">,</span>
-
-    <span class="tok-comment">// imu</span>
-    <span class="tok-type">IMU_READ_ERROR</span> <span class="tok-operator">=</span> <span class="tok-number">200</span><span class="tok-punct">,</span>
-    <span class="tok-type">IMU_PARSER_ID_ERROR</span><span class="tok-punct">,</span>
-    <span class="tok-type">IMU_TIMEOUT</span><span class="tok-punct">,</span>
-    <span class="tok-type">IMU_CALIBRATION_FAIL</span><span class="tok-punct">,</span>
-
-    <span class="tok-comment">// serial</span>
-    <span class="tok-type">COMM_FD_ERROR</span> <span class="tok-operator">=</span> <span class="tok-number">300</span><span class="tok-punct">,</span>
-    <span class="tok-type">COMM_WRITE_FAIL</span><span class="tok-punct">,</span>
-    <span class="tok-type">COMM_READ_TIMEOUT</span><span class="tok-punct">,</span>
-    <span class="tok-type">COMM_CHECKSUM_FAIL</span><span class="tok-punct">,</span>
-
-    <span class="tok-comment">// sensor</span>
-    <span class="tok-type">SENSOR_DISCONNECTED</span> <span class="tok-operator">=</span> <span class="tok-number">400</span><span class="tok-punct">,</span>
-    <span class="tok-type">SENSOR_INVALID_DATA</span><span class="tok-punct">,</span>
-
-    <span class="tok-comment">// dcu</span>
-    <span class="tok-type">DCU_CHANNEL_ERROR</span> <span class="tok-operator">=</span> <span class="tok-number">500</span><span class="tok-punct">,</span>
-    <span class="tok-type">DCU_HEARTBEAT_TIMEOUT</span><span class="tok-punct">,</span>
-
-    <span class="tok-comment">// bms</span>
-    <span class="tok-type">BMS_READ_ERROR</span> <span class="tok-operator">=</span> <span class="tok-number">600</span><span class="tok-punct">,</span>
-    <span class="tok-type">BMS_STATUS_ERROR</span><span class="tok-punct">,</span>
-    <span class="tok-type">BMS_NOCMD_ERROR</span><span class="tok-punct">,</span>
-    <span class="tok-type">BMS_INVALID_ERROR</span><span class="tok-punct">,</span>
-    <span class="tok-type">BMS_CHECK_ERROR</span><span class="tok-punct">,</span>
-    <span class="tok-type">BMS_PASSWD_ERROR</span><span class="tok-punct">,</span>
-    <span class="tok-type">BMS_STOP_ERROR</span><span class="tok-punct">,</span>
-    <span class="tok-type">BMS_WAKE_FAIL</span><span class="tok-punct">,</span>
-<span class="tok-punct">}</span><span class="tok-punct">;</span></code></pre></div>
-<ol><li>HAL实现</li></ol>
-<p>根据硬件所使用的通讯协议实现对应的HAL接口，这样后续更换硬件只需要重新实现对应的HAL接口即可，无需在其他层进行大幅度修改。</p>
-<blockquote><p>注：可能存在不同硬件之间接口形式完全不同或不直接支持HAL接口功能的情况，如某些电机可能不支持PD控制，这种情况考虑更换硬件或通过硬件提供的功能来尝试实现接口功能。</p></blockquote>
-<h4 id="机器人通讯层robot文件夹下的核心实现">机器人通讯层robot文件夹下的核心实现<a class="heading-anchor" href="#机器人通讯层robot文件夹下的核心实现" aria-label="锚点">#</a></h4>
-<ol><li>DDS通讯</li></ol>
-<p>内容基本与1.2小节相同。RPC相关在gRPC章节展开。</p>
-<ol><li>机器人通用工具</li></ol>
-<ul><li>有限状态机的实现为：</li></ul>
-<p>通过定义下面的数据结构，并注册对应的Callback函数，可以得到右图的转换关系，切换状态后会回调注册的Callback函数，实现状态模式切换。</p>
-<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">using</span> <span class="tok-type">ChangeStatePath</span> <span class="tok-operator">=</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">unordered_map</span><span class="tok-operator">&lt;</span><span class="tok-keyword">int</span><span class="tok-punct">,</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">string</span><span class="tok-operator">&gt;</span><span class="tok-punct">;</span>
-<span class="tok-keyword">static</span> <span class="tok-keyword">const</span> <span class="tok-keyword">auto</span> <span class="tok-type">DAMPING_STATE</span> <span class="tok-operator">=</span>
-    <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">pair</span><span class="tok-operator">&lt;</span><span class="tok-keyword">int</span><span class="tok-punct">,</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">string</span><span class="tok-operator">&gt;</span><span class="tok-punct">(</span><span class="tok-keyword">static_cast</span><span class="tok-operator">&lt;</span><span class="tok-keyword">int</span><span class="tok-operator">&gt;</span><span class="tok-punct">(</span><span class="tok-type">RobotMode</span><span class="tok-operator">::</span><span class="tok-type">Damping</span><span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-function">RobotModeToString</span><span class="tok-punct">(</span><span class="tok-type">RobotMode</span><span class="tok-operator">::</span><span class="tok-type">Damping</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-<span class="tok-keyword">static</span> <span class="tok-keyword">const</span> <span class="tok-keyword">auto</span> <span class="tok-type">PREPARE_STATE</span> <span class="tok-operator">=</span>
-    <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">pair</span><span class="tok-operator">&lt;</span><span class="tok-keyword">int</span><span class="tok-punct">,</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">string</span><span class="tok-operator">&gt;</span><span class="tok-punct">(</span><span class="tok-keyword">static_cast</span><span class="tok-operator">&lt;</span><span class="tok-keyword">int</span><span class="tok-operator">&gt;</span><span class="tok-punct">(</span><span class="tok-type">RobotMode</span><span class="tok-operator">::</span><span class="tok-type">Prepare</span><span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-function">RobotModeToString</span><span class="tok-punct">(</span><span class="tok-type">RobotMode</span><span class="tok-operator">::</span><span class="tok-type">Prepare</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-<span class="tok-keyword">static</span> <span class="tok-keyword">const</span> <span class="tok-keyword">auto</span> <span class="tok-type">WALKING_STATE</span> <span class="tok-operator">=</span>
-    <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">pair</span><span class="tok-operator">&lt;</span><span class="tok-keyword">int</span><span class="tok-punct">,</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">string</span><span class="tok-operator">&gt;</span><span class="tok-punct">(</span><span class="tok-keyword">static_cast</span><span class="tok-operator">&lt;</span><span class="tok-keyword">int</span><span class="tok-operator">&gt;</span><span class="tok-punct">(</span><span class="tok-type">RobotMode</span><span class="tok-operator">::</span><span class="tok-type">Walking</span><span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-function">RobotModeToString</span><span class="tok-punct">(</span><span class="tok-type">RobotMode</span><span class="tok-operator">::</span><span class="tok-type">Walking</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-<span class="tok-keyword">static</span> <span class="tok-keyword">const</span> <span class="tok-keyword">auto</span> <span class="tok-type">CUSTOM_STATE</span> <span class="tok-operator">=</span>
-    <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">pair</span><span class="tok-operator">&lt;</span><span class="tok-keyword">int</span><span class="tok-punct">,</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">string</span><span class="tok-operator">&gt;</span><span class="tok-punct">(</span><span class="tok-keyword">static_cast</span><span class="tok-operator">&lt;</span><span class="tok-keyword">int</span><span class="tok-operator">&gt;</span><span class="tok-punct">(</span><span class="tok-type">RobotMode</span><span class="tok-operator">::</span><span class="tok-type">Custom</span><span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-function">RobotModeToString</span><span class="tok-punct">(</span><span class="tok-type">RobotMode</span><span class="tok-operator">::</span><span class="tok-type">Custom</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-<span class="tok-keyword">static</span> <span class="tok-keyword">const</span> <span class="tok-type">ChangeStatePath</span> <span class="tok-type">DAMPING_PATH</span> <span class="tok-operator">=</span> <span class="tok-punct">{</span><span class="tok-type">DAMPING_STATE</span><span class="tok-punct">,</span> <span class="tok-type">PREPARE_STATE</span><span class="tok-punct">,</span> <span class="tok-type">CUSTOM_STATE</span><span class="tok-punct">}</span><span class="tok-punct">;</span>
-<span class="tok-keyword">static</span> <span class="tok-keyword">const</span> <span class="tok-type">ChangeStatePath</span> <span class="tok-type">PREPARE_PATH</span> <span class="tok-operator">=</span> <span class="tok-punct">{</span><span class="tok-type">DAMPING_STATE</span><span class="tok-punct">,</span> <span class="tok-type">PREPARE_STATE</span><span class="tok-punct">,</span> <span class="tok-type">WALKING_STATE</span><span class="tok-punct">}</span><span class="tok-punct">;</span>
-<span class="tok-keyword">static</span> <span class="tok-keyword">const</span> <span class="tok-type">ChangeStatePath</span> <span class="tok-type">WALKING_PATH</span> <span class="tok-operator">=</span> <span class="tok-punct">{</span><span class="tok-type">DAMPING_STATE</span><span class="tok-punct">,</span> <span class="tok-type">PREPARE_STATE</span><span class="tok-punct">,</span> <span class="tok-type">WALKING_STATE</span><span class="tok-punct">}</span><span class="tok-punct">;</span>
-<span class="tok-keyword">static</span> <span class="tok-keyword">const</span> <span class="tok-type">ChangeStatePath</span> <span class="tok-type">CUSTOM_PATH</span> <span class="tok-operator">=</span> <span class="tok-punct">{</span><span class="tok-type">DAMPING_STATE</span><span class="tok-punct">,</span> <span class="tok-type">PREPARE_STATE</span><span class="tok-punct">,</span> <span class="tok-type">CUSTOM_STATE</span><span class="tok-punct">}</span><span class="tok-punct">;</span></code></pre></div>
-<p><img src="/assets/feishu/humanoid-0-to-1-toolchain/fig-10.webp" alt="image.png" loading="lazy" decoding="async"></p>
-<ul><li>机器人常量参数：通常包括关节数量等与机器人物理特性相关的内容，后续可考虑使用urdf来进行这一部分内容的配置。</li><li>机器人解算工具：目前只包括脚踝处的并联解算，该部分内容在2.2章节有参考文档。</li><li>机器人Api接口：通常包括通信通道domain_id，话题名，支持的服务Api和提供给二次开发使用的客户端封装等</li></ul>
-<ol><li>gRPC通讯</li></ol>
-<p>目前通过DDS实现RPC通讯，gRPC通讯实现可以实现网络穿透等功能，目前没有必须要使用gRPC通讯的内容，仅介绍基于DDS的RPC功能，它通过IDL定义响应和请求数据类型，包括请求头和数据体，类型均为string类型，可通过 json 格式发送请求/响应，服务端通过客户端发送数据头中的 UUID（通用唯一标识符）来实现响应匹配。目前 UUID 的生成方法为随机生成。</p>
-<p>RPC通用错误码如下：</p>
-<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">const</span> <span class="tok-builtin">int64_t</span> <span class="tok-type">RpcStatusCodeSuccess</span> <span class="tok-operator">=</span> <span class="tok-number">0</span><span class="tok-punct">;</span>                  <span class="tok-comment">// success</span>
-<span class="tok-keyword">const</span> <span class="tok-builtin">int64_t</span> <span class="tok-type">RpcStatusCodeTimeout</span> <span class="tok-operator">=</span> <span class="tok-number">100</span><span class="tok-punct">;</span>                <span class="tok-comment">// request timeout</span>
-<span class="tok-keyword">const</span> <span class="tok-builtin">int64_t</span> <span class="tok-type">RpcStatusCodeBadRequest</span> <span class="tok-operator">=</span> <span class="tok-number">400</span><span class="tok-punct">;</span>             <span class="tok-comment">// bad request, usually when the request param is invalid</span>
-<span class="tok-keyword">const</span> <span class="tok-builtin">int64_t</span> <span class="tok-type">RpcStatusCodeInternalServerError</span> <span class="tok-operator">=</span> <span class="tok-number">500</span><span class="tok-punct">;</span>    <span class="tok-comment">// internal server error</span>
-<span class="tok-keyword">const</span> <span class="tok-builtin">int64_t</span> <span class="tok-type">RpcStatusCodeServerRefused</span> <span class="tok-operator">=</span> <span class="tok-number">501</span><span class="tok-punct">;</span>          <span class="tok-comment">// server refused the request</span>
-<span class="tok-keyword">const</span> <span class="tok-builtin">int64_t</span> <span class="tok-type">RpcStatusCodeStateTransitionFailed</span> <span class="tok-operator">=</span> <span class="tok-number">502</span><span class="tok-punct">;</span>  <span class="tok-comment">// robot state machine transition failed</span>
-<span class="tok-keyword">const</span> <span class="tok-builtin">int64_t</span> <span class="tok-type">RpcStatusCodeInvalid</span> <span class="tok-operator">=</span> <span class="tok-operator">-</span><span class="tok-number">1</span><span class="tok-punct">;</span>  <span class="tok-comment">// default value, usually when the request has not been sent yet</span></code></pre></div>
-<p>RPC 客户端封装例子：</p>
-<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">enum</span> <span class="tok-keyword">class</span> <span class="tok-type">LocoApiId</span> <span class="tok-punct">{</span>
-    <span class="tok-type">ChangeMode</span> <span class="tok-operator">=</span> <span class="tok-number">2000</span><span class="tok-punct">,</span>
-<span class="tok-punct">}</span><span class="tok-punct">;</span>
-<span class="tok-comment">/**
- * @brief Change robot mode
- *
- * @param mode robot mode, options are: kDamping, kPrepare, kWalking
- *
- * @return 0 if success, otherwise return error code
- */</span>
-<span class="tok-builtin">int32_t</span> <span class="tok-function">ChangeMode</span><span class="tok-punct">(</span>robot<span class="tok-operator">::</span>robot<span class="tok-operator">::</span>common<span class="tok-operator">::</span><span class="tok-type">RobotMode</span> mode<span class="tok-punct">)</span> <span class="tok-punct">{</span>
-    <span class="tok-keyword">auto</span> change_mode <span class="tok-operator">=</span> <span class="tok-function">ChangeModeParameter</span><span class="tok-punct">(</span>mode<span class="tok-punct">)</span><span class="tok-punct">;</span>
-    <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">string</span> param <span class="tok-operator">=</span> change_mode<span class="tok-punct">.</span><span class="tok-function">ToJson</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-function">dump</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-    <span class="tok-keyword">return</span> <span class="tok-function">SendApiRequest</span><span class="tok-punct">(</span><span class="tok-type">LocoApiId</span><span class="tok-operator">::</span><span class="tok-type">ChangeMode</span><span class="tok-punct">,</span> param<span class="tok-punct">)</span><span class="tok-punct">;</span>
-<span class="tok-punct">}</span>
-</code></pre></div>
-<blockquote><p>后续可用gRPC替换相关实现，或将该RPC作为局域网内使用方案限制作用域</p></blockquote>
-<h4 id="后台执行层">后台执行层<a class="heading-anchor" href="#后台执行层" aria-label="锚点">#</a></h4>
-<p>具体调用前面的代码并实现机器人后台程序：</p>
-<div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">daemons
-├── daemon.hpp                                       <span class="tok-operator">//</span> 通用后台封装代码
-├── daemon_test.cpp                                  <span class="tok-operator">//</span> 后台封装测试代码
-├── robot_lr_daemon_highctrl.cpp                       <span class="tok-operator">//</span> 高层控制程序（未开发）
-├── robot_lr_daemon_lowctrl_config.hpp                 <span class="tok-operator">//</span> 底层控制配置代码
-├── robot_lr_daemon_lowctrl.cpp                        <span class="tok-operator">//</span> 底层控制源代码
-├── robot_lr_daemon_lowctrl.hpp                        <span class="tok-operator">//</span> 底层控制头文件
-└── robot_lr_daemon_lowctrl_server.hpp                 <span class="tok-operator">//</span> 底层控制相关的服务端实现，用于和客户端通讯
+<p>后台程序是整台机器人上最繁琐的一块：它要同时管硬件读写、通讯、日志、看门狗、
+服务管理和对外接口。要让它可维护，唯一的办法是<strong>分层</strong>，并且让每一层只知道自己那一层的事。</p>
+<p>小机器人采用的目录结构（<code>include/</code> 放头文件，实现在 <code>src/</code>）：</p>
+<div class="code-block" data-lang="text" data-foldable="25"><div class="code-head"><span class="code-lang">text</span><div class="code-tools"><button class="code-fold" type="button" data-fold aria-expanded="true"><span data-fold-label>收起</span><svg class="code-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-text">include
+├── common                       // 通用工具，与具体机器人无关
+│   ├── dds/                     // DDS 通讯封装
+│   ├── robotlog/                // 日志管理
+│   ├── serial.hpp               // 串口通讯
+│   ├── can_utils.hpp            // CAN 通讯
+│   └── time/
+│       ├── fps_counter.hpp      // 帧率与丢包率统计
+│       └── high_timer.hpp       // 高精度定时器
+├── component                    // 硬件相关
+│   ├── hal_interface/           // HAL 接口定义（纯虚基类 + 错误码）
+│   │   ├── common.hpp           // 错误码、CRC 等通用功能
+│   │   ├── ibms.hpp  idcu.hpp  iimu.hpp  imotor.hpp
+│   └── hal_impl/                // HAL 实现，一种硬件一个实现
+│       ├── bms/                 //   电池
+│       ├── dcu/                 //   驱动控制单元（含 USB 转 CAN）
+│       └── imu/                 //   惯性测量单元
+├── idl                          // 通讯数据类型（由 .idl 生成）
+│   ├── little_robot/
+│   └── rpc/                     // RpcReqMsg / RpcRespMsg
+└── robot                        // 机器人本体相关
+    ├── channel/                 // 发布者 / 订阅者 / 通道工厂
+    ├── common/                  // 状态机、通用参数、类型转换
+    ├── little_robot/            // 常量、API 定义、脚踝并联解算、客户端封装
+    └── rpc/                     // RPC 客户端与服务端实现</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
+<p>加上进程与系统配置：</p>
+<div class="code-block" data-lang="text" data-foldable="15"><div class="code-head"><span class="code-lang">text</span><div class="code-tools"><button class="code-fold" type="button" data-fold aria-expanded="true"><span data-fold-label>收起</span><svg class="code-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-text">daemons
+├── daemon.hpp                       // 通用后台封装（看门狗 + SocketServer + 崩溃处理）
+├── daemon_test.cpp
+├── robot_lr_daemon_lowctrl.cpp      // 底层控制主程序
+├── robot_lr_daemon_lowctrl.hpp
+├── robot_lr_daemon_lowctrl_config.hpp
+└── robot_lr_daemon_lowctrl_server.hpp   // 对外的 RPC 服务端
 
 config
-├── daemons                                          <span class="tok-operator">//</span> 后台程序配置
-│   ├── robot_lowctrl.service
-│   └── robot_lr_daemon_lowctrl.json
-└── rules                                            <span class="tok-operator">//</span> 硬件规则
-    ├── usb_can.rules
-    └── usb_to_4ttl.rules
-</code></pre></div>
-<ol><li>机器人后台进程封装 daemon.hpp文件</li></ol>
-<p>该头文件的主要实现包括：</p>
-<ul><li>包含CrashHandler函数用于在程序崩溃时候自动存储崩溃调用栈，并写入日志</li><li>Daemon类带有一个Watchdog和SocketServer，可以通过向本地的sock发送数据来进行简单的程序启动和停止控制，同时带有软看门狗防止后台程序因为异常抛出或错误码停止工作。</li></ul>
-<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">void</span> <span class="tok-function">CrashHandler</span><span class="tok-punct">(</span><span class="tok-keyword">int</span> sig<span class="tok-punct">)</span> <span class="tok-punct">{</span>
-    <span class="tok-comment">// get proc name</span>
-    <span class="tok-keyword">static</span> <span class="tok-keyword">char</span> name_buf<span class="tok-punct">[</span><span class="tok-type">PATH_MAX</span><span class="tok-punct">]</span><span class="tok-punct">;</span>
-    <span class="tok-keyword">static</span> <span class="tok-keyword">char</span><span class="tok-operator">*</span> base_name_buf <span class="tok-operator">=</span> <span class="tok-keyword">nullptr</span><span class="tok-punct">;</span>
-    ssize_t len <span class="tok-operator">=</span> <span class="tok-function">readlink</span><span class="tok-punct">(</span><span class="tok-string">&quot;/proc/self/exe&quot;</span><span class="tok-punct">,</span> name_buf<span class="tok-punct">,</span> <span class="tok-keyword">sizeof</span><span class="tok-punct">(</span>name_buf<span class="tok-punct">)</span> <span class="tok-operator">-</span> <span class="tok-number">1</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-    <span class="tok-keyword">if</span> <span class="tok-punct">(</span>len <span class="tok-operator">!=</span> <span class="tok-operator">-</span><span class="tok-number">1</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
-        name_buf<span class="tok-punct">[</span>len<span class="tok-punct">]</span> <span class="tok-operator">=</span> <span class="tok-string">&#x27;\0&#x27;</span><span class="tok-punct">;</span>
-        base_name_buf <span class="tok-operator">=</span> <span class="tok-operator">::</span><span class="tok-function">basename</span><span class="tok-punct">(</span>name_buf<span class="tok-punct">)</span><span class="tok-punct">;</span>
-    <span class="tok-punct">}</span>
+├── daemons/
+│   ├── robot_lowctrl.service        // systemd 单元
+│   └── robot_lr_daemon_lowctrl.json // 运行参数
+└── rules/
+    ├── usb_can.rules                // udev 规则：固定设备名
+    └── usb_to_4ttl.rules</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
+<h4 id="四层各自负责什么">四层各自负责什么<a class="heading-anchor" href="#四层各自负责什么" aria-label="锚点">#</a></h4>
+<p><strong>通用层（common）。</strong> 与机器人无关的工具，换一台机器人可以直接搬走。</p>
+<ul><li><strong>日志</strong>：封装 spdlog，异步写、按大小轮转、限制总量，避免长时间运行把磁盘写满。
+日志目录固定（<code>/var/log/robot/</code>），轮转交给日志库自己管，不要指望 systemd。</li><li><strong>高精度定时器</strong>：用 <code>timerfd_create</code> 而不是 <code>sleep</code> 做周期触发。
+<code>sleep_for</code> 只保证「至少睡这么久」，误差会累积；<code>timerfd</code> 由内核维护绝对到期时刻，
+不会漂移。控制回路里这个差别是决定性的。</li><li><strong>帧率/丢包统计</strong>：每个硬件采集线程调一次 <code>Tick()</code>，失败时调 <code>TickLost()</code>，
+定期把统计写进日志。<strong>丢包率是这类系统最重要的一个健康指标</strong> ——
+电机通讯丢一帧，力矩就少发一帧，表现出来是关节抖动，而不是报错。</li><li><strong>物理层通讯</strong>：分两种情况 —— 厂商给了 Linux SDK 的（如 USB 转 CAN 模块）直接引；
+需要自己搓的（CAN 电机）就封装成统一接口。这一层封装一次，同协议的硬件以后都能复用。</li></ul>
+<p><strong>硬件抽象层（component）。</strong> 这一层是整个架构里回报最高的地方。</p>
+<p>思路很简单：为每类硬件定义一个纯接口（<code>ibms</code> / <code>iimu</code> / <code>idcu</code> / <code>imotor</code>），
+硬件相关的代码只实现接口，上层只认接口。换电机、换 IMU 时只动 <code>hal_impl/</code> 下的一个文件。</p>
+<p>有两个细节值得单独说：</p>
+<ul><li><strong>HAL 传递的数据类型要是「平凡类型」</strong>（trivial type，即可以 <code>memcpy</code> 的类型）。
+原因是这些数据之后要通过 DDS 传出去，平凡类型才能用原子操作做无锁读写，
+否则每次上报都得加锁，500 Hz 下锁竞争会成为瓶颈。</li><li><strong>接口要按「能力」而不是「型号」设计</strong>。比如不是所有电机都支持 PD 控制，
+如果接口里写了 <code>SetPD()</code>，遇到不支持的电机就只能返回失败或者假装成功。
+更稳妥的做法是把这类能力做成接口的一部分（如 <code>SupportsPD()</code>），
+让上层能真的分支处理，而不是靠约定。</li></ul>
+<p><strong>机器人通讯层（robot）。</strong> DDS 数据面 + RPC 控制面。</p>
+<ul><li><strong>状态机</strong>用「注册表 + 回调」实现，而不是一大堆 <code>if/else</code>：
+定义每个状态允许跳到哪里，切换时回调注册的函数。</li></ul>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-cpp">  <span class="tok-keyword">using</span> <span class="tok-type">ChangeStatePath</span> <span class="tok-operator">=</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">unordered_map</span><span class="tok-operator">&lt;</span><span class="tok-keyword">int</span><span class="tok-punct">,</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">string</span><span class="tok-operator">&gt;</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">static</span> <span class="tok-keyword">const</span> <span class="tok-type">ChangeStatePath</span> <span class="tok-type">DAMPING_PATH</span> <span class="tok-operator">=</span> <span class="tok-punct">{</span><span class="tok-type">DAMPING_STATE</span><span class="tok-punct">,</span> <span class="tok-type">PREPARE_STATE</span><span class="tok-punct">,</span> <span class="tok-type">CUSTOM_STATE</span><span class="tok-punct">}</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">static</span> <span class="tok-keyword">const</span> <span class="tok-type">ChangeStatePath</span> <span class="tok-type">PREPARE_PATH</span> <span class="tok-operator">=</span> <span class="tok-punct">{</span><span class="tok-type">DAMPING_STATE</span><span class="tok-punct">,</span> <span class="tok-type">PREPARE_STATE</span><span class="tok-punct">,</span> <span class="tok-type">WALKING_STATE</span><span class="tok-punct">}</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">static</span> <span class="tok-keyword">const</span> <span class="tok-type">ChangeStatePath</span> <span class="tok-type">WALKING_PATH</span> <span class="tok-operator">=</span> <span class="tok-punct">{</span><span class="tok-type">DAMPING_STATE</span><span class="tok-punct">,</span> <span class="tok-type">PREPARE_STATE</span><span class="tok-punct">,</span> <span class="tok-type">WALKING_STATE</span><span class="tok-punct">}</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">static</span> <span class="tok-keyword">const</span> <span class="tok-type">ChangeStatePath</span> <span class="tok-type">CUSTOM_PATH</span>  <span class="tok-operator">=</span> <span class="tok-punct">{</span><span class="tok-type">DAMPING_STATE</span><span class="tok-punct">,</span> <span class="tok-type">PREPARE_STATE</span><span class="tok-punct">,</span> <span class="tok-type">CUSTOM_STATE</span><span class="tok-punct">}</span><span class="tok-punct">;</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
+<p>这样「阻尼 → 行走」这种非法跳转会被表本身挡住，不需要在每个入口函数里写检查。
+  四款主流小型人形机器人的状态机都是这个形状：零力矩 / 阻尼 / 站立准备 / 行走 / 特殊模式。</p>
+<ul><li><strong>常量参数</strong>（关节数、关节顺序、话题名）集中在一个头文件里。
+更好的做法是直接从 URDF 生成 —— 结构改了不用改两处。</li><li><strong>脚踝并联解算</strong>放在这一层，因为它是「关节角 ↔ 末端位姿」的映射，属于本体知识。</li><li><strong>API 层</strong>：对外的通道、话题、服务 ID 和给二次开发的客户端封装都收在这里。</li></ul>
+<p><strong>RPC。</strong> 用 DDS 自己实现 RPC，而不是引入 gRPC：DDS 已经在跑，再加一套 gRPC
+就多一份依赖和一套序列化。请求与响应都用 IDL 定义、数据体是 JSON，
+服务端靠请求头里的 UUID 匹配响应。</p>
+<div class="code-block" data-lang="cpp" data-foldable="7"><div class="code-head"><span class="code-lang">cpp</span><div class="code-tools"><button class="code-fold" type="button" data-fold aria-expanded="true"><span data-fold-label>收起</span><svg class="code-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">const</span> <span class="tok-builtin">int64_t</span> <span class="tok-type">RpcStatusCodeSuccess</span> <span class="tok-operator">=</span> <span class="tok-number">0</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> <span class="tok-builtin">int64_t</span> <span class="tok-type">RpcStatusCodeTimeout</span> <span class="tok-operator">=</span> <span class="tok-number">100</span><span class="tok-punct">;</span>                 <span class="tok-comment">// 请求超时</span>
+<span class="tok-keyword">const</span> <span class="tok-builtin">int64_t</span> <span class="tok-type">RpcStatusCodeBadRequest</span> <span class="tok-operator">=</span> <span class="tok-number">400</span><span class="tok-punct">;</span>              <span class="tok-comment">// 参数非法</span>
+<span class="tok-keyword">const</span> <span class="tok-builtin">int64_t</span> <span class="tok-type">RpcStatusCodeInternalServerError</span> <span class="tok-operator">=</span> <span class="tok-number">500</span><span class="tok-punct">;</span>     <span class="tok-comment">// 服务端内部错误</span>
+<span class="tok-keyword">const</span> <span class="tok-builtin">int64_t</span> <span class="tok-type">RpcStatusCodeServerRefused</span> <span class="tok-operator">=</span> <span class="tok-number">501</span><span class="tok-punct">;</span>           <span class="tok-comment">// 服务端拒绝</span>
+<span class="tok-keyword">const</span> <span class="tok-builtin">int64_t</span> <span class="tok-type">RpcStatusCodeStateTransitionFailed</span> <span class="tok-operator">=</span> <span class="tok-number">502</span><span class="tok-punct">;</span>   <span class="tok-comment">// 状态机不允许这次跳转</span>
+<span class="tok-keyword">const</span> <span class="tok-builtin">int64_t</span> <span class="tok-type">RpcStatusCodeInvalid</span> <span class="tok-operator">=</span> <span class="tok-operator">-</span><span class="tok-number">1</span><span class="tok-punct">;</span>                  <span class="tok-comment">// 尚未发送</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
+<p>注意 <code>502</code> 这一条：<strong>把「状态机不允许」单独做成一个错误码</strong>，
+调用方才能区分「我发错了」和「现在时机不对」。很多系统把这类失败都归到 400，
+上层只能靠重试碰运气。</p>
+<p>局限也很清楚：DDS 的 RPC 走不出局域网，做不了网络穿透。
+真要做远程控制得上 gRPC 或 WebRTC —— 所以<strong>现在就把 RPC 的边界划清楚</strong>，
+将来换实现只动这一层。</p>
+<p><strong>后台执行层（daemons）。</strong> 把上面四层拼成一个能长期无人值守运行的进程。</p>
+<ul><li><strong>崩溃处理</strong>：注册信号处理器，把调用栈写进日志文件再退出。
+机器人现场出问题时，事后唯一能指望的就是这份 crash log。</li><li><strong>软看门狗</strong>：任务抛异常时把 <code>task_running_</code> 置为 false，
+看门狗线程每秒检查一次，发现为 false 就重新初始化该任务。核心逻辑就这几行：</li></ul>
+<div class="code-block" data-lang="cpp" data-foldable="9"><div class="code-head"><span class="code-lang">cpp</span><div class="code-tools"><button class="code-fold" type="button" data-fold aria-expanded="true"><span data-fold-label>收起</span><svg class="code-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-cpp">  <span class="tok-keyword">void</span> <span class="tok-function">Watchdog</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+      <span class="tok-keyword">while</span> <span class="tok-punct">(</span>wd_running_<span class="tok-punct">.</span><span class="tok-function">load</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+          <span class="tok-keyword">if</span> <span class="tok-punct">(</span>task_running_<span class="tok-punct">.</span><span class="tok-function">exchange</span><span class="tok-punct">(</span><span class="tok-keyword">true</span><span class="tok-punct">)</span> <span class="tok-operator">==</span> <span class="tok-keyword">false</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+              <span class="tok-function">ROBOT_INFO</span><span class="tok-punct">(</span><span class="tok-string">&quot;[Watchdog] Daemon stopped, restarting.&quot;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+              failed_count_<span class="tok-punct">.</span><span class="tok-function">store</span><span class="tok-punct">(</span><span class="tok-number">0</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+          <span class="tok-punct">}</span>
+          <span class="tok-builtin">std</span><span class="tok-operator">::</span>this_thread<span class="tok-operator">::</span><span class="tok-function">sleep_for</span><span class="tok-punct">(</span><span class="tok-builtin">std</span><span class="tok-operator">::</span>chrono<span class="tok-operator">::</span><span class="tok-function">seconds</span><span class="tok-punct">(</span><span class="tok-number">1</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+      <span class="tok-punct">}</span>
+  <span class="tok-punct">}</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
+<p>为什么是<strong>软</strong>看门狗：它救不了进程整体挂死（那要靠 systemd 的 <code>Restart=always</code>），
+  但能救「某个任务抛了异常、线程退了」这种局部故障 —— 后者更常见，
+  而且进程还活着，systemd 看不见。</p>
+<ul><li><strong>本机 SocketServer</strong>：在本地 Unix socket 上收字符串命令，
+用来在不重启进程的前提下暂停/恢复底层控制、重新加载配置。
+用 Unix domain socket 而不是 TCP：不占端口、天然只能本机访问、权限由文件系统管。</li><li><strong>systemd 单元</strong>把「开机自启 + 崩溃重启 + 实时调度 + CPU 亲和」一次性配好：</li></ul>
+<div class="code-block" data-lang="ini" data-foldable="12"><div class="code-head"><span class="code-lang">ini</span><div class="code-tools"><button class="code-fold" type="button" data-fold aria-expanded="true"><span data-fold-label>收起</span><svg class="code-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-ini">  [Service]
+  ExecStart=/usr/local/bin/robot_lr_daemon_lowctrl
+  Restart=always
+  RestartSec=5s
+  StartLimitIntervalSec=60       # 60 秒窗口内
+  StartLimitBurst=5              # 崩超过 5 次就停止重启，避免疯狂重启刷满日志
 
-    <span class="tok-comment">// open crash file</span>
-    time_t t <span class="tok-operator">=</span> <span class="tok-function">time</span><span class="tok-punct">(</span><span class="tok-keyword">nullptr</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-    <span class="tok-keyword">char</span> filename<span class="tok-punct">[</span><span class="tok-number">256</span><span class="tok-punct">]</span><span class="tok-punct">;</span>
-    <span class="tok-keyword">if</span> <span class="tok-punct">(</span>base_name_buf <span class="tok-operator">==</span> <span class="tok-keyword">nullptr</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
-        <span class="tok-function">snprintf</span><span class="tok-punct">(</span>filename<span class="tok-punct">,</span> <span class="tok-keyword">sizeof</span><span class="tok-punct">(</span>filename<span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-string">&quot;%s/crash_%ld_%d.log&quot;</span><span class="tok-punct">,</span> robotlog<span class="tok-operator">::</span><span class="tok-type">LOG_DIR</span><span class="tok-punct">,</span> t<span class="tok-punct">,</span> <span class="tok-function">getpid</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-    <span class="tok-punct">}</span> <span class="tok-keyword">else</span> <span class="tok-punct">{</span>
-        <span class="tok-function">snprintf</span><span class="tok-punct">(</span>filename<span class="tok-punct">,</span> <span class="tok-keyword">sizeof</span><span class="tok-punct">(</span>filename<span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-string">&quot;%s/%s_crash_%ld_%d.log&quot;</span><span class="tok-punct">,</span> robotlog<span class="tok-operator">::</span><span class="tok-type">LOG_DIR</span><span class="tok-punct">,</span> base_name_buf<span class="tok-punct">,</span> t<span class="tok-punct">,</span> <span class="tok-function">getpid</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-    <span class="tok-punct">}</span>
-    <span class="tok-keyword">auto</span> crash_fd <span class="tok-operator">=</span> <span class="tok-function">open</span><span class="tok-punct">(</span>filename<span class="tok-punct">,</span> <span class="tok-type">O_CREAT</span> <span class="tok-operator">|</span> <span class="tok-type">O_WRONLY</span> <span class="tok-operator">|</span> <span class="tok-type">O_APPEND</span><span class="tok-punct">,</span> <span class="tok-number">0644</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-    <span class="tok-keyword">if</span> <span class="tok-punct">(</span>crash_fd <span class="tok-operator">&lt;</span> <span class="tok-number">0</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
-        crash_fd <span class="tok-operator">=</span> <span class="tok-type">STDERR_FILENO</span><span class="tok-punct">;</span>
-    <span class="tok-punct">}</span>
-
-    <span class="tok-comment">// print call stack</span>
-    <span class="tok-function">dprintf</span><span class="tok-punct">(</span>crash_fd<span class="tok-punct">,</span> <span class="tok-string">&quot;[Crash] Caught signal %d\n&quot;</span><span class="tok-punct">,</span> sig<span class="tok-punct">)</span><span class="tok-punct">;</span>
-    <span class="tok-keyword">void</span><span class="tok-operator">*</span> array<span class="tok-punct">[</span><span class="tok-type">CRASH_STACK_SIZE</span><span class="tok-punct">]</span><span class="tok-punct">;</span>
-    <span class="tok-keyword">int</span> size <span class="tok-operator">=</span> <span class="tok-function">backtrace</span><span class="tok-punct">(</span>array<span class="tok-punct">,</span> <span class="tok-type">CRASH_STACK_SIZE</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-    <span class="tok-function">backtrace_symbols_fd</span><span class="tok-punct">(</span>array<span class="tok-punct">,</span> size<span class="tok-punct">,</span> crash_fd<span class="tok-punct">)</span><span class="tok-punct">;</span>
-    <span class="tok-function">_Exit</span><span class="tok-punct">(</span><span class="tok-number">1</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-<span class="tok-punct">}</span>
-<span class="tok-keyword">template</span> <span class="tok-operator">&lt;</span><span class="tok-keyword">typename</span> <span class="tok-type">Task</span><span class="tok-operator">&gt;</span>
-<span class="tok-keyword">class</span> <span class="tok-type">Daemon</span> <span class="tok-punct">{</span>
-<span class="tok-comment">// ......</span>
-    <span class="tok-keyword">void</span> <span class="tok-function">Run</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
-        <span class="tok-builtin">std</span><span class="tok-operator">::</span>thread <span class="tok-function">wd</span><span class="tok-punct">(</span><span class="tok-operator">&amp;</span><span class="tok-type">Daemon</span><span class="tok-operator">::</span><span class="tok-type">Watchdog</span><span class="tok-punct">,</span> <span class="tok-keyword">this</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-        <span class="tok-builtin">std</span><span class="tok-operator">::</span>thread <span class="tok-function">sock</span><span class="tok-punct">(</span><span class="tok-operator">&amp;</span><span class="tok-type">Daemon</span><span class="tok-operator">::</span><span class="tok-type">SocketServer</span><span class="tok-punct">,</span> <span class="tok-keyword">this</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-        <span class="tok-comment">// .......main.....</span>
-     <span class="tok-punct">}</span>
-<span class="tok-punct">}</span>
-</code></pre></div>
-<ol><li>看门狗</li></ol>
-<p>软看门狗通过task_running进行标识，任务抛出时会将该flag设置为false，检测到为flase会触发看门狗重新初始化该任务。</p>
-<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">void</span> <span class="tok-function">Watchdog</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
-    <span class="tok-keyword">while</span> <span class="tok-punct">(</span>wd_running_<span class="tok-punct">.</span><span class="tok-function">load</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
-        <span class="tok-keyword">if</span> <span class="tok-punct">(</span>task_running_<span class="tok-punct">.</span><span class="tok-function">exchange</span><span class="tok-punct">(</span><span class="tok-keyword">true</span><span class="tok-punct">)</span> <span class="tok-operator">==</span> <span class="tok-keyword">false</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
-            <span class="tok-function">ROBOT_INFO</span><span class="tok-punct">(</span><span class="tok-string">&quot;[Watchdog] Daemon has been stopped, restarting.&quot;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-            failed_count_<span class="tok-punct">.</span><span class="tok-function">store</span><span class="tok-punct">(</span><span class="tok-number">0</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-        <span class="tok-punct">}</span>
-        <span class="tok-builtin">std</span><span class="tok-operator">::</span>this_thread<span class="tok-operator">::</span><span class="tok-function">sleep_for</span><span class="tok-punct">(</span><span class="tok-builtin">std</span><span class="tok-operator">::</span>chrono<span class="tok-operator">::</span><span class="tok-function">seconds</span><span class="tok-punct">(</span><span class="tok-number">1</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-    <span class="tok-punct">}</span>
-    <span class="tok-keyword">return</span><span class="tok-punct">;</span>
-<span class="tok-punct">}</span>
-</code></pre></div>
-<ol><li>本机SocketServer</li></ol>
-<p>作为Daemon类的子线程之一，可以接受本地 socket 通讯，用于实现对任务的动态简单配置。客户端直接通过Linux下的命令发送字符串。</p>
-<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">void</span> <span class="tok-function">SocketServer</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
-        <span class="tok-keyword">int</span> server_fd <span class="tok-operator">=</span> <span class="tok-function">socket</span><span class="tok-punct">(</span><span class="tok-type">AF_UNIX</span><span class="tok-punct">,</span> <span class="tok-type">SOCK_STREAM</span><span class="tok-punct">,</span> <span class="tok-number">0</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-        <span class="tok-keyword">if</span> <span class="tok-punct">(</span>server_fd <span class="tok-operator">&lt;</span> <span class="tok-number">0</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
-            <span class="tok-function">perror</span><span class="tok-punct">(</span><span class="tok-string">&quot;socket&quot;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-            <span class="tok-keyword">return</span><span class="tok-punct">;</span>
-        <span class="tok-punct">}</span>
-        <span class="tok-function">unlink</span><span class="tok-punct">(</span>socket_path_<span class="tok-punct">.</span><span class="tok-function">c_str</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-        <span class="tok-keyword">struct</span> sockaddr_un addr<span class="tok-punct">;</span>
-        <span class="tok-builtin">memset</span><span class="tok-punct">(</span><span class="tok-operator">&amp;</span>addr<span class="tok-punct">,</span> <span class="tok-number">0</span><span class="tok-punct">,</span> <span class="tok-keyword">sizeof</span><span class="tok-punct">(</span>addr<span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-        addr<span class="tok-punct">.</span>sun_family <span class="tok-operator">=</span> <span class="tok-type">AF_UNIX</span><span class="tok-punct">;</span>
-        <span class="tok-function">strncpy</span><span class="tok-punct">(</span>addr<span class="tok-punct">.</span>sun_path<span class="tok-punct">,</span> socket_path_<span class="tok-punct">.</span><span class="tok-function">c_str</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-keyword">sizeof</span><span class="tok-punct">(</span>addr<span class="tok-punct">.</span>sun_path<span class="tok-punct">)</span> <span class="tok-operator">-</span> <span class="tok-number">1</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-        <span class="tok-keyword">if</span> <span class="tok-punct">(</span><span class="tok-function">bind</span><span class="tok-punct">(</span>server_fd<span class="tok-punct">,</span> <span class="tok-punct">(</span><span class="tok-keyword">struct</span> sockaddr<span class="tok-operator">*</span><span class="tok-punct">)</span><span class="tok-operator">&amp;</span>addr<span class="tok-punct">,</span> <span class="tok-keyword">sizeof</span><span class="tok-punct">(</span>addr<span class="tok-punct">)</span><span class="tok-punct">)</span> <span class="tok-operator">&lt;</span> <span class="tok-number">0</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
-            <span class="tok-function">perror</span><span class="tok-punct">(</span><span class="tok-string">&quot;bind&quot;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-            <span class="tok-function">close</span><span class="tok-punct">(</span>server_fd<span class="tok-punct">)</span><span class="tok-punct">;</span>
-            <span class="tok-keyword">return</span><span class="tok-punct">;</span>
-        <span class="tok-punct">}</span>
-        <span class="tok-keyword">if</span> <span class="tok-punct">(</span><span class="tok-function">listen</span><span class="tok-punct">(</span>server_fd<span class="tok-punct">,</span> <span class="tok-number">5</span><span class="tok-punct">)</span> <span class="tok-operator">&lt;</span> <span class="tok-number">0</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
-            <span class="tok-function">perror</span><span class="tok-punct">(</span><span class="tok-string">&quot;listen&quot;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-            <span class="tok-function">close</span><span class="tok-punct">(</span>server_fd<span class="tok-punct">)</span><span class="tok-punct">;</span>
-            <span class="tok-keyword">return</span><span class="tok-punct">;</span>
-        <span class="tok-punct">}</span>
-        <span class="tok-function">ROBOT_INFO</span><span class="tok-punct">(</span><span class="tok-string">&quot;[Daemon] SocketServer listening on {}.&quot;</span><span class="tok-punct">,</span> socket_path_<span class="tok-punct">)</span><span class="tok-punct">;</span>
-        <span class="tok-keyword">while</span> <span class="tok-punct">(</span>daemon_running_<span class="tok-punct">.</span><span class="tok-function">load</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
-            <span class="tok-keyword">int</span> client_fd <span class="tok-operator">=</span> <span class="tok-function">accept</span><span class="tok-punct">(</span>server_fd<span class="tok-punct">,</span> <span class="tok-keyword">nullptr</span><span class="tok-punct">,</span> <span class="tok-keyword">nullptr</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-            <span class="tok-comment">// 具体服务端逻辑实现</span>
-            <span class="tok-comment">// ......</span>
-            <span class="tok-function">close</span><span class="tok-punct">(</span>client_fd<span class="tok-punct">)</span><span class="tok-punct">;</span>
-        <span class="tok-punct">}</span>
-        <span class="tok-function">close</span><span class="tok-punct">(</span>server_fd<span class="tok-punct">)</span><span class="tok-punct">;</span>
-        <span class="tok-function">unlink</span><span class="tok-punct">(</span>socket_path_<span class="tok-punct">.</span><span class="tok-function">c_str</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-        <span class="tok-function">ROBOT_INFO</span><span class="tok-punct">(</span><span class="tok-string">&quot;[Daemon] SocketServer stopped.&quot;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-        <span class="tok-keyword">return</span><span class="tok-punct">;</span>
-    <span class="tok-punct">}</span>
-</code></pre></div>
-<ol><li>后台任务参数配置</li></ol>
-<p>包含所有可调整的硬件参数和配置，通过json存储配置，可以通过json文件进行初始化，动态配置需要通过本机SocketServer来实现，目前小机器人基本配置包括：</p>
-<ul><li>包括是否启用某些硬件</li><li>是否存储后台程序帧率到日志</li><li>电池低电量警告阈值</li><li>丢包率阈值（超过会抛出异常并通过看门狗重启程序，来重新初始化硬件）</li><li>某些硬件的方向（如电机方向，imu数据方向，可用于给某些硬件数据置负）</li><li>某些硬件的范围（如电机软限位，电机力矩阈值）</li><li>某些算法参数配置（如准备阶段的电机pd参数，默认角度等）</li></ul>
-<div class="code-block" data-lang="json"><div class="code-head"><span class="code-lang">json</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-json"><span class="tok-punct">{</span>
-    <span class="tok-key">&quot;hardware&quot;</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
-        <span class="tok-key">&quot;max_lost&quot;</span><span class="tok-punct">:</span> <span class="tok-number">30</span><span class="tok-punct">,</span>
-        <span class="tok-key">&quot;bms_max_lost&quot;</span><span class="tok-punct">:</span> <span class="tok-number">80</span>
-    <span class="tok-punct">}</span><span class="tok-punct">,</span>
-    <span class="tok-key">&quot;bms&quot;</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
-        <span class="tok-key">&quot;normal_battery&quot;</span><span class="tok-punct">:</span> <span class="tok-number">40.0</span><span class="tok-punct">,</span>
-        <span class="tok-key">&quot;low_battery&quot;</span><span class="tok-punct">:</span> <span class="tok-number">35.0</span>
-    <span class="tok-punct">}</span><span class="tok-punct">,</span>
-    <span class="tok-key">&quot;imu&quot;</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
-        <span class="tok-key">&quot;rpy_dir&quot;</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
-                <span class="tok-number">1</span><span class="tok-punct">,</span>
-                <span class="tok-number">1</span><span class="tok-punct">,</span>
-                <span class="tok-number">1</span>
-        <span class="tok-punct">]</span><span class="tok-punct">,</span>
-        <span class="tok-key">&quot;gyro_dir&quot;</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
-                <span class="tok-number">1</span><span class="tok-punct">,</span>
-                <span class="tok-number">1</span><span class="tok-punct">,</span>
-                <span class="tok-number">1</span>
-        <span class="tok-punct">]</span><span class="tok-punct">,</span>
-        <span class="tok-key">&quot;acc_dir&quot;</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
-                <span class="tok-number">-1</span><span class="tok-punct">,</span>
-                <span class="tok-number">-1</span><span class="tok-punct">,</span>
-                <span class="tok-number">-1</span>
-        <span class="tok-punct">]</span>
-    <span class="tok-punct">}</span><span class="tok-punct">,</span>
-    <span class="tok-key">&quot;joints&quot;</span><span class="tok-punct">:</span> <span class="tok-punct">{</span>
-        ......
-     <span class="tok-punct">}</span>
-<span class="tok-punct">}</span>
-</code></pre></div>
-<ol><li>操作系统层面的服务管理和设备管理（systemd service、udev rules）</li></ol>
-<ul><li>使用systemctl实现后台服务开机自启动，并绑定CPU亲和策略与实时调度等</li></ul>
-<div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">    <span class="tok-punct">[</span><span class="tok-type">Unit</span><span class="tok-punct">]</span>
-    <span class="tok-type">Description</span><span class="tok-operator">=</span>little_robot little robot lowctrl daemon process
-    <span class="tok-type">Wants</span><span class="tok-operator">=</span>network-online.target
-    <span class="tok-type">After</span><span class="tok-operator">=</span>network-online.target
-
-    <span class="tok-punct">[</span><span class="tok-type">Service</span><span class="tok-punct">]</span>
-    <span class="tok-type">ExecStart</span><span class="tok-operator">=/</span>usr<span class="tok-operator">/</span><span class="tok-keyword">local</span><span class="tok-operator">/</span>bin<span class="tok-operator">/</span>robot_lr_daemon_lowctrl
-    <span class="tok-type">Restart</span><span class="tok-operator">=</span>always                 <span class="tok-comment"># 崩溃后自动重启</span>
-    <span class="tok-type">RestartSec</span><span class="tok-operator">=</span>5s                  <span class="tok-comment"># 等待 10 秒后再重启</span>
-    <span class="tok-type">StartLimitIntervalSec</span><span class="tok-operator">=</span><span class="tok-number">60</span>       <span class="tok-comment"># 统计时间窗口 60 秒内</span>
-    <span class="tok-type">StartLimitBurst</span><span class="tok-operator">=</span><span class="tok-number">5</span>              <span class="tok-comment"># 如果 60 秒内崩溃超过 5 次，就停止重启（防止疯狂重启）</span>
-
-    <span class="tok-type">User</span><span class="tok-operator">=</span>little_robot
-
-    <span class="tok-comment"># --- 性能关键配置 --- #</span>
-    <span class="tok-comment"># 1. 禁用实时节流 为这个进程分配100%的CPU时间</span>
-    <span class="tok-type">CPUAccounting</span><span class="tok-operator">=</span>yes
-    <span class="tok-type">CPUQuota</span><span class="tok-operator">=</span><span class="tok-number">100</span><span class="tok-operator">%</span>
-    <span class="tok-comment"># 2. 设置实时调度策略和优先级 需要系统允许</span>
-    <span class="tok-comment"># 注意：这通常需要配合 /etc/security/limits.conf 设置</span>
-    <span class="tok-type">CPUSchedulingPolicy</span><span class="tok-operator">=</span>fifo
-    <span class="tok-type">CPUSchedulingPriority</span><span class="tok-operator">=</span><span class="tok-number">80</span>
-    <span class="tok-comment"># 3. 设置CPU亲和性 绑定到特定核心</span>
-    <span class="tok-type">CPUAffinity</span><span class="tok-operator">=</span><span class="tok-number">2</span> <span class="tok-number">3</span>
-
-    <span class="tok-punct">[</span><span class="tok-type">Install</span><span class="tok-punct">]</span>
-    <span class="tok-type">WantedBy</span><span class="tok-operator">=</span>multi-user.target</code></pre></div>
-<ul><li>以USBCAN模块为例子，通过rules文件，将硬件绑定到特定接口名，如USBCAN模块可能在Ubuntu系统中被识别成/dev/ttyACM1或/dev/ttyACM0，通过rules文件保证其绑定到对应接口名，防止重新拔插导致的文件名交换或错误。</li></ul>
-<div class="code-block" data-lang="go"><div class="code-head"><span class="code-lang">go</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-go">    <span class="tok-type">KERNEL</span><span class="tok-operator">==</span><span class="tok-string">&quot;ttyACM*&quot;</span><span class="tok-punct">,</span> <span class="tok-type">ATTRS</span><span class="tok-punct">{</span>idVendor<span class="tok-punct">}</span><span class="tok-operator">==</span><span class="tok-string">&quot;1483&quot;</span><span class="tok-punct">,</span> <span class="tok-type">ATTRS</span><span class="tok-punct">{</span>idProduct<span class="tok-punct">}</span><span class="tok-operator">==</span><span class="tok-string">&quot;1110&quot;</span><span class="tok-punct">,</span><span class="tok-type">ATTRS</span><span class="tok-punct">{</span>serial<span class="tok-punct">}</span><span class="tok-operator">==</span><span class="tok-string">&quot;2061316C4D4D&quot;</span><span class="tok-punct">,</span> <span class="tok-type">MODE</span><span class="tok-operator">:=</span><span class="tok-string">&quot;0666&quot;</span><span class="tok-punct">,</span> <span class="tok-type">SYMLINK</span><span class="tok-operator">+=</span><span class="tok-string">&quot;USB2CAN0&quot;</span>
-    <span class="tok-type">KERNEL</span><span class="tok-operator">==</span><span class="tok-string">&quot;ttyACM*&quot;</span><span class="tok-punct">,</span> <span class="tok-type">ATTRS</span><span class="tok-punct">{</span>idVendor<span class="tok-punct">}</span><span class="tok-operator">==</span><span class="tok-string">&quot;1483&quot;</span><span class="tok-punct">,</span> <span class="tok-type">ATTRS</span><span class="tok-punct">{</span>idProduct<span class="tok-punct">}</span><span class="tok-operator">==</span><span class="tok-string">&quot;1110&quot;</span><span class="tok-punct">,</span><span class="tok-type">ATTRS</span><span class="tok-punct">{</span>serial<span class="tok-punct">}</span><span class="tok-operator">==</span><span class="tok-string">&quot;2073316C4D4D&quot;</span><span class="tok-punct">,</span> <span class="tok-type">MODE</span><span class="tok-operator">:=</span><span class="tok-string">&quot;0666&quot;</span><span class="tok-punct">,</span> <span class="tok-type">SYMLINK</span><span class="tok-operator">+=</span><span class="tok-string">&quot;USB2CAN1&quot;</span>
-    <span class="tok-type">KERNEL</span><span class="tok-operator">==</span><span class="tok-string">&quot;ttyACM*&quot;</span><span class="tok-punct">,</span> <span class="tok-type">ATTRS</span><span class="tok-punct">{</span>idVendor<span class="tok-punct">}</span><span class="tok-operator">==</span><span class="tok-string">&quot;1483&quot;</span><span class="tok-punct">,</span> <span class="tok-type">ATTRS</span><span class="tok-punct">{</span>idProduct<span class="tok-punct">}</span><span class="tok-operator">==</span><span class="tok-string">&quot;1112&quot;</span><span class="tok-punct">,</span><span class="tok-type">MODE</span><span class="tok-operator">:=</span><span class="tok-string">&quot;0666&quot;</span><span class="tok-punct">,</span> <span class="tok-type">SYMLINK</span><span class="tok-operator">+=</span><span class="tok-string">&quot;USB2CAN2&quot;</span>
-    <span class="tok-type">KERNEL</span><span class="tok-operator">==</span><span class="tok-string">&quot;ttyACM*&quot;</span><span class="tok-punct">,</span> <span class="tok-type">ATTRS</span><span class="tok-punct">{</span>idVendor<span class="tok-punct">}</span><span class="tok-operator">==</span><span class="tok-string">&quot;1483&quot;</span><span class="tok-punct">,</span> <span class="tok-type">ATTRS</span><span class="tok-punct">{</span>idProduct<span class="tok-punct">}</span><span class="tok-operator">==</span><span class="tok-string">&quot;1113&quot;</span><span class="tok-punct">,</span><span class="tok-type">MODE</span><span class="tok-operator">:=</span><span class="tok-string">&quot;0666&quot;</span><span class="tok-punct">,</span> <span class="tok-type">SYMLINK</span><span class="tok-operator">+=</span><span class="tok-string">&quot;USB2CAN3&quot;</span></code></pre></div>
-<ol><li>机器人后台服务端</li></ol>
-<p>实现了小机器人具体的RPC服务逻辑，用于处理RPC请求，以ChangeMode为例，该文件会作为具体后台程序的一部分运行。</p>
-<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">bool</span> <span class="tok-function">ChangeMode</span><span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">string</span><span class="tok-operator">&amp;</span> body<span class="tok-punct">)</span> <span class="tok-punct">{</span>
-        <span class="tok-keyword">try</span> <span class="tok-punct">{</span>
-            <span class="tok-keyword">auto</span> json_body <span class="tok-operator">=</span> nlohmann<span class="tok-operator">::</span>json<span class="tok-operator">::</span><span class="tok-function">parse</span><span class="tok-punct">(</span>body<span class="tok-punct">)</span><span class="tok-punct">;</span>
-            <span class="tok-keyword">auto</span> mode <span class="tok-operator">=</span> json_body<span class="tok-punct">[</span><span class="tok-string">&quot;mode&quot;</span><span class="tok-punct">]</span><span class="tok-punct">;</span>
-
-            <span class="tok-keyword">switch</span> <span class="tok-punct">(</span>mode_<span class="tok-punct">.</span><span class="tok-function">load</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
-                <span class="tok-keyword">case</span> robot<span class="tok-operator">::</span>common<span class="tok-operator">::</span><span class="tok-type">RobotMode</span><span class="tok-operator">::</span><span class="tok-type">Damping</span><span class="tok-operator">:</span>
-                    <span class="tok-keyword">if</span> <span class="tok-punct">(</span>robot<span class="tok-operator">::</span>common<span class="tok-operator">::</span><span class="tok-type">DAMPING_PATH</span><span class="tok-punct">.</span><span class="tok-function">find</span><span class="tok-punct">(</span>mode<span class="tok-punct">)</span> <span class="tok-operator">==</span> robot<span class="tok-operator">::</span>common<span class="tok-operator">::</span><span class="tok-type">DAMPING_PATH</span><span class="tok-punct">.</span><span class="tok-function">end</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
-                        <span class="tok-keyword">return</span> <span class="tok-keyword">false</span><span class="tok-punct">;</span>
-                    <span class="tok-punct">}</span>
-                    <span class="tok-keyword">break</span><span class="tok-punct">;</span>
-                <span class="tok-keyword">case</span> robot<span class="tok-operator">::</span>common<span class="tok-operator">::</span><span class="tok-type">RobotMode</span><span class="tok-operator">::</span><span class="tok-type">Prepare</span><span class="tok-operator">:</span>
-                    <span class="tok-keyword">if</span> <span class="tok-punct">(</span>robot<span class="tok-operator">::</span>common<span class="tok-operator">::</span><span class="tok-type">PREPARE_PATH</span><span class="tok-punct">.</span><span class="tok-function">find</span><span class="tok-punct">(</span>mode<span class="tok-punct">)</span> <span class="tok-operator">==</span> robot<span class="tok-operator">::</span>common<span class="tok-operator">::</span><span class="tok-type">PREPARE_PATH</span><span class="tok-punct">.</span><span class="tok-function">end</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
-                        <span class="tok-keyword">return</span> <span class="tok-keyword">false</span><span class="tok-punct">;</span>
-                    <span class="tok-punct">}</span>
-                    <span class="tok-keyword">break</span><span class="tok-punct">;</span>
-                <span class="tok-keyword">case</span> robot<span class="tok-operator">::</span>common<span class="tok-operator">::</span><span class="tok-type">RobotMode</span><span class="tok-operator">::</span><span class="tok-type">Walking</span><span class="tok-operator">:</span>
-                    <span class="tok-keyword">if</span> <span class="tok-punct">(</span>robot<span class="tok-operator">::</span>common<span class="tok-operator">::</span><span class="tok-type">WALKING_PATH</span><span class="tok-punct">.</span><span class="tok-function">find</span><span class="tok-punct">(</span>mode<span class="tok-punct">)</span> <span class="tok-operator">==</span> robot<span class="tok-operator">::</span>common<span class="tok-operator">::</span><span class="tok-type">WALKING_PATH</span><span class="tok-punct">.</span><span class="tok-function">end</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
-                        <span class="tok-keyword">return</span> <span class="tok-keyword">false</span><span class="tok-punct">;</span>
-                    <span class="tok-punct">}</span>
-                    <span class="tok-keyword">break</span><span class="tok-punct">;</span>
-                <span class="tok-keyword">case</span> robot<span class="tok-operator">::</span>common<span class="tok-operator">::</span><span class="tok-type">RobotMode</span><span class="tok-operator">::</span><span class="tok-type">Custom</span><span class="tok-operator">:</span>
-                    <span class="tok-keyword">if</span> <span class="tok-punct">(</span>robot<span class="tok-operator">::</span>common<span class="tok-operator">::</span><span class="tok-type">CUSTOM_PATH</span><span class="tok-punct">.</span><span class="tok-function">find</span><span class="tok-punct">(</span>mode<span class="tok-punct">)</span> <span class="tok-operator">==</span> robot<span class="tok-operator">::</span>common<span class="tok-operator">::</span><span class="tok-type">CUSTOM_PATH</span><span class="tok-punct">.</span><span class="tok-function">end</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
-                        <span class="tok-keyword">return</span> <span class="tok-keyword">false</span><span class="tok-punct">;</span>
-                    <span class="tok-punct">}</span>
-                    <span class="tok-keyword">break</span><span class="tok-punct">;</span>
-                <span class="tok-keyword">default</span><span class="tok-operator">:</span>
-                    <span class="tok-keyword">return</span> <span class="tok-keyword">false</span><span class="tok-punct">;</span>
-            <span class="tok-punct">}</span>
-            mode_<span class="tok-punct">.</span><span class="tok-function">store</span><span class="tok-punct">(</span>mode<span class="tok-punct">)</span><span class="tok-punct">;</span>
-        <span class="tok-punct">}</span> <span class="tok-keyword">catch</span> <span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span>exception<span class="tok-operator">&amp;</span> e<span class="tok-punct">)</span> <span class="tok-punct">{</span>
-            <span class="tok-function">ROBOT_ERROR</span><span class="tok-punct">(</span><span class="tok-string">&quot;Paser json Error: {}\n&quot;</span><span class="tok-punct">,</span> e<span class="tok-punct">.</span><span class="tok-function">what</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-            <span class="tok-keyword">return</span> <span class="tok-keyword">false</span><span class="tok-punct">;</span>
-        <span class="tok-punct">}</span>
-        <span class="tok-keyword">return</span> <span class="tok-keyword">true</span><span class="tok-punct">;</span>
-    <span class="tok-punct">}</span>
-</code></pre></div>
-<ol><li>后台进程 robot_lr_daemon_lowctrl.cpp文件</li></ol>
-<p>其内容包括：</p>
-<ul><li>状态机：通过状态机在各个模式下切换并调用对应函数进行控制，如<ul><li>Custom模式下才接受DDS发送的控制信号</li><li>Damping模式下电机一直处于阻尼状态</li><li>Walking模式调用RL策略进行控制，实现行走</li></ul></li><li>硬件自检：包含自检日志</li><li>硬件通讯：通过和IDL转换进行硬件读写控制，含硬件丢包率检测（HAL接口返回异常错误码记录为一次丢包）</li><li>DDS通讯和RPC服务端：将硬件数据上报，并从DDS通讯中获得用户发送的控制数据，通过RPC响应请求执行上层命令，如模式切换</li></ul>
-<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">class</span> <span class="tok-type">LRDaemonLowCtrl</span> <span class="tok-punct">{</span>
-    <span class="tok-comment">// ......</span>
-    <span class="tok-comment">// 硬件初始化</span>
-    <span class="tok-keyword">void</span> <span class="tok-function">BmsInit</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-    <span class="tok-keyword">void</span> <span class="tok-function">ImuInit</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-    <span class="tok-keyword">void</span> <span class="tok-function">DcusInit</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-    <span class="tok-keyword">void</span> <span class="tok-function">HardwareInit</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-    <span class="tok-comment">// 自检</span>
-    <span class="tok-keyword">bool</span> <span class="tok-function">SelfTest</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-    <span class="tok-comment">// 通讯初始化</span>
-    <span class="tok-keyword">void</span> <span class="tok-function">CommInit</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-    <span class="tok-comment">// 状态机初始化</span>
-    <span class="tok-keyword">void</span> <span class="tok-function">FsmInit</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-    <span class="tok-comment">// 各个模式下的Callback</span>
-    <span class="tok-keyword">void</span> <span class="tok-function">DampingRun</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-    <span class="tok-keyword">void</span> <span class="tok-function">PrepareRun</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-    <span class="tok-keyword">void</span> <span class="tok-function">WalkingRun</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-    <span class="tok-keyword">void</span> <span class="tok-function">CustomRun</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
-<span class="tok-punct">}</span><span class="tok-punct">;</span>
-</code></pre></div>
-<h4 id="总结">总结<a class="heading-anchor" href="#总结" aria-label="锚点">#</a></h4>
-<p>优点：</p>
-<ul><li>小机器人的后台程序，是来对所有的硬件、通讯、服务进行统一管理的程序，当前方案有助于机器人复用上述模块，达到快速简单实现一个类似的机器人后台管理程序。</li><li>这个方案的主要优势是高模块化与解耦 DDS 中间件，可以使得硬件控制、上层逻辑和通讯可以完全分离。每个部分都可以独立进行单元测试和集成测试。</li><li>采用了业界主流的技术栈（CMake，C++/Python， DDS）。</li></ul>
-<p>对比主流方案（产品）目前缺少：</p>
-<ul><li>WebRTC（远程控制与媒体流）、gRPC功能（用于远端进行RPC）</li><li>GStreamer（视频编码、转码），RTSP/WebRTC 统一媒体流接口</li><li>缺乏 OTA（固件/软件升级）能力，无法远程升级，软件更新需要人工干预，无回滚机制。</li></ul>
-<hr>
+  CPUAccounting=yes
+  CPUQuota=100%
+  CPUSchedulingPolicy=fifo       # 实时调度
+  CPUSchedulingPriority=80
+  CPUAffinity=2 3                # 绑核，把控制线程和系统任务隔开</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
+<p><code>CPUAffinity</code> 和 SCHED_FIFO 是控制回路能不能跑满的前提：
+  控制线程被调度到正在跑 <code>apt</code> 的核上，周期就保不住。
+  <code>StartLimitBurst</code> 也别省 —— 没有它，一个必崩的配置会让日志刷到把磁盘写满。</p>
+<ul><li><strong>udev 规则</strong>给硬件固定设备名。USB 转 CAN 模块插上去可能是 <code>/dev/ttyACM0</code>，
+也可能是 <code>/dev/ttyACM1</code>，重新插拔还会换。按序列号绑定到固定名字：</li></ul>
+<div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-text">  KERNEL==&quot;ttyACM*&quot;, ATTRS{idVendor}==&quot;1483&quot;, ATTRS{idProduct}==&quot;1110&quot;, ATTRS{serial}==&quot;2061316C4D4D&quot;, MODE:=&quot;0666&quot;, SYMLINK+=&quot;USB2CAN0&quot;
+  KERNEL==&quot;ttyACM*&quot;, ATTRS{idVendor}==&quot;1483&quot;, ATTRS{idProduct}==&quot;1110&quot;, ATTRS{serial}==&quot;2073316C4D4D&quot;, MODE:=&quot;0666&quot;, SYMLINK+=&quot;USB2CAN1&quot;</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
+<p>这行规则看着不起眼，但少了它就会出现「换了一根线之后机器人不动了」
+  这种要查半天的故障。</p>
+<h4 id="这套架构的取舍">这套架构的取舍<a class="heading-anchor" href="#这套架构的取舍" aria-label="锚点">#</a></h4>
+<p><strong>做对了的</strong>：</p>
+<ul><li><strong>高模块化</strong>。硬件控制、上层逻辑、通讯三者完全分离，
+换硬件只动 HAL 实现、换通讯只动 DDS 封装，其余代码不用碰。</li><li><strong>每一层都能单独测</strong>。HAL 可以用假硬件做单元测试，
+后台程序可以在没有实机的情况下用 MuJoCo 跑（正是前面 1.3 节的做法）。</li><li><strong>技术栈是主流选择</strong>：CMake + C++17/Python + DDS，
+招人和接手成本都低。</li></ul>
+<p><strong>相比成熟产品还缺什么</strong>（这些缺口在真实交付里都会变成需求）：</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
+<thead><tr><th>缺口</th><th>后果</th><th>补法</th></tr></thead>
+<tbody>
+<tr><td>WebRTC / gRPC</td><td>没法从公网控制，也没有实时视频回传</td><td>先划清 RPC 边界，之后替换实现</td></tr>
+<tr><td>GStreamer、RTSP</td><td>视频只能本机看，多路视频要自己搓编码</td><td>引入统一媒体流接口</td></tr>
+<tr><td>OTA 升级</td><td>改一版软件要人工上机，出错没法回滚</td><td>A/B 分区 + 版本校验，优先级最高</td></tr>
+<tr><td>可观测性</td><td>现场只能靠日志文件事后翻</td><td>加状态上报与指标导出</td></tr>
+</tbody></table></div>
+<p>其中 <strong>OTA 是最该早做的</strong>：一台部署在客户现场的机器人，
+每改一次参数都要人跑一趟，这个成本很快会超过开发本身的成本。</p>
 <h3 id="小机器人部署调试代码">小机器人部署调试代码<a class="heading-anchor" href="#小机器人部署调试代码" aria-label="锚点">#</a></h3>
 <h4 id="部署代码">部署代码<a class="heading-anchor" href="#部署代码" aria-label="锚点">#</a></h4>
 <p>部署代码基于 booster_gym中的deploy进行修改，完全修改并添加了硬件封装、策略日志、mimic policy。</p>
@@ -884,7 +546,7 @@ config
 <h4 id="调试代码">调试代码<a class="heading-anchor" href="#调试代码" aria-label="锚点">#</a></h4>
 <p>调试代码使用streamlit作为可视化工具，能对数据自动分组进行可视化。</p>
 <p><a href="https://streamlit.io/" target="_blank" rel="noopener">https://streamlit.io/</a></p>
-<div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-text">streamlit run plot_policy_obs.py</code></pre></div>
+<div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-text">streamlit run plot_policy_obs.py</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
 <p><img src="/assets/feishu/humanoid-0-to-1-toolchain/fig-11.webp" alt="图片.png" loading="lazy" decoding="async"></p>
 <p><img src="/assets/feishu/humanoid-0-to-1-toolchain/fig-12.webp" alt="图片.png" loading="lazy" decoding="async"></p>
 <hr>
@@ -1506,7 +1168,7 @@ config
 
 <script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
 
-<script src="/assets/site.js?v=afafd87f" defer></script>
+<script src="/assets/site.js?v=26c9d981" defer></script>
 
 </body>
 </html>

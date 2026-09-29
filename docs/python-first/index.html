@@ -31,11 +31,11 @@
 <link rel="canonical" href="https://luoyebai.github.io/docs/python-first/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=afafd87f">
-<link rel="stylesheet" href="/assets/site.css?v=afafd87f">
+<link rel="stylesheet" href="/assets/themes.css?v=26c9d981">
+<link rel="stylesheet" href="/assets/site.css?v=26c9d981">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
-<link rel="stylesheet" href="/assets/docs.css?v=afafd87f">
+<link rel="stylesheet" href="/assets/docs.css?v=26c9d981">
 
 
 
@@ -304,12 +304,12 @@
                data-title="建立独立环境">
         <div class="slide-inner"><h2>建立独立环境</h2>
 <div class="deck-fragment"><p>Linux / macOS：</p></div>
-<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-bash">python3 <span class="tok-operator">-</span>m venv .venv
+<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">python3 <span class="tok-operator">-</span>m venv .venv
 <span class="tok-keyword">source</span> .venv<span class="tok-operator">/</span>bin<span class="tok-operator">/</span>activate
-python <span class="tok-operator">--</span>version</code></pre></div></div>
+python <span class="tok-operator">--</span>version</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p>Windows PowerShell（已安装 Python 3）：</p></div>
-<div class="deck-fragment"><div class="code-block" data-lang="powershell"><div class="code-head"><span class="code-lang">powershell</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-powershell">py <span class="tok-operator">-</span><span class="tok-number">3</span> <span class="tok-operator">-</span>m venv <span class="tok-punct">.</span>venv
-<span class="tok-punct">.</span>venv\<span class="tok-type">Scripts</span>\python<span class="tok-punct">.</span>exe <span class="tok-operator">--</span>version</code></pre></div></div>
+<div class="deck-fragment"><div class="code-block" data-lang="powershell"><div class="code-head"><span class="code-lang">powershell</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-powershell">py <span class="tok-operator">-</span><span class="tok-number">3</span> <span class="tok-operator">-</span>m venv <span class="tok-punct">.</span>venv
+<span class="tok-punct">.</span>venv\<span class="tok-type">Scripts</span>\python<span class="tok-punct">.</span>exe <span class="tok-operator">--</span>version</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p>可以直接使用虚拟环境的解释器，无须修改执行策略。安装依赖时使用对应的 <code>python -m pip</code>。</p></div></div>
       </section>
       
@@ -317,13 +317,13 @@ python <span class="tok-operator">--</span>version</code></pre></div></div>
                data-title="第一个可验证的脚本">
         <div class="slide-inner"><h2>第一个可验证的脚本</h2>
 <div class="deck-fragment"><p>保存为 <code>temperature.py</code>：</p></div>
-<div class="deck-fragment"><div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">def</span> <span class="tok-function">celsius_to_fahrenheit</span><span class="tok-punct">(</span>celsius<span class="tok-punct">)</span><span class="tok-punct">:</span>
+<div class="deck-fragment"><div class="code-block" data-lang="python" data-foldable="7"><div class="code-head"><span class="code-lang">python</span><div class="code-tools"><button class="code-fold" type="button" data-fold aria-expanded="true"><span data-fold-label>收起</span><svg class="code-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">def</span> <span class="tok-function">celsius_to_fahrenheit</span><span class="tok-punct">(</span>celsius<span class="tok-punct">)</span><span class="tok-punct">:</span>
     <span class="tok-keyword">return</span> celsius <span class="tok-operator">*</span> <span class="tok-number">9</span> <span class="tok-operator">/</span> <span class="tok-number">5</span> <span class="tok-operator">+</span> <span class="tok-number">32</span>
 
 <span class="tok-keyword">if</span> __name__ <span class="tok-operator">==</span> <span class="tok-string">&#x27;__main__&#x27;</span><span class="tok-punct">:</span>
     <span class="tok-keyword">assert</span> <span class="tok-function">celsius_to_fahrenheit</span><span class="tok-punct">(</span><span class="tok-number">0</span><span class="tok-punct">)</span> <span class="tok-operator">==</span> <span class="tok-number">32</span>
     <span class="tok-keyword">assert</span> <span class="tok-function">celsius_to_fahrenheit</span><span class="tok-punct">(</span><span class="tok-number">100</span><span class="tok-punct">)</span> <span class="tok-operator">==</span> <span class="tok-number">212</span>
-    <span class="tok-builtin">print</span><span class="tok-punct">(</span><span class="tok-function">celsius_to_fahrenheit</span><span class="tok-punct">(</span><span class="tok-number">25</span><span class="tok-punct">)</span><span class="tok-punct">)</span></code></pre></div></div>
+    <span class="tok-builtin">print</span><span class="tok-punct">(</span><span class="tok-function">celsius_to_fahrenheit</span><span class="tok-punct">(</span><span class="tok-number">25</span><span class="tok-punct">)</span><span class="tok-punct">)</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p>运行 <code>python temperature.py</code>，预期输出 <code>77.0</code>。
 Windows 未激活环境时使用 <code>.venv\Scripts\python.exe temperature.py</code>。</p></div></div>
       </section>
@@ -333,9 +333,9 @@ Windows 未激活环境时使用 <code>.venv\Scripts\python.exe temperature.py</
         <div class="slide-inner"><h2>类型属于对象</h2>
 <div class="deck-fragment"><p>常见 CPython 实现先把源码编译为字节码，再执行；“逐行直接解释源码”并不准确。
 Python 是动态类型语言，名称可以绑定到不同类型的对象。</p></div>
-<div class="deck-fragment"><div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python">value <span class="tok-operator">=</span> <span class="tok-number">3</span>
+<div class="deck-fragment"><div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-python">value <span class="tok-operator">=</span> <span class="tok-number">3</span>
 value <span class="tok-operator">=</span> <span class="tok-string">&#x27;three&#x27;</span>
-<span class="tok-builtin">print</span><span class="tok-punct">(</span><span class="tok-builtin">type</span><span class="tok-punct">(</span>value<span class="tok-punct">)</span><span class="tok-punct">)</span>  <span class="tok-comment"># &lt;class &#x27;str&#x27;&gt;</span></code></pre></div></div>
+<span class="tok-builtin">print</span><span class="tok-punct">(</span><span class="tok-builtin">type</span><span class="tok-punct">(</span>value<span class="tok-punct">)</span><span class="tok-punct">)</span>  <span class="tok-comment"># &lt;class &#x27;str&#x27;&gt;</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p>类型注解表达意图，普通解释器不会自动把所有注解变成运行时校验。</p></div></div>
       </section>
       
@@ -363,12 +363,12 @@ value <span class="tok-operator">=</span> <span class="tok-string">&#x27;three&#
 </svg>
 <figcaption>Python 的变量是「名字」，赋值是把名字绑到对象上；同一个对象可以有多个名字</figcaption>
 </figure></div>
-<div class="deck-fragment"><div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python">a <span class="tok-operator">=</span> <span class="tok-punct">[</span><span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-number">2</span><span class="tok-punct">]</span>
+<div class="deck-fragment"><div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-python">a <span class="tok-operator">=</span> <span class="tok-punct">[</span><span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-number">2</span><span class="tok-punct">]</span>
 b <span class="tok-operator">=</span> a
 b<span class="tok-punct">.</span><span class="tok-function">append</span><span class="tok-punct">(</span><span class="tok-number">3</span><span class="tok-punct">)</span>
 <span class="tok-keyword">assert</span> a <span class="tok-operator">==</span> <span class="tok-punct">[</span><span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-number">2</span><span class="tok-punct">,</span> <span class="tok-number">3</span><span class="tok-punct">]</span>
 b <span class="tok-operator">=</span> <span class="tok-punct">[</span><span class="tok-number">9</span><span class="tok-punct">]</span>
-<span class="tok-keyword">assert</span> a <span class="tok-operator">==</span> <span class="tok-punct">[</span><span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-number">2</span><span class="tok-punct">,</span> <span class="tok-number">3</span><span class="tok-punct">]</span></code></pre></div></div>
+<span class="tok-keyword">assert</span> a <span class="tok-operator">==</span> <span class="tok-punct">[</span><span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-number">2</span><span class="tok-punct">,</span> <span class="tok-number">3</span><span class="tok-punct">]</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p>修改共享列表会被两个名字观察到；重新绑定 <code>b</code> 不会重新绑定 <code>a</code>。
 <code>list(a)</code> 是浅复制，嵌套的可变对象仍可能共享。</p></div></div>
       </section>
@@ -376,7 +376,7 @@ b <span class="tok-operator">=</span> <span class="tok-punct">[</span><span clas
       <section class="slide" data-slide="5"
                data-title="条件、循环与函数">
         <div class="slide-inner"><h2>条件、循环与函数</h2>
-<div class="deck-fragment"><div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">def</span> <span class="tok-function">positive_values</span><span class="tok-punct">(</span>values<span class="tok-punct">)</span><span class="tok-punct">:</span>
+<div class="deck-fragment"><div class="code-block" data-lang="python" data-foldable="9"><div class="code-head"><span class="code-lang">python</span><div class="code-tools"><button class="code-fold" type="button" data-fold aria-expanded="true"><span data-fold-label>收起</span><svg class="code-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">def</span> <span class="tok-function">positive_values</span><span class="tok-punct">(</span>values<span class="tok-punct">)</span><span class="tok-punct">:</span>
     result <span class="tok-operator">=</span> <span class="tok-punct">[</span><span class="tok-punct">]</span>
     <span class="tok-keyword">for</span> value <span class="tok-keyword">in</span> values<span class="tok-punct">:</span>
         <span class="tok-keyword">if</span> value <span class="tok-operator">&gt;</span> <span class="tok-number">0</span><span class="tok-punct">:</span>
@@ -384,21 +384,21 @@ b <span class="tok-operator">=</span> <span class="tok-punct">[</span><span clas
     <span class="tok-keyword">return</span> result
 
 <span class="tok-keyword">assert</span> <span class="tok-function">positive_values</span><span class="tok-punct">(</span><span class="tok-punct">[</span><span class="tok-operator">-</span><span class="tok-number">2</span><span class="tok-punct">,</span> <span class="tok-number">0</span><span class="tok-punct">,</span> <span class="tok-number">3</span><span class="tok-punct">,</span> <span class="tok-number">5</span><span class="tok-punct">]</span><span class="tok-punct">)</span> <span class="tok-operator">==</span> <span class="tok-punct">[</span><span class="tok-number">3</span><span class="tok-punct">,</span> <span class="tok-number">5</span><span class="tok-punct">]</span>
-<span class="tok-keyword">assert</span> <span class="tok-function">positive_values</span><span class="tok-punct">(</span><span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">)</span> <span class="tok-operator">==</span> <span class="tok-punct">[</span><span class="tok-punct">]</span></code></pre></div></div>
+<span class="tok-keyword">assert</span> <span class="tok-function">positive_values</span><span class="tok-punct">(</span><span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">)</span> <span class="tok-operator">==</span> <span class="tok-punct">[</span><span class="tok-punct">]</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p>用四个空格缩进。先把输入输出约定写清楚，再决定是否改成列表推导式。</p></div></div>
       </section>
       
       <section class="slide" data-slide="6"
                data-title="默认参数只在定义时求值">
         <div class="slide-inner"><h2>默认参数只在定义时求值</h2>
-<div class="deck-fragment"><div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">def</span> <span class="tok-function">append_value</span><span class="tok-punct">(</span>value<span class="tok-punct">,</span> items<span class="tok-operator">=</span><span class="tok-keyword">None</span><span class="tok-punct">)</span><span class="tok-punct">:</span>
+<div class="deck-fragment"><div class="code-block" data-lang="python" data-foldable="8"><div class="code-head"><span class="code-lang">python</span><div class="code-tools"><button class="code-fold" type="button" data-fold aria-expanded="true"><span data-fold-label>收起</span><svg class="code-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">def</span> <span class="tok-function">append_value</span><span class="tok-punct">(</span>value<span class="tok-punct">,</span> items<span class="tok-operator">=</span><span class="tok-keyword">None</span><span class="tok-punct">)</span><span class="tok-punct">:</span>
     <span class="tok-keyword">if</span> items <span class="tok-keyword">is</span> <span class="tok-keyword">None</span><span class="tok-punct">:</span>
         items <span class="tok-operator">=</span> <span class="tok-punct">[</span><span class="tok-punct">]</span>
     items<span class="tok-punct">.</span><span class="tok-function">append</span><span class="tok-punct">(</span>value<span class="tok-punct">)</span>
     <span class="tok-keyword">return</span> items
 
 <span class="tok-keyword">assert</span> <span class="tok-function">append_value</span><span class="tok-punct">(</span><span class="tok-number">1</span><span class="tok-punct">)</span> <span class="tok-operator">==</span> <span class="tok-punct">[</span><span class="tok-number">1</span><span class="tok-punct">]</span>
-<span class="tok-keyword">assert</span> <span class="tok-function">append_value</span><span class="tok-punct">(</span><span class="tok-number">2</span><span class="tok-punct">)</span> <span class="tok-operator">==</span> <span class="tok-punct">[</span><span class="tok-number">2</span><span class="tok-punct">]</span></code></pre></div></div>
+<span class="tok-keyword">assert</span> <span class="tok-function">append_value</span><span class="tok-punct">(</span><span class="tok-number">2</span><span class="tok-punct">)</span> <span class="tok-operator">==</span> <span class="tok-punct">[</span><span class="tok-number">2</span><span class="tok-punct">]</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p>把默认值写成 <code>items=[]</code> 会让多次调用共享一个列表。
 本例传入现有列表时会修改它，应在接口说明中明确这一点。</p></div></div>
       </section>
@@ -422,8 +422,8 @@ b <span class="tok-operator">=</span> <span class="tok-punct">[</span><span clas
                data-title="模块与入口">
         <div class="slide-inner"><h2>模块与入口</h2>
 <div class="deck-fragment"><p><code>.py</code> 文件可作为模块导入；是否使用入口判断，不决定它是不是模块。</p></div>
-<div class="deck-fragment"><div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">from</span> temperature <span class="tok-keyword">import</span> celsius_to_fahrenheit
-<span class="tok-builtin">print</span><span class="tok-punct">(</span><span class="tok-function">celsius_to_fahrenheit</span><span class="tok-punct">(</span><span class="tok-operator">-</span><span class="tok-number">40</span><span class="tok-punct">)</span><span class="tok-punct">)</span>  <span class="tok-comment"># -40.0</span></code></pre></div></div>
+<div class="deck-fragment"><div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">from</span> temperature <span class="tok-keyword">import</span> celsius_to_fahrenheit
+<span class="tok-builtin">print</span><span class="tok-punct">(</span><span class="tok-function">celsius_to_fahrenheit</span><span class="tok-punct">(</span><span class="tok-operator">-</span><span class="tok-number">40</span><span class="tok-punct">)</span><span class="tok-punct">)</span>  <span class="tok-comment"># -40.0</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p><code>if __name__ == '__main__':</code> 让演示代码只在直接执行时运行。
 普通包常用目录加 <code>__init__.py</code> 组织，命名空间包是无需该文件的另一种机制。</p></div></div>
       </section>
@@ -431,10 +431,10 @@ b <span class="tok-operator">=</span> <span class="tok-punct">[</span><span clas
       <section class="slide" data-slide="9"
                data-title="数值比较要表达容差">
         <div class="slide-inner"><h2>数值比较要表达容差</h2>
-<div class="deck-fragment"><div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">import</span> math
+<div class="deck-fragment"><div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">import</span> math
 <span class="tok-keyword">from</span> decimal <span class="tok-keyword">import</span> <span class="tok-type">Decimal</span>
 <span class="tok-keyword">assert</span> math<span class="tok-punct">.</span><span class="tok-function">isclose</span><span class="tok-punct">(</span><span class="tok-number">0.1</span> <span class="tok-operator">+</span> <span class="tok-number">0.2</span><span class="tok-punct">,</span> <span class="tok-number">0.3</span><span class="tok-punct">,</span> rel_tol<span class="tok-operator">=</span><span class="tok-number">1e-9</span><span class="tok-punct">,</span> abs_tol<span class="tok-operator">=</span><span class="tok-number">1e-12</span><span class="tok-punct">)</span>
-<span class="tok-keyword">assert</span> <span class="tok-function">Decimal</span><span class="tok-punct">(</span><span class="tok-string">&#x27;0.1&#x27;</span><span class="tok-punct">)</span> <span class="tok-operator">+</span> <span class="tok-function">Decimal</span><span class="tok-punct">(</span><span class="tok-string">&#x27;0.2&#x27;</span><span class="tok-punct">)</span> <span class="tok-operator">==</span> <span class="tok-function">Decimal</span><span class="tok-punct">(</span><span class="tok-string">&#x27;0.3&#x27;</span><span class="tok-punct">)</span></code></pre></div></div>
+<span class="tok-keyword">assert</span> <span class="tok-function">Decimal</span><span class="tok-punct">(</span><span class="tok-string">&#x27;0.1&#x27;</span><span class="tok-punct">)</span> <span class="tok-operator">+</span> <span class="tok-function">Decimal</span><span class="tok-punct">(</span><span class="tok-string">&#x27;0.2&#x27;</span><span class="tok-punct">)</span> <span class="tok-operator">==</span> <span class="tok-function">Decimal</span><span class="tok-punct">(</span><span class="tok-string">&#x27;0.3&#x27;</span><span class="tok-punct">)</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p>浮点容差要对应业务单位与规模；接近零时尤其要考虑绝对容差。
 Decimal 也有精度上下文，不等于所有计算无限精确。比较值用 <code>==</code>，判断单例空值用 <code>is None</code>。</p></div></div>
       </section>
@@ -939,8 +939,8 @@ Decimal 也有精度上下文，不等于所有计算无限精确。比较值用
 
 <script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
 
-<script src="/assets/site.js?v=afafd87f" defer></script>
-<script src="/assets/docs.js?v=afafd87f" defer></script>
+<script src="/assets/site.js?v=26c9d981" defer></script>
+<script src="/assets/docs.js?v=26c9d981" defer></script>
 
 </body>
 </html>
