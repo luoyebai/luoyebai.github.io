@@ -1043,41 +1043,77 @@
     }
   }
   (function () {
-    var imgs = document.querySelectorAll('.prose img');
-    if (!imgs.length) return;
-    imgs.forEach(function (img) {
+    var list = [].slice.call(document.querySelectorAll('.prose img'));
+    if (!list.length) return;
+    list.forEach(function (img) {
       img.classList.add('is-zoomable');
       if (!img.hasAttribute('loading')) img.setAttribute('loading', 'lazy');
     });
-    var box = null, pic = null, cap = null, opener = null;
+    var box = null, pic = null, cap = null, prevBtn = null, nextBtn = null;
+    var count = null, opener = null, index = 0;
     function build() {
       box = document.createElement('div');
       box.className = 'lightbox';
       box.setAttribute('role', 'dialog');
       box.setAttribute('aria-modal', 'true');
       box.setAttribute('aria-label', '查看大图');
-      box.innerHTML = '<button class="lightbox-close" type="button" aria-label="关闭（Esc）">' +
+      box.innerHTML =
+        '<button class="lightbox-close" type="button" aria-label="关闭（Esc）">' +
         '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" ' +
         'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>' +
-        '<figure class="lightbox-figure"><img alt=""><figcaption></figcaption></figure>';
+        '<button class="lightbox-nav is-prev" type="button" data-lb-prev aria-label="上一张（←）">' +
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" ' +
+        'stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+        '</button>' +
+        '<figure class="lightbox-figure"><img alt=""><figcaption></figcaption></figure>' +
+        '<button class="lightbox-nav is-next" type="button" data-lb-next aria-label="下一张（→）">' +
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" ' +
+        'stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+        '</button>' +
+        '<span class="lightbox-count" aria-live="polite"></span>';
       pic = box.querySelector('img');
       cap = box.querySelector('figcaption');
+      prevBtn = box.querySelector('[data-lb-prev]');
+      nextBtn = box.querySelector('[data-lb-next]');
+      count = box.querySelector('.lightbox-count');
+      if (list.length < 2) {                       // 只有一张图就不摆上一张/下一张
+        prevBtn.hidden = true;
+        nextBtn.hidden = true;
+        count.hidden = true;
+      }
       box.addEventListener('click', function (e) {
         if (e.target === pic || e.target === cap) return;
+        if (e.target.closest && e.target.closest('.lightbox-close, .lightbox-nav, .lightbox-count')) return;
         close();
       });
       box.querySelector('.lightbox-close').addEventListener('click', close);
+      prevBtn.addEventListener('click', function () { step(-1); });
+      nextBtn.addEventListener('click', function () { step(1); });
       document.body.appendChild(box);
     }
-    function open(img) {
-      if (!box) build();
-      opener = img;
+    function show(i) {
+      index = i;
+      var img = list[i];
+      opener = img;                                 // 关掉时焦点回到**当前**这张
       pic.src = img.currentSrc || img.src;
       pic.alt = img.alt || '';
       var text = (img.alt || '').trim();
       var useful = text && !/\.(png|jpe?g|webp|gif|svg)$/i.test(text);
       cap.textContent = useful ? text : '';
       cap.hidden = !useful;
+      if (count) count.textContent = (i + 1) + ' / ' + list.length;
+      prevBtn.disabled = (i === 0);
+      nextBtn.disabled = (i === list.length - 1);
+    }
+    function step(delta) {
+      var next = index + delta;
+      if (next < 0 || next >= list.length) return;
+      show(next);
+    }
+    function open(img) {
+      if (!box) build();
+      var i = list.indexOf(img);
+      show(i < 0 ? 0 : i);
       box.classList.add('is-open');
       document.documentElement.classList.add('has-lightbox');
       var btn = box.querySelector('.lightbox-close');
@@ -1099,9 +1135,17 @@
       open(img);
     });
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') close();
+      if (e.key === 'Escape') { close(); return; }
+      if (!box || !box.classList.contains('is-open')) return;
+      if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
     });
-    window.__lightbox = { open: open, close: close, isOpen: function () { return !!box && box.classList.contains('is-open'); } };
+    window.__lightbox = {
+      open: open, close: close, next: function () { step(1); },
+      prev: function () { step(-1); },
+      index: function () { return index; }, total: list.length,
+      isOpen: function () { return !!box && box.classList.contains('is-open'); }
+    };
   })();
   document.querySelectorAll('.heading-anchor').forEach(function (a) {
     a.addEventListener('click', function (ev) {
