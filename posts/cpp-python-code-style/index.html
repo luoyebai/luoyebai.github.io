@@ -31,8 +31,8 @@
 <link rel="canonical" href="https://luoyebai.github.io/posts/cpp-python-code-style/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=26c9d981">
-<link rel="stylesheet" href="/assets/site.css?v=26c9d981">
+<link rel="stylesheet" href="/assets/themes.css?v=c84f330f">
+<link rel="stylesheet" href="/assets/site.css?v=c84f330f">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
 
@@ -1042,7 +1042,7 @@ gsl<span class="tok-operator">::</span>index i <span class="tok-operator">=</spa
         <span class="tok-keyword">return</span> v<span class="tok-punct">;</span>
     <span class="tok-punct">}</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
 <p>通过值传递的函数参数很少会被修改，但也很少被声明为 <code>const</code> 。为了避免混淆和大量的误报，不要对函数参数强制执行此规则。</p>
-<ol><li>默认情况下，将成员函数设为 <code>const</code></li></ol>
+<ol start="2"><li>默认情况下，将成员函数设为 <code>const</code></li></ol>
 <p>除非成员函数会改变对象的可观察状态，否则应该将其标记为 <code>const</code> 。这样做可以更精确地表达设计意图，提高代码可读性，让编译器捕获更多错误，有时还能带来更多优化机会。</p>
 <p>示例：bad</p>
 <div class="code-block" data-lang="cpp" data-foldable="10"><div class="code-head"><span class="code-lang">cpp</span><div class="code-tools"><button class="code-fold" type="button" data-fold aria-expanded="true"><span data-fold-label>收起</span><svg class="code-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-cpp">    <span class="tok-keyword">class</span> <span class="tok-type">Point</span> <span class="tok-punct">{</span>
@@ -1055,11 +1055,11 @@ gsl<span class="tok-operator">::</span>index i <span class="tok-operator">=</spa
     <span class="tok-keyword">void</span> <span class="tok-function">f</span><span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-type">Point</span><span class="tok-operator">&amp;</span> pt<span class="tok-punct">)</span> <span class="tok-punct">{</span>
         <span class="tok-keyword">int</span> x <span class="tok-operator">=</span> pt<span class="tok-punct">.</span><span class="tok-function">getx</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>          <span class="tok-comment">// 错误：编译失败，因为 getx 未标记为 const</span>
     <span class="tok-punct">}</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
-<ol><li>默认情况下，将指针和引用传递给 <code>const</code></li></ol>
+<ol start="3"><li>默认情况下，将指针和引用传递给 <code>const</code></li></ol>
 <p>为了避免被调用函数意外地改变值。当被调用函数不修改状态时，程序更容易理解。</p>
 <div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-cpp">    <span class="tok-keyword">void</span> <span class="tok-function">f</span><span class="tok-punct">(</span><span class="tok-keyword">char</span><span class="tok-operator">*</span> p<span class="tok-punct">)</span><span class="tok-punct">;</span>        <span class="tok-comment">// f 是否会修改 *p？（我们需要假设会）</span>
     <span class="tok-keyword">void</span> <span class="tok-function">g</span><span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-keyword">char</span><span class="tok-operator">*</span> p<span class="tok-punct">)</span><span class="tok-punct">;</span>  <span class="tok-comment">// g 不修改 *p</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
-<ol><li>使用 <code>const</code> 定义构造后值不会改变的对象</li></ol>
+<ol start="4"><li>使用 <code>const</code> 定义构造后值不会改变的对象</li></ol>
 <p>防止因对象值意外更改而导致的意外情况。</p>
 <p>示例：</p>
 <div class="code-block" data-lang="cpp" data-foldable="9"><div class="code-head"><span class="code-lang">cpp</span><div class="code-tools"><button class="code-fold" type="button" data-fold aria-expanded="true"><span data-fold-label>收起</span><svg class="code-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-cpp">    <span class="tok-keyword">void</span> <span class="tok-function">f</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
@@ -1072,7 +1072,7 @@ gsl<span class="tok-operator">::</span>index i <span class="tok-operator">=</spa
         <span class="tok-comment">// ...</span>
     <span class="tok-punct">}</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
 <p>由于 <code>x</code> 不是 <code>const</code> ，我们必须假设它在循环中的某个地方被修改了。</p>
-<ol><li>对于可以在编译时计算的值，请使用 <code>constexpr</code></li></ol>
+<ol start="5"><li>对于可以在编译时计算的值，请使用 <code>constexpr</code></li></ol>
 <p>性能更佳，编译时检查更完善，保证编译时评估，不会出现竞态条件。</p>
 <p>示例：</p>
 <div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-cpp">    <span class="tok-keyword">double</span> x <span class="tok-operator">=</span> <span class="tok-function">f</span><span class="tok-punct">(</span><span class="tok-number">2</span><span class="tok-punct">)</span><span class="tok-punct">;</span>            <span class="tok-comment">// 可能在运行时执行</span>
@@ -1200,11 +1200,11 @@ v<span class="tok-punct">.</span><span class="tok-function">reserve</span><span 
 <h4 id="如何在-vscode-中使用">如何在 Vscode 中使用<a class="heading-anchor" href="#如何在-vscode-中使用" aria-label="锚点">#</a></h4>
 <ol><li>先将配置文件拷贝到项目根目录下</li><li>系统安装如下依赖（以Ubuntu为例）</li></ol>
 <div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-text">sudo apt install clang-tidy clang-format cmake-format</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
-<ol><li>Vscode 安装插件</li></ol>
+<ol start="3"><li>Vscode 安装插件</li></ol>
 <p><img src="/assets/feishu/cpp-python-code-style/fig-03.webp" alt="image.png" loading="lazy" decoding="async"></p>
 <p><img src="/assets/feishu/cpp-python-code-style/fig-04.webp" alt="image.png" loading="lazy" decoding="async"></p>
 <p><img src="/assets/feishu/cpp-python-code-style/fig-05.webp" alt="image.png" loading="lazy" decoding="async"></p>
-<ol><li>格式化快捷键：Ctrl + Shift + I</li><li>Clang-tidy 会在错误代码（警告）中标注</li></ol>
+<ol start="4"><li>格式化快捷键：Ctrl + Shift + I</li><li>Clang-tidy 会在错误代码（警告）中标注</li></ol>
 <h4 id="临时禁用格式化">临时禁用格式化<a class="heading-anchor" href="#临时禁用格式化" aria-label="锚点">#</a></h4>
 <p>在代码中添加以下注释可临时禁用格式化：</p>
 <div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-cpp"><span class="tok-comment">// clang-format off</span>
@@ -1850,7 +1850,7 @@ Python 的语法糖很多，但工程代码是写给下一个接手的人看的�
 <script defer src="/assets/vendor/katex/katex.min.js"></script>
 
 
-<script src="/assets/site.js?v=26c9d981" defer></script>
+<script src="/assets/site.js?v=c84f330f" defer></script>
 
 </body>
 </html>
