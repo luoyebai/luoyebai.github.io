@@ -31,8 +31,8 @@
 <link rel="canonical" href="https://luoyebai.github.io/posts/parallel-ankle-kinematics/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=c84f330f">
-<link rel="stylesheet" href="/assets/site.css?v=c84f330f">
+<link rel="stylesheet" href="/assets/themes.css?v=421c5846">
+<link rel="stylesheet" href="/assets/site.css?v=421c5846">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
 
@@ -40,7 +40,7 @@
 <link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 
 
-<meta property="og:image" content="https://luoyebai.github.io/assets/feishu/parallel-ankle-kinematics/fig-03.webp">
+<meta property="og:image" content="https://luoyebai.github.io/assets/uploads/yxz3pd-yxz3pd-5f025e515c.webp">
   <meta name="author" content="洛叶白">
 <script>
 /* 在首次绘制前恢复外观偏好；URL 参数优先，便于分享特定主题的链接 */
@@ -165,9 +165,9 @@
   <header class="phero has-media">
     
     <div class="phero-media media-shim">
-      <img src="/assets/feishu/parallel-ankle-kinematics/fig-03.webp"
+      <img src="/assets/uploads/yxz3pd-yxz3pd-5f025e515c.webp"
            alt="" aria-hidden="true"
-           width="1600" height="766"
+           width="1920" height="1080"
            style="object-position: 50% 50%"
            fetchpriority="high" decoding="async">
     </div>
@@ -229,35 +229,7 @@
                   stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
-        <ul id="toc-list">
-          
-          <li class="toc-l2"><a href="#脚踝并联解算需求">脚踝并联解算需求</a></li>
-          
-          <li class="toc-l2"><a href="#通过采集数据进行函数拟合">通过采集数据进行函数拟合</a></li>
-          
-          <li class="toc-l3"><a href="#通过solidworks进行数据采集">通过Solidworks进行数据采集</a></li>
-          
-          <li class="toc-l3"><a href="#数据形式和脚本使用方式">数据形式和脚本使用方式</a></li>
-          
-          <li class="toc-l4"><a href="#数据形式">数据形式</a></li>
-          
-          <li class="toc-l4"><a href="#脚本使用方式">脚本使用方式</a></li>
-          
-          <li class="toc-l2"><a href="#通过正逆运动学解算得到答案">通过正逆运动学解算得到答案</a></li>
-          
-          <li class="toc-l3"><a href="#正逆运动学解算的推导">正逆运动学解算的推导</a></li>
-          
-          <li class="toc-l4"><a href="#逆运动学解算">逆运动学解算</a></li>
-          
-          <li class="toc-l4"><a href="#正运动学解算">正运动学解算</a></li>
-          
-          <li class="toc-l3"><a href="#静力学计算">静力学计算</a></li>
-          
-          <li class="toc-l4"><a href="#变量与共轭广义力">变量与共轭广义力</a></li>
-          
-          <li class="toc-l4"><a href="#虚功原理">虚功原理</a></li>
-          
-        </ul>
+        <ul class="toc-list"><li class="toc-item toc-l2"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#脚踝并联解算需求">脚踝并联解算需求</a></div></li><li class="toc-item toc-l2 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#通过采集数据进行函数拟合">通过采集数据进行函数拟合</a></div><ul class="toc-list"><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#通过solidworks进行数据采集">通过Solidworks进行数据采集</a></div></li><li class="toc-item toc-l3 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#数据形式和脚本使用方式">数据形式和脚本使用方式</a></div><ul class="toc-list"><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#数据形式">数据形式</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#脚本使用方式">脚本使用方式</a></div></li></ul></li></ul></li><li class="toc-item toc-l2 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#通过正逆运动学解算得到答案">通过正逆运动学解算得到答案</a></div><ul class="toc-list"><li class="toc-item toc-l3 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#正逆运动学解算的推导">正逆运动学解算的推导</a></div><ul class="toc-list"><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#逆运动学解算">逆运动学解算</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#正运动学解算">正运动学解算</a></div></li></ul></li><li class="toc-item toc-l3 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#静力学计算">静力学计算</a></div><ul class="toc-list"><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#变量与共轭广义力">变量与共轭广义力</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#虚功原理">虚功原理</a></div></li></ul></li></ul></li></ul>
       </nav>
     </aside>
     
@@ -266,9 +238,7 @@
       
       <details class="mobile-toc">
         <summary>本页目录</summary>
-        <nav aria-label="本页目录"><ul>
-          <li class="toc-l2"><a href="#脚踝并联解算需求">脚踝并联解算需求</a></li><li class="toc-l2"><a href="#通过采集数据进行函数拟合">通过采集数据进行函数拟合</a></li><li class="toc-l3"><a href="#通过solidworks进行数据采集">通过Solidworks进行数据采集</a></li><li class="toc-l3"><a href="#数据形式和脚本使用方式">数据形式和脚本使用方式</a></li><li class="toc-l4"><a href="#数据形式">数据形式</a></li><li class="toc-l4"><a href="#脚本使用方式">脚本使用方式</a></li><li class="toc-l2"><a href="#通过正逆运动学解算得到答案">通过正逆运动学解算得到答案</a></li><li class="toc-l3"><a href="#正逆运动学解算的推导">正逆运动学解算的推导</a></li><li class="toc-l4"><a href="#逆运动学解算">逆运动学解算</a></li><li class="toc-l4"><a href="#正运动学解算">正运动学解算</a></li><li class="toc-l3"><a href="#静力学计算">静力学计算</a></li><li class="toc-l4"><a href="#变量与共轭广义力">变量与共轭广义力</a></li><li class="toc-l4"><a href="#虚功原理">虚功原理</a></li>
-        </ul></nav>
+        <nav aria-label="本页目录"><ul class="toc-list"><li class="toc-item toc-l2"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#脚踝并联解算需求">脚踝并联解算需求</a></div></li><li class="toc-item toc-l2 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#通过采集数据进行函数拟合">通过采集数据进行函数拟合</a></div><ul class="toc-list"><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#通过solidworks进行数据采集">通过Solidworks进行数据采集</a></div></li><li class="toc-item toc-l3 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#数据形式和脚本使用方式">数据形式和脚本使用方式</a></div><ul class="toc-list"><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#数据形式">数据形式</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#脚本使用方式">脚本使用方式</a></div></li></ul></li></ul></li><li class="toc-item toc-l2 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#通过正逆运动学解算得到答案">通过正逆运动学解算得到答案</a></div><ul class="toc-list"><li class="toc-item toc-l3 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#正逆运动学解算的推导">正逆运动学解算的推导</a></div><ul class="toc-list"><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#逆运动学解算">逆运动学解算</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#正运动学解算">正运动学解算</a></div></li></ul></li><li class="toc-item toc-l3 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#静力学计算">静力学计算</a></div><ul class="toc-list"><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#变量与共轭广义力">变量与共轭广义力</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#虚功原理">虚功原理</a></div></li></ul></li></ul></li></ul></nav>
       </details>
       
 
@@ -564,9 +534,9 @@ q_2
     
     <div class="card-cover media-shim">
       
-      <img src="/assets/feishu/quadruped-mpc-kinematics/fig-07.webp"
+      <img src="/assets/uploads/5gk7m5-5gk7m5-e4275914b4.webp"
            alt=""
-           width="914" height="309"
+           width="1920" height="1080"
            style="object-position: 50% 50%"
            loading="lazy" decoding="async">
       <span class="card-cover-veil"></span>
@@ -586,7 +556,7 @@ q_2
         <span>27 分钟</span>
         <span class="card-meta-end">
           
-          
+          <span class="pin" title="精选">精选</span>
           <span class="card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/>
@@ -604,9 +574,9 @@ q_2
     
     <div class="card-cover media-shim">
       
-      <img src="/assets/feishu/small-humanoid-consensus/fig-08.webp"
+      <img src="/assets/uploads/gpzko7-gpzko7-996c03172c.webp"
            alt=""
-           width="1600" height="956"
+           width="1920" height="1080"
            style="object-position: 50% 50%"
            loading="lazy" decoding="async">
       <span class="card-cover-veil"></span>
@@ -644,9 +614,9 @@ q_2
     
     <div class="card-cover media-shim">
       
-      <img src="/assets/feishu/humanoid-0-to-1-toolchain/fig-13.webp"
+      <img src="/assets/uploads/3l17mv-3l17mv-e9cda3a5fa.webp"
            alt=""
-           width="1600" height="882"
+           width="1920" height="1080"
            style="object-position: 50% 50%"
            loading="lazy" decoding="async">
       <span class="card-cover-veil"></span>
@@ -1160,7 +1130,7 @@ q_2
 <script defer src="/assets/vendor/katex/katex.min.js"></script>
 
 
-<script src="/assets/site.js?v=c84f330f" defer></script>
+<script src="/assets/site.js?v=421c5846" defer></script>
 
 </body>
 </html>

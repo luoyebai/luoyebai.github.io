@@ -451,9 +451,15 @@
   el.innerHTML =
     '<span class="cursor-ring"></span>' +
     '<span class="cursor-dot"></span>' +
+    '<span class="cursor-icon">' +
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"' +
+    ' stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/>' +
+    '<path d="M15.4 15.4 21 21"/><path d="M10.5 7.6v5.8M7.6 10.5h5.8"/></svg>' +
+    '</span>' +
     '<span class="cursor-label"></span>';
   var ring = el.querySelector('.cursor-ring');
   var dot = el.querySelector('.cursor-dot');
+  var icon = el.querySelector('.cursor-icon');
   var label = el.querySelector('.cursor-label');
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
   var x = -100, y = -100, rx = -100, ry = -100, dx = -100, dy = -100;
@@ -512,6 +518,8 @@
     if (text) return { s: 'native', t: '' };
     var dis = target.closest('[disabled],[aria-disabled="true"]');
     if (dis) return { s: 'native', t: '' };
+    var zoom = target.closest('img.is-zoomable');
+    if (zoom && !zoom.closest('a')) return { s: 'zoom', t: '看原图' };
     var inter = target.closest(interactive);
     if (inter) return { s: 'link', t: inter.getAttribute('data-cursor-hint') || '' };
     return { s: '', t: '' };
@@ -967,13 +975,37 @@
         setToc(!toc.classList.contains('is-folded'), true);
       });
     }
+    document.querySelectorAll('.toc, .mobile-toc').forEach(function (box) {
+      box.addEventListener('click', function (ev) {
+        var btn = ev.target.closest('[data-toc-node]');
+        if (!btn) return;
+        ev.preventDefault();
+        var li = btn.closest('.toc-item');
+        if (!li) return;
+        var collapsed = li.classList.toggle('is-collapsed');
+        btn.setAttribute('aria-expanded', String(!collapsed));
+        btn.setAttribute('aria-label', collapsed ? '展开这一节' : '折叠这一节');
+        markCurrent(toc.querySelector('a.is-active'));
+      });
+    });
+    var litNode = null;          // 当前点亮的那个箭头
     var markCurrent = function (a) {
-      if (!cur || !a) return;
+      if (!a) return;
       var t = a.textContent.trim();
-      if (cur.textContent !== t) cur.textContent = t;
+      if (cur && cur.textContent !== t) cur.textContent = t;
+      var hit = null, li = a.closest('.toc-item');
+      while (li && !hit) {
+        if (li.classList.contains('has-kids') && li.classList.contains('is-collapsed')) {
+          hit = li.querySelector(':scope > .toc-row > .toc-node');
+        }
+        li = li.parentElement ? li.parentElement.closest('.toc-item') : null;
+      }
+      if (litNode === hit) return;
+      if (litNode) litNode.classList.remove('is-active-branch');
+      litNode = hit;
+      if (litNode) litNode.classList.add('is-active-branch');
     };
-    var active = toc.querySelector('a.is-active');
-    markCurrent(active);
+    markCurrent(toc.querySelector('a.is-active'));
     if (window.MutationObserver) {
       new MutationObserver(function () {
         markCurrent(toc.querySelector('a.is-active'));

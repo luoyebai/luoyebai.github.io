@@ -31,8 +31,8 @@
 <link rel="canonical" href="https://luoyebai.github.io/posts/cpp-toolchain/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=c84f330f">
-<link rel="stylesheet" href="/assets/site.css?v=c84f330f">
+<link rel="stylesheet" href="/assets/themes.css?v=421c5846">
+<link rel="stylesheet" href="/assets/site.css?v=421c5846">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
 
@@ -40,7 +40,8 @@
 <link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 
 
-<meta name="author" content="洛叶白">
+<meta property="og:image" content="https://luoyebai.github.io/assets/bg/paper.webp">
+  <meta name="author" content="洛叶白">
 <script>
 /* 在首次绘制前恢复外观偏好；URL 参数优先，便于分享特定主题的链接 */
 (function () {
@@ -161,7 +162,15 @@
 
 <article class="post">
   
-  <header class="phero is-plain">
+  <header class="phero has-media">
+    
+    <div class="phero-media media-shim">
+      <img src="/assets/bg/paper.webp"
+           alt="" aria-hidden="true"
+           width="1920" height="1080"
+           style="object-position: 50% 50%"
+           fetchpriority="high" decoding="async">
+    </div>
     
     <span class="phero-scrim" aria-hidden="true"></span>
 
@@ -220,41 +229,7 @@
                   stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
-        <ul id="toc-list">
-          
-          <li class="toc-l2"><a href="#构建工具">构建工具</a></li>
-          
-          <li class="toc-l3"><a href="#cmake">CMake</a></li>
-          
-          <li class="toc-l3"><a href="#xmake">Xmake</a></li>
-          
-          <li class="toc-l3"><a href="#meson-ninja">Meson + Ninja</a></li>
-          
-          <li class="toc-l2"><a href="#调试与分析">调试与分析</a></li>
-          
-          <li class="toc-l3"><a href="#gdb-lldb">gdb / lldb</a></li>
-          
-          <li class="toc-l3"><a href="#rr">rr</a></li>
-          
-          <li class="toc-l3"><a href="#sanitizers">sanitizers</a></li>
-          
-          <li class="toc-l3"><a href="#perf">perf</a></li>
-          
-          <li class="toc-l2"><a href="#依赖管理">依赖管理</a></li>
-          
-          <li class="toc-l3"><a href="#vcpkg">vcpkg</a></li>
-          
-          <li class="toc-l3"><a href="#conan">Conan</a></li>
-          
-          <li class="toc-l2"><a href="#代码质量">代码质量</a></li>
-          
-          <li class="toc-l3"><a href="#clang-tidy">clang-tidy</a></li>
-          
-          <li class="toc-l3"><a href="#clang-format">clang-format</a></li>
-          
-          <li class="toc-l3"><a href="#lizard">Lizard</a></li>
-          
-        </ul>
+        <ul class="toc-list"><li class="toc-item toc-l2 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#构建工具">构建工具</a></div><ul class="toc-list"><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#cmake">CMake</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#xmake">Xmake</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#meson-ninja">Meson + Ninja</a></div></li></ul></li><li class="toc-item toc-l2 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#调试与分析">调试与分析</a></div><ul class="toc-list"><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#gdb-lldb">gdb / lldb</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#rr">rr</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#sanitizers">sanitizers</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#perf">perf</a></div></li></ul></li><li class="toc-item toc-l2 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#依赖管理">依赖管理</a></div><ul class="toc-list"><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#vcpkg">vcpkg</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#conan">Conan</a></div></li></ul></li><li class="toc-item toc-l2 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#代码质量">代码质量</a></div><ul class="toc-list"><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#clang-tidy">clang-tidy</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#clang-format">clang-format</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#lizard">Lizard</a></div></li></ul></li></ul>
       </nav>
     </aside>
     
@@ -263,9 +238,7 @@
       
       <details class="mobile-toc">
         <summary>本页目录</summary>
-        <nav aria-label="本页目录"><ul>
-          <li class="toc-l2"><a href="#构建工具">构建工具</a></li><li class="toc-l3"><a href="#cmake">CMake</a></li><li class="toc-l3"><a href="#xmake">Xmake</a></li><li class="toc-l3"><a href="#meson-ninja">Meson + Ninja</a></li><li class="toc-l2"><a href="#调试与分析">调试与分析</a></li><li class="toc-l3"><a href="#gdb-lldb">gdb / lldb</a></li><li class="toc-l3"><a href="#rr">rr</a></li><li class="toc-l3"><a href="#sanitizers">sanitizers</a></li><li class="toc-l3"><a href="#perf">perf</a></li><li class="toc-l2"><a href="#依赖管理">依赖管理</a></li><li class="toc-l3"><a href="#vcpkg">vcpkg</a></li><li class="toc-l3"><a href="#conan">Conan</a></li><li class="toc-l2"><a href="#代码质量">代码质量</a></li><li class="toc-l3"><a href="#clang-tidy">clang-tidy</a></li><li class="toc-l3"><a href="#clang-format">clang-format</a></li><li class="toc-l3"><a href="#lizard">Lizard</a></li>
-        </ul></nav>
+        <nav aria-label="本页目录"><ul class="toc-list"><li class="toc-item toc-l2 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#构建工具">构建工具</a></div><ul class="toc-list"><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#cmake">CMake</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#xmake">Xmake</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#meson-ninja">Meson + Ninja</a></div></li></ul></li><li class="toc-item toc-l2 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#调试与分析">调试与分析</a></div><ul class="toc-list"><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#gdb-lldb">gdb / lldb</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#rr">rr</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#sanitizers">sanitizers</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#perf">perf</a></div></li></ul></li><li class="toc-item toc-l2 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#依赖管理">依赖管理</a></div><ul class="toc-list"><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#vcpkg">vcpkg</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#conan">Conan</a></div></li></ul></li><li class="toc-item toc-l2 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#代码质量">代码质量</a></div><ul class="toc-list"><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#clang-tidy">clang-tidy</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#clang-format">clang-format</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#lizard">Lizard</a></div></li></ul></li></ul></nav>
       </details>
       
 
@@ -633,9 +606,9 @@ gdb/rr 查崩溃、sanitizer 查内存与并发、perf 查性能、clang-tidy/cl
     
     <div class="card-cover media-shim">
       
-      <img src="/assets/feishu/small-humanoid-consensus/fig-08.webp"
+      <img src="/assets/uploads/gpzko7-gpzko7-996c03172c.webp"
            alt=""
-           width="1600" height="956"
+           width="1920" height="1080"
            style="object-position: 50% 50%"
            loading="lazy" decoding="async">
       <span class="card-cover-veil"></span>
@@ -1149,7 +1122,7 @@ gdb/rr 查崩溃、sanitizer 查内存与并发、perf 查性能、clang-tidy/cl
 <script defer src="/assets/vendor/katex/katex.min.js"></script>
 
 
-<script src="/assets/site.js?v=c84f330f" defer></script>
+<script src="/assets/site.js?v=421c5846" defer></script>
 
 </body>
 </html>

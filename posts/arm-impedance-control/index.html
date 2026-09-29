@@ -31,8 +31,8 @@
 <link rel="canonical" href="https://luoyebai.github.io/posts/arm-impedance-control/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=c84f330f">
-<link rel="stylesheet" href="/assets/site.css?v=c84f330f">
+<link rel="stylesheet" href="/assets/themes.css?v=421c5846">
+<link rel="stylesheet" href="/assets/site.css?v=421c5846">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
 
@@ -231,23 +231,7 @@
                   stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
-        <ul id="toc-list">
-          
-          <li class="toc-l2"><a href="#三种方式输入和输出不同">三种方式，输入和输出不同</a></li>
-          
-          <li class="toc-l2"><a href="#先把符号与单位写对">先把符号与单位写对</a></li>
-          
-          <li class="toc-l2"><a href="#一个可运行的一维计算">一个可运行的一维计算</a></li>
-          
-          <li class="toc-l2"><a href="#导纳把力反馈变成运动参考">导纳：把力反馈变成运动参考</a></li>
-          
-          <li class="toc-l2"><a href="#力位混合先选对坐标系">力位混合：先选对坐标系</a></li>
-          
-          <li class="toc-l2"><a href="#参数调试的顺序">参数调试的顺序</a></li>
-          
-          <li class="toc-l2"><a href="#评价一次接触任务">评价一次接触任务</a></li>
-          
-        </ul>
+        <ul class="toc-list"><li class="toc-item toc-l2"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#三种方式输入和输出不同">三种方式，输入和输出不同</a></div></li><li class="toc-item toc-l2"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#先把符号与单位写对">先把符号与单位写对</a></div></li><li class="toc-item toc-l2"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#一个可运行的一维计算">一个可运行的一维计算</a></div></li><li class="toc-item toc-l2"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#导纳把力反馈变成运动参考">导纳：把力反馈变成运动参考</a></div></li><li class="toc-item toc-l2"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#力位混合先选对坐标系">力位混合：先选对坐标系</a></div></li><li class="toc-item toc-l2"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#参数调试的顺序">参数调试的顺序</a></div></li><li class="toc-item toc-l2"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#评价一次接触任务">评价一次接触任务</a></div></li></ul>
       </nav>
     </aside>
     
@@ -256,9 +240,7 @@
       
       <details class="mobile-toc">
         <summary>本页目录</summary>
-        <nav aria-label="本页目录"><ul>
-          <li class="toc-l2"><a href="#三种方式输入和输出不同">三种方式，输入和输出不同</a></li><li class="toc-l2"><a href="#先把符号与单位写对">先把符号与单位写对</a></li><li class="toc-l2"><a href="#一个可运行的一维计算">一个可运行的一维计算</a></li><li class="toc-l2"><a href="#导纳把力反馈变成运动参考">导纳：把力反馈变成运动参考</a></li><li class="toc-l2"><a href="#力位混合先选对坐标系">力位混合：先选对坐标系</a></li><li class="toc-l2"><a href="#参数调试的顺序">参数调试的顺序</a></li><li class="toc-l2"><a href="#评价一次接触任务">评价一次接触任务</a></li>
-        </ul></nav>
+        <nav aria-label="本页目录"><ul class="toc-list"><li class="toc-item toc-l2"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#三种方式输入和输出不同">三种方式，输入和输出不同</a></div></li><li class="toc-item toc-l2"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#先把符号与单位写对">先把符号与单位写对</a></div></li><li class="toc-item toc-l2"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#一个可运行的一维计算">一个可运行的一维计算</a></div></li><li class="toc-item toc-l2"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#导纳把力反馈变成运动参考">导纳：把力反馈变成运动参考</a></div></li><li class="toc-item toc-l2"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#力位混合先选对坐标系">力位混合：先选对坐标系</a></div></li><li class="toc-item toc-l2"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#参数调试的顺序">参数调试的顺序</a></div></li><li class="toc-item toc-l2"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#评价一次接触任务">评价一次接触任务</a></div></li></ul></nav>
       </details>
       
 
@@ -327,9 +309,9 @@ force<span class="tok-punct">,</span> damping <span class="tok-operator">=</span
     
     <div class="card-cover media-shim">
       
-      <img src="/assets/feishu/quadruped-mpc-kinematics/fig-07.webp"
+      <img src="/assets/uploads/5gk7m5-5gk7m5-e4275914b4.webp"
            alt=""
-           width="914" height="309"
+           width="1920" height="1080"
            style="object-position: 50% 50%"
            loading="lazy" decoding="async">
       <span class="card-cover-veil"></span>
@@ -349,7 +331,7 @@ force<span class="tok-punct">,</span> damping <span class="tok-operator">=</span
         <span>27 分钟</span>
         <span class="card-meta-end">
           
-          
+          <span class="pin" title="精选">精选</span>
           <span class="card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/>
@@ -367,9 +349,9 @@ force<span class="tok-punct">,</span> damping <span class="tok-operator">=</span
     
     <div class="card-cover media-shim">
       
-      <img src="/assets/feishu/sam3-foundationpose-6d-pose/fig-01.webp"
+      <img src="/assets/uploads/8xvppo-8xvppo-a9ab39deb6.webp"
            alt=""
-           width="1600" height="900"
+           width="2000" height="1125"
            style="object-position: 50% 50%"
            loading="lazy" decoding="async">
       <span class="card-cover-veil"></span>
@@ -407,9 +389,9 @@ force<span class="tok-punct">,</span> damping <span class="tok-operator">=</span
     
     <div class="card-cover media-shim">
       
-      <img src="/assets/feishu/parallel-ankle-kinematics/fig-03.webp"
+      <img src="/assets/uploads/yxz3pd-yxz3pd-5f025e515c.webp"
            alt=""
-           width="1600" height="766"
+           width="1920" height="1080"
            style="object-position: 50% 50%"
            loading="lazy" decoding="async">
       <span class="card-cover-veil"></span>
@@ -923,7 +905,7 @@ force<span class="tok-punct">,</span> damping <span class="tok-operator">=</span
 <script defer src="/assets/vendor/katex/katex.min.js"></script>
 
 
-<script src="/assets/site.js?v=c84f330f" defer></script>
+<script src="/assets/site.js?v=421c5846" defer></script>
 
 </body>
 </html>

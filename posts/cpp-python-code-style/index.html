@@ -31,8 +31,8 @@
 <link rel="canonical" href="https://luoyebai.github.io/posts/cpp-python-code-style/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=c84f330f">
-<link rel="stylesheet" href="/assets/site.css?v=c84f330f">
+<link rel="stylesheet" href="/assets/themes.css?v=421c5846">
+<link rel="stylesheet" href="/assets/site.css?v=421c5846">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
 
@@ -40,7 +40,7 @@
 <link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 
 
-<meta property="og:image" content="https://luoyebai.github.io/assets/feishu/cpp-python-code-style/fig-02.webp">
+<meta property="og:image" content="https://luoyebai.github.io/assets/uploads/w5opq7-w5opq7-d521b09390.webp">
   <meta name="author" content="洛叶白">
 <script>
 /* 在首次绘制前恢复外观偏好；URL 参数优先，便于分享特定主题的链接 */
@@ -165,9 +165,9 @@
   <header class="phero has-media">
     
     <div class="phero-media media-shim">
-      <img src="/assets/feishu/cpp-python-code-style/fig-02.webp"
+      <img src="/assets/uploads/w5opq7-w5opq7-d521b09390.webp"
            alt="" aria-hidden="true"
-           width="1412" height="619"
+           width="1920" height="1080"
            style="object-position: 50% 50%"
            fetchpriority="high" decoding="async">
     </div>
@@ -229,125 +229,7 @@
                   stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
-        <ul id="toc-list">
-          
-          <li class="toc-l2"><a href="#概述">概述</a></li>
-          
-          <li class="toc-l2"><a href="#c-代码规范">C++ 代码规范</a></li>
-          
-          <li class="toc-l3"><a href="#头文件">头文件</a></li>
-          
-          <li class="toc-l4"><a href="#所有头文件应该自给自足">所有头文件应该自给自足</a></li>
-          
-          <li class="toc-l4"><a href="#前向声明">前向声明</a></li>
-          
-          <li class="toc-l4"><a href="#include-的路径及顺序">`#include` 的路径及顺序</a></li>
-          
-          <li class="toc-l3"><a href="#作用域">作用域</a></li>
-          
-          <li class="toc-l4"><a href="#命名空间">命名空间</a></li>
-          
-          <li class="toc-l4"><a href="#局部变量">局部变量</a></li>
-          
-          <li class="toc-l4"><a href="#静态变量和全局变量及-thread-local-变量">静态变量和全局变量及 thread_local 变量</a></li>
-          
-          <li class="toc-l3"><a href="#类">类</a></li>
-          
-          <li class="toc-l4"><a href="#构造函数的内部操作">构造函数的内部操作</a></li>
-          
-          <li class="toc-l4"><a href="#struct和class-的选择">`struct`和`class` 的选择</a></li>
-          
-          <li class="toc-l4"><a href="#隐式类型转换">隐式类型转换</a></li>
-          
-          <li class="toc-l4"><a href="#成员数据类型的选择">成员数据类型的选择</a></li>
-          
-          <li class="toc-l4"><a href="#继承">继承</a></li>
-          
-          <li class="toc-l4"><a href="#运算符重载">运算符重载</a></li>
-          
-          <li class="toc-l4"><a href="#可见性和声明次序">可见性和声明次序</a></li>
-          
-          <li class="toc-l3"><a href="#函数">函数</a></li>
-          
-          <li class="toc-l4"><a href="#函数应当执行单一逻辑">函数应当执行单一逻辑</a></li>
-          
-          <li class="toc-l4"><a href="#保持函数简短且简单">保持函数简短且简单</a></li>
-          
-          <li class="toc-l4"><a href="#函数如果不能抛出异常声明-noexcept">函数如果不能抛出异常，声明 `noexcept`</a></li>
-          
-          <li class="toc-l4"><a href="#对于通用函数而言使用-t-或-t-传递参数">对于通用函数而言，使用 `T*` 或 `T&amp;` 传递参数</a></li>
-          
-          <li class="toc-l4"><a href="#优先使用纯函数">优先使用纯函数</a></li>
-          
-          <li class="toc-l4"><a href="#优先使用简单和惯用的信息传递方式">优先使用简单和惯用的信息传递方式</a></li>
-          
-          <li class="toc-l4"><a href="#要返回多个输出值优先使用结构体">要返回多个“输出”值，优先使用结构体</a></li>
-          
-          <li class="toc-l4"><a href="#当无参数是一个有效选项时优先使用-t-而不是-t">当“无参数”是一个有效选项时，优先使用 `T*` 而不是 `T&amp;`</a></li>
-          
-          <li class="toc-l4"><a href="#避免在将在非局部使用包括返回存储在堆上或传递给另一个线程的-lambda-中通过引用捕获">避免在将在非局部使用（包括返回、存储在堆上或传递给另一个线程）的 lambda 中通过引用捕获</a></li>
-          
-          <li class="toc-l3"><a href="#c-技巧和最佳实践">C++ 技巧和最佳实践</a></li>
-          
-          <li class="toc-l4"><a href="#代码中直接表达思想">代码中直接表达思想</a></li>
-          
-          <li class="toc-l4"><a href="#使用-iso-标准-c-编写">使用 ISO 标准 C++ 编写</a></li>
-          
-          <li class="toc-l4"><a href="#表达意图">表达意图</a></li>
-          
-          <li class="toc-l4"><a href="#理想情况下程序应该是静态类型安全的">理想情况下，程序应该是静态类型安全的</a></li>
-          
-          <li class="toc-l4"><a href="#优先选择编译时检查而非运行时检查">优先选择编译时检查而非运行时检查</a></li>
-          
-          <li class="toc-l4"><a href="#尽早捕获运行时错误">尽早捕获运行时错误</a></li>
-          
-          <li class="toc-l4"><a href="#不要泄露任何资源">不要泄露任何资源</a></li>
-          
-          <li class="toc-l4"><a href="#不要浪费时间和空间">不要浪费时间和空间</a></li>
-          
-          <li class="toc-l4"><a href="#优先选择不可变数据而非可变数据">优先选择不可变数据而非可变数据</a></li>
-          
-          <li class="toc-l4"><a href="#将混乱的结构封装起来而不是散布在代码各处">将混乱的结构封装起来，而不是散布在代码各处</a></li>
-          
-          <li class="toc-l4"><a href="#酌情使用辅助工具和支持库">酌情使用辅助工具和支持库</a></li>
-          
-          <li class="toc-l3"><a href="#命名约定和注释">命名约定和注释</a></li>
-          
-          <li class="toc-l4"><a href="#类型命名">类型命名</a></li>
-          
-          <li class="toc-l4"><a href="#变量命名">变量命名</a></li>
-          
-          <li class="toc-l4"><a href="#函数命名">函数命名</a></li>
-          
-          <li class="toc-l4"><a href="#其他命名">其他命名</a></li>
-          
-          <li class="toc-l3"><a href="#cmake-相关模板">CMake 相关模板</a></li>
-          
-          <li class="toc-l3"><a href="#代码格式及相关检查工具">代码格式及相关检查工具</a></li>
-          
-          <li class="toc-l4"><a href="#配置文件">配置文件</a></li>
-          
-          <li class="toc-l4"><a href="#如何在-vscode-中使用">如何在 Vscode 中使用</a></li>
-          
-          <li class="toc-l4"><a href="#临时禁用格式化">临时禁用格式化</a></li>
-          
-          <li class="toc-l2"><a href="#python-代码规范">Python 代码规范</a></li>
-          
-          <li class="toc-l3"><a href="#格式与命名">格式与命名</a></li>
-          
-          <li class="toc-l3"><a href="#类型标注">类型标注</a></li>
-          
-          <li class="toc-l3"><a href="#异常与资源">异常与资源</a></li>
-          
-          <li class="toc-l3"><a href="#数值与并发">数值与并发</a></li>
-          
-          <li class="toc-l3"><a href="#工程约定">工程约定</a></li>
-          
-          <li class="toc-l2"><a href="#操作系统架构-平台相关注意事项">操作系统/架构 平台相关注意事项</a></li>
-          
-          <li class="toc-l3"><a href="#总体原则">总体原则</a></li>
-          
-        </ul>
+        <ul class="toc-list"><li class="toc-item toc-l2"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#概述">概述</a></div></li><li class="toc-item toc-l2 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#c-代码规范">C++ 代码规范</a></div><ul class="toc-list"><li class="toc-item toc-l3 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#头文件">头文件</a></div><ul class="toc-list"><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#所有头文件应该自给自足">所有头文件应该自给自足</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#前向声明">前向声明</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#include-的路径及顺序">`#include` 的路径及顺序</a></div></li></ul></li><li class="toc-item toc-l3 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#作用域">作用域</a></div><ul class="toc-list"><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#命名空间">命名空间</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#局部变量">局部变量</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#静态变量和全局变量及-thread-local-变量">静态变量和全局变量及 thread_local 变量</a></div></li></ul></li><li class="toc-item toc-l3 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#类">类</a></div><ul class="toc-list"><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#构造函数的内部操作">构造函数的内部操作</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#struct和class-的选择">`struct`和`class` 的选择</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#隐式类型转换">隐式类型转换</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#成员数据类型的选择">成员数据类型的选择</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#继承">继承</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#运算符重载">运算符重载</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#可见性和声明次序">可见性和声明次序</a></div></li></ul></li><li class="toc-item toc-l3 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#函数">函数</a></div><ul class="toc-list"><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#函数应当执行单一逻辑">函数应当执行单一逻辑</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#保持函数简短且简单">保持函数简短且简单</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#函数如果不能抛出异常声明-noexcept">函数如果不能抛出异常，声明 `noexcept`</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#对于通用函数而言使用-t-或-t-传递参数">对于通用函数而言，使用 `T*` 或 `T&amp;` 传递参数</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#优先使用纯函数">优先使用纯函数</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#优先使用简单和惯用的信息传递方式">优先使用简单和惯用的信息传递方式</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#要返回多个输出值优先使用结构体">要返回多个“输出”值，优先使用结构体</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#当无参数是一个有效选项时优先使用-t-而不是-t">当“无参数”是一个有效选项时，优先使用 `T*` 而不是 `T&amp;`</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#避免在将在非局部使用包括返回存储在堆上或传递给另一个线程的-lambda-中通过引用捕获">避免在将在非局部使用（包括返回、存储在堆上或传递给另一个线程）的 lambda 中通过引用捕获</a></div></li></ul></li><li class="toc-item toc-l3 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#c-技巧和最佳实践">C++ 技巧和最佳实践</a></div><ul class="toc-list"><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#代码中直接表达思想">代码中直接表达思想</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#使用-iso-标准-c-编写">使用 ISO 标准 C++ 编写</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#表达意图">表达意图</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#理想情况下程序应该是静态类型安全的">理想情况下，程序应该是静态类型安全的</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#优先选择编译时检查而非运行时检查">优先选择编译时检查而非运行时检查</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#尽早捕获运行时错误">尽早捕获运行时错误</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#不要泄露任何资源">不要泄露任何资源</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#不要浪费时间和空间">不要浪费时间和空间</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#优先选择不可变数据而非可变数据">优先选择不可变数据而非可变数据</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#将混乱的结构封装起来而不是散布在代码各处">将混乱的结构封装起来，而不是散布在代码各处</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#酌情使用辅助工具和支持库">酌情使用辅助工具和支持库</a></div></li></ul></li><li class="toc-item toc-l3 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#命名约定和注释">命名约定和注释</a></div><ul class="toc-list"><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#类型命名">类型命名</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#变量命名">变量命名</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#函数命名">函数命名</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#其他命名">其他命名</a></div></li></ul></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#cmake-相关模板">CMake 相关模板</a></div></li><li class="toc-item toc-l3 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#代码格式及相关检查工具">代码格式及相关检查工具</a></div><ul class="toc-list"><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#配置文件">配置文件</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#如何在-vscode-中使用">如何在 Vscode 中使用</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#临时禁用格式化">临时禁用格式化</a></div></li></ul></li></ul></li><li class="toc-item toc-l2 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#python-代码规范">Python 代码规范</a></div><ul class="toc-list"><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#格式与命名">格式与命名</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#类型标注">类型标注</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#异常与资源">异常与资源</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#数值与并发">数值与并发</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#工程约定">工程约定</a></div></li></ul></li><li class="toc-item toc-l2 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#操作系统架构-平台相关注意事项">操作系统/架构 平台相关注意事项</a></div><ul class="toc-list"><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#总体原则">总体原则</a></div></li></ul></li></ul>
       </nav>
     </aside>
     
@@ -356,9 +238,7 @@
       
       <details class="mobile-toc">
         <summary>本页目录</summary>
-        <nav aria-label="本页目录"><ul>
-          <li class="toc-l2"><a href="#概述">概述</a></li><li class="toc-l2"><a href="#c-代码规范">C++ 代码规范</a></li><li class="toc-l3"><a href="#头文件">头文件</a></li><li class="toc-l4"><a href="#所有头文件应该自给自足">所有头文件应该自给自足</a></li><li class="toc-l4"><a href="#前向声明">前向声明</a></li><li class="toc-l4"><a href="#include-的路径及顺序">`#include` 的路径及顺序</a></li><li class="toc-l3"><a href="#作用域">作用域</a></li><li class="toc-l4"><a href="#命名空间">命名空间</a></li><li class="toc-l4"><a href="#局部变量">局部变量</a></li><li class="toc-l4"><a href="#静态变量和全局变量及-thread-local-变量">静态变量和全局变量及 thread_local 变量</a></li><li class="toc-l3"><a href="#类">类</a></li><li class="toc-l4"><a href="#构造函数的内部操作">构造函数的内部操作</a></li><li class="toc-l4"><a href="#struct和class-的选择">`struct`和`class` 的选择</a></li><li class="toc-l4"><a href="#隐式类型转换">隐式类型转换</a></li><li class="toc-l4"><a href="#成员数据类型的选择">成员数据类型的选择</a></li><li class="toc-l4"><a href="#继承">继承</a></li><li class="toc-l4"><a href="#运算符重载">运算符重载</a></li><li class="toc-l4"><a href="#可见性和声明次序">可见性和声明次序</a></li><li class="toc-l3"><a href="#函数">函数</a></li><li class="toc-l4"><a href="#函数应当执行单一逻辑">函数应当执行单一逻辑</a></li><li class="toc-l4"><a href="#保持函数简短且简单">保持函数简短且简单</a></li><li class="toc-l4"><a href="#函数如果不能抛出异常声明-noexcept">函数如果不能抛出异常，声明 `noexcept`</a></li><li class="toc-l4"><a href="#对于通用函数而言使用-t-或-t-传递参数">对于通用函数而言，使用 `T*` 或 `T&amp;` 传递参数</a></li><li class="toc-l4"><a href="#优先使用纯函数">优先使用纯函数</a></li><li class="toc-l4"><a href="#优先使用简单和惯用的信息传递方式">优先使用简单和惯用的信息传递方式</a></li><li class="toc-l4"><a href="#要返回多个输出值优先使用结构体">要返回多个“输出”值，优先使用结构体</a></li><li class="toc-l4"><a href="#当无参数是一个有效选项时优先使用-t-而不是-t">当“无参数”是一个有效选项时，优先使用 `T*` 而不是 `T&amp;`</a></li><li class="toc-l4"><a href="#避免在将在非局部使用包括返回存储在堆上或传递给另一个线程的-lambda-中通过引用捕获">避免在将在非局部使用（包括返回、存储在堆上或传递给另一个线程）的 lambda 中通过引用捕获</a></li><li class="toc-l3"><a href="#c-技巧和最佳实践">C++ 技巧和最佳实践</a></li><li class="toc-l4"><a href="#代码中直接表达思想">代码中直接表达思想</a></li><li class="toc-l4"><a href="#使用-iso-标准-c-编写">使用 ISO 标准 C++ 编写</a></li><li class="toc-l4"><a href="#表达意图">表达意图</a></li><li class="toc-l4"><a href="#理想情况下程序应该是静态类型安全的">理想情况下，程序应该是静态类型安全的</a></li><li class="toc-l4"><a href="#优先选择编译时检查而非运行时检查">优先选择编译时检查而非运行时检查</a></li><li class="toc-l4"><a href="#尽早捕获运行时错误">尽早捕获运行时错误</a></li><li class="toc-l4"><a href="#不要泄露任何资源">不要泄露任何资源</a></li><li class="toc-l4"><a href="#不要浪费时间和空间">不要浪费时间和空间</a></li><li class="toc-l4"><a href="#优先选择不可变数据而非可变数据">优先选择不可变数据而非可变数据</a></li><li class="toc-l4"><a href="#将混乱的结构封装起来而不是散布在代码各处">将混乱的结构封装起来，而不是散布在代码各处</a></li><li class="toc-l4"><a href="#酌情使用辅助工具和支持库">酌情使用辅助工具和支持库</a></li><li class="toc-l3"><a href="#命名约定和注释">命名约定和注释</a></li><li class="toc-l4"><a href="#类型命名">类型命名</a></li><li class="toc-l4"><a href="#变量命名">变量命名</a></li><li class="toc-l4"><a href="#函数命名">函数命名</a></li><li class="toc-l4"><a href="#其他命名">其他命名</a></li><li class="toc-l3"><a href="#cmake-相关模板">CMake 相关模板</a></li><li class="toc-l3"><a href="#代码格式及相关检查工具">代码格式及相关检查工具</a></li><li class="toc-l4"><a href="#配置文件">配置文件</a></li><li class="toc-l4"><a href="#如何在-vscode-中使用">如何在 Vscode 中使用</a></li><li class="toc-l4"><a href="#临时禁用格式化">临时禁用格式化</a></li><li class="toc-l2"><a href="#python-代码规范">Python 代码规范</a></li><li class="toc-l3"><a href="#格式与命名">格式与命名</a></li><li class="toc-l3"><a href="#类型标注">类型标注</a></li><li class="toc-l3"><a href="#异常与资源">异常与资源</a></li><li class="toc-l3"><a href="#数值与并发">数值与并发</a></li><li class="toc-l3"><a href="#工程约定">工程约定</a></li><li class="toc-l2"><a href="#操作系统架构-平台相关注意事项">操作系统/架构 平台相关注意事项</a></li><li class="toc-l3"><a href="#总体原则">总体原则</a></li>
-        </ul></nav>
+        <nav aria-label="本页目录"><ul class="toc-list"><li class="toc-item toc-l2"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#概述">概述</a></div></li><li class="toc-item toc-l2 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#c-代码规范">C++ 代码规范</a></div><ul class="toc-list"><li class="toc-item toc-l3 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#头文件">头文件</a></div><ul class="toc-list"><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#所有头文件应该自给自足">所有头文件应该自给自足</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#前向声明">前向声明</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#include-的路径及顺序">`#include` 的路径及顺序</a></div></li></ul></li><li class="toc-item toc-l3 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#作用域">作用域</a></div><ul class="toc-list"><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#命名空间">命名空间</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#局部变量">局部变量</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#静态变量和全局变量及-thread-local-变量">静态变量和全局变量及 thread_local 变量</a></div></li></ul></li><li class="toc-item toc-l3 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#类">类</a></div><ul class="toc-list"><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#构造函数的内部操作">构造函数的内部操作</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#struct和class-的选择">`struct`和`class` 的选择</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#隐式类型转换">隐式类型转换</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#成员数据类型的选择">成员数据类型的选择</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#继承">继承</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#运算符重载">运算符重载</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#可见性和声明次序">可见性和声明次序</a></div></li></ul></li><li class="toc-item toc-l3 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#函数">函数</a></div><ul class="toc-list"><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#函数应当执行单一逻辑">函数应当执行单一逻辑</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#保持函数简短且简单">保持函数简短且简单</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#函数如果不能抛出异常声明-noexcept">函数如果不能抛出异常，声明 `noexcept`</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#对于通用函数而言使用-t-或-t-传递参数">对于通用函数而言，使用 `T*` 或 `T&amp;` 传递参数</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#优先使用纯函数">优先使用纯函数</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#优先使用简单和惯用的信息传递方式">优先使用简单和惯用的信息传递方式</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#要返回多个输出值优先使用结构体">要返回多个“输出”值，优先使用结构体</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#当无参数是一个有效选项时优先使用-t-而不是-t">当“无参数”是一个有效选项时，优先使用 `T*` 而不是 `T&amp;`</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#避免在将在非局部使用包括返回存储在堆上或传递给另一个线程的-lambda-中通过引用捕获">避免在将在非局部使用（包括返回、存储在堆上或传递给另一个线程）的 lambda 中通过引用捕获</a></div></li></ul></li><li class="toc-item toc-l3 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#c-技巧和最佳实践">C++ 技巧和最佳实践</a></div><ul class="toc-list"><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#代码中直接表达思想">代码中直接表达思想</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#使用-iso-标准-c-编写">使用 ISO 标准 C++ 编写</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#表达意图">表达意图</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#理想情况下程序应该是静态类型安全的">理想情况下，程序应该是静态类型安全的</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#优先选择编译时检查而非运行时检查">优先选择编译时检查而非运行时检查</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#尽早捕获运行时错误">尽早捕获运行时错误</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#不要泄露任何资源">不要泄露任何资源</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#不要浪费时间和空间">不要浪费时间和空间</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#优先选择不可变数据而非可变数据">优先选择不可变数据而非可变数据</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#将混乱的结构封装起来而不是散布在代码各处">将混乱的结构封装起来，而不是散布在代码各处</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#酌情使用辅助工具和支持库">酌情使用辅助工具和支持库</a></div></li></ul></li><li class="toc-item toc-l3 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#命名约定和注释">命名约定和注释</a></div><ul class="toc-list"><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#类型命名">类型命名</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#变量命名">变量命名</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#函数命名">函数命名</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#其他命名">其他命名</a></div></li></ul></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#cmake-相关模板">CMake 相关模板</a></div></li><li class="toc-item toc-l3 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#代码格式及相关检查工具">代码格式及相关检查工具</a></div><ul class="toc-list"><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#配置文件">配置文件</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#如何在-vscode-中使用">如何在 Vscode 中使用</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#临时禁用格式化">临时禁用格式化</a></div></li></ul></li></ul></li><li class="toc-item toc-l2 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#python-代码规范">Python 代码规范</a></div><ul class="toc-list"><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#格式与命名">格式与命名</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#类型标注">类型标注</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#异常与资源">异常与资源</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#数值与并发">数值与并发</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#工程约定">工程约定</a></div></li></ul></li><li class="toc-item toc-l2 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#操作系统架构-平台相关注意事项">操作系统/架构 平台相关注意事项</a></div><ul class="toc-list"><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#总体原则">总体原则</a></div></li></ul></li></ul></nav>
       </details>
       
 
@@ -1304,9 +1184,9 @@ Python 的语法糖很多，但工程代码是写给下一个接手的人看的�
     
     <div class="card-cover media-shim">
       
-      <img src="/assets/feishu/small-humanoid-consensus/fig-08.webp"
+      <img src="/assets/uploads/gpzko7-gpzko7-996c03172c.webp"
            alt=""
-           width="1600" height="956"
+           width="1920" height="1080"
            style="object-position: 50% 50%"
            loading="lazy" decoding="async">
       <span class="card-cover-veil"></span>
@@ -1341,6 +1221,16 @@ Python 的语法糖很多，但工程代码是写给下一个接手的人看的�
   
   <a class="card-link" href="/posts/cpp-toolchain/"><span class="sr-only">C++ 工程工具链：构建、调试、依赖与代码质量</span></a>
   <div class="card-tilt">
+    
+    <div class="card-cover media-shim">
+      
+      <img src="/assets/bg/paper.webp"
+           alt=""
+           width="1920" height="1080"
+           style="object-position: 50% 50%"
+           loading="lazy" decoding="async">
+      <span class="card-cover-veil"></span>
+    </div>
     
     <div class="card-body">
       
@@ -1850,7 +1740,7 @@ Python 的语法糖很多，但工程代码是写给下一个接手的人看的�
 <script defer src="/assets/vendor/katex/katex.min.js"></script>
 
 
-<script src="/assets/site.js?v=c84f330f" defer></script>
+<script src="/assets/site.js?v=421c5846" defer></script>
 
 </body>
 </html>

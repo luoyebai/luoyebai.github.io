@@ -31,8 +31,8 @@
 <link rel="canonical" href="https://luoyebai.github.io/posts/quadruped-mpc-kinematics/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=c84f330f">
-<link rel="stylesheet" href="/assets/site.css?v=c84f330f">
+<link rel="stylesheet" href="/assets/themes.css?v=421c5846">
+<link rel="stylesheet" href="/assets/site.css?v=421c5846">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
 
@@ -40,7 +40,7 @@
 <link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 
 
-<meta property="og:image" content="https://luoyebai.github.io/assets/feishu/quadruped-mpc-kinematics/fig-07.webp">
+<meta property="og:image" content="https://luoyebai.github.io/assets/uploads/5gk7m5-5gk7m5-e4275914b4.webp">
   <meta name="author" content="洛叶白">
 <script>
 /* 在首次绘制前恢复外观偏好；URL 参数优先，便于分享特定主题的链接 */
@@ -162,12 +162,12 @@
 
 <article class="post">
   
-  <header class="phero has-media is-soft">
+  <header class="phero has-media">
     
     <div class="phero-media media-shim">
-      <img src="/assets/feishu/quadruped-mpc-kinematics/fig-07.webp"
+      <img src="/assets/uploads/5gk7m5-5gk7m5-e4275914b4.webp"
            alt="" aria-hidden="true"
-           width="914" height="309"
+           width="1920" height="1080"
            style="object-position: 50% 50%"
            fetchpriority="high" decoding="async">
     </div>
@@ -231,55 +231,7 @@
                   stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
-        <ul id="toc-list">
-          
-          <li class="toc-l2"><a href="#概述">概述</a></li>
-          
-          <li class="toc-l3"><a href="#任务清单">任务清单</a></li>
-          
-          <li class="toc-l2"><a href="#mpc-控制简介">MPC 控制简介</a></li>
-          
-          <li class="toc-l2"><a href="#原理概述">原理概述</a></li>
-          
-          <li class="toc-l3"><a href="#mpc-相关公式代码">MPC 相关公式、代码</a></li>
-          
-          <li class="toc-l4"><a href="#代码实现及参考视频">代码实现及参考视频</a></li>
-          
-          <li class="toc-l4"><a href="#公式含义">公式含义</a></li>
-          
-          <li class="toc-l4"><a href="#修正稳态误差">修正稳态误差</a></li>
-          
-          <li class="toc-l4"><a href="#一个具体的例子">一个具体的例子</a></li>
-          
-          <li class="toc-l2"><a href="#机器狗运动学建模">机器狗运动学建模</a></li>
-          
-          <li class="toc-l3"><a href="#参考来源与约定">参考来源与约定</a></li>
-          
-          <li class="toc-l3"><a href="#正运动学">正运动学</a></li>
-          
-          <li class="toc-l3"><a href="#逆运动学">逆运动学</a></li>
-          
-          <li class="toc-l2"><a href="#一个可以自己拖的-mpc-例子">一个可以自己拖的 MPC 例子</a></li>
-          
-          <li class="toc-l2"><a href="#wbc-控制简介">WBC 控制简介</a></li>
-          
-          <li class="toc-l3"><a href="#浮动基座模型">浮动基座模型</a></li>
-          
-          <li class="toc-l3"><a href="#把任务写成约束优化">把任务写成约束优化</a></li>
-          
-          <li class="toc-l3"><a href="#一个容易踩的坑接触计划与求解频率不匹配">一个容易踩的坑：接触计划与求解频率不匹配</a></li>
-          
-          <li class="toc-l2"><a href="#机器狗mpc-wbc控制原理">机器狗MPC-WBC控制原理</a></li>
-          
-          <li class="toc-l3"><a href="#单刚体-mpc-的简化边界">单刚体 MPC 的简化边界</a></li>
-          
-          <li class="toc-l3"><a href="#为什么力与加速度要分开求解">为什么力与加速度要分开求解</a></li>
-          
-          <li class="toc-l3"><a href="#完整接口清单">完整接口清单</a></li>
-          
-          <li class="toc-l3"><a href="#怎么调">怎么调</a></li>
-          
-        </ul>
+        <ul class="toc-list"><li class="toc-item toc-l2 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#概述">概述</a></div><ul class="toc-list"><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#任务清单">任务清单</a></div></li></ul></li><li class="toc-item toc-l2"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#mpc-控制简介">MPC 控制简介</a></div></li><li class="toc-item toc-l2 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#原理概述">原理概述</a></div><ul class="toc-list"><li class="toc-item toc-l3 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#mpc-相关公式代码">MPC 相关公式、代码</a></div><ul class="toc-list"><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#代码实现及参考视频">代码实现及参考视频</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#公式含义">公式含义</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#修正稳态误差">修正稳态误差</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#一个具体的例子">一个具体的例子</a></div></li></ul></li></ul></li><li class="toc-item toc-l2 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#机器狗运动学建模">机器狗运动学建模</a></div><ul class="toc-list"><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#参考来源与约定">参考来源与约定</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#正运动学">正运动学</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#逆运动学">逆运动学</a></div></li></ul></li><li class="toc-item toc-l2"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#一个可以自己拖的-mpc-例子">一个可以自己拖的 MPC 例子</a></div></li><li class="toc-item toc-l2 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#wbc-控制简介">WBC 控制简介</a></div><ul class="toc-list"><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#浮动基座模型">浮动基座模型</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#把任务写成约束优化">把任务写成约束优化</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#一个容易踩的坑接触计划与求解频率不匹配">一个容易踩的坑：接触计划与求解频率不匹配</a></div></li></ul></li><li class="toc-item toc-l2 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#机器狗mpc-wbc控制原理">机器狗MPC-WBC控制原理</a></div><ul class="toc-list"><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#单刚体-mpc-的简化边界">单刚体 MPC 的简化边界</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#为什么力与加速度要分开求解">为什么力与加速度要分开求解</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#完整接口清单">完整接口清单</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#怎么调">怎么调</a></div></li></ul></li></ul>
       </nav>
     </aside>
     
@@ -288,9 +240,7 @@
       
       <details class="mobile-toc">
         <summary>本页目录</summary>
-        <nav aria-label="本页目录"><ul>
-          <li class="toc-l2"><a href="#概述">概述</a></li><li class="toc-l3"><a href="#任务清单">任务清单</a></li><li class="toc-l2"><a href="#mpc-控制简介">MPC 控制简介</a></li><li class="toc-l2"><a href="#原理概述">原理概述</a></li><li class="toc-l3"><a href="#mpc-相关公式代码">MPC 相关公式、代码</a></li><li class="toc-l4"><a href="#代码实现及参考视频">代码实现及参考视频</a></li><li class="toc-l4"><a href="#公式含义">公式含义</a></li><li class="toc-l4"><a href="#修正稳态误差">修正稳态误差</a></li><li class="toc-l4"><a href="#一个具体的例子">一个具体的例子</a></li><li class="toc-l2"><a href="#机器狗运动学建模">机器狗运动学建模</a></li><li class="toc-l3"><a href="#参考来源与约定">参考来源与约定</a></li><li class="toc-l3"><a href="#正运动学">正运动学</a></li><li class="toc-l3"><a href="#逆运动学">逆运动学</a></li><li class="toc-l2"><a href="#一个可以自己拖的-mpc-例子">一个可以自己拖的 MPC 例子</a></li><li class="toc-l2"><a href="#wbc-控制简介">WBC 控制简介</a></li><li class="toc-l3"><a href="#浮动基座模型">浮动基座模型</a></li><li class="toc-l3"><a href="#把任务写成约束优化">把任务写成约束优化</a></li><li class="toc-l3"><a href="#一个容易踩的坑接触计划与求解频率不匹配">一个容易踩的坑：接触计划与求解频率不匹配</a></li><li class="toc-l2"><a href="#机器狗mpc-wbc控制原理">机器狗MPC-WBC控制原理</a></li><li class="toc-l3"><a href="#单刚体-mpc-的简化边界">单刚体 MPC 的简化边界</a></li><li class="toc-l3"><a href="#为什么力与加速度要分开求解">为什么力与加速度要分开求解</a></li><li class="toc-l3"><a href="#完整接口清单">完整接口清单</a></li><li class="toc-l3"><a href="#怎么调">怎么调</a></li>
-        </ul></nav>
+        <nav aria-label="本页目录"><ul class="toc-list"><li class="toc-item toc-l2 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#概述">概述</a></div><ul class="toc-list"><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#任务清单">任务清单</a></div></li></ul></li><li class="toc-item toc-l2"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#mpc-控制简介">MPC 控制简介</a></div></li><li class="toc-item toc-l2 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#原理概述">原理概述</a></div><ul class="toc-list"><li class="toc-item toc-l3 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#mpc-相关公式代码">MPC 相关公式、代码</a></div><ul class="toc-list"><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#代码实现及参考视频">代码实现及参考视频</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#公式含义">公式含义</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#修正稳态误差">修正稳态误差</a></div></li><li class="toc-item toc-l4"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#一个具体的例子">一个具体的例子</a></div></li></ul></li></ul></li><li class="toc-item toc-l2 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#机器狗运动学建模">机器狗运动学建模</a></div><ul class="toc-list"><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#参考来源与约定">参考来源与约定</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#正运动学">正运动学</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#逆运动学">逆运动学</a></div></li></ul></li><li class="toc-item toc-l2"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#一个可以自己拖的-mpc-例子">一个可以自己拖的 MPC 例子</a></div></li><li class="toc-item toc-l2 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#wbc-控制简介">WBC 控制简介</a></div><ul class="toc-list"><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#浮动基座模型">浮动基座模型</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#把任务写成约束优化">把任务写成约束优化</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#一个容易踩的坑接触计划与求解频率不匹配">一个容易踩的坑：接触计划与求解频率不匹配</a></div></li></ul></li><li class="toc-item toc-l2 has-kids"><div class="toc-row"><button class="toc-node" type="button" data-toc-node aria-expanded="true" aria-label="折叠这一节"><svg class="toc-caret-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><a href="#机器狗mpc-wbc控制原理">机器狗MPC-WBC控制原理</a></div><ul class="toc-list"><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#单刚体-mpc-的简化边界">单刚体 MPC 的简化边界</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#为什么力与加速度要分开求解">为什么力与加速度要分开求解</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#完整接口清单">完整接口清单</a></div></li><li class="toc-item toc-l3"><div class="toc-row"><span class="toc-dot" aria-hidden="true"></span><a href="#怎么调">怎么调</a></div></li></ul></li></ul></nav>
       </details>
       
 
@@ -1210,9 +1160,9 @@ MPC 的预测步数可以随便加，WBC 里也不必重复建模摩擦锥。</p
     
     <div class="card-cover media-shim">
       
-      <img src="/assets/feishu/parallel-ankle-kinematics/fig-03.webp"
+      <img src="/assets/uploads/yxz3pd-yxz3pd-5f025e515c.webp"
            alt=""
-           width="1600" height="766"
+           width="1920" height="1080"
            style="object-position: 50% 50%"
            loading="lazy" decoding="async">
       <span class="card-cover-veil"></span>
@@ -1766,7 +1716,7 @@ MPC 的预测步数可以随便加，WBC 里也不必重复建模摩擦锥。</p
 <script defer src="/assets/vendor/katex/katex.min.js"></script>
 
 
-<script src="/assets/site.js?v=c84f330f" defer></script>
+<script src="/assets/site.js?v=421c5846" defer></script>
 
 </body>
 </html>
