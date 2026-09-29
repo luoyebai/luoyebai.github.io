@@ -31,8 +31,8 @@
 <link rel="canonical" href="https://luoyebai.github.io/posts/small-humanoid-consensus/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=d46e76f1">
-<link rel="stylesheet" href="/assets/site.css?v=d46e76f1">
+<link rel="stylesheet" href="/assets/themes.css?v=e0249acc">
+<link rel="stylesheet" href="/assets/site.css?v=e0249acc">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
 
@@ -244,10 +244,7 @@
 <p>以下面四款小型人形机器人为例：</p>
 <ul><li>宇树G1：<a href="https://www.unitree.com/cn/g1" target="_blank" rel="noopener">https://www.unitree.com/cn/g1</a></li><li>众擎PM01：<a href="https://www.engineai.com.cn/product-pm01" target="_blank" rel="noopener">https://www.engineai.com.cn/product-pm01</a></li><li>加速进化T1：<a href="https://www.booster.tech/cn/booster-t1/" target="_blank" rel="noopener">https://www.booster.tech/cn/booster-t1/</a></li><li>智元灵犀X2：<a href="https://www.zhiyuan-robot.com/products/X2" target="_blank" rel="noopener">https://www.zhiyuan-robot.com/products/X2</a></li></ul>
 <p>以下简称G1、PM01、T1、X2。</p>
-<p><img src="/assets/feishu/small-humanoid-consensus/fig-01.webp" alt="图片.png" loading="lazy" decoding="async"></p>
-<p><img src="/assets/feishu/small-humanoid-consensus/fig-02.webp" alt="图片.png" loading="lazy" decoding="async"></p>
-<p><img src="/assets/feishu/small-humanoid-consensus/fig-03.webp" alt="图片.png" loading="lazy" decoding="async"></p>
-<p><img src="/assets/feishu/small-humanoid-consensus/fig-04.webp" alt="图片.png" loading="lazy" decoding="async"></p>
+<div class="media-row" data-cols="4" style="--cols:4"><figure class="media-cell"><div class="media-shot"><img src="/assets/feishu/small-humanoid-consensus/fig-01.webp" alt="宇树 G1" loading="lazy" decoding="async"></div><figcaption>宇树 G1</figcaption></figure><figure class="media-cell"><div class="media-shot"><img src="/assets/feishu/small-humanoid-consensus/fig-02.webp" alt="众擎 PM01" loading="lazy" decoding="async"></div><figcaption>众擎 PM01</figcaption></figure><figure class="media-cell"><div class="media-shot"><img src="/assets/feishu/small-humanoid-consensus/fig-03.webp" alt="加速进化 T1" loading="lazy" decoding="async"></div><figcaption>加速进化 T1</figcaption></figure><figure class="media-cell"><div class="media-shot"><img src="/assets/feishu/small-humanoid-consensus/fig-04.webp" alt="智元灵犀 X2" loading="lazy" decoding="async"></div><figcaption>智元灵犀 X2</figcaption></figure></div>
 <hr>
 <h2 id="结构上的共同点">结构上的共同点<a class="heading-anchor" href="#结构上的共同点" aria-label="锚点">#</a></h2>
 <ul><li>构形特征</li></ul>
@@ -297,10 +294,7 @@
 <p>各厂商机器人后台代码基本都不会开放，因为这可能会暴露所使用的技术路线和硬件选择，也可能被破解逆向造成损失或是发现其中二进制漏洞造成事故。</p>
 <h3 id="sdk接口的共同点">SDK接口的共同点<a class="heading-anchor" href="#sdk接口的共同点" aria-label="锚点">#</a></h3>
 <ul><li>算力平台的软件配置基本均为<ul><li><strong>操作系统</strong>：Ubuntu 22.04/20.04 LTS</li><li><strong>ROS2 版本</strong>：Humble/Foxy</li><li><strong>Python 版本</strong>：Python 3.8 及以上</li><li><strong>C++ 标准</strong>：C++17</li></ul></li><li>都采用FSM（有限状态机）来进行模式切换</li></ul>
-<p><img src="/assets/feishu/small-humanoid-consensus/fig-08.webp" alt="image.png" loading="lazy" decoding="async"></p>
-<p><img src="/assets/feishu/small-humanoid-consensus/fig-09.webp" alt="image.png" loading="lazy" decoding="async"></p>
-<p><img src="/assets/feishu/small-humanoid-consensus/fig-10.webp" alt="image.png" loading="lazy" decoding="async"></p>
-<p><img src="/assets/feishu/small-humanoid-consensus/fig-11.webp" alt="image.png" loading="lazy" decoding="async"></p>
+<figure class="media-group"><div class="media-row" data-cols="2" style="--cols:2"><figure class="media-cell"><div class="media-shot"><img src="/assets/feishu/small-humanoid-consensus/fig-08.webp" alt="image.png" loading="lazy" decoding="async"></div></figure><figure class="media-cell"><div class="media-shot"><img src="/assets/feishu/small-humanoid-consensus/fig-09.webp" alt="image.png" loading="lazy" decoding="async"></div></figure><figure class="media-cell"><div class="media-shot"><img src="/assets/feishu/small-humanoid-consensus/fig-10.webp" alt="image.png" loading="lazy" decoding="async"></div></figure><figure class="media-cell"><div class="media-shot"><img src="/assets/feishu/small-humanoid-consensus/fig-11.webp" alt="image.png" loading="lazy" decoding="async"></div></figure></div><figcaption>四款机器人的状态机与模式切换</figcaption></figure>
 <p><strong>通常包括以下状态：</strong></p>
 <ul><li><strong>零力矩模式</strong></li><li><strong>阻尼模式</strong></li><li><strong>站立准备模式</strong></li><li><strong>行走模式/跑步模式</strong></li><li><strong>其他特殊模式</strong></li></ul>
 <ul><li>SDK 通讯方案汇总</li></ul>
@@ -562,7 +556,7 @@
       <dl class="footer-stats">
         <div><dt>12</dt><dd>篇文章</dd></div>
         <div><dt>19</dt><dd>篇文档</dd></div>
-        <div><dt>3</dt><dd>个项目</dd></div>
+        <div><dt>4</dt><dd>个项目</dd></div>
         <div><dt>204</dt><dd>页幻灯片</dd></div>
       </dl>
     </div>
@@ -975,7 +969,7 @@
 
 <script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
 
-<script src="/assets/site.js?v=d46e76f1" defer></script>
+<script src="/assets/site.js?v=e0249acc" defer></script>
 
 </body>
 </html>

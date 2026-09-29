@@ -15,26 +15,29 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>dds-middleware-kit · 洛叶白</title>
-<meta name="description" content="围绕消息语义组织 QoS、传输配置与延迟测量，减少机器人通信层的重复工作。">
+<title>joysonrobot_comm · 洛叶白</title>
+<meta name="description" content="把机器人通信里反复要重做的那部分收进一个库：DDS 发布订阅、RPC 服务、IDL 生成代码，以及与 ROS 2 的互通。">
 <meta name="author" content="洛叶白">
 <meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#0b0d14" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#f7f7f5" media="(prefers-color-scheme: light)">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="洛叶白">
-<meta property="og:title" content="dds-middleware-kit">
-<meta property="og:description" content="围绕消息语义组织 QoS、传输配置与延迟测量，减少机器人通信层的重复工作。">
-<meta property="og:url" content="https://luoyebai.github.io/projects/dds-middleware-kit/">
+<meta property="og:title" content="joysonrobot_comm">
+<meta property="og:description" content="把机器人通信里反复要重做的那部分收进一个库：DDS 发布订阅、RPC 服务、IDL 生成代码，以及与 ROS 2 的互通。">
+<meta property="og:url" content="https://luoyebai.github.io/projects/joysonrobot_comm/">
 
 <meta name="twitter:card" content="summary_large_image">
-<link rel="canonical" href="https://luoyebai.github.io/projects/dds-middleware-kit/">
+<link rel="canonical" href="https://luoyebai.github.io/projects/joysonrobot_comm/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=d46e76f1">
-<link rel="stylesheet" href="/assets/site.css?v=d46e76f1">
+<link rel="stylesheet" href="/assets/themes.css?v=e0249acc">
+<link rel="stylesheet" href="/assets/site.css?v=e0249acc">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
+
+
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 
 
 
@@ -173,7 +176,7 @@
       <nav class="crumbs" aria-label="面包屑">
         <a href="/projects/">项目</a>
         <span aria-hidden="true">/</span>
-        <span class="current">dds-middleware-kit</span>
+        <span class="current">joysonrobot_comm</span>
       </nav>
 
       <div class="post-tags">
@@ -187,17 +190,24 @@
         
       </div>
 
-      <h1 class="phero-title reveal">dds-middleware-kit</h1>
-      <p class="phero-lede reveal">围绕消息语义组织 QoS、传输配置与延迟测量，减少机器人通信层的重复工作。</p>
+      <h1 class="phero-title reveal">joysonrobot_comm</h1>
+      <p class="phero-lede reveal">把机器人通信里反复要重做的那部分收进一个库：DDS 发布订阅、RPC 服务、IDL 生成代码，以及与 ROS 2 的互通。</p>
 
       
       <div class="stack reveal">
-        <span class="chip">C++17</span><span class="chip">CycloneDDS</span><span class="chip">iceoryx</span><span class="chip">CMake</span>
+        <span class="chip">C++17</span><span class="chip">Fast-DDS</span><span class="chip">gRPC</span><span class="chip">CMake</span>
       </div>
       
 
       
       <div class="hero-cta reveal">
+        
+        <a class="btn ghost small" href="https://github.com/luoyebai/joysonrobot_comm" rel="noopener">
+          GitHub
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 17 17 7"/><path d="M9 7h8v8"/>
+          </svg>
+        </a>
         
         <a class="btn ghost small" href="/posts/dds-qos-tuning/" rel="noopener">
           调参笔记
@@ -218,13 +228,17 @@
         <p class="toc-title">目录</p>
         <ul>
           
-          <li class="toc-l2"><a href="#模块边界">模块边界</a></li>
+          <li class="toc-l2"><a href="#仓库里有什么">仓库里有什么</a></li>
           
-          <li class="toc-l2"><a href="#qos-从消息语义出发">QoS 从消息语义出发</a></li>
+          <li class="toc-l2"><a href="#idl-与代码生成">IDL 与代码生成</a></li>
           
-          <li class="toc-l2"><a href="#共享内存需要单独验证">共享内存需要单独验证</a></li>
+          <li class="toc-l2"><a href="#与-ros-2-互通">与 ROS 2 互通</a></li>
           
-          <li class="toc-l2"><a href="#可复现的压测记录">可复现的压测记录</a></li>
+          <li class="toc-l2"><a href="#依赖与构建">依赖与构建</a></li>
+          
+          <li class="toc-l2"><a href="#几个环境上的坑">几个环境上的坑</a></li>
+          
+          <li class="toc-l2"><a href="#边界与后续">边界与后续</a></li>
           
         </ul>
       </nav>
@@ -236,30 +250,45 @@
       <details class="mobile-toc">
         <summary>本页目录</summary>
         <nav aria-label="本页目录"><ul>
-          <li class="toc-l2"><a href="#模块边界">模块边界</a></li><li class="toc-l2"><a href="#qos-从消息语义出发">QoS 从消息语义出发</a></li><li class="toc-l2"><a href="#共享内存需要单独验证">共享内存需要单独验证</a></li><li class="toc-l2"><a href="#可复现的压测记录">可复现的压测记录</a></li>
+          <li class="toc-l2"><a href="#仓库里有什么">仓库里有什么</a></li><li class="toc-l2"><a href="#idl-与代码生成">IDL 与代码生成</a></li><li class="toc-l2"><a href="#与-ros-2-互通">与 ROS 2 互通</a></li><li class="toc-l2"><a href="#依赖与构建">依赖与构建</a></li><li class="toc-l2"><a href="#几个环境上的坑">几个环境上的坑</a></li><li class="toc-l2"><a href="#边界与后续">边界与后续</a></li>
         </ul></nav>
       </details>
       
 
-      <div class="prose reveal"><p>这个项目记录机器人通信层的封装思路：把消息语义、DDS 配置、序列化与测量工具分开，使不同机器人可以复用配置结构，同时保留针对具体链路的验证。</p>
-<h2 id="模块边界">模块边界<a class="heading-anchor" href="#模块边界" aria-label="锚点">#</a></h2>
+      <div class="prose reveal"><p>机器人项目里通信层每次都要重来一遍：topic 命名各不相同、类型定义散落在各处、换一台机器又要重新接一遍。这个库把其中稳定的部分收拢起来——基于 <a href="https://github.com/eProsima/Fast-DDS" target="_blank" rel="noopener">Fast-DDS</a> 的发布订阅与对应的 RPC 服务，配一套从 IDL 生成代码的流程，测试用 <a href="https://github.com/catchorg/Catch2" target="_blank" rel="noopener">Catch2</a>。C++17 + CMake，目标平台是 Linux。</p>
+<p>模块划分参考了 <a href="https://github.com/BoosterRobotics/booster_robotics_sdk" target="_blank" rel="noopener">Booster Robotics SDK</a> 的组织方式，并按实际使用做了扩展。</p>
+<h2 id="仓库里有什么">仓库里有什么<a class="heading-anchor" href="#仓库里有什么" aria-label="锚点">#</a></h2>
 <div class="table-wrap" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
-<thead><tr><th>模块</th><th>职责</th><th>验证重点</th></tr></thead>
+<thead><tr><th>目录</th><th>内容</th></tr></thead>
 <tbody>
-<tr><td>QoS 配置</td><td>传感器、指令、参数与遥测的策略</td><td>发布与订阅兼容性、积压与重连行为</td></tr>
-<tr><td>传输适配</td><td>UDP 与同机共享内存的选择</td><td>实际使用的传输、缓冲池与资源耗尽行为</td></tr>
-<tr><td>类型与编码</td><td>IDL、数据布局、样本生命周期</td><td>类型一致性、所有权、是否发生复制</td></tr>
-<tr><td>测量工具</td><td>时序、序列号、丢包和数据年龄</td><td>时间戳位置、时钟误差与统计窗口</td></tr>
+<tr><td><code>include/</code> <code>src/</code></td><td>COMM 的头文件与实现</td></tr>
+<tr><td><code>idl/</code></td><td>通信用的 IDL 定义</td></tr>
+<tr><td><code>third_party/scripts/ddsgen/</code></td><td>从 IDL 生成代码的脚本</td></tr>
+<tr><td><code>tests/</code></td><td>测试代码</td></tr>
+<tr><td><code>python/</code></td><td>Python 接口绑定（2.1.0 之后已移到 jsrsdk）</td></tr>
 </tbody></table></div>
-<h2 id="qos-从消息语义出发">QoS 从消息语义出发<a class="heading-anchor" href="#qos-从消息语义出发" aria-label="锚点">#</a></h2>
-<p>高频状态流可以优先保留最新样本，但 BEST_EFFORT 不是所有控制指令的统一答案。离散模式切换需要确认与幂等处理；连续目标需要有效期、序列号和失联策略。RELIABLE 解决传输可靠性，也不能保证样本在控制截止时间前到达。</p>
-<p>参数快照可能适合 TRANSIENT_LOCAL，让晚加入节点取得最近状态；一次性运动命令则不能因为节点重连而被当成新命令重放。Deadline 用于检测更新频率违约，真正拒绝过期目标仍需要应用层的数据年龄检查。</p>
-<h2 id="共享内存需要单独验证">共享内存需要单独验证<a class="heading-anchor" href="#共享内存需要单独验证" aria-label="锚点">#</a></h2>
-<p>同进程通信、跨进程共享内存与 loaned sample 是不同机制。是否可以组合、支持什么类型、发生资源耗尽时如何处理，都取决于 DDS 实现及版本。不能仅凭打开开关，就认定端到端已经零拷贝。</p>
-<p>验证时记录运行版本、传输日志、内存池配置和消息大小；分别测量同机与跨机链路。不要把不同拓扑的延迟数值放在同一列后直接归因于某一项优化。</p>
-<h2 id="可复现的压测记录">可复现的压测记录<a class="heading-anchor" href="#可复现的压测记录" aria-label="锚点">#</a></h2>
-<p>每轮记录硬件、系统与内核、DDS 版本、消息大小与频率、QoS、运行时长、网络拓扑和后台负载。保留原始样本，再计算 p50、p99、最大值、丢包率与截止时间违约率。跨机单向测量还要报告时钟同步误差。</p>
-<p>当前页面没有配套公开源码与原始压测数据，因此不提供未经核对的安装命令或性能承诺。调参过程和统计示例见 <a href="/posts/dds-qos-tuning/">DDS QoS 笔记</a>。</p></div>
+<h2 id="idl-与代码生成">IDL 与代码生成<a class="heading-anchor" href="#idl-与代码生成" aria-label="锚点">#</a></h2>
+<p>类型定义集中在 <code>idl/</code>，生成器在 <code>third_party/scripts/ddsgen/</code>（需要 <code>openjdk17-jdk</code>）：先 <code>./gradlew assemble</code> 构建工具，再 <code>./run.sh &lt;FILE_NAME&gt;</code> 生成到 <code>idl/genfiles/</code>，随后用 <code>-DREGEN_IDL=ON</code> 构建，生成物会被拷到 <code>include/idl</code> 与 <code>src/idl</code>。</p>
+<p><strong>标识符只用英文</strong>：IDL 里写中文会被生成器拒绝，这一步要一次写对，否则报错信息很不直观。</p>
+<h2 id="与-ros-2-互通">与 ROS 2 互通<a class="heading-anchor" href="#与-ros-2-互通" aria-label="锚点">#</a></h2>
+<p>话题名遵循 ROS 2 的约定，写成 <code>rt/xxx</code>（<code>rt</code> 是 ROS TOPIC 的缩写，<code>xxx</code> 是 ROS 2 侧发现的话题名），并要求 ROS 2 里的 msg 接口与 IDL 对得上。这条通道适合让 COMM 写的节点和已有的 ROS 2 生态对接，而不是替代 ROS 2。</p>
+<h2 id="依赖与构建">依赖与构建<a class="heading-anchor" href="#依赖与构建" aria-label="锚点">#</a></h2>
+<div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">sudo apt-get update
+sudo apt-get install cmake build-essential python3-dev python3-pip
+sudo apt-get install libtinyxml2-dev libssl-dev          <span class="tok-comment"># DDS 依赖</span>
+sudo apt-get install pkg-config libprotobuf-dev libgrpc<span class="tok-operator">++-</span>dev
+sudo apt-get install protobuf-compiler protobuf-compiler-grpc</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
+<div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">mkdir build <span class="tok-operator">&amp;&amp;</span> cd build
+cmake <span class="tok-operator">-</span><span class="tok-type">DCMAKE_INSTALL_PREFIX</span><span class="tok-operator">=/</span>usr ..
+make <span class="tok-operator">-</span>j$<span class="tok-punct">(</span>nproc<span class="tok-punct">)</span>
+make test            <span class="tok-comment"># 在 build/tests 下跑测试</span>
+sudo make install</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
+<p>在别的工程里用有两种方式：装到系统里之后 <code>find_package(jsrcomm REQUIRED)</code>，再 <code>target_link_libraries(&lt;TARGET&gt; PRIVATE jsrcomm fastcdr fastrtps)</code>；或者直接放一份预编译产物到 <code>third_party/jsrcomm/{lib,include}</code> 里链接。</p>
+<h2 id="几个环境上的坑">几个环境上的坑<a class="heading-anchor" href="#几个环境上的坑" aria-label="锚点">#</a></h2>
+<ul><li><strong>tinyxml 必须是 9.0.0</strong>，版本对不上会直接构建失败。</li><li><code>undefined symbol: …fastcdr3Cdr9serializeEt</code> 基本是 <strong>libfastcdr 被别的库顶掉了</strong>：ROS 2 自带一份 <code>libfastcdr.so.2</code>，会把项目里那份覆盖掉。用 <code>ldd</code> 确认实际加载的是哪一个，构建时<strong>不要</strong> source ROS 2 的环境；要一起用就在 CMake 里显式指定动态库路径。</li><li>Ubuntu 20.04 上可能遇到 <code>GLIBCXX_3.4.30 not found</code>，需要自行编译 Fast DDS 并替换 <code>third_party/lib/&lt;ARCH&gt;/</code> 下的库。</li></ul>
+<h2 id="边界与后续">边界与后续<a class="heading-anchor" href="#边界与后续" aria-label="锚点">#</a></h2>
+<p>已支持 DDS 异步 RPC 与 gRPC；MQTT 和 WebRTC 还没做。动态类型可以走 <code>examples/cpp</code> 里的 <code>pub_json</code> / <code>sub_json</code> / <code>pub_dynamic</code> / <code>sub_dynamic</code>，但<strong>目前不支持动态 map 类型</strong>。Python 接口在 2.1.0 之后移到 jsrsdk，本仓库不再维护。</p>
+<p>仓库：<a href="https://github.com/luoyebai/joysonrobot_comm" target="_blank" rel="noopener">https://github.com/luoyebai/joysonrobot_comm</a>（Apache-2.0）。上面的构建步骤、目录结构与限制来自项目 README；QoS 与延迟测量上的取舍见 <a href="/posts/dds-qos-tuning/">DDS 选型与调参</a>。</p></div>
       <div class="post-end"><span class="end-mark" aria-hidden="true">◆</span></div>
     </div>
   </div>
@@ -308,7 +337,7 @@
       <dl class="footer-stats">
         <div><dt>12</dt><dd>篇文章</dd></div>
         <div><dt>19</dt><dd>篇文档</dd></div>
-        <div><dt>3</dt><dd>个项目</dd></div>
+        <div><dt>4</dt><dd>个项目</dd></div>
         <div><dt>204</dt><dd>页幻灯片</dd></div>
       </dl>
     </div>
@@ -721,7 +750,11 @@
 
 <script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
 
-<script src="/assets/site.js?v=d46e76f1" defer></script>
+
+<script defer src="/assets/vendor/katex/katex.min.js"></script>
+
+
+<script src="/assets/site.js?v=e0249acc" defer></script>
 
 </body>
 </html>
