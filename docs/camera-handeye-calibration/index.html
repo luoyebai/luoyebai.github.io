@@ -31,11 +31,11 @@
 <link rel="canonical" href="https://luoyebai.github.io/docs/camera-handeye-calibration/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=e0249acc">
-<link rel="stylesheet" href="/assets/site.css?v=e0249acc">
+<link rel="stylesheet" href="/assets/themes.css?v=3716ee76">
+<link rel="stylesheet" href="/assets/site.css?v=3716ee76">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
-<link rel="stylesheet" href="/assets/docs.css?v=e0249acc">
+<link rel="stylesheet" href="/assets/docs.css?v=3716ee76">
 
 
 
@@ -335,7 +335,7 @@
                data-title="用明确记号避免方向混乱">
         <div class="slide-inner"><h2>用明确记号避免方向混乱</h2>
 <div class="deck-fragment"><p>记 <code>T_A_B</code> 为“把 B 坐标变换到 A 坐标”的 4×4 齐次矩阵。</p></div>
-<div class="deck-fragment"><div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-text">p_A = T_A_B · p_B
+<div class="deck-fragment"><div class="code-block" data-lang="text" data-lines="3"><div class="code-head"><span class="code-lang">text</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-text">p_A = T_A_B · p_B
 T_A_C = T_A_B · T_B_C
 inverse(T_A_B) = T_B_A</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p>其中点使用齐次形式 <code>[x, y, z, 1]</code>。
@@ -346,7 +346,7 @@ inverse(T_A_B) = T_B_A</code></pre><button class="code-more" type="button" data-
                data-title="相机投影模型">
         <div class="slide-inner"><h2>相机投影模型</h2>
 <div class="deck-fragment"><p>忽略畸变时：</p></div>
-<div class="deck-fragment"><div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-text">u = fx · Xc / Zc + cx
+<div class="deck-fragment"><div class="code-block" data-lang="text" data-lines="3"><div class="code-head"><span class="code-lang">text</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-text">u = fx · Xc / Zc + cx
 v = fy · Yc / Zc + cy
 K = [[fx, 0, cx], [0, fy, cy], [0, 0, 1]]</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p>焦距和主点以像素计。透视投影需要深度，单个像素不能唯一确定空间点。
@@ -368,7 +368,7 @@ K = [[fx, 0, cx], [0, fy, cy], [0, 0, 1]]</code></pre><button class="code-more" 
                data-title="建立对应点">
         <div class="slide-inner"><h2>建立对应点</h2>
 <div class="deck-fragment"><p>示例：9 列 × 6 行内角点、方格边长 0.025 m。</p></div>
-<div class="deck-fragment"><div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">import</span> cv2
+<div class="deck-fragment"><div class="code-block" data-lang="python" data-lines="5"><div class="code-head"><span class="code-lang">python</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">import</span> cv2
 <span class="tok-keyword">import</span> numpy <span class="tok-keyword">as</span> np
 pattern <span class="tok-operator">=</span> <span class="tok-punct">(</span><span class="tok-number">9</span><span class="tok-punct">,</span> <span class="tok-number">6</span><span class="tok-punct">)</span>
 object_points <span class="tok-operator">=</span> np<span class="tok-punct">.</span><span class="tok-function">zeros</span><span class="tok-punct">(</span><span class="tok-punct">(</span>pattern<span class="tok-punct">[</span><span class="tok-number">0</span><span class="tok-punct">]</span> <span class="tok-operator">*</span> pattern<span class="tok-punct">[</span><span class="tok-number">1</span><span class="tok-punct">]</span><span class="tok-punct">,</span> <span class="tok-number">3</span><span class="tok-punct">)</span><span class="tok-punct">,</span> np<span class="tok-punct">.</span>float32<span class="tok-punct">)</span>
@@ -381,7 +381,7 @@ object_points<span class="tok-punct">[</span><span class="tok-punct">:</span><sp
                data-title="运行内参实验">
         <div class="slide-inner"><h2>运行内参实验</h2>
 <div class="deck-fragment"><p>在已安装 <code>opencv-python</code> 的虚拟环境中，将图像放到独立的 <code>images/</code>：</p></div>
-<div class="deck-fragment"><div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">python calibrate_camera.py <span class="tok-operator">--</span>images images <span class="tok-operator">--</span>cols <span class="tok-number">9</span> <span class="tok-operator">--</span>rows <span class="tok-number">6</span> <span class="tok-operator">--</span>square <span class="tok-number">0</span>.<span class="tok-number">025</span> <span class="tok-operator">--</span>output camera.npz</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
+<div class="deck-fragment"><div class="code-block" data-lang="bash" data-lines="1"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">python calibrate_camera.py <span class="tok-operator">--</span>images images <span class="tok-operator">--</span>cols <span class="tok-number">9</span> <span class="tok-operator">--</span>rows <span class="tok-number">6</span> <span class="tok-operator">--</span>square <span class="tok-number">0</span>.<span class="tok-number">025</span> <span class="tok-operator">--</span>output camera.npz</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p>输出总体 RMS、逐帧重投影 RMS，并保存 <code>K</code>、<code>dist</code>、图像尺寸等数据。
 RMS 以像素计，不是机器人末端的毫米误差，也没有对所有镜头通用的合格阈值。</p></div></div>
       </section>
@@ -398,7 +398,7 @@ RMS 以像素计，不是机器人末端的毫米误差，也没有对所有镜�
       <section class="slide" data-slide="8"
                data-title="单帧 solvePnP 的输出方向">
         <div class="slide-inner"><h2>单帧 solvePnP 的输出方向</h2>
-<div class="deck-fragment"><div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-python">ok<span class="tok-punct">,</span> rvec<span class="tok-punct">,</span> tvec <span class="tok-operator">=</span> cv2<span class="tok-punct">.</span><span class="tok-function">solvePnP</span><span class="tok-punct">(</span>object_points<span class="tok-punct">,</span> image_points<span class="tok-punct">,</span> <span class="tok-type">K</span><span class="tok-punct">,</span> dist<span class="tok-punct">)</span>
+<div class="deck-fragment"><div class="code-block" data-lang="python" data-lines="4"><div class="code-head"><span class="code-lang">python</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-python">ok<span class="tok-punct">,</span> rvec<span class="tok-punct">,</span> tvec <span class="tok-operator">=</span> cv2<span class="tok-punct">.</span><span class="tok-function">solvePnP</span><span class="tok-punct">(</span>object_points<span class="tok-punct">,</span> image_points<span class="tok-punct">,</span> <span class="tok-type">K</span><span class="tok-punct">,</span> dist<span class="tok-punct">)</span>
 <span class="tok-keyword">if</span> <span class="tok-keyword">not</span> ok<span class="tok-punct">:</span>
     <span class="tok-keyword">raise</span> <span class="tok-function">RuntimeError</span><span class="tok-punct">(</span><span class="tok-string">&#x27;PnP failed&#x27;</span><span class="tok-punct">)</span>
 <span class="tok-type">R</span><span class="tok-punct">,</span> _ <span class="tok-operator">=</span> cv2<span class="tok-punct">.</span><span class="tok-function">Rodrigues</span><span class="tok-punct">(</span>rvec<span class="tok-punct">)</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
@@ -411,7 +411,7 @@ RMS 以像素计，不是机器人末端的毫米误差，也没有对所有镜�
                data-title="眼在手上的坐标链">
         <div class="slide-inner"><h2>眼在手上的坐标链</h2>
 <div class="deck-fragment"><p>标定板固定，相机固定在末端。每帧满足：</p></div>
-<div class="deck-fragment"><div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-text">T_base_gripper(i) · T_gripper_camera · T_camera_target(i)
+<div class="deck-fragment"><div class="code-block" data-lang="text" data-lines="2"><div class="code-head"><span class="code-lang">text</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-text">T_base_gripper(i) · T_gripper_camera · T_camera_target(i)
     = T_base_target  （应保持不变）</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p>已知机器人末端位姿与视觉 PnP 位姿，未知中间固定变换。
 必须确认机器人接口给的是 gripper→base 还是反方向；不要只按变量名猜测。</p></div></div>
@@ -421,7 +421,7 @@ RMS 以像素计，不是机器人末端的毫米误差，也没有对所有镜�
                data-title="AX = XB 从哪里来">
         <div class="slide-inner"><h2>AX = XB 从哪里来</h2>
 <div class="deck-fragment"><p>令 <code>G_i = T_base_gripper(i)</code>，<code>C_i = T_camera_target(i)</code>，未知 <code>X = T_gripper_camera</code>。</p></div>
-<div class="deck-fragment"><div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-text">G_i X C_i = G_j X C_j
+<div class="deck-fragment"><div class="code-block" data-lang="text" data-lines="4"><div class="code-head"><span class="code-lang">text</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-text">G_i X C_i = G_j X C_j
 A = inverse(G_j) G_i
 B = C_j inverse(C_i)
 A X = X B</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
@@ -433,7 +433,7 @@ A X = X B</code></pre><button class="code-more" type="button" data-fold aria-lab
                data-title="调用手眼接口">
         <div class="slide-inner"><h2>调用手眼接口</h2>
 <div class="deck-fragment"><p>对每帧保存对应的旋转矩阵和平移向量列表，长度与顺序必须一致：</p></div>
-<div class="deck-fragment"><div class="code-block" data-lang="python"><div class="code-head"><span class="code-lang">python</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-python"><span class="tok-type">R_cam2gripper</span><span class="tok-punct">,</span> t_cam2gripper <span class="tok-operator">=</span> cv2<span class="tok-punct">.</span><span class="tok-function">calibrateHandEye</span><span class="tok-punct">(</span>
+<div class="deck-fragment"><div class="code-block" data-lang="python" data-lines="4"><div class="code-head"><span class="code-lang">python</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-python"><span class="tok-type">R_cam2gripper</span><span class="tok-punct">,</span> t_cam2gripper <span class="tok-operator">=</span> cv2<span class="tok-punct">.</span><span class="tok-function">calibrateHandEye</span><span class="tok-punct">(</span>
     <span class="tok-type">R_gripper2base</span><span class="tok-punct">,</span> t_gripper2base<span class="tok-punct">,</span>
     <span class="tok-type">R_target2cam</span><span class="tok-punct">,</span> t_target2cam<span class="tok-punct">,</span>
     method<span class="tok-operator">=</span>cv2<span class="tok-punct">.</span><span class="tok-type">CALIB_HAND_EYE_PARK</span><span class="tok-punct">)</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
@@ -946,8 +946,8 @@ A X = X B</code></pre><button class="code-more" type="button" data-fold aria-lab
 
 <script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
 
-<script src="/assets/site.js?v=e0249acc" defer></script>
-<script src="/assets/docs.js?v=e0249acc" defer></script>
+<script src="/assets/site.js?v=3716ee76" defer></script>
+<script src="/assets/docs.js?v=3716ee76" defer></script>
 
 </body>
 </html>

@@ -31,8 +31,8 @@
 <link rel="canonical" href="https://luoyebai.github.io/posts/dds-qos-tuning/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=e0249acc">
-<link rel="stylesheet" href="/assets/site.css?v=e0249acc">
+<link rel="stylesheet" href="/assets/themes.css?v=3716ee76">
+<link rel="stylesheet" href="/assets/site.css?v=3716ee76">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
 
@@ -244,7 +244,7 @@
       <div class="prose reveal"><p>机器人通信首先要回答三个问题：这条消息过期后还有没有价值，丢失后是否需要补发，接收端多久收不到数据就必须改变行为。QoS 的选择应当从这些问题出发。</p>
 <p>本文以 ROS 2 中的 DDS 通信为背景。实现、RMW、消息类型和版本会影响实际路径；同一组配置不能保证在所有平台上得到相同延迟。</p>
 <h2 id="先画出消息经过的路径">先画出消息经过的路径<a class="heading-anchor" href="#先画出消息经过的路径" aria-label="锚点">#</a></h2>
-<div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-text">采样 → 应用发布 → 中间件缓存 → 传输 → 接收缓存 → 执行器调度 → 控制计算</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
+<div class="code-block" data-lang="text" data-lines="1"><div class="code-head"><span class="code-lang">text</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-text">采样 → 应用发布 → 中间件缓存 → 传输 → 接收缓存 → 执行器调度 → 控制计算</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
 <p>通信慢不一定是网络慢。序列化、消息复制、资源不足、线程唤醒和回调排队，都可能让数据在使用时已经过期。先测出时间花在哪里，再调整传输或调度。</p>
 <div class="table-wrap" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
 <thead><tr><th>测量点</th><th>要回答的问题</th><th>一起记录的字段</th></tr></thead>
@@ -257,7 +257,7 @@
 <p>跨设备时间戳相减需要时钟同步与误差说明；不能把两台机器各自的单调时钟直接相减。</p>
 <h2 id="qos-先保证匹配再讨论取舍">QoS 先保证匹配，再讨论取舍<a class="heading-anchor" href="#qos-先保证匹配再讨论取舍" aria-label="锚点">#</a></h2>
 <p>订阅者请求的可靠性不能高于发布者提供的可靠性。例如，<code>BEST_EFFORT</code> 发布者无法满足 <code>RELIABLE</code> 订阅者；反向组合可以匹配。其他参与匹配的策略也必须兼容。完整规则见 <a href="https://docs.ros.org/en/humble/Concepts/Intermediate/About-Quality-of-Service-Settings.html" target="_blank" rel="noopener">ROS 2 QoS 文档</a>。</p>
-<div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash"><span class="tok-comment"># 在已经配置 ROS 2 环境的终端里，检查两端实际生效的配置</span>
+<div class="code-block" data-lang="bash" data-lines="2"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash"><span class="tok-comment"># 在已经配置 ROS 2 环境的终端里，检查两端实际生效的配置</span>
 ros2 topic info <span class="tok-operator">/</span>joint_states <span class="tok-operator">--</span>verbose</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
 <p>如果话题存在却没有数据，先核对类型、Domain ID、发现范围与 QoS，不要立即归因于丢包。</p>
 <h2 id="不同消息需要不同的交付语义">不同消息，需要不同的交付语义<a class="heading-anchor" href="#不同消息需要不同的交付语义" aria-label="锚点">#</a></h2>
@@ -272,7 +272,7 @@ ros2 topic info <span class="tok-operator">/</span>joint_states <span class="tok
 </tbody></table></div>
 <p><code>KEEP_LAST(1)</code> 限制历史缓存深度，不会自动清理应用自己排队的数据。<code>DEADLINE</code> 可以报告期望更新周期未满足，不能代替控制器的看门狗。<code>TRANSIENT_LOCAL</code> 适合保留状态快照，不应无条件用于一次性运动命令，以免晚加入的节点收到不适合重放的旧命令。</p>
 <p>下面是 ROS 2 C++ 的 QoS 构造片段，需要放进已有节点并包含 <code>rclcpp</code> 头文件；它不是一份独立可执行程序。</p>
-<div class="code-block" data-lang="cpp" data-foldable="7"><div class="code-head"><span class="code-lang">cpp</span><div class="code-tools"><button class="code-fold" type="button" data-fold aria-expanded="true"><span data-fold-label>收起</span><svg class="code-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">auto</span> sensor_qos <span class="tok-operator">=</span> rclcpp<span class="tok-operator">::</span><span class="tok-function">QoS</span><span class="tok-punct">(</span>rclcpp<span class="tok-operator">::</span><span class="tok-function">KeepLast</span><span class="tok-punct">(</span><span class="tok-number">1</span><span class="tok-punct">)</span><span class="tok-punct">)</span>
+<div class="code-block" data-lang="cpp" data-lines="7"><div class="code-head"><span class="code-lang">cpp</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">auto</span> sensor_qos <span class="tok-operator">=</span> rclcpp<span class="tok-operator">::</span><span class="tok-function">QoS</span><span class="tok-punct">(</span>rclcpp<span class="tok-operator">::</span><span class="tok-function">KeepLast</span><span class="tok-punct">(</span><span class="tok-number">1</span><span class="tok-punct">)</span><span class="tok-punct">)</span>
     <span class="tok-punct">.</span><span class="tok-function">best_effort</span><span class="tok-punct">(</span><span class="tok-punct">)</span>
     <span class="tok-punct">.</span><span class="tok-function">durability_volatile</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
 
@@ -288,7 +288,7 @@ ros2 topic info <span class="tok-operator">/</span>joint_states <span class="tok
 <p>每次只改变一个变量，保留以下信息：</p>
 <ul><li>CPU、系统与内核版本、ROS 2 / RMW / DDS 版本。</li><li>同进程、同机跨进程或跨机拓扑，以及网卡和链路条件。</li><li>消息类型、大小、频率、发布者与订阅者数量。</li><li>暖机时间、采样时长、后台负载与时钟同步方法。</li><li>p50、p95、p99、观测最大值、丢失率、超期率与 CPU 占用。</li></ul>
 <p>下面的 <strong>Python 3 独立示例</strong>只说明统计方法，输入是教学数据，不是本站机器人的实测结果。</p>
-<div class="code-block" data-lang="python" data-foldable="17"><div class="code-head"><span class="code-lang">python</span><div class="code-tools"><button class="code-fold" type="button" data-fold aria-expanded="true"><span data-fold-label>收起</span><svg class="code-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">import</span> math
+<div class="code-block" data-lang="python" data-lines="17"><div class="code-head"><span class="code-lang">python</span><div class="code-tools"><button class="code-fold" type="button" data-fold aria-expanded="true"><span data-fold-label>收起</span><svg class="code-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">import</span> math
 
 <span class="tok-keyword">def</span> <span class="tok-function">summarize_us</span><span class="tok-punct">(</span>samples<span class="tok-punct">,</span> deadline_us<span class="tok-punct">)</span><span class="tok-punct">:</span>
     values <span class="tok-operator">=</span> <span class="tok-builtin">sorted</span><span class="tok-punct">(</span>samples<span class="tok-punct">)</span>
@@ -920,7 +920,7 @@ ros2 topic info <span class="tok-operator">/</span>joint_states <span class="tok
 
 <script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
 
-<script src="/assets/site.js?v=e0249acc" defer></script>
+<script src="/assets/site.js?v=3716ee76" defer></script>
 
 </body>
 </html>

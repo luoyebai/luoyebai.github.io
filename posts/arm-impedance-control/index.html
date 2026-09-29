@@ -31,8 +31,8 @@
 <link rel="canonical" href="https://luoyebai.github.io/posts/arm-impedance-control/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=e0249acc">
-<link rel="stylesheet" href="/assets/site.css?v=e0249acc">
+<link rel="stylesheet" href="/assets/themes.css?v=3716ee76">
+<link rel="stylesheet" href="/assets/site.css?v=3716ee76">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
 
@@ -264,7 +264,7 @@
 <p>补偿项由接口约定决定。驱动已补偿重力时，再加一遍重力会出错。可对照 <a href="https://frankarobotics.github.io/libfranka/0.15.0/cartesian_impedance_control_8cpp-example.html" target="_blank" rel="noopener">libfranka 的无惯量整形阻抗示例</a>，理解它的误差、雅可比与补偿项约定。</p>
 <h2 id="一个可运行的一维计算">一个可运行的一维计算<a class="heading-anchor" href="#一个可运行的一维计算" aria-label="锚点">#</a></h2>
 <p>下面使用 Python 3 标准库，展示偏差与阻尼如何改变指令力。它只做数值计算，不连接机器人。</p>
-<div class="code-block" data-lang="python" data-foldable="13"><div class="code-head"><span class="code-lang">python</span><div class="code-tools"><button class="code-fold" type="button" data-fold aria-expanded="true"><span data-fold-label>收起</span><svg class="code-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">import</span> math
+<div class="code-block" data-lang="python" data-lines="13"><div class="code-head"><span class="code-lang">python</span><div class="code-tools"><button class="code-fold" type="button" data-fold aria-expanded="true"><span data-fold-label>收起</span><svg class="code-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-python"><span class="tok-keyword">import</span> math
 
 <span class="tok-keyword">def</span> <span class="tok-function">spring_damper</span><span class="tok-punct">(</span>error_m<span class="tok-punct">,</span> velocity_mps<span class="tok-punct">,</span> stiffness<span class="tok-punct">,</span> mass<span class="tok-punct">,</span> zeta<span class="tok-operator">=</span><span class="tok-number">1.0</span><span class="tok-punct">)</span><span class="tok-punct">:</span>
     <span class="tok-keyword">if</span> <span class="tok-keyword">not</span> <span class="tok-builtin">all</span><span class="tok-punct">(</span>math<span class="tok-punct">.</span><span class="tok-function">isfinite</span><span class="tok-punct">(</span>v<span class="tok-punct">)</span> <span class="tok-keyword">for</span> v <span class="tok-keyword">in</span> <span class="tok-punct">(</span>error_m<span class="tok-punct">,</span> velocity_mps<span class="tok-punct">,</span> stiffness<span class="tok-punct">,</span> mass<span class="tok-punct">,</span> zeta<span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">:</span>
@@ -905,7 +905,7 @@ force<span class="tok-punct">,</span> damping <span class="tok-operator">=</span
 <script defer src="/assets/vendor/katex/katex.min.js"></script>
 
 
-<script src="/assets/site.js?v=e0249acc" defer></script>
+<script src="/assets/site.js?v=3716ee76" defer></script>
 
 </body>
 </html>

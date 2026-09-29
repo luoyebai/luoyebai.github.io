@@ -31,8 +31,8 @@
 <link rel="canonical" href="https://luoyebai.github.io/posts/realtime-control-loop/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=e0249acc">
-<link rel="stylesheet" href="/assets/site.css?v=e0249acc">
+<link rel="stylesheet" href="/assets/themes.css?v=3716ee76">
+<link rel="stylesheet" href="/assets/site.css?v=3716ee76">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
 
@@ -255,7 +255,7 @@
 <h2 id="测量不要成为新的抖动来源">测量不要成为新的抖动来源<a class="heading-anchor" href="#测量不要成为新的抖动来源" aria-label="锚点">#</a></h2>
 <p>在控制循环里写文件、打印日志或让 <code>std::vector</code> 不断扩容，会改变正在测量的系统。初始化时分配固定容量，运行时只写入，结束后再导出，是最简单的起点。</p>
 <p>下面是 <strong>C++17 独立示例</strong>。它演示有界记录，不运行控制器，也不证明操作系统已经满足实时要求。</p>
-<div class="code-block" data-lang="cpp" data-foldable="28"><div class="code-head"><span class="code-lang">cpp</span><div class="code-tools"><button class="code-fold" type="button" data-fold aria-expanded="true"><span data-fold-label>收起</span><svg class="code-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-cpp"><span class="tok-preproc">#include</span> <span class="tok-operator">&lt;</span>array<span class="tok-operator">&gt;</span>
+<div class="code-block" data-lang="cpp" data-lines="28"><div class="code-head"><span class="code-lang">cpp</span><div class="code-tools"><button class="code-fold" type="button" data-fold aria-expanded="true"><span data-fold-label>收起</span><svg class="code-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-cpp"><span class="tok-preproc">#include</span> <span class="tok-operator">&lt;</span>array<span class="tok-operator">&gt;</span>
 <span class="tok-preproc">#include</span> <span class="tok-operator">&lt;</span>cstddef<span class="tok-operator">&gt;</span>
 <span class="tok-preproc">#include</span> <span class="tok-operator">&lt;</span>cstdint<span class="tok-operator">&gt;</span>
 <span class="tok-preproc">#include</span> <span class="tok-operator">&lt;</span>iostream<span class="tok-operator">&gt;</span>
@@ -829,7 +829,7 @@
 
 <script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
 
-<script src="/assets/site.js?v=e0249acc" defer></script>
+<script src="/assets/site.js?v=3716ee76" defer></script>
 
 </body>
 </html>

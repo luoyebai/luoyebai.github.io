@@ -31,8 +31,8 @@
 <link rel="canonical" href="https://luoyebai.github.io/projects/joysonrobot_comm/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=e0249acc">
-<link rel="stylesheet" href="/assets/site.css?v=e0249acc">
+<link rel="stylesheet" href="/assets/themes.css?v=3716ee76">
+<link rel="stylesheet" href="/assets/site.css?v=3716ee76">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
 
@@ -273,12 +273,12 @@
 <h2 id="与-ros-2-互通">与 ROS 2 互通<a class="heading-anchor" href="#与-ros-2-互通" aria-label="锚点">#</a></h2>
 <p>话题名遵循 ROS 2 的约定，写成 <code>rt/xxx</code>（<code>rt</code> 是 ROS TOPIC 的缩写，<code>xxx</code> 是 ROS 2 侧发现的话题名），并要求 ROS 2 里的 msg 接口与 IDL 对得上。这条通道适合让 COMM 写的节点和已有的 ROS 2 生态对接，而不是替代 ROS 2。</p>
 <h2 id="依赖与构建">依赖与构建<a class="heading-anchor" href="#依赖与构建" aria-label="锚点">#</a></h2>
-<div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">sudo apt-get update
+<div class="code-block" data-lang="bash" data-lines="5"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">sudo apt-get update
 sudo apt-get install cmake build-essential python3-dev python3-pip
 sudo apt-get install libtinyxml2-dev libssl-dev          <span class="tok-comment"># DDS 依赖</span>
 sudo apt-get install pkg-config libprotobuf-dev libgrpc<span class="tok-operator">++-</span>dev
 sudo apt-get install protobuf-compiler protobuf-compiler-grpc</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
-<div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">mkdir build <span class="tok-operator">&amp;&amp;</span> cd build
+<div class="code-block" data-lang="bash" data-lines="5"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">mkdir build <span class="tok-operator">&amp;&amp;</span> cd build
 cmake <span class="tok-operator">-</span><span class="tok-type">DCMAKE_INSTALL_PREFIX</span><span class="tok-operator">=/</span>usr ..
 make <span class="tok-operator">-</span>j$<span class="tok-punct">(</span>nproc<span class="tok-punct">)</span>
 make test            <span class="tok-comment"># 在 build/tests 下跑测试</span>
@@ -754,7 +754,7 @@ sudo make install</code></pre><button class="code-more" type="button" data-fold 
 <script defer src="/assets/vendor/katex/katex.min.js"></script>
 
 
-<script src="/assets/site.js?v=e0249acc" defer></script>
+<script src="/assets/site.js?v=3716ee76" defer></script>
 
 </body>
 </html>

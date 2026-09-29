@@ -963,8 +963,8 @@
     if (pre.scrollWidth > pre.clientWidth + 4) pre.classList.add('is-scrollable');
   });
   var AUTO_FOLD = 24;
-  document.querySelectorAll('.code-block[data-foldable]').forEach(function (box) {
-    var lines = parseInt(box.getAttribute('data-foldable'), 10) || 0;
+  document.querySelectorAll('.code-block[data-lines]').forEach(function (box) {
+    var lines = parseInt(box.getAttribute('data-lines'), 10) || 0;
     var more = box.querySelector('.code-more');
     var foldBtn = box.querySelector('.code-fold');
     function apply(folded) {

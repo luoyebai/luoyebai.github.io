@@ -31,8 +31,8 @@
 <link rel="canonical" href="https://luoyebai.github.io/posts/cpp-toolchain/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=e0249acc">
-<link rel="stylesheet" href="/assets/site.css?v=e0249acc">
+<link rel="stylesheet" href="/assets/themes.css?v=3716ee76">
+<link rel="stylesheet" href="/assets/site.css?v=3716ee76">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
 
@@ -252,7 +252,7 @@
 <p>C++ 没有事实上的官方构建系统，CMake 是目前唯一能覆盖「跨平台 + 生态最全 + IDE 都认」的选择。
 它不是构建工具，而是<strong>构建系统的生成器</strong> —— 你描述目标与依赖，它生成 Makefile 或 Ninja 文件。</p>
 <p>一份最小但结构正确的 <code>CMakeLists.txt</code>：</p>
-<div class="code-block" data-lang="cmake" data-foldable="19"><div class="code-head"><span class="code-lang">cmake</span><div class="code-tools"><button class="code-fold" type="button" data-fold aria-expanded="true"><span data-fold-label>收起</span><svg class="code-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-cmake"><span class="tok-keyword">cmake_minimum_required</span><span class="tok-punct">(</span><span class="tok-type">VERSION</span> <span class="tok-number">3</span>.<span class="tok-number">16</span>...<span class="tok-number">3</span>.<span class="tok-number">29</span><span class="tok-punct">)</span>
+<div class="code-block" data-lang="cmake" data-lines="19"><div class="code-head"><span class="code-lang">cmake</span><div class="code-tools"><button class="code-fold" type="button" data-fold aria-expanded="true"><span data-fold-label>收起</span><svg class="code-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-cmake"><span class="tok-keyword">cmake_minimum_required</span><span class="tok-punct">(</span><span class="tok-type">VERSION</span> <span class="tok-number">3</span>.<span class="tok-number">16</span>...<span class="tok-number">3</span>.<span class="tok-number">29</span><span class="tok-punct">)</span>
 
 <span class="tok-keyword">project</span><span class="tok-punct">(</span><span class="tok-type">ModernCMakeExample</span>
   <span class="tok-type">VERSION</span> <span class="tok-number">1</span>.<span class="tok-number">0</span>
@@ -316,12 +316,12 @@ GNOME、Wayland、systemd 这些项目都用它。</p>
 <h3 id="rr">rr<a class="heading-anchor" href="#rr" aria-label="锚点">#</a></h3>
 <p><a href="https://rr-project.org/" target="_blank" rel="noopener">rr</a> 把一次执行<strong>录制</strong>下来，之后可以正着走、倒着走任意多次。
 对「跑一百次只挂一次」的 bug，它是唯一现实的手段：</p>
-<div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">rr record .<span class="tok-operator">/</span>my_node <span class="tok-operator">--</span>args
+<div class="code-block" data-lang="bash" data-lines="2"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">rr record .<span class="tok-operator">/</span>my_node <span class="tok-operator">--</span>args
 rr replay            <span class="tok-comment"># 在这一步里随便回退、随便加断点</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
 <p>限制是它依赖 <code>perf_event_open</code>，容器里常被禁；部分内核需要调 <code>perf_event_paranoid</code>。</p>
 <h3 id="sanitizers">sanitizers<a class="heading-anchor" href="#sanitizers" aria-label="锚点">#</a></h3>
 <p>加一个编译选项就能用，性价比极高，值得在 CI 里单独跑一轮：</p>
-<div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash"><span class="tok-comment"># 地址：越界、use-after-free、泄漏</span>
+<div class="code-block" data-lang="bash" data-lines="5"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash"><span class="tok-comment"># 地址：越界、use-after-free、泄漏</span>
 cmake <span class="tok-operator">-</span><span class="tok-type">DCMAKE_BUILD_TYPE</span><span class="tok-operator">=</span><span class="tok-type">Debug</span> \
       <span class="tok-operator">-</span><span class="tok-type">DCMAKE_CXX_FLAGS</span><span class="tok-operator">=</span><span class="tok-string">&quot;-fsanitize=address,undefined -fno-omit-frame-pointer&quot;</span> ..
 <span class="tok-comment"># 线程：数据竞争</span>
@@ -329,7 +329,7 @@ cmake <span class="tok-operator">-</span><span class="tok-type">DCMAKE_CXX_FLAGS
 <p>注意 <strong>ASan 和 TSan 不能同时开</strong>。实时控制代码里 ASan 的耗时（数倍）会让环路跑不满，
 所以它适合跑单元测试和离线回放，不适合直接在实机 1 kHz 环上测。</p>
 <h3 id="perf">perf<a class="heading-anchor" href="#perf" aria-label="锚点">#</a></h3>
-<div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">perf record <span class="tok-operator">-</span>g .<span class="tok-operator">/</span>my_node      <span class="tok-comment"># 采样 + 记录调用栈</span>
+<div class="code-block" data-lang="bash" data-lines="3"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">perf record <span class="tok-operator">-</span>g .<span class="tok-operator">/</span>my_node      <span class="tok-comment"># 采样 + 记录调用栈</span>
 perf report                   <span class="tok-comment"># 交互式看热点</span>
 perf stat .<span class="tok-operator">/</span>my_node           <span class="tok-comment"># 只看 IPC、cache miss、分支预测失败率</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
 <p><code>perf stat</code> 的 <code>cache-miss</code> 和 <code>branch-misses</code> 常常比火焰图更能说明问题：
@@ -337,7 +337,7 @@ perf stat .<span class="tok-operator">/</span>my_node           <span class="tok
 <h2 id="依赖管理">依赖管理<a class="heading-anchor" href="#依赖管理" aria-label="锚点">#</a></h2>
 <h3 id="vcpkg">vcpkg<a class="heading-anchor" href="#vcpkg" aria-label="锚点">#</a></h3>
 <p><a href="https://vcpkg.io/" target="_blank" rel="noopener">vcpkg</a> 用 CMake 的 toolchain 机制接入，一行就能让 <code>find_package</code> 找到库：</p>
-<div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">git clone https:<span class="tok-operator">//</span>github.com<span class="tok-operator">/</span>microsoft<span class="tok-operator">/</span>vcpkg <span class="tok-operator">&amp;&amp;</span> .<span class="tok-operator">/</span>vcpkg<span class="tok-operator">/</span>bootstrap-vcpkg.sh
+<div class="code-block" data-lang="bash" data-lines="2"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">git clone https:<span class="tok-operator">//</span>github.com<span class="tok-operator">/</span>microsoft<span class="tok-operator">/</span>vcpkg <span class="tok-operator">&amp;&amp;</span> .<span class="tok-operator">/</span>vcpkg<span class="tok-operator">/</span>bootstrap-vcpkg.sh
 cmake <span class="tok-operator">-</span><span class="tok-type">DCMAKE_TOOLCHAIN_FILE</span><span class="tok-operator">=&lt;</span>vcpkg<span class="tok-operator">&gt;/</span>scripts<span class="tok-operator">/</span>buildsystems<span class="tok-operator">/</span>vcpkg.cmake ..</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
 <p>用 <code>vcpkg.json</code> 声明依赖（manifest 模式），版本锁在 <code>vcpkg-configuration.json</code> 里。
 优点是库多（两千多个）且和 CMake 集成最顺；缺点是<strong>源码编译，第一次装很慢</strong>，
@@ -355,7 +355,7 @@ ARM 上更慢 —— 可以配二进制缓存（<code>VCPKG_BINARY_SOURCES</code
 clang-tidy 能查「这个构造函数该标 <code>explicit</code>」「这个 <code>shared_ptr</code> 该改成 <code>unique_ptr</code>」
 「这个函数该标 <code>const</code>」这类风格与正确性混杂的问题。</p>
 <p><code>.clang-tidy</code>（可直接用）：</p>
-<div class="code-block" data-lang="yaml" data-foldable="78"><div class="code-head"><span class="code-lang">yaml</span><div class="code-tools"><button class="code-fold" type="button" data-fold aria-expanded="true"><span data-fold-label>收起</span><svg class="code-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-yaml"><span class="tok-key">FormatStyle</span><span class="tok-punct">:</span> file
+<div class="code-block" data-lang="yaml" data-lines="78"><div class="code-head"><span class="code-lang">yaml</span><div class="code-tools"><button class="code-fold" type="button" data-fold aria-expanded="true"><span data-fold-label>收起</span><svg class="code-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-yaml"><span class="tok-key">FormatStyle</span><span class="tok-punct">:</span> file
 
 <span class="tok-key">Checks</span><span class="tok-punct">:</span> <span class="tok-punct">|</span>
   *bugprone*<span class="tok-punct">,</span>
@@ -440,7 +440,7 @@ clang-tidy 能查「这个构造函数该标 <code>explicit</code>」「这个 <
 <h3 id="clang-format">clang-format<a class="heading-anchor" href="#clang-format" aria-label="锚点">#</a></h3>
 <p>格式化。和 clang-tidy 共用 <code>.clang-format</code> / <code>FormatStyle: file</code>，
 所以 IDE 里保存自动格式化、CI 里检查格式，用的是同一份规则。</p>
-<div class="code-block" data-lang="yaml" data-foldable="49"><div class="code-head"><span class="code-lang">yaml</span><div class="code-tools"><button class="code-fold" type="button" data-fold aria-expanded="true"><span data-fold-label>收起</span><svg class="code-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-yaml"><span class="tok-comment"># 基于 Google C/C++ Code Style</span>
+<div class="code-block" data-lang="yaml" data-lines="49"><div class="code-head"><span class="code-lang">yaml</span><div class="code-tools"><button class="code-fold" type="button" data-fold aria-expanded="true"><span data-fold-label>收起</span><svg class="code-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-yaml"><span class="tok-comment"># 基于 Google C/C++ Code Style</span>
 <span class="tok-key">Language</span><span class="tok-punct">:</span> <span class="tok-type">Cpp</span>
 <span class="tok-key">BasedOnStyle</span><span class="tok-punct">:</span> <span class="tok-type">Google</span>
 <span class="tok-key">AccessModifierOffset</span><span class="tok-punct">:</span> <span class="tok-punct">-</span><span class="tok-number">1</span>
@@ -498,7 +498,7 @@ clang-tidy 能查「这个构造函数该标 <code>explicit</code>」「这个 <
 <h3 id="lizard">Lizard<a class="heading-anchor" href="#lizard" aria-label="锚点">#</a></h3>
 <p><a href="https://github.com/terryyin/lizard" target="_blank" rel="noopener">Lizard</a> 算圈复杂度（CCN）与函数长度，
 用来找「该拆但一直没拆」的函数：</p>
-<div class="code-block" data-lang="bash"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">lizard <span class="tok-operator">-</span>l cpp <span class="tok-operator">-</span><span class="tok-type">C</span> <span class="tok-number">15</span> src<span class="tok-operator">/</span>        <span class="tok-comment"># 只列 CCN &gt; 15 的函数</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
+<div class="code-block" data-lang="bash" data-lines="1"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">lizard <span class="tok-operator">-</span>l cpp <span class="tok-operator">-</span><span class="tok-type">C</span> <span class="tok-number">15</span> src<span class="tok-operator">/</span>        <span class="tok-comment"># 只列 CCN &gt; 15 的函数</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
 <p>它不做数据流分析，所以不用指望它发现 bug；它的价值是把「这个函数太长了」
 从一个见仁见智的意见变成一条能进 CI 的硬指标。建议阈值先设宽（CCN 20），
 只对新增代码生效。</p>
@@ -1122,7 +1122,7 @@ gdb/rr 查崩溃、sanitizer 查内存与并发、perf 查性能、clang-tidy/cl
 <script defer src="/assets/vendor/katex/katex.min.js"></script>
 
 
-<script src="/assets/site.js?v=e0249acc" defer></script>
+<script src="/assets/site.js?v=3716ee76" defer></script>
 
 </body>
 </html>
