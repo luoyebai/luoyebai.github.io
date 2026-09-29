@@ -31,11 +31,11 @@
 <link rel="canonical" href="https://luoyebai.github.io/docs/slam-intro/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=3716ee76">
-<link rel="stylesheet" href="/assets/site.css?v=3716ee76">
+<link rel="stylesheet" href="/assets/themes.css?v=4f1381ac">
+<link rel="stylesheet" href="/assets/site.css?v=4f1381ac">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
-<link rel="stylesheet" href="/assets/docs.css?v=3716ee76">
+<link rel="stylesheet" href="/assets/docs.css?v=4f1381ac">
 
 
 
@@ -422,7 +422,7 @@ ros2 run nav2_map_server map_saver_cli <span class="tok-operator">-</span>f <spa
         <div class="slide-inner"><h2>验收与参考</h2>
 <div class="deck-fragment"><p>练习：在一段包含回环的录包中，比较起终点附近墙面、重复结构和轨迹连续性。</p></div>
 <div class="deck-fragment"><p><strong>答案要点</strong>：没有真值时不能报告真实定位精度；应报告地图一致性、回环行为与失败场景。有真值时再计算轨迹误差，并说明坐标对齐方式。</p></div>
-<div class="deck-fragment"><p>参考：<a href="https://github.com/SteveMacenski/slam_toolbox" target="_blank" rel="noopener">SLAM Toolbox 项目与说明</a>、<a href="https://github.com/SteveMacenski/slam_toolbox/blob/jazzy/launch/online_async_launch.py" target="_blank" rel="noopener">Jazzy 启动文件</a>、<a href="https://www.ros.org/reps/rep-0105.html" target="_blank" rel="noopener">REP-105 坐标约定</a>。</p></div></div>
+<div class="deck-fragment"><p>参考：<a href="https://github.com/SteveMacenski/slam_toolbox" target="_blank" rel="noopener" class="site-link" data-site="github.com"><svg class="site-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#site-github"/></svg>SLAM Toolbox 项目与说明</a>、<a href="https://github.com/SteveMacenski/slam_toolbox/blob/jazzy/launch/online_async_launch.py" target="_blank" rel="noopener" class="site-link" data-site="github.com"><svg class="site-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#site-github"/></svg>Jazzy 启动文件</a>、<a href="https://www.ros.org/reps/rep-0105.html" target="_blank" rel="noopener" class="site-link" data-site="www.ros.org"><svg class="site-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#site-ros"/></svg>REP-105 坐标约定</a>。</p></div></div>
       </section>
       
     </div>
@@ -914,10 +914,13 @@ ros2 run nav2_map_server map_saver_cli <span class="tok-operator">-</span>f <spa
 </div>
 
 
+
+<svg class="site-icons" width="0" height="0" aria-hidden="true" focusable="false"><symbol id="site-github" viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></symbol><symbol id="site-ros" viewBox="0 0 24 24"><path d="M2.807 0C1.353 0 .173 1.22.173 2.722c0 1.504 1.18 2.723 2.634 2.723 1.455 0 2.635-1.22 2.635-2.723S4.262 0 2.807 0zM12 0c-1.455 0-2.634 1.22-2.634 2.722 0 1.504 1.18 2.723 2.634 2.723 1.455 0 2.634-1.22 2.634-2.723S13.454 0 12 0zm9.193 0c-1.455 0-2.635 1.22-2.635 2.722 0 1.504 1.18 2.723 2.635 2.723 1.455 0 2.634-1.22 2.634-2.723S22.647 0 21.193 0zM2.807 9.277C1.353 9.277.173 10.497.173 12s1.18 2.722 2.634 2.722c1.455 0 2.635-1.219 2.635-2.722 0-1.504-1.18-2.723-2.635-2.723zm9.193 0c-1.455 0-2.634 1.22-2.634 2.723s1.18 2.722 2.634 2.722c1.455 0 2.634-1.219 2.634-2.722 0-1.504-1.18-2.723-2.634-2.723zm9.193 0c-1.455 0-2.635 1.22-2.635 2.723s1.18 2.722 2.635 2.722c1.455 0 2.634-1.219 2.634-2.722 0-1.504-1.18-2.723-2.634-2.723zM2.807 18.555c-1.454 0-2.634 1.22-2.634 2.722C.173 22.781 1.353 24 2.807 24c1.455 0 2.635-1.22 2.635-2.723s-1.18-2.722-2.635-2.722zm9.193 0c-1.455 0-2.634 1.22-2.634 2.722C9.366 22.781 10.546 24 12 24c1.455 0 2.634-1.22 2.634-2.723s-1.18-2.722-2.634-2.722zm9.193 0c-1.455 0-2.635 1.22-2.635 2.722 0 1.504 1.18 2.723 2.635 2.723 1.455 0 2.634-1.22 2.634-2.723s-1.18-2.722-2.634-2.722z"/></symbol></svg>
+
 <script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
 
-<script src="/assets/site.js?v=3716ee76" defer></script>
-<script src="/assets/docs.js?v=3716ee76" defer></script>
+<script src="/assets/site.js?v=4f1381ac" defer></script>
+<script src="/assets/docs.js?v=4f1381ac" defer></script>
 
 </body>
 </html>

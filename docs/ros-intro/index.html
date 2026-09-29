@@ -31,11 +31,11 @@
 <link rel="canonical" href="https://luoyebai.github.io/docs/ros-intro/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=3716ee76">
-<link rel="stylesheet" href="/assets/site.css?v=3716ee76">
+<link rel="stylesheet" href="/assets/themes.css?v=4f1381ac">
+<link rel="stylesheet" href="/assets/site.css?v=4f1381ac">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
-<link rel="stylesheet" href="/assets/docs.css?v=3716ee76">
+<link rel="stylesheet" href="/assets/docs.css?v=4f1381ac">
 
 
 
@@ -353,7 +353,7 @@ ros2 run demo_nodes_cpp talker</code></pre><button class="code-more" type="butto
 <div class="deck-fragment"><div class="code-block" data-lang="bash" data-lines="2"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash"><span class="tok-keyword">source</span> <span class="tok-operator">/</span>opt<span class="tok-operator">/</span>ros<span class="tok-operator">/</span>jazzy<span class="tok-operator">/</span>setup.bash
 ros2 run demo_nodes_py listener</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div></div>
 <div class="deck-fragment"><p>预期 listener 持续收到消息。停止使用 Ctrl+C。
-若包未安装，按 <a href="https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html" target="_blank" rel="noopener">Jazzy 安装文档</a> 安装相应 demo 包。</p></div></div>
+若包未安装，按 <a href="https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html" target="_blank" rel="noopener" class="site-link" data-site="docs.ros.org"><svg class="site-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#site-ros"/></svg>Jazzy 安装文档</a> 安装相应 demo 包。</p></div></div>
       </section>
       
       <section class="slide" data-slide="4"
@@ -449,7 +449,7 @@ QoS、生命周期与安全机制提供配置能力，但不会自动带来硬�
 <div class="deck-fragment"><p>将发布节点的话题改为 <code>status</code>，listener 是否自动收到？</p></div>
 <div class="deck-fragment"><p><strong>答案</strong>：不会。需要修改订阅配置或使用重映射，例如 <code>--ros-args -r chatter:=status</code>。</p></div>
 <div class="deck-fragment"><p>接着阅读 <a href="/docs/ros-tools/">节点和工具</a>。</p></div>
-<div class="deck-fragment"><p>参考：<a href="https://docs.ros.org/en/jazzy/Concepts/Basic/About-Nodes.html" target="_blank" rel="noopener">ROS 2 节点概念</a>、<a href="https://docs.ros.org/en/jazzy/Concepts/Intermediate/About-Quality-of-Service-Settings.html" target="_blank" rel="noopener">QoS</a>、<a href="https://www.ros.org/blog/noetic-eol/" target="_blank" rel="noopener">Noetic 支持结束公告</a>。</p></div></div>
+<div class="deck-fragment"><p>参考：<a href="https://docs.ros.org/en/jazzy/Concepts/Basic/About-Nodes.html" target="_blank" rel="noopener" class="site-link" data-site="docs.ros.org"><svg class="site-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#site-ros"/></svg>ROS 2 节点概念</a>、<a href="https://docs.ros.org/en/jazzy/Concepts/Intermediate/About-Quality-of-Service-Settings.html" target="_blank" rel="noopener" class="site-link" data-site="docs.ros.org"><svg class="site-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#site-ros"/></svg>QoS</a>、<a href="https://www.ros.org/blog/noetic-eol/" target="_blank" rel="noopener" class="site-link" data-site="www.ros.org"><svg class="site-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#site-ros"/></svg>Noetic 支持结束公告</a>。</p></div></div>
       </section>
       
     </div>
@@ -936,10 +936,13 @@ QoS、生命周期与安全机制提供配置能力，但不会自动带来硬�
 </div>
 
 
+
+<svg class="site-icons" width="0" height="0" aria-hidden="true" focusable="false"><symbol id="site-ros" viewBox="0 0 24 24"><path d="M2.807 0C1.353 0 .173 1.22.173 2.722c0 1.504 1.18 2.723 2.634 2.723 1.455 0 2.635-1.22 2.635-2.723S4.262 0 2.807 0zM12 0c-1.455 0-2.634 1.22-2.634 2.722 0 1.504 1.18 2.723 2.634 2.723 1.455 0 2.634-1.22 2.634-2.723S13.454 0 12 0zm9.193 0c-1.455 0-2.635 1.22-2.635 2.722 0 1.504 1.18 2.723 2.635 2.723 1.455 0 2.634-1.22 2.634-2.723S22.647 0 21.193 0zM2.807 9.277C1.353 9.277.173 10.497.173 12s1.18 2.722 2.634 2.722c1.455 0 2.635-1.219 2.635-2.722 0-1.504-1.18-2.723-2.635-2.723zm9.193 0c-1.455 0-2.634 1.22-2.634 2.723s1.18 2.722 2.634 2.722c1.455 0 2.634-1.219 2.634-2.722 0-1.504-1.18-2.723-2.634-2.723zm9.193 0c-1.455 0-2.635 1.22-2.635 2.723s1.18 2.722 2.635 2.722c1.455 0 2.634-1.219 2.634-2.722 0-1.504-1.18-2.723-2.634-2.723zM2.807 18.555c-1.454 0-2.634 1.22-2.634 2.722C.173 22.781 1.353 24 2.807 24c1.455 0 2.635-1.22 2.635-2.723s-1.18-2.722-2.635-2.722zm9.193 0c-1.455 0-2.634 1.22-2.634 2.722C9.366 22.781 10.546 24 12 24c1.455 0 2.634-1.22 2.634-2.723s-1.18-2.722-2.634-2.722zm9.193 0c-1.455 0-2.635 1.22-2.635 2.722 0 1.504 1.18 2.723 2.635 2.723 1.455 0 2.634-1.22 2.634-2.723s-1.18-2.722-2.634-2.722z"/></symbol></svg>
+
 <script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
 
-<script src="/assets/site.js?v=3716ee76" defer></script>
-<script src="/assets/docs.js?v=3716ee76" defer></script>
+<script src="/assets/site.js?v=4f1381ac" defer></script>
+<script src="/assets/docs.js?v=4f1381ac" defer></script>
 
 </body>
 </html>

@@ -14,10 +14,19 @@
     var description = document.createElement('p'); description.className = 'resource-description'; description.textContent = descriptions[i] || '';
     h.after(description);
     section.querySelectorAll('li a').forEach(function (a) {
-      var title = a.textContent; var url;
+      var mark = a.querySelector('.site-mark');
+      var title = a.textContent;
+      var url;
       try { url = new URL(a.href); } catch (e) { return; }
       a.textContent = '';
-      var icon = document.createElement('span'); icon.className = 'resource-icon'; icon.textContent = url.hostname.replace(/^www\./, '').slice(0,2).toUpperCase(); icon.setAttribute('aria-hidden', 'true');
+      var icon = document.createElement('span'); icon.className = 'resource-icon';
+      if (mark) {
+        icon.classList.add('is-brand');
+        icon.append(mark);
+      } else {
+        icon.textContent = url.hostname.replace(/^www\./, '').slice(0, 2).toUpperCase();
+      }
+      icon.setAttribute('aria-hidden', 'true');
       var name = document.createElement('strong'); name.textContent = title;
       var domain = document.createElement('small'); domain.textContent = url.hostname.replace(/^www\./, '');
       var arrow = document.createElement('span'); arrow.className = 'resource-arrow'; arrow.textContent = '↗'; arrow.setAttribute('aria-hidden', 'true');

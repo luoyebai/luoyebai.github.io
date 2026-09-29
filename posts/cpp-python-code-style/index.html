@@ -31,8 +31,8 @@
 <link rel="canonical" href="https://luoyebai.github.io/posts/cpp-python-code-style/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=3716ee76">
-<link rel="stylesheet" href="/assets/site.css?v=3716ee76">
+<link rel="stylesheet" href="/assets/themes.css?v=4f1381ac">
+<link rel="stylesheet" href="/assets/site.css?v=4f1381ac">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
 
@@ -249,8 +249,8 @@
 <p>我们限定 C++ 版本为 C++ 17 以上 。</p>
 <blockquote><p>编译器选择 GCC 12，Clang 15+，其中部分 C++20 使用 GSL（Guidelines Support Library） 库代替实现。</p></blockquote>
 <p>参考文档：</p>
-<p><a href="https://github.isocpp.org.cn/CppCoreGuidelines/CppCoreGuidelines#S-tools" target="_blank" rel="noopener">https://github.isocpp.org.cn/CppCoreGuidelines/CppCoreGuidelines#S-tools</a></p>
-<p><a href="https://zh-google-styleguide.readthedocs.io/en/latest/google-cpp-styleguide/index.html" target="_blank" rel="noopener">https://zh-google-styleguide.readthedocs.io/en/latest/google-cpp-styleguide/index.html</a></p>
+<a class="link-card" href="https://github.isocpp.org.cn/CppCoreGuidelines/CppCoreGuidelines#S-tools" target="_blank" rel="noopener" title="https://github.isocpp.org.cn/CppCoreGuidelines/CppCoreGuidelines#S-tools" data-site="github.isocpp.org.cn"><span class="link-card-icon"><svg class="site-mark is-lg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#site-cplusplus"/></svg></span><span class="link-card-text"><span class="link-card-title">CppCoreGuidelines</span><span class="link-card-host">github.isocpp.org.cn</span></span><svg class="link-card-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+<a class="link-card" href="https://zh-google-styleguide.readthedocs.io/en/latest/google-cpp-styleguide/index.html" target="_blank" rel="noopener" title="https://zh-google-styleguide.readthedocs.io/en/latest/google-cpp-styleguide/index.html" data-site="zh-google-styleguide.readthedocs.io"><span class="link-card-icon"><svg class="site-mark is-lg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#site-readthedocs"/></svg></span><span class="link-card-text"><span class="link-card-title">index</span><span class="link-card-host">zh-google-styleguide.readthedocs.io</span></span><svg class="link-card-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
 <p><a href="https://peps.pythonlang.cn/pep-0008/" target="_blank" rel="noopener">https://peps.pythonlang.cn/pep-0008/</a></p>
 <blockquote><p>本指南并非 C++/Python 教程, 我们假定读者已经非常熟悉 C++/Python。</p></blockquote>
 <hr>
@@ -767,7 +767,7 @@ gsl<span class="tok-operator">::</span>index i <span class="tok-operator">=</spa
 <span class="tok-function">for_each</span><span class="tok-punct">(</span>par<span class="tok-punct">,</span> v<span class="tok-punct">,</span> <span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">(</span><span class="tok-keyword">int</span> x<span class="tok-punct">)</span> <span class="tok-punct">{</span> <span class="tok-comment">/* 对 x 的值进行操作 */</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
 <p>第二个代码明确表明，我们对 <code>v</code> 的元素的处理顺序不感兴趣。</p>
 <p>程序员应该熟悉：</p>
-<ul><li><a href="https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#sl-the-standard-library" target="_blank" rel="noopener">ISO C++ 标准库</a></li><li>当前项目使用的任何基础库</li></ul>
+<ul><li><a href="https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#sl-the-standard-library" target="_blank" rel="noopener" class="site-link" data-site="isocpp.github.io"><svg class="site-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#site-cplusplus"/></svg>ISO C++ 标准库</a></li><li>当前项目使用的任何基础库</li></ul>
 <h4 id="理想情况下程序应该是静态类型安全的">理想情况下，程序应该是静态类型安全的<a class="heading-anchor" href="#理想情况下程序应该是静态类型安全的" aria-label="锚点">#</a></h4>
 <p><strong>原因</strong>：理想情况下，程序应该完全静态（编译时）类型安全，但这是不可能的。</p>
 <p><strong>问题</strong>：</p>
@@ -1099,7 +1099,7 @@ Python 的语法糖很多，但工程代码是写给下一个接手的人看的�
 <h3 id="格式与命名">格式与命名<a class="heading-anchor" href="#格式与命名" aria-label="锚点">#</a></h3>
 <ul><li>一律 <strong>4 空格缩进</strong>，不要 Tab；行宽上限 100 字符（PEP 8 的 79 对现代屏幕太窄，
 内部的 C++ 侧用到 120，这里取 100 作为折中）。</li><li><code>snake_case</code> 给函数、变量、模块；<code>CapWords</code> 给类；<code>UPPER_CASE</code> 给模块级常量。</li><li>前导下划线表示内部：<code>_helper()</code> 是模块内部函数。<code>__x</code> 那种双下划线会触发名字改写，
-工程代码里几乎不需要它，只会让调试和序列化变麻烦。</li><li>格式化交给 <a href="https://docs.astral.sh/ruff/" target="_blank" rel="noopener">Ruff</a>（或 Black），静态检查也用 Ruff。
+工程代码里几乎不需要它，只会让调试和序列化变麻烦。</li><li>格式化交给 <a href="https://docs.astral.sh/ruff/" target="_blank" rel="noopener" class="site-link" data-site="docs.astral.sh"><svg class="site-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#site-ruff"/></svg>Ruff</a>（或 Black），静态检查也用 Ruff。
 不要为「谁的空格更对」在 review 里争论，让工具决定。</li></ul>
 <h3 id="类型标注">类型标注<a class="heading-anchor" href="#类型标注" aria-label="锚点">#</a></h3>
 <p>公开函数<strong>必须</strong>标注参数与返回值：</p>
@@ -1734,13 +1734,16 @@ Python 的语法糖很多，但工程代码是写给下一个接手的人看的�
 </div>
 
 
+
+<svg class="site-icons" width="0" height="0" aria-hidden="true" focusable="false"><symbol id="site-cplusplus" viewBox="0 0 24 24"><path d="M22.394 6c-.167-.29-.398-.543-.652-.69L12.926.22c-.509-.294-1.34-.294-1.848 0L2.26 5.31c-.508.293-.923 1.013-.923 1.6v10.18c0 .294.104.62.271.91.167.29.398.543.652.69l8.816 5.09c.508.293 1.34.293 1.848 0l8.816-5.09c.254-.147.485-.4.652-.69.167-.29.27-.616.27-.91V6.91c.003-.294-.1-.62-.268-.91zM12 19.11c-3.92 0-7.109-3.19-7.109-7.11 0-3.92 3.19-7.11 7.11-7.11a7.133 7.133 0 016.156 3.553l-3.076 1.78a3.567 3.567 0 00-3.08-1.78A3.56 3.56 0 008.444 12 3.56 3.56 0 0012 15.555a3.57 3.57 0 003.08-1.778l3.078 1.78A7.135 7.135 0 0112 19.11zm7.11-6.715h-.79v.79h-.79v-.79h-.79v-.79h.79v-.79h.79v.79h.79zm2.962 0h-.79v.79h-.79v-.79h-.79v-.79h.79v-.79h.79v.79h.79z"/></symbol><symbol id="site-readthedocs" viewBox="0 0 24 24"><path d="M7.732 0a59.316 59.316 0 0 0-4.977.218V24a62.933 62.933 0 0 1 3.619-.687c.17-.028.34-.053.509-.078.215-.033.43-.066.644-.096l.205-.03zm1.18.003V22.96a61.042 61.042 0 0 1 12.333-.213V1.485A60.859 60.859 0 0 0 8.912.003zm1.707 1.81a.59.59 0 0 1 .015 0c3.06.088 6.125.404 9.167.95a.59.59 0 0 1 .476.686.59.59 0 0 1-.569.484.59.59 0 0 1-.116-.009 60.622 60.622 0 0 0-8.992-.931.59.59 0 0 1-.573-.607.59.59 0 0 1 .592-.572zm-4.212.028a.59.59 0 0 1 .578.565.59.59 0 0 1-.564.614 59.74 59.74 0 0 0-2.355.144.59.59 0 0 1-.04.002.59.59 0 0 1-.595-.542.59.59 0 0 1 .54-.635c.8-.065 1.6-.114 2.401-.148a.59.59 0 0 1 .035 0zm4.202 2.834a.59.59 0 0 1 .015 0 61.6 61.6 0 0 1 9.167.8.59.59 0 0 1 .488.677.59.59 0 0 1-.602.494.59.59 0 0 1-.076-.006 60.376 60.376 0 0 0-8.99-.786.59.59 0 0 1-.584-.596.59.59 0 0 1 .582-.583zm-4.211.097a.59.59 0 0 1 .587.555.59.59 0 0 1-.554.622c-.786.046-1.572.107-2.356.184a.59.59 0 0 1-.04.003.59.59 0 0 1-.603-.533.59.59 0 0 1 .53-.644c.8-.078 1.599-.14 2.4-.187a.59.59 0 0 1 .036 0zM10.6 7.535a.59.59 0 0 1 .015 0c3.06-.013 6.125.204 9.167.65a.59.59 0 0 1 .498.67.59.59 0 0 1-.593.504.59.59 0 0 1-.076-.006 60.142 60.142 0 0 0-8.992-.638.59.59 0 0 1-.592-.588.59.59 0 0 1 .573-.592zm1.153 2.846a61.093 61.093 0 0 1 8.02.515.59.59 0 0 1 .509.66.59.59 0 0 1-.586.514.59.59 0 0 1-.076-.005 59.982 59.982 0 0 0-8.99-.492.59.59 0 0 1-.603-.577.59.59 0 0 1 .578-.603c.382-.008.765-.012 1.148-.012zm1.139 2.832a60.92 60.92 0 0 1 6.871.394.59.59 0 0 1 .52.652.59.59 0 0 1-.577.523.59.59 0 0 1-.076-.004 59.936 59.936 0 0 0-8.991-.344.59.59 0 0 1-.61-.568.59.59 0 0 1 .567-.611c.765-.028 1.53-.042 2.296-.042z"/></symbol><symbol id="site-ruff" viewBox="0 0 24 24"><path d="M3 0C1.338 0 0 1.338 0 3v18c0 1.662 1.338 3 3 3h18c1.662 0 3-1.338 3-3V3c0-1.662-1.338-3-3-3Zm4.2 7.2h8.641c.53 0 .959.43.959.959v3.266c0 .53-.43.959-.959.959h-.961v.768h1.92V16.8h-4.416v-2.88h-.768v2.88H7.2Zm3.648 3.648v.768h2.304v-.768z"/></symbol></svg>
+
 <script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
 
 
 <script defer src="/assets/vendor/katex/katex.min.js"></script>
 
 
-<script src="/assets/site.js?v=3716ee76" defer></script>
+<script src="/assets/site.js?v=4f1381ac" defer></script>
 
 </body>
 </html>
