@@ -414,6 +414,36 @@
     try { document.execCommand('copy'); done(); } catch (e) {}
     document.body.removeChild(ta);
   }
+  function copyText(text, done) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, function () { fallback(text, done); });
+    } else {
+      fallback(text, done);
+    }
+  }
+  document.querySelectorAll('[data-math-copy]').forEach(function (btn) {
+    var wrap = btn.closest('.math-wrap, .math-figure');
+    var el = wrap && wrap.querySelector('.math-inline, .math-block');
+    var label = btn.querySelector('[data-copy-label]');
+    var restore = null;
+    btn.addEventListener('click', function () {
+      if (!el) return;
+      var tex = el.getAttribute('data-tex') || '';
+      if (!tex) return;
+      var block = el.classList.contains('math-block');
+      copyText(block ? '$$\n' + tex + '\n$$' : '$' + tex + '$', function () {
+        btn.classList.add('is-done');
+        btn.setAttribute('aria-label', '已复制到剪贴板');
+        if (label) label.textContent = '已复制';
+        if (restore) window.clearTimeout(restore);
+        restore = window.setTimeout(function () {
+          btn.classList.remove('is-done');
+          btn.setAttribute('aria-label', '复制 LaTeX 公式');
+          if (label) label.textContent = '复制 LaTeX';
+        }, 1600);
+      });
+    });
+  });
   function wire(openSel, panelId, closeAttr) {
     var panel = document.getElementById(panelId);
     if (!panel) return;
