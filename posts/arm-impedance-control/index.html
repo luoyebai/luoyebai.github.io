@@ -31,8 +31,8 @@
 <link rel="canonical" href="https://luoyebai.github.io/posts/arm-impedance-control/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=e1ce531d">
-<link rel="stylesheet" href="/assets/site.css?v=e1ce531d">
+<link rel="stylesheet" href="/assets/themes.css?v=afafd87f">
+<link rel="stylesheet" href="/assets/site.css?v=afafd87f">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
 
@@ -312,14 +312,14 @@ force<span class="tok-punct">,</span> damping <span class="tok-operator">=</span
         <div class="grid grid-3">
           <article class="card post-card reveal" data-tiltable>
   
-  <a class="card-link" href="/posts/quadruped-mpc-wbc/"><span class="sr-only">四足运控：MPC 与 WBC 的分层结构</span></a>
+  <a class="card-link" href="/posts/quadruped-mpc-kinematics/"><span class="sr-only">四足运控：MPC 代价函数推导与腿部正逆运动学</span></a>
   <div class="card-tilt">
     
     <div class="card-cover media-shim">
       
-      <img src="/assets/bg/dusk.jpg"
+      <img src="/assets/feishu/quadruped-mpc-kinematics/fig-07.webp"
            alt=""
-           width="2560" height="1440"
+           width="914" height="309"
            style="object-position: 50% 50%"
            loading="lazy" decoding="async">
       <span class="card-cover-veil"></span>
@@ -328,18 +328,98 @@ force<span class="tok-punct">,</span> damping <span class="tok-operator">=</span
     <div class="card-body">
       
       <div class="card-tags">
-        <a class="pill" href="/tags/四足/">四足</a><a class="pill" href="/tags/运动控制/">运动控制</a><a class="pill" href="/tags/mpc/">MPC</a><a class="pill" href="/tags/wbc/">WBC</a>
+        <a class="pill" href="/tags/四足/">四足</a><a class="pill" href="/tags/运动控制/">运动控制</a><a class="pill" href="/tags/mpc/">MPC</a><a class="pill" href="/tags/运动学/">运动学</a>
       </div>
       
-      <h3 class="card-title">四足运控：MPC 与 WBC 的分层结构</h3>
-      <p class="card-summary">梳理单刚体 MPC 与全身控制的模型边界、接触约束和接口约定，说明哪些近似成立、哪些结果必须通过求解与实机验证。</p>
+      <h3 class="card-title">四足运控：MPC 代价函数推导与腿部正逆运动学</h3>
+      <p class="card-summary">把 MPC 从状态转移方程推到有限时域 QP 的代价函数，并解释为什么直接对输入加权会留下稳态误差、改用输入增量就能修掉；后半篇从单腿三个关节的变换矩阵推出足端正运动学，再从足端位置反解关节角。</p>
       <div class="card-meta">
         <time datetime="2026-03-08">2026 年 3 月 8 日</time>
+        <span class="sep" aria-hidden="true"></span>
+        <span>7 分钟</span>
+        <span class="card-meta-end">
+          
+          
+          <span class="card-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/>
+            </svg>
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>
+</article>
+<article class="card post-card reveal" data-tiltable>
+  
+  <a class="card-link" href="/posts/sam3-foundationpose-6d-pose/"><span class="sr-only">用 SAM3 与 FoundationPose 做工件 6D 姿态估计</span></a>
+  <div class="card-tilt">
+    
+    <div class="card-cover media-shim">
+      
+      <img src="/assets/feishu/sam3-foundationpose-6d-pose/fig-01.webp"
+           alt=""
+           width="1600" height="900"
+           style="object-position: 50% 50%"
+           loading="lazy" decoding="async">
+      <span class="card-cover-veil"></span>
+    </div>
+    
+    <div class="card-body">
+      
+      <div class="card-tags">
+        <a class="pill" href="/tags/机器视觉/">机器视觉</a><a class="pill" href="/tags/机械臂/">机械臂</a><a class="pill" href="/tags/ros2/">ROS2</a>
+      </div>
+      
+      <h3 class="card-title">用 SAM3 与 FoundationPose 做工件 6D 姿态估计</h3>
+      <p class="card-summary">免训练的 6D 姿态估计路线：SAM3 负责按语义把工件分出来，FoundationPose 只在给 CAD 数模和少量参考图的前提下估计并跟踪位姿。记录显存与耗时实测、姿态注册的旋转网格参数怎么调，以及精度不够时几条可落地的改进方向。</p>
+      <div class="card-meta">
+        <time datetime="2025-12-26">2025 年 12 月 26 日</time>
         <span class="sep" aria-hidden="true"></span>
         <span>4 分钟</span>
         <span class="card-meta-end">
           
-          <span class="pin" title="精选">精选</span>
+          
+          <span class="card-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/>
+            </svg>
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>
+</article>
+<article class="card post-card reveal" data-tiltable>
+  
+  <a class="card-link" href="/posts/parallel-ankle-kinematics/"><span class="sr-only">脚踝并联机构：正逆运动学与静力学解算</span></a>
+  <div class="card-tilt">
+    
+    <div class="card-cover media-shim">
+      
+      <img src="/assets/feishu/parallel-ankle-kinematics/fig-03.webp"
+           alt=""
+           width="1600" height="766"
+           style="object-position: 50% 50%"
+           loading="lazy" decoding="async">
+      <span class="card-cover-veil"></span>
+    </div>
+    
+    <div class="card-body">
+      
+      <div class="card-tags">
+        <a class="pill" href="/tags/运动控制/">运动控制</a><a class="pill" href="/tags/运动学/">运动学</a><a class="pill" href="/tags/人形/">人形</a>
+      </div>
+      
+      <h3 class="card-title">脚踝并联机构：正逆运动学与静力学解算</h3>
+      <p class="card-summary">URDF 描述不了并联结构，电机角度和脚底欧拉角之间的映射只能自己解。记录两条路：采数据做符号回归拟合，以及从几何关系推出雅可比矩阵后迭代逼近，最后用虚功原理把末端力矩换算成电机力矩。</p>
+      <div class="card-meta">
+        <time datetime="2025-07-20">2025 年 7 月 20 日</time>
+        <span class="sep" aria-hidden="true"></span>
+        <span>9 分钟</span>
+        <span class="card-meta-end">
+          
+          
           <span class="card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/>
@@ -359,15 +439,15 @@ force<span class="tok-punct">,</span> damping <span class="tok-operator">=</span
 
   <nav class="post-nav" aria-label="上下篇">
     
-    <a class="post-nav-item prev" href="/posts/humanoid-rl-sim2real/">
+    <a class="post-nav-item prev" href="/posts/humanoid-0-to-1-toolchain/">
       <span class="dir">← 上一篇</span>
-      <span class="t">人形机器人 RL：从 Isaac 训练到实机部署</span>
+      <span class="t">小型人形机器人 0→1：从 URDF 到真机部署的工具链</span>
     </a>
     
     
-    <a class="post-nav-item next" href="/posts/realtime-control-loop/">
+    <a class="post-nav-item next" href="/posts/sam3-foundationpose-6d-pose/">
       <span class="dir">下一篇 →</span>
-      <span class="t">运控回路的实时性：1 kHz 到底能不能跑满</span>
+      <span class="t">用 SAM3 与 FoundationPose 做工件 6D 姿态估计</span>
     </a>
     
   </nav>
@@ -414,9 +494,9 @@ force<span class="tok-punct">,</span> damping <span class="tok-operator">=</span
       </div>
 
       <dl class="footer-stats">
-        <div><dt>7</dt><dd>篇文章</dd></div>
+        <div><dt>12</dt><dd>篇文章</dd></div>
         <div><dt>19</dt><dd>篇文档</dd></div>
-        <div><dt>5</dt><dd>个项目</dd></div>
+        <div><dt>3</dt><dd>个项目</dd></div>
         <div><dt>204</dt><dd>页幻灯片</dd></div>
       </dl>
     </div>
@@ -435,8 +515,8 @@ force<span class="tok-punct">,</span> damping <span class="tok-operator">=</span
           <span class="d">2026 年 4 月 12 日</span>
         </a>
         
-        <a class="footer-link" href="/posts/quadruped-mpc-wbc/">
-          <span class="t">四足运控：MPC 与 WBC 的分层结构</span>
+        <a class="footer-link" href="/posts/quadruped-mpc-kinematics/">
+          <span class="t">四足运控：MPC 代价函数推导与腿部正逆运动学</span>
           <span class="d">2026 年 3 月 8 日</span>
         </a>
         
@@ -499,7 +579,7 @@ force<span class="tok-punct">,</span> damping <span class="tok-operator">=</span
       <span class="sep" aria-hidden="true">·</span>
       <span>除注明外均为原创，转载请注明出处</span>
       <span class="sep" aria-hidden="true">·</span>
-      <span>构建于 <time datetime="2026-09-24">2026-09-24</time></span>
+      <span>构建于 <time datetime="2026-09-29">2026-09-29</time></span>
     </p>
     <p class="footer-meta">
       <span class="footer-meta-label">字体</span>
@@ -833,7 +913,7 @@ force<span class="tok-punct">,</span> damping <span class="tok-operator">=</span
 <script defer src="/assets/vendor/katex/katex.min.js"></script>
 
 
-<script src="/assets/site.js?v=e1ce531d" defer></script>
+<script src="/assets/site.js?v=afafd87f" defer></script>
 
 </body>
 </html>

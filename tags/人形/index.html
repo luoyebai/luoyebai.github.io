@@ -31,8 +31,8 @@
 <link rel="canonical" href="https://luoyebai.github.io/tags/人形/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=e1ce531d">
-<link rel="stylesheet" href="/assets/site.css?v=e1ce531d">
+<link rel="stylesheet" href="/assets/themes.css?v=afafd87f">
+<link rel="stylesheet" href="/assets/site.css?v=afafd87f">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
 
@@ -159,7 +159,7 @@
 <section class="list-head">
   <a class="back" href="/tags/">← 全部标签</a>
   <h1 class="reveal">#人形</h1>
-  <p class="reveal">文章 1 · 项目 1</p>
+  <p class="reveal">文章 3</p>
 </section>
 
 
@@ -169,14 +169,14 @@
   <div class="grid grid-3">
     <article class="card post-card reveal" data-tiltable>
   
-  <a class="card-link" href="/posts/humanoid-rl-sim2real/"><span class="sr-only">人形机器人 RL：从 Isaac 训练到实机部署</span></a>
+  <a class="card-link" href="/posts/small-humanoid-consensus/"><span class="sr-only">小型人形机器人的结构、硬件与算法共识</span></a>
   <div class="card-tilt">
     
     <div class="card-cover media-shim">
       
-      <img src="/assets/bg/sakura.jpg"
+      <img src="/assets/feishu/small-humanoid-consensus/fig-08.webp"
            alt=""
-           width="2560" height="1440"
+           width="1600" height="956"
            style="object-position: 50% 50%"
            loading="lazy" decoding="async">
       <span class="card-cover-veil"></span>
@@ -185,18 +185,58 @@
     <div class="card-body">
       
       <div class="card-tags">
-        <a class="pill" href="/tags/人形/">人形</a><a class="pill" href="/tags/强化学习/">强化学习</a><a class="pill" href="/tags/sim2real/">sim2real</a>
+        <a class="pill" href="/tags/人形/">人形</a><a class="pill" href="/tags/强化学习/">强化学习</a><a class="pill" href="/tags/系统工程/">系统工程</a>
       </div>
       
-      <h3 class="card-title">人形机器人 RL：从 Isaac 训练到实机部署</h3>
-      <p class="card-summary">把策略部署拆成观测约定、动作映射、导出一致性与闭环验证，避免把所有实机问题都归因于 sim2real gap。</p>
+      <h3 class="card-title">小型人形机器人的结构、硬件与算法共识</h3>
+      <p class="card-summary">把市面上四款小型人形机器人（G1 / PM01 / T1 / X2）的公开规格摆在一起看：关节数与运动空间、算力与传感器配置、电池与电机选型，以及它们在 SDK 通讯、状态机和行走算法上不约而同的选择。</p>
+      <div class="card-meta">
+        <time datetime="2026-02-20">2026 年 2 月 20 日</time>
+        <span class="sep" aria-hidden="true"></span>
+        <span>10 分钟</span>
+        <span class="card-meta-end">
+          
+          
+          <span class="card-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/>
+            </svg>
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>
+</article>
+<article class="card post-card reveal" data-tiltable>
+  
+  <a class="card-link" href="/posts/humanoid-0-to-1-toolchain/"><span class="sr-only">小型人形机器人 0→1：从 URDF 到真机部署的工具链</span></a>
+  <div class="card-tilt">
+    
+    <div class="card-cover media-shim">
+      
+      <img src="/assets/feishu/humanoid-0-to-1-toolchain/fig-13.webp"
+           alt=""
+           width="1600" height="882"
+           style="object-position: 50% 50%"
+           loading="lazy" decoding="async">
+      <span class="card-cover-veil"></span>
+    </div>
+    
+    <div class="card-body">
+      
+      <div class="card-tags">
+        <a class="pill" href="/tags/人形/">人形</a><a class="pill" href="/tags/工具链/">工具链</a><a class="pill" href="/tags/dds/">DDS</a><a class="pill" href="/tags/仿真/">仿真</a>
+      </div>
+      
+      <h3 class="card-title">小型人形机器人 0→1：从 URDF 到真机部署的工具链</h3>
+      <p class="card-summary">把一台小型人形机器人从结构图纸做到能跑策略，中间要过的每一道工具：URDF 导出后怎么查零件与关节、用 IDL + Fast DDS 设计通讯 SDK、怎么在 MuJoCo 里提前验证算法所需的硬件频率与鲁棒性、真机后台的分层架构，以及仿真到真机不改代码的部署方式。</p>
       <div class="card-meta">
         <time datetime="2026-02-14">2026 年 2 月 14 日</time>
         <span class="sep" aria-hidden="true"></span>
-        <span>4 分钟</span>
+        <span>19 分钟</span>
         <span class="card-meta-end">
           
-          <span class="pin" title="精选">精选</span>
+          
           <span class="card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/>
@@ -207,45 +247,36 @@
     </div>
   </div>
 </article>
-
-  </div>
+<article class="card post-card reveal" data-tiltable>
   
-
-  
-  <h2 class="block-title">相关项目</h2>
-  <div class="grid grid-3">
-    <article class="card project-card reveal" data-tiltable>
-  
-  <a class="card-link" href="/projects/humanoid-rl-pipeline/"><span class="sr-only">humanoid-rl-pipeline</span></a>
+  <a class="card-link" href="/posts/parallel-ankle-kinematics/"><span class="sr-only">脚踝并联机构：正逆运动学与静力学解算</span></a>
   <div class="card-tilt">
     
     <div class="card-cover media-shim">
       
-      <img src="/assets/bg/sakura.jpg"
+      <img src="/assets/feishu/parallel-ankle-kinematics/fig-03.webp"
            alt=""
-           width="2560" height="1440"
+           width="1600" height="766"
            style="object-position: 50% 50%"
            loading="lazy" decoding="async">
       <span class="card-cover-veil"></span>
     </div>
     
     <div class="card-body">
+      
       <div class="card-tags">
-        <span class="pill pill-accent">开发中</span>
-        <a class="pill" href="/tags/人形/">人形</a><a class="pill" href="/tags/强化学习/">强化学习</a><a class="pill" href="/tags/sim2real/">sim2real</a>
-      </div>
-      <h3 class="card-title">humanoid-rl-pipeline</h3>
-      <p class="card-summary">用部署契约连接训练、导出、回放和实机运行，让观测与动作在每个环节保持一致。</p>
-      
-      <div class="stack">
-        <span class="chip">Isaac Lab</span><span class="chip">PyTorch</span><span class="chip">PPO</span><span class="chip">ONNX</span><span class="chip">C++</span>
+        <a class="pill" href="/tags/运动控制/">运动控制</a><a class="pill" href="/tags/运动学/">运动学</a><a class="pill" href="/tags/人形/">人形</a>
       </div>
       
+      <h3 class="card-title">脚踝并联机构：正逆运动学与静力学解算</h3>
+      <p class="card-summary">URDF 描述不了并联结构，电机角度和脚底欧拉角之间的映射只能自己解。记录两条路：采数据做符号回归拟合，以及从几何关系推出雅可比矩阵后迭代逼近，最后用虚功原理把末端力矩换算成电机力矩。</p>
       <div class="card-meta">
-        <time datetime="2026-02-20">2026 年 2 月 20 日</time>
+        <time datetime="2025-07-20">2025 年 7 月 20 日</time>
+        <span class="sep" aria-hidden="true"></span>
+        <span>9 分钟</span>
         <span class="card-meta-end">
           
-          <span class="pin" title="精选">精选</span>
+          
           <span class="card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/>
@@ -258,6 +289,8 @@
 </article>
 
   </div>
+  
+
   
 
   
@@ -306,9 +339,9 @@
       </div>
 
       <dl class="footer-stats">
-        <div><dt>7</dt><dd>篇文章</dd></div>
+        <div><dt>12</dt><dd>篇文章</dd></div>
         <div><dt>19</dt><dd>篇文档</dd></div>
-        <div><dt>5</dt><dd>个项目</dd></div>
+        <div><dt>3</dt><dd>个项目</dd></div>
         <div><dt>204</dt><dd>页幻灯片</dd></div>
       </dl>
     </div>
@@ -327,8 +360,8 @@
           <span class="d">2026 年 4 月 12 日</span>
         </a>
         
-        <a class="footer-link" href="/posts/quadruped-mpc-wbc/">
-          <span class="t">四足运控：MPC 与 WBC 的分层结构</span>
+        <a class="footer-link" href="/posts/quadruped-mpc-kinematics/">
+          <span class="t">四足运控：MPC 代价函数推导与腿部正逆运动学</span>
           <span class="d">2026 年 3 月 8 日</span>
         </a>
         
@@ -391,7 +424,7 @@
       <span class="sep" aria-hidden="true">·</span>
       <span>除注明外均为原创，转载请注明出处</span>
       <span class="sep" aria-hidden="true">·</span>
-      <span>构建于 <time datetime="2026-09-24">2026-09-24</time></span>
+      <span>构建于 <time datetime="2026-09-29">2026-09-29</time></span>
     </p>
     <p class="footer-meta">
       <span class="footer-meta-label">字体</span>
@@ -721,7 +754,7 @@
 
 <script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
 
-<script src="/assets/site.js?v=e1ce531d" defer></script>
+<script src="/assets/site.js?v=afafd87f" defer></script>
 
 </body>
 </html>

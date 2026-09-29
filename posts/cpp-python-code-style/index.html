@@ -1,0 +1,1808 @@
+<!DOCTYPE html>
+<html lang="zh-CN"
+      data-theme="dusk"
+      data-mode="dark"
+      data-bg="on"
+      data-bgmode="image"
+      data-tilt="12"
+      data-glass="med"
+      data-font="serif"
+      data-motion="on"
+      data-width="normal"
+      data-cursor="on"
+      data-root=""
+      data-search-url="/search-index.json">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>C++ / Python 代码规范 · 洛叶白</title>
+<meta name="description" content="一份可以贴进项目仓库的代码规范：头文件自给自足与 include 顺序、命名空间与静态变量、类的隐式转换与继承、函数签名怎么设计、命名约定，以及平台相关代码不能假设什么。核心是「正确性优先，必要时才为优化让路」。">
+<meta name="author" content="洛叶白">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0b0d14" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f7f7f5" media="(prefers-color-scheme: light)">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="洛叶白">
+<meta property="og:title" content="C++ / Python 代码规范">
+<meta property="og:description" content="一份可以贴进项目仓库的代码规范：头文件自给自足与 include 顺序、命名空间与静态变量、类的隐式转换与继承、函数签名怎么设计、命名约定，以及平台相关代码不能假设什么。核心是「正确性优先，必要时才为优化让路」。">
+<meta property="og:url" content="https://luoyebai.github.io/posts/cpp-python-code-style/">
+<meta property="og:image" content="https://luoyebai.github.io/assets/images/favicon.svg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://luoyebai.github.io/posts/cpp-python-code-style/">
+<link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
+
+<link rel="stylesheet" href="/assets/themes.css?v=afafd87f">
+<link rel="stylesheet" href="/assets/site.css?v=afafd87f">
+
+<noscript><style>.boot{display:none !important}</style></noscript>
+
+
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+
+
+<meta property="og:image" content="https://luoyebai.github.io/assets/feishu/cpp-python-code-style/fig-02.webp">
+  <meta name="author" content="洛叶白">
+<script>
+/* 在首次绘制前恢复外观偏好；URL 参数优先，便于分享特定主题的链接 */
+(function () {
+  var el = document.documentElement;
+  el.classList.add('js');   /* 只有 JS 可用时才启用进场动画的隐藏态 */
+  var compact = matchMedia('(pointer: coarse)').matches ||
+    (navigator.connection && navigator.connection.saveData) ||
+    (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
+    (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+  el.setAttribute('data-performance', compact ? 'compact' : 'standard');
+  var q = {};
+  try { new URLSearchParams(location.search).forEach(function (v, k) { q[k] = v; }); } catch (e) {}
+  var s = {};
+  try { s = JSON.parse(localStorage.getItem('blog.appearance') || '{}') || {}; } catch (e) {}
+  function pick(k) { return q[k] !== undefined ? q[k] : s[k]; }
+  ['theme', 'mode', 'bg', 'bgmode', 'tilt', 'glass', 'font', 'motion', 'width', 'cursor'].forEach(function (k) {
+    var v = pick(k);
+    if (v) el.setAttribute('data-' + k, v);
+  });
+  var op = pick('bgOpacity');
+  if (op !== undefined && op !== '') el.style.setProperty('--bg-opacity', (Number(op) / 100).toFixed(3));
+  var bl = pick('bgBlur');
+  if (bl !== undefined && bl !== '') el.style.setProperty('--bg-blur', Number(bl) + 'px');
+  var sc = pick('scale');
+  if (sc !== undefined && sc !== '') el.style.setProperty('--font-scale', String(sc));
+  var ac = pick('accent');
+  if (ac) el.style.setProperty('--accent', ac);
+})();
+</script>
+</head>
+<body class="page-post">
+<a class="skip-link" href="#main">跳到正文</a>
+
+<div class="bg-layer" aria-hidden="true">
+  <div class="bg-image"></div>
+  <video class="bg-video" muted loop playsinline preload="none" disablepictureinpicture></video>
+  <div class="bg-scrim"></div>
+  <div class="bg-aurora"><span></span><span></span><span></span></div>
+  <div class="bg-grid"></div>
+  <div class="bg-vignette"></div>
+</div>
+<div class="grain" aria-hidden="true"></div>
+<div class="spotlight" aria-hidden="true"></div>
+<div class="scroll-progress" aria-hidden="true"><i></i></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">
+      <span class="brand-mark" aria-hidden="true">
+        <!-- 站点标记：两连杆机械臂（造型见 partials/mark.html，页脚用的是同一份） -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M2.6 20.6h5.6" stroke-width="2.2"/>
+  <path d="M7.9 15.9 11.6 6.6" stroke-width="2.8"/>
+  <path d="M13.4 7.2 19.2 11.4" stroke-width="2.8"/>
+  <circle cx="5.6" cy="17.6" r="2.9" fill="currentColor" stroke="none"/>
+  <circle cx="12.2" cy="6.4" r="2.3" fill="currentColor" stroke="none"/>
+  <circle cx="20.4" cy="12.2" r="1.8" fill="currentColor" stroke="none"/>
+</svg>
+
+      </span>
+      <span class="brand-text">
+        <b>洛叶白</b>
+        <i>luoyebai</i>
+      </span>
+    </a>
+
+    <nav class="nav-links" aria-label="主导航">
+      
+      <a href="/">首页</a>
+      
+      <a href="/posts/" class="is-active" aria-current="page">文章</a>
+      
+      <a href="/projects/">项目</a>
+      
+      <a href="/docs/">文档</a>
+      
+      <a href="/graph/">图谱</a>
+      
+      <a href="/archive/">归档</a>
+      
+      <a href="/about/">关于</a>
+      
+    </nav>
+
+    <div class="nav-actions">
+      <button class="icon-btn" type="button" data-open-search aria-label="搜索 (Ctrl+K)" title="搜索  Ctrl+K">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <circle cx="11" cy="11" r="6.5"/><path d="M16.2 16.2 21 21"/>
+        </svg>
+      </button>
+      <button class="icon-btn" type="button" data-toggle-mode aria-label="切换明暗" title="切换明暗">
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+        </svg>
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+          <circle cx="12" cy="12" r="4.2"/>
+          <path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4 17 7M7 17l-1.6 1.6"/>
+        </svg>
+      </button>
+      <button class="icon-btn" type="button" data-open-settings aria-label="外观设置" title="外观设置">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 7h10M18 7h2M4 17h4M12 17h8"/>
+          <circle cx="16" cy="7" r="2.2"/><circle cx="10" cy="17" r="2.2"/>
+        </svg>
+      </button>
+      <button class="icon-btn nav-burger" type="button" data-open-menu aria-label="菜单">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+
+<main id="main">
+
+
+<article class="post">
+  
+  <header class="phero has-media">
+    
+    <div class="phero-media media-shim">
+      <img src="/assets/feishu/cpp-python-code-style/fig-02.webp"
+           alt="" aria-hidden="true"
+           width="1412" height="619"
+           style="object-position: 50% 50%"
+           fetchpriority="high" decoding="async">
+    </div>
+    
+    <span class="phero-scrim" aria-hidden="true"></span>
+
+    <div class="phero-inner">
+      <nav class="crumbs" aria-label="面包屑">
+        <a href="/posts/">文章</a>
+        <span aria-hidden="true">/</span>
+        <span class="current">C++ / Python 代码规范</span>
+      </nav>
+
+      
+      <div class="post-tags">
+        
+        <a class="pill" href="/tags/c/">C++</a>
+        
+        <a class="pill" href="/tags/python/">Python</a>
+        
+        <a class="pill" href="/tags/系统工程/">系统工程</a>
+        
+      </div>
+      
+
+      <h1 class="phero-title reveal">C++ / Python 代码规范</h1>
+      <p class="phero-lede reveal">一份可以贴进项目仓库的代码规范：头文件自给自足与 include 顺序、命名空间与静态变量、类的隐式转换与继承、函数签名怎么设计、命名约定，以及平台相关代码不能假设什么。核心是「正确性优先，必要时才为优化让路」。</p>
+
+      <div class="phero-meta reveal">
+        <span class="meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/>
+          </svg>
+          <time datetime="2025-10-12">2025 年 10 月 12 日</time>
+        </span>
+        <span class="meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>
+          </svg>
+          38 分钟
+        </span>
+        
+      </div>
+    </div>
+  </header>
+
+  <div class="post-layout">
+    
+    <aside class="post-aside">
+      <nav class="toc" data-toc aria-label="目录">
+        <p class="toc-title">目录</p>
+        <ul>
+          
+          <li class="toc-l2"><a href="#概述">概述</a></li>
+          
+          <li class="toc-l2"><a href="#c-代码规范">C++ 代码规范</a></li>
+          
+          <li class="toc-l3"><a href="#头文件">头文件</a></li>
+          
+          <li class="toc-l4"><a href="#所有头文件应该自给自足">所有头文件应该自给自足</a></li>
+          
+          <li class="toc-l4"><a href="#前向声明">前向声明</a></li>
+          
+          <li class="toc-l4"><a href="#include-的路径及顺序">`#include` 的路径及顺序</a></li>
+          
+          <li class="toc-l3"><a href="#作用域">作用域</a></li>
+          
+          <li class="toc-l4"><a href="#命名空间">命名空间</a></li>
+          
+          <li class="toc-l4"><a href="#局部变量">局部变量</a></li>
+          
+          <li class="toc-l4"><a href="#静态变量和全局变量及-thread-local-变量">静态变量和全局变量及 thread_local 变量</a></li>
+          
+          <li class="toc-l3"><a href="#类">类</a></li>
+          
+          <li class="toc-l4"><a href="#构造函数的内部操作">构造函数的内部操作</a></li>
+          
+          <li class="toc-l4"><a href="#struct和class-的选择">`struct`和`class` 的选择</a></li>
+          
+          <li class="toc-l4"><a href="#隐式类型转换">隐式类型转换</a></li>
+          
+          <li class="toc-l4"><a href="#成员数据类型的选择">成员数据类型的选择</a></li>
+          
+          <li class="toc-l4"><a href="#继承">继承</a></li>
+          
+          <li class="toc-l4"><a href="#运算符重载">运算符重载</a></li>
+          
+          <li class="toc-l4"><a href="#可见性和声明次序">可见性和声明次序</a></li>
+          
+          <li class="toc-l3"><a href="#函数">函数</a></li>
+          
+          <li class="toc-l4"><a href="#函数应当执行单一逻辑">函数应当执行单一逻辑</a></li>
+          
+          <li class="toc-l4"><a href="#保持函数简短且简单">保持函数简短且简单</a></li>
+          
+          <li class="toc-l4"><a href="#函数如果不能抛出异常声明-noexcept">函数如果不能抛出异常，声明 `noexcept`</a></li>
+          
+          <li class="toc-l4"><a href="#对于通用函数而言使用-t-或-t-传递参数">对于通用函数而言，使用 `T*` 或 `T&amp;` 传递参数</a></li>
+          
+          <li class="toc-l4"><a href="#优先使用纯函数">优先使用纯函数</a></li>
+          
+          <li class="toc-l4"><a href="#优先使用简单和惯用的信息传递方式">优先使用简单和惯用的信息传递方式</a></li>
+          
+          <li class="toc-l4"><a href="#要返回多个输出值优先使用结构体">要返回多个“输出”值，优先使用结构体</a></li>
+          
+          <li class="toc-l4"><a href="#当无参数是一个有效选项时优先使用-t-而不是-t">当“无参数”是一个有效选项时，优先使用 `T*` 而不是 `T&amp;`</a></li>
+          
+          <li class="toc-l4"><a href="#避免在将在非局部使用包括返回存储在堆上或传递给另一个线程的-lambda-中通过引用捕获">避免在将在非局部使用（包括返回、存储在堆上或传递给另一个线程）的 lambda 中通过引用捕获</a></li>
+          
+          <li class="toc-l3"><a href="#c-技巧和最佳实践">C++ 技巧和最佳实践</a></li>
+          
+          <li class="toc-l4"><a href="#代码中直接表达思想">代码中直接表达思想</a></li>
+          
+          <li class="toc-l4"><a href="#使用-iso-标准-c-编写">使用 ISO 标准 C++ 编写</a></li>
+          
+          <li class="toc-l4"><a href="#表达意图">表达意图</a></li>
+          
+          <li class="toc-l4"><a href="#理想情况下程序应该是静态类型安全的">理想情况下，程序应该是静态类型安全的</a></li>
+          
+          <li class="toc-l4"><a href="#优先选择编译时检查而非运行时检查">优先选择编译时检查而非运行时检查</a></li>
+          
+          <li class="toc-l4"><a href="#尽早捕获运行时错误">尽早捕获运行时错误</a></li>
+          
+          <li class="toc-l4"><a href="#不要泄露任何资源">不要泄露任何资源</a></li>
+          
+          <li class="toc-l4"><a href="#不要浪费时间和空间">不要浪费时间和空间</a></li>
+          
+          <li class="toc-l4"><a href="#优先选择不可变数据而非可变数据">优先选择不可变数据而非可变数据</a></li>
+          
+          <li class="toc-l4"><a href="#将混乱的结构封装起来而不是散布在代码各处">将混乱的结构封装起来，而不是散布在代码各处</a></li>
+          
+          <li class="toc-l4"><a href="#酌情使用辅助工具和支持库">酌情使用辅助工具和支持库</a></li>
+          
+          <li class="toc-l3"><a href="#命名约定和注释">命名约定和注释</a></li>
+          
+          <li class="toc-l4"><a href="#类型命名">类型命名</a></li>
+          
+          <li class="toc-l4"><a href="#变量命名">变量命名</a></li>
+          
+          <li class="toc-l4"><a href="#函数命名">函数命名</a></li>
+          
+          <li class="toc-l4"><a href="#其他命名">其他命名</a></li>
+          
+          <li class="toc-l3"><a href="#cmake-相关模板">CMake 相关模板</a></li>
+          
+          <li class="toc-l3"><a href="#代码格式及相关检查工具">代码格式及相关检查工具</a></li>
+          
+          <li class="toc-l4"><a href="#配置文件">配置文件</a></li>
+          
+          <li class="toc-l4"><a href="#如何在-vscode-中使用">如何在 Vscode 中使用</a></li>
+          
+          <li class="toc-l4"><a href="#临时禁用格式化">临时禁用格式化</a></li>
+          
+          <li class="toc-l2"><a href="#python-代码规范todo">Python 代码规范（TODO）</a></li>
+          
+          <li class="toc-l2"><a href="#操作系统架构-平台相关注意事项">操作系统/架构 平台相关注意事项</a></li>
+          
+          <li class="toc-l3"><a href="#总体原则">总体原则</a></li>
+          
+        </ul>
+      </nav>
+    </aside>
+    
+
+    <div class="post-main">
+      
+      <details class="mobile-toc">
+        <summary>本页目录</summary>
+        <nav aria-label="本页目录"><ul>
+          <li class="toc-l2"><a href="#概述">概述</a></li><li class="toc-l2"><a href="#c-代码规范">C++ 代码规范</a></li><li class="toc-l3"><a href="#头文件">头文件</a></li><li class="toc-l4"><a href="#所有头文件应该自给自足">所有头文件应该自给自足</a></li><li class="toc-l4"><a href="#前向声明">前向声明</a></li><li class="toc-l4"><a href="#include-的路径及顺序">`#include` 的路径及顺序</a></li><li class="toc-l3"><a href="#作用域">作用域</a></li><li class="toc-l4"><a href="#命名空间">命名空间</a></li><li class="toc-l4"><a href="#局部变量">局部变量</a></li><li class="toc-l4"><a href="#静态变量和全局变量及-thread-local-变量">静态变量和全局变量及 thread_local 变量</a></li><li class="toc-l3"><a href="#类">类</a></li><li class="toc-l4"><a href="#构造函数的内部操作">构造函数的内部操作</a></li><li class="toc-l4"><a href="#struct和class-的选择">`struct`和`class` 的选择</a></li><li class="toc-l4"><a href="#隐式类型转换">隐式类型转换</a></li><li class="toc-l4"><a href="#成员数据类型的选择">成员数据类型的选择</a></li><li class="toc-l4"><a href="#继承">继承</a></li><li class="toc-l4"><a href="#运算符重载">运算符重载</a></li><li class="toc-l4"><a href="#可见性和声明次序">可见性和声明次序</a></li><li class="toc-l3"><a href="#函数">函数</a></li><li class="toc-l4"><a href="#函数应当执行单一逻辑">函数应当执行单一逻辑</a></li><li class="toc-l4"><a href="#保持函数简短且简单">保持函数简短且简单</a></li><li class="toc-l4"><a href="#函数如果不能抛出异常声明-noexcept">函数如果不能抛出异常，声明 `noexcept`</a></li><li class="toc-l4"><a href="#对于通用函数而言使用-t-或-t-传递参数">对于通用函数而言，使用 `T*` 或 `T&amp;` 传递参数</a></li><li class="toc-l4"><a href="#优先使用纯函数">优先使用纯函数</a></li><li class="toc-l4"><a href="#优先使用简单和惯用的信息传递方式">优先使用简单和惯用的信息传递方式</a></li><li class="toc-l4"><a href="#要返回多个输出值优先使用结构体">要返回多个“输出”值，优先使用结构体</a></li><li class="toc-l4"><a href="#当无参数是一个有效选项时优先使用-t-而不是-t">当“无参数”是一个有效选项时，优先使用 `T*` 而不是 `T&amp;`</a></li><li class="toc-l4"><a href="#避免在将在非局部使用包括返回存储在堆上或传递给另一个线程的-lambda-中通过引用捕获">避免在将在非局部使用（包括返回、存储在堆上或传递给另一个线程）的 lambda 中通过引用捕获</a></li><li class="toc-l3"><a href="#c-技巧和最佳实践">C++ 技巧和最佳实践</a></li><li class="toc-l4"><a href="#代码中直接表达思想">代码中直接表达思想</a></li><li class="toc-l4"><a href="#使用-iso-标准-c-编写">使用 ISO 标准 C++ 编写</a></li><li class="toc-l4"><a href="#表达意图">表达意图</a></li><li class="toc-l4"><a href="#理想情况下程序应该是静态类型安全的">理想情况下，程序应该是静态类型安全的</a></li><li class="toc-l4"><a href="#优先选择编译时检查而非运行时检查">优先选择编译时检查而非运行时检查</a></li><li class="toc-l4"><a href="#尽早捕获运行时错误">尽早捕获运行时错误</a></li><li class="toc-l4"><a href="#不要泄露任何资源">不要泄露任何资源</a></li><li class="toc-l4"><a href="#不要浪费时间和空间">不要浪费时间和空间</a></li><li class="toc-l4"><a href="#优先选择不可变数据而非可变数据">优先选择不可变数据而非可变数据</a></li><li class="toc-l4"><a href="#将混乱的结构封装起来而不是散布在代码各处">将混乱的结构封装起来，而不是散布在代码各处</a></li><li class="toc-l4"><a href="#酌情使用辅助工具和支持库">酌情使用辅助工具和支持库</a></li><li class="toc-l3"><a href="#命名约定和注释">命名约定和注释</a></li><li class="toc-l4"><a href="#类型命名">类型命名</a></li><li class="toc-l4"><a href="#变量命名">变量命名</a></li><li class="toc-l4"><a href="#函数命名">函数命名</a></li><li class="toc-l4"><a href="#其他命名">其他命名</a></li><li class="toc-l3"><a href="#cmake-相关模板">CMake 相关模板</a></li><li class="toc-l3"><a href="#代码格式及相关检查工具">代码格式及相关检查工具</a></li><li class="toc-l4"><a href="#配置文件">配置文件</a></li><li class="toc-l4"><a href="#如何在-vscode-中使用">如何在 Vscode 中使用</a></li><li class="toc-l4"><a href="#临时禁用格式化">临时禁用格式化</a></li><li class="toc-l2"><a href="#python-代码规范todo">Python 代码规范（TODO）</a></li><li class="toc-l2"><a href="#操作系统架构-平台相关注意事项">操作系统/架构 平台相关注意事项</a></li><li class="toc-l3"><a href="#总体原则">总体原则</a></li>
+        </ul></nav>
+      </details>
+      
+
+      <div class="prose reveal"><aside class="callout callout-note"><div class="callout-title">迁移说明</div><div class="callout-body"><p>骨架来自 Google C++ Style Guide 与 C++ 核心准则，正文按团队实践重写过；本章标题去掉了公司前缀，模板压缩包未随导出保留。</p></div></aside>
+<h2 id="概述">概述<a class="heading-anchor" href="#概述" aria-label="锚点">#</a></h2>
+<p>本文档旨在提供 C++/Python 的代码规范和指南，这些规范会在保持代码易于管理的同时, 不影响程序员高效地使用，其核心要点包括</p>
+<ul><li>避免使用奇特或危险的语法结构</li><li>安全可靠（正确性）为第一原则</li><li>在必要时为优化让路</li></ul>
+<p>我们限定 C++ 版本为 C++ 17 以上 。</p>
+<blockquote><p>编译器选择 GCC 12，Clang 15+，其中部分 C++20 使用 GSL（Guidelines Support Library） 库代替实现。</p></blockquote>
+<p>参考文档：</p>
+<p><a href="https://github.isocpp.org.cn/CppCoreGuidelines/CppCoreGuidelines#S-tools" target="_blank" rel="noopener">https://github.isocpp.org.cn/CppCoreGuidelines/CppCoreGuidelines#S-tools</a></p>
+<p><a href="https://zh-google-styleguide.readthedocs.io/en/latest/google-cpp-styleguide/index.html" target="_blank" rel="noopener">https://zh-google-styleguide.readthedocs.io/en/latest/google-cpp-styleguide/index.html</a></p>
+<p><a href="https://peps.pythonlang.cn/pep-0008/" target="_blank" rel="noopener">https://peps.pythonlang.cn/pep-0008/</a></p>
+<blockquote><p>本指南并非 C++/Python 教程, 我们假定读者已经非常熟悉 C++/Python。</p></blockquote>
+<hr>
+<h2 id="c-代码规范">C++ 代码规范<a class="heading-anchor" href="#c-代码规范" aria-label="锚点">#</a></h2>
+<h3 id="头文件">头文件<a class="heading-anchor" href="#头文件" aria-label="锚点">#</a></h3>
+<h4 id="所有头文件应该自给自足">所有头文件应该自给自足<a class="heading-anchor" href="#所有头文件应该自给自足" aria-label="锚点">#</a></h4>
+<p><strong>含义</strong>：头文件应该自给自足，即可单独进行编译。并以 .h 和 .hpp 作为文件名后缀，其中 C 语言部分使用 .h，C++ 部分使用 .hpp。</p>
+<p><strong>示例</strong>：该规范具体包括两点，1是头文件应当包含其所依赖的所有头文件，2是头文件需要头文件防护符。</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-comment">// 头文件导入顺序应当遵循以下顺序</span>
+<span class="tok-comment">// STD -&gt; C/C++ 标准库</span>
+<span class="tok-preproc">#include</span> <span class="tok-operator">&lt;</span><span class="tok-builtin">vector</span><span class="tok-operator">&gt;</span>
+<span class="tok-comment">// LINUX -&gt; 平台库</span>
+<span class="tok-preproc">#include</span> <span class="tok-operator">&lt;</span>sys<span class="tok-operator">/</span>select<span class="tok-punct">.</span>h<span class="tok-operator">&gt;</span>
+<span class="tok-operator">*//</span> <span class="tok-type">EIGEN</span> <span class="tok-operator">-&gt;</span> 系统第三方库<span class="tok-operator">*</span>
+<span class="tok-preproc">#include</span> <span class="tok-operator">&lt;</span><span class="tok-type">Eigen</span><span class="tok-operator">/</span><span class="tok-type">Core</span><span class="tok-operator">&gt;</span>
+<span class="tok-comment">// TOOL -&gt; 当前项目库</span>
+<span class="tok-preproc">#include</span> <span class="tok-string">&quot;xxx.hpp&quot;</span>
+
+<span class="tok-type">Eigen</span><span class="tok-operator">::</span><span class="tok-type">VectorXd</span>  <span class="tok-function">CreateEigen</span><span class="tok-punct">(</span><span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">vector</span><span class="tok-operator">&lt;</span><span class="tok-keyword">int</span><span class="tok-operator">&gt;</span> x<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">return</span> <span class="tok-type">Eigen</span><span class="tok-operator">::</span><span class="tok-type">VectorXd</span><span class="tok-punct">{</span>x<span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre></div>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-comment">// 头文件防护符形式1</span>
+<span class="tok-preproc">#ifndef</span> <span class="tok-type">XXX_HPP</span>
+<span class="tok-preproc">#define</span> <span class="tok-type">XXX_HPP</span>
+<span class="tok-comment">// ...</span>
+<span class="tok-preproc">#endif</span> <span class="tok-comment">// XXX_HPP</span>
+
+<span class="tok-comment">// 头文件防护符形式2</span>
+<span class="tok-preproc">#pragma</span> once</code></pre></div>
+<ul><li>我们使用 <code>#pragma once</code> 而不是 <code>#define</code> 防护符来防止重复导入。因为它需要命名，可能宏冲突。</li><li>这仅仅是为了统一命名规范（无需考虑头文件路径），当然，<code>#pragma once</code> 并非 ISO 标准。然而主流编译器都支持 <code>#pragma once</code>，因此在工程实践中它几乎可以视为“事实标准”。</li></ul>
+<h4 id="前向声明">前向声明<a class="heading-anchor" href="#前向声明" aria-label="锚点">#</a></h4>
+<p><strong>含义</strong>：前向声明 (forward declaration) 是没有对应定义 (definition) 的声明。</p>
+<p><strong>示例</strong>：bad</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-comment">// 在 C++ 源码文件中：</span>
+<span class="tok-keyword">class</span> <span class="tok-type">B</span><span class="tok-punct">;</span>
+<span class="tok-keyword">void</span> <span class="tok-function">FuncInB</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">extern</span> <span class="tok-keyword">int</span> variable_in_b<span class="tok-punct">;</span>
+<span class="tok-function">ABSL_DECLARE_FLAG</span><span class="tok-punct">(</span>flag_in_b<span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
+<p>使用前向声明能节约编译时间，不需要重复编译头文件，缺点是隐藏了依赖关系, 可能会让人忽略头文件变化后必要的重新编译过程，同时对自动分析工具不太友好，编译器也可能因为前向声明导致行为发生变化。</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-comment">// b.h:</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">B</span> <span class="tok-punct">{</span><span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">D</span> <span class="tok-operator">:</span> <span class="tok-type">B</span> <span class="tok-punct">{</span><span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-comment">// good_user.cc:</span>
+<span class="tok-preproc">#include</span> <span class="tok-string">&quot;b.h&quot;</span>
+<span class="tok-keyword">void</span> <span class="tok-function">f</span><span class="tok-punct">(</span><span class="tok-type">B</span><span class="tok-operator">*</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">void</span> <span class="tok-function">f</span><span class="tok-punct">(</span><span class="tok-keyword">void</span><span class="tok-operator">*</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">void</span> <span class="tok-function">test</span><span class="tok-punct">(</span><span class="tok-type">D</span><span class="tok-operator">*</span> x<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-function">f</span><span class="tok-punct">(</span>x<span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span>  <span class="tok-comment">// 调用 f(B*)</span></code></pre></div>
+<p>若用 <code>B</code> 和 <code>D</code> 的前向声明替代 <code>#include</code>, <code>test()</code> 会调用 <code>f(void*)</code> 。</p>
+<p>尽量避免使用前向声明，应该直接引入你需要的头文件。仅在如 IMPL 情况下需要使用前向声明。</p>
+<h4 id="include-的路径及顺序"><code>#include</code> 的路径及顺序<a class="heading-anchor" href="#include-的路径及顺序" aria-label="锚点">#</a></h4>
+<p>头文件的路径应相对于项目源码目录, 不能出现 UNIX 目录别名 (alias) <code>.</code> (当前目录) 或 <code>..</code> (上级目录). 例如, 应该按如下方式导入 <code>project/include/xxx/xxx.hpp</code>，理想情况下，只应该出现 <code>xxx/xxx.hpp</code>。</p>
+<p>有时平台相关的 (system-specific) 代码需要有条件地导入 (conditional include)，此时可以在其他导入语句后放置条件导入语句. 当然, 尽量保持平台相关的代码简洁且影响范围小。</p>
+<p>示例：</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-preproc">#include</span> <span class="tok-string">&quot;foo/public/fooserver.h&quot;</span>
+<span class="tok-preproc">#include</span> <span class="tok-string">&quot;base/port.h&quot;</span>  <span class="tok-comment">// 为了 LANG_CXX11.</span>
+<span class="tok-preproc">#ifdef</span> <span class="tok-type">LANG_CXX11</span>
+<span class="tok-preproc">#include</span> <span class="tok-operator">&lt;</span>initializer_list<span class="tok-operator">&gt;</span>
+<span class="tok-preproc">#endif</span>  <span class="tok-comment">// LANG_CXX11</span></code></pre></div>
+<p>大部分头文件应当放在代码开头，然而有一种例外，仅将 <code>#include</code>作为复制粘贴使用。</p>
+<p>示例：</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-operator">*//</span> 通过 include 将部分工具生成的代码（如idl、proto、xml等）嵌入<span class="tok-operator">*</span>
+    <span class="tok-operator">*//</span> clang<span class="tok-operator">-</span>format off<span class="tok-operator">*</span>
+<span class="tok-preproc">#include</span> <span class="tok-string">&quot;idl/xxx.pybind.ipp&quot;</span>
+    <span class="tok-comment">// ...</span>
+<span class="tok-operator">*</span>    <span class="tok-comment">// clang-format on*</span></code></pre></div>
+<p>有些时候需要按照特定顺序导入文件，此时需要将格式化关闭，防止导入顺序发生变化。</p>
+<hr>
+<h3 id="作用域">作用域<a class="heading-anchor" href="#作用域" aria-label="锚点">#</a></h3>
+<h4 id="命名空间">命名空间<a class="heading-anchor" href="#命名空间" aria-label="锚点">#</a></h4>
+<p><strong>含义</strong>：命名空间可以将全局作用域 (global scope) 划分为独立的、有名字的作用域, 因此可以有效防止全局作用域中的命名冲突 (name collision)。</p>
+<p>命名空间可以避免大型程序中的命名冲突, 同时代码可以继续使用简短的名称。</p>
+<p>举例来说, 若两个项目的全局作用域中都有一个叫 <code>Foo</code> 的类 (class), 这两个符号 (symbol) 会在编译或运行时发生冲突. 如果每个项目在不同的命名空间中放置代码, <code>project1::Foo</code> 和 <code>project2::Foo</code> 就是截然不同的符号, 不会冲突。</p>
+<p><strong>示例</strong>：内联命名空间会自动把其中的标识符置入外层作用域</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">namespace</span> outer <span class="tok-punct">{</span>
+<span class="tok-keyword">inline</span> <span class="tok-keyword">namespace</span> inner <span class="tok-punct">{</span>
+    <span class="tok-keyword">void</span> <span class="tok-function">foo</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-punct">}</span>  <span class="tok-comment">// namespace inner</span>
+<span class="tok-punct">}</span>  <span class="tok-comment">// namespace outer</span></code></pre></div>
+<p>部分情景下, 我们必须多次使用完全限定名称 (fully-qualified name) 来引用符号. 此时多层嵌套的命名空间会让代码冗长。</p>
+<ul><li>禁止使用 <em>using 指令</em> 引入命名空间的所有符号。</li></ul>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp">    <span class="tok-comment">// 禁止: 这会污染命名空间</span>
+    <span class="tok-keyword">using</span> <span class="tok-keyword">namespace</span> foo<span class="tok-punct">;</span></code></pre></div>
+<ul><li>除了在明显标注为内部使用的命名空间内, 不要让头文件引入命名空间别名 (namespace alias)。这是因为头文件的命名空间中引入的任何东西都是该文件的公开 API。</li></ul>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp">    <span class="tok-comment">// 在 .c 中, 用别名缩略常用的名称</span>
+    <span class="tok-keyword">namespace</span> baz <span class="tok-operator">=</span> <span class="tok-operator">::</span>foo<span class="tok-operator">::</span>bar<span class="tok-operator">::</span>baz<span class="tok-punct">;</span></code></pre></div>
+<h4 id="局部变量">局部变量<a class="heading-anchor" href="#局部变量" aria-label="锚点">#</a></h4>
+<p>应该尽可能缩小函数变量的作用域 （scope），并在声明的同时初始化。</p>
+<p>示例 bad：</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">int</span> i<span class="tok-punct">;</span>
+i <span class="tok-operator">=</span> <span class="tok-function">f</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>     <span class="tok-comment">// 不好: 初始化和声明分离.</span></code></pre></div>
+<p>示例 good：</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">int</span> i <span class="tok-operator">=</span> <span class="tok-function">f</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// 良好: 声明时初始化。</span></code></pre></div>
+<p>示例：类初始化尽量使用花括号初始化</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-builtin">vector</span><span class="tok-operator">&lt;</span><span class="tok-keyword">int</span><span class="tok-operator">&gt;</span> v<span class="tok-punct">;</span>
+v<span class="tok-punct">.</span><span class="tok-function">push_back</span><span class="tok-punct">(</span><span class="tok-number">1</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+v<span class="tok-punct">.</span><span class="tok-function">push_back</span><span class="tok-punct">(</span><span class="tok-number">2</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-comment">// 用花括号初始化更好，C++17 以上</span>
+<span class="tok-builtin">vector</span><span class="tok-operator">&lt;</span><span class="tok-keyword">int</span><span class="tok-operator">&gt;</span> v <span class="tok-operator">=</span> <span class="tok-punct">{</span><span class="tok-number">1</span><span class="tok-punct">,</span><span class="tok-number">2</span><span class="tok-punct">}</span><span class="tok-punct">;</span>
+</code></pre></div>
+<p>示例：需要注意的是， 如果变量是一个对象， 那么它每次进入作用域时会调用构造函数，每次退出作用域时都会调用析构函数</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-comment">// 低效的实现:</span>
+<span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-keyword">int</span> i <span class="tok-operator">=</span> <span class="tok-number">0</span><span class="tok-punct">;</span> i <span class="tok-operator">&lt;</span> <span class="tok-number">1000000</span><span class="tok-punct">;</span> <span class="tok-operator">++</span>i<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-type">Foo</span> f<span class="tok-punct">;</span>  <span class="tok-comment">// 调用 1000000 次构造函数和析构函数</span>
+    f<span class="tok-punct">.</span><span class="tok-function">DoSomething</span><span class="tok-punct">(</span>i<span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span>
+<span class="tok-comment">// 在循环的作用域外面声明这类变量更高效</span>
+<span class="tok-type">Foo</span> f<span class="tok-punct">;</span>  <span class="tok-comment">// 调用 1 次构造函数和析构函数</span>
+<span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-keyword">int</span> i <span class="tok-operator">=</span> <span class="tok-number">0</span><span class="tok-punct">;</span> i <span class="tok-operator">&lt;</span> <span class="tok-number">1000000</span><span class="tok-punct">;</span> <span class="tok-operator">++</span>i<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    f<span class="tok-punct">.</span><span class="tok-function">DoSomething</span><span class="tok-punct">(</span>i<span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre></div>
+<h4 id="静态变量和全局变量及-thread-local-变量">静态变量和全局变量及 thread_local 变量<a class="heading-anchor" href="#静态变量和全局变量及-thread-local-变量" aria-label="锚点">#</a></h4>
+<p><strong>含义</strong>：</p>
+<ul><li>每个对象 （object）都有与生命周期 （linetime）相关的储存周期 （storage duration）。 静态储存周期对象的存活时间是从程序初始化开始, 到程序结束为止。 这些对象可能是命名空间作用域内的变量 （全局变量）、类的静态数据成员或者用 <code>static</code> 修饰符 （specifier）声明的函数局部变量。 对于函数局部静态变量， 初始化发生在在控制流第一次经过声明时；所有其他对象会在程序启动时初始化。 程序退出时会销毁所有静态储存周期的对象 （这发生在未汇合 （join） 的线程终止前）。</li><li>初始化过程可以是动态 （dynamic）的， 也就是初始化过程中有不平凡 （non-trivial）的操作。 （例如,  会分配内存的构造函数, 或者用当前进程 ID 初始化的变量。） 其他初始化都是静态 （static） 初始化. 二者并非水火不容：  静态储存周期的变量 <strong>一定</strong> 会静态初始化 （初始化为指定常量或给所有字节清零），必要时会随后再次动态初始化。</li></ul>
+<p>示例：</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">const</span> <span class="tok-keyword">int</span> <span class="tok-type">KNUM</span> <span class="tok-operator">=</span> <span class="tok-number">10</span><span class="tok-punct">;</span>  <span class="tok-comment">// 允许</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">X</span> <span class="tok-punct">{</span> <span class="tok-keyword">int</span> n<span class="tok-punct">;</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> <span class="tok-type">X</span> <span class="tok-type">KX</span><span class="tok-punct">[</span><span class="tok-punct">]</span> <span class="tok-operator">=</span> <span class="tok-punct">{</span><span class="tok-punct">{</span><span class="tok-number">1</span><span class="tok-punct">}</span><span class="tok-punct">,</span> <span class="tok-punct">{</span><span class="tok-number">2</span><span class="tok-punct">}</span><span class="tok-punct">,</span> <span class="tok-punct">{</span><span class="tok-number">3</span><span class="tok-punct">}</span><span class="tok-punct">}</span><span class="tok-punct">;</span>  <span class="tok-comment">// 允许</span>
+<span class="tok-keyword">void</span> <span class="tok-function">foo</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">static</span> <span class="tok-keyword">const</span> <span class="tok-keyword">char</span><span class="tok-operator">*</span> <span class="tok-keyword">const</span> messages<span class="tok-punct">[</span><span class="tok-punct">]</span> <span class="tok-operator">=</span> <span class="tok-punct">{</span><span class="tok-string">&quot;hello&quot;</span><span class="tok-punct">,</span> <span class="tok-string">&quot;world&quot;</span><span class="tok-punct">}</span><span class="tok-punct">;</span>  <span class="tok-comment">// 允许</span>
+<span class="tok-punct">}</span>
+<span class="tok-comment">// 允许: constexpr 可以保证析构函数是平凡的</span>
+<span class="tok-keyword">constexpr</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span>array<span class="tok-operator">&lt;</span><span class="tok-keyword">int</span><span class="tok-punct">,</span> <span class="tok-number">3</span><span class="tok-operator">&gt;</span> <span class="tok-type">KARRAY</span> <span class="tok-operator">=</span> <span class="tok-punct">{</span><span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-number">2</span><span class="tok-punct">,</span> <span class="tok-number">3</span><span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-comment">// 不好: 非平凡的析构</span>
+<span class="tok-keyword">const</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">string</span> <span class="tok-type">KFOO</span> <span class="tok-operator">=</span> <span class="tok-string">&quot;foo&quot;</span><span class="tok-punct">;</span>
+<span class="tok-comment">// 和上面相同的原因, 即使 kBar 是引用 (该规则也适用于生命周期被延长的临时对象)</span>
+<span class="tok-keyword">const</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">string</span><span class="tok-operator">&amp;</span> <span class="tok-type">KBAR</span> <span class="tok-operator">=</span> <span class="tok-function">StrCat</span><span class="tok-punct">(</span><span class="tok-string">&quot;a&quot;</span><span class="tok-punct">,</span> <span class="tok-string">&quot;b&quot;</span><span class="tok-punct">,</span> <span class="tok-string">&quot;c&quot;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">void</span> <span class="tok-function">bar</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-comment">// 不好: 非平凡的析构</span>
+    <span class="tok-keyword">static</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">map</span><span class="tok-operator">&lt;</span><span class="tok-keyword">int</span><span class="tok-punct">,</span> <span class="tok-keyword">int</span><span class="tok-operator">&gt;</span> data <span class="tok-operator">=</span> <span class="tok-punct">{</span><span class="tok-punct">{</span><span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-number">0</span><span class="tok-punct">}</span><span class="tok-punct">,</span> <span class="tok-punct">{</span><span class="tok-number">2</span><span class="tok-punct">,</span> <span class="tok-number">0</span><span class="tok-punct">}</span><span class="tok-punct">,</span> <span class="tok-punct">{</span><span class="tok-number">3</span><span class="tok-punct">,</span> <span class="tok-number">0</span><span class="tok-punct">}</span><span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre></div>
+<ul><li>我们可以用 <code>thread_local</code> 修饰符声明变量：这样的变量本质上其实是一组不同的对象。 不同线程访问该变量时，会访问各自的对象。<code>thread_local</code> 变量在很多方面类似静态储存周期的变量。 例如，可以在命名空间内、函数内或类的静态成员内声明这些变量， 但不能在类的普通成员内声明它们。</li><li><code>thread_local</code> 实例与静态变量的初始化过程类似， 区别是 <code>thread_local</code> 实例会在每个线程启动时初始化， 而非程序启动时初始化。 这意味着函数内的 <code>thread_local</code> 变量是线程安全的。 若要访问其他 <code>thread_local</code> 变量， 则有跟静态变量一样的初始化顺序问题 (而且问题更大)。</li><li><code>thread_local</code> 的变量也有微妙的析构顺序问题： 线程终止时， <code>thread_local</code> 的销毁顺序是初始化顺序的逆序 (正如 C++ 在其他部分的规则一样)。 如果 <code>thread_local</code> 的变量在析构过程中访问了该线程中已销毁的其他 <code>thread_local</code> 变量， 就会出现难以调试的释放后使用 (use-after-free, 即野指针) 问题。建议优先使用 <code>thread_local</code> 定义线程的局部数据， 而非其他机制。</li></ul>
+<blockquote><p>头文件中通常使用 <code>inline</code> 来定义全局变量，而源文件中通常使用 <code>static</code></p></blockquote>
+<hr>
+<h3 id="类">类<a class="heading-anchor" href="#类" aria-label="锚点">#</a></h3>
+<p>类 （class）是 C++ 中最常见的代码单元。 因此，类在 C++ 中被广泛使用。 本节将列出编写类时需要注意的事项。</p>
+<h4 id="构造函数的内部操作">构造函数的内部操作<a class="heading-anchor" href="#构造函数的内部操作" aria-label="锚点">#</a></h4>
+<p><strong>含义</strong>：构造函数可以执行任意初始化操作。</p>
+<ul><li>无需担心类是否已经初始化。</li><li>由构造函数完全初始化的对象可以是 <code>const</code> 类型， 也方便在标准容器或算法中使用。</li><li>但构造函数处理错误通常需要依靠错误码，或是异常来表示（可能造成资源泄漏），其中错误码还需要在后续使用中额外判断，因此在不考虑性能的情况下使用异常是较好的选择（即底层尽量使用错误码，上层使用异常防止崩溃）。</li></ul>
+<h4 id="struct和class-的选择"><code>struct</code>和<code>class</code> 的选择<a class="heading-anchor" href="#struct和class-的选择" aria-label="锚点">#</a></h4>
+<p>如果类具有不变式，则使用 <code>class</code>；如果数据成员可以独立变化，则使用 <code>struct</code>。</p>
+<p><strong>原因</strong>：可读性。易于理解。使用 <code>class</code> 会提醒程序员注意不变式的必要性。这是一个有用的约定。</p>
+<p>不变式是对象成员的逻辑条件，构造函数必须建立该条件，以便公共成员函数可以假定它。在建立不变式后（通常由构造函数），对象的所有成员函数都可以被调用。不变式可以非正式地（例如，在注释中）或更正式地使用 <code>Expects</code> 来声明。如果所有数据成员都可以独立于彼此变化，则不可能存在不变式。</p>
+<p>示例：</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">struct</span> <span class="tok-type">Pair</span> <span class="tok-punct">{</span>  <span class="tok-comment">// 成员可以独立变化</span>
+    <span class="tok-builtin">string</span> name<span class="tok-punct">;</span>
+    <span class="tok-keyword">int</span> volume<span class="tok-punct">;</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-comment">// 但是 class</span>
+<span class="tok-keyword">class</span> <span class="tok-type">Date</span> <span class="tok-punct">{</span>
+<span class="tok-keyword">public</span><span class="tok-operator">:</span>
+    <span class="tok-comment">// 验证 {yy, mm, dd} 是否为有效日期并初始化</span>
+    <span class="tok-function">Date</span><span class="tok-punct">(</span><span class="tok-keyword">int</span> yy<span class="tok-punct">,</span> <span class="tok-type">Month</span> mm<span class="tok-punct">,</span> <span class="tok-keyword">char</span> dd<span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-comment">// ...</span>
+<span class="tok-keyword">private</span><span class="tok-operator">:</span>
+    <span class="tok-keyword">int</span> y<span class="tok-punct">;</span>
+    <span class="tok-type">Month</span> m<span class="tok-punct">;</span>
+    <span class="tok-keyword">char</span> d<span class="tok-punct">;</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span></code></pre></div>
+<p>如果一个类有任何 <code>private</code> 数据，用户就不能在不使用构造函数的情况下完全初始化一个对象。因此，类定义者将提供一个构造函数，并且必须指定其含义。这实际上意味着定义者需要定义一个不变式。</p>
+<h4 id="隐式类型转换">隐式类型转换<a class="heading-anchor" href="#隐式类型转换" aria-label="锚点">#</a></h4>
+<blockquote><p>不要定义隐式类型转换。 定义类型转换运算符和单个参数的构造函数时， 请使用 <code>explicit</code> 关键字 (keyword)。</p></blockquote>
+<p>在构造函数或类型转换运算符上添加 <code>explicit</code> 关键字，确保使用者必须明确指定目标类型。</p>
+<p>示例：</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">class</span> <span class="tok-type">Foo</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">explicit</span> <span class="tok-function">Foo</span><span class="tok-punct">(</span><span class="tok-keyword">int</span> x<span class="tok-punct">,</span> <span class="tok-keyword">double</span> y<span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-comment">// ...</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">void</span> <span class="tok-function">Func</span><span class="tok-punct">(</span><span class="tok-type">Foo</span> f<span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+<span class="tok-comment">// 下面会报错</span>
+<span class="tok-function">Func</span><span class="tok-punct">(</span><span class="tok-punct">{</span><span class="tok-number">42</span><span class="tok-punct">,</span> <span class="tok-number">3.14</span><span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
+<p>在类的定义中， 类型转换运算符和单参数构造函数都应该标记为 <code>explicit</code>。 拷贝和移动构造函数除外， 因为它们不执行类型转换。</p>
+<p>对于某些可互换的类型， 隐式类型转换是必要且恰当的， 例如两种类型的对象只是同一底层值的不同表示形式。 此时请联系项目负责人申请豁免。</p>
+<p>接受多个参数的构造函数可以省略 <code>explicit</code> 标记。 接受单个 <code>std::initializer_list</code> 参数的构造函数也应该省略 <code>explicit</code> 标记， 以支持拷贝初始化  (copy-initialization， 例如 <code>MyType m = {1, 2};</code>)。</p>
+<h4 id="成员数据类型的选择">成员数据类型的选择<a class="heading-anchor" href="#成员数据类型的选择" aria-label="锚点">#</a></h4>
+<p>结构体、数对还是元组？</p>
+<p>如果可以给成员起一个有意义的名字，应该用结构体而不是数对 (pair) 或元组 (tuple)。</p>
+<p>虽然使用数对和元组可以免于定义自定义类型，从而节省编写代码的时间, 但是有意义的成员名称通常比 <code>.first</code>， <code>.second</code> 和 <code>std::get&lt;X&gt;</code> 更可读。 C++14 引入了 <code>std::get&lt;Type&gt;</code>， 只要某类型的元素唯一， 就可以根据类型而非下标来访问元组元素。 这在一定程度上缓解了问题， 但成员名称通常比类型名称更清晰、更有信息量。</p>
+<p>数对和元组适合通用代码， 因为其中的元素没有特定含义。 与现有代码或 API 交互时也可能需要它们。</p>
+<blockquote><p>如果你需要一个成员指向某个东西，请使用指针（原始指针或智能指针，如果它不应该是 null，则使用 <code>gsl::not_null</code>）而不是引用。</p></blockquote>
+<p>示例：优先使用具体类型而非类层次结构</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">class</span> <span class="tok-type">Point1</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">int</span> x<span class="tok-punct">,</span> y<span class="tok-punct">;</span>
+    <span class="tok-comment">// ... operations ...</span>
+    <span class="tok-comment">// ... no virtual functions ...</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">class</span> <span class="tok-type">Point2</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">int</span> x<span class="tok-punct">,</span> y<span class="tok-punct">;</span>
+    <span class="tok-comment">// ... operations, some virtual ...</span>
+    <span class="tok-keyword">virtual</span> <span class="tok-operator">~</span><span class="tok-function">Point2</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">void</span> <span class="tok-function">use</span><span class="tok-punct">(</span><span class="tok-punct">)</span>
+<span class="tok-punct">{</span>
+    <span class="tok-type">Point1</span> p11 <span class="tok-punct">{</span><span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-number">2</span><span class="tok-punct">}</span><span class="tok-punct">;</span>   <span class="tok-comment">// 栈对象</span>
+    <span class="tok-type">Point1</span> p12 <span class="tok-punct">{</span>p11<span class="tok-punct">}</span><span class="tok-punct">;</span>    <span class="tok-comment">// 拷贝</span>
+
+    <span class="tok-comment">// 通常不需要这样</span>
+    <span class="tok-keyword">auto</span> p21 <span class="tok-operator">=</span> <span class="tok-builtin">make_unique</span><span class="tok-operator">&lt;</span><span class="tok-type">Point2</span><span class="tok-operator">&gt;</span><span class="tok-punct">(</span><span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-number">2</span><span class="tok-punct">)</span><span class="tok-punct">;</span>   <span class="tok-comment">// 堆上创建</span>
+    <span class="tok-keyword">auto</span> p22 <span class="tok-operator">=</span> p21<span class="tok-operator">-&gt;</span><span class="tok-function">clone</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>                <span class="tok-comment">// 拷贝</span>
+    <span class="tok-comment">// ...</span>
+<span class="tok-punct">}</span></code></pre></div>
+<p>如果一个类是层次结构的一部分，我们（在实际代码中，即使不一定在小的示例中）必须通过指针或引用来操作它的对象。这意味着更多的内存开销、更多的分配和释放，以及更多的运行时开销来执行由此产生的间接引用。</p>
+<h4 id="继承">继承<a class="heading-anchor" href="#继承" aria-label="锚点">#</a></h4>
+<blockquote><p>通常情况下， 组合（composition）比继承（inheritance）更合适。</p></blockquote>
+<p><strong>含义</strong>：当子类继承基类时， 子类会包含基类定义的所有数据及操作。 <strong>接口继承</strong> （interface inheritance） 指从纯抽象基类 （pure abstract base class， 不包含状态或方法定义） 继承； 所有其他继承都是 <strong>实现继承</strong> (implementation inheritance)。</p>
+<p>接口继承可以强制一个类公开特定 API。 当类没有定义 API 中的方法时， 编译器可以检测到错误。大部分时候只需要接口继承即可，有时 CRTP 可以帮助我们实现静态多态。</p>
+<p>尽量不要使用继承，大部分时候用组合好得多。</p>
+<h4 id="运算符重载">运算符重载<a class="heading-anchor" href="#运算符重载" aria-label="锚点">#</a></h4>
+<p><strong>含义</strong>：用户可以使用 <code>operator</code> 关键字来重载内置运算符， 前提是其中一个参数是用户自定义类型。 用户还可以使用 <code>operator""</code> 定义一类新的字面量， 或者定义类型转换函数 (例如 <code>operator bool()</code>)。</p>
+<ul><li>重载运算符可以让用户定义的类型拥有与内置类型相似的行为， 使得代码更简洁直观。 重载运算符相当于特定操作的惯用名称 （例如 <code>==</code>, <code>&lt;</code>, <code>=</code>, <code>&lt;&lt;</code>）。 若用户定义的类型符合这些习惯， 则代码更易读， 并便于与使用这些名称的库进行互操作。</li><li>自定义字面量提供了一种创建自定义类型对象的简洁写法。</li></ul>
+<p>示例：制作基本物理单位</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-operator">*//</span> v <span class="tok-operator">=</span> d <span class="tok-operator">/</span> t<span class="tok-operator">*</span>
+<span class="tok-keyword">constexpr</span> <span class="tok-type">Velocity</span> <span class="tok-keyword">operator</span><span class="tok-operator">/</span><span class="tok-punct">(</span><span class="tok-type">Length</span> d<span class="tok-punct">,</span> <span class="tok-type">Time</span> t<span class="tok-punct">)</span> <span class="tok-keyword">noexcept</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">return</span> <span class="tok-function">Velocity</span><span class="tok-punct">(</span>d<span class="tok-punct">.</span><span class="tok-function">value</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-operator">/</span> t<span class="tok-punct">.</span><span class="tok-function">value</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span>
+
+<span class="tok-keyword">constexpr</span> <span class="tok-type">Length</span> <span class="tok-keyword">operator</span><span class="tok-string">&quot;&quot;</span> <span class="tok-function">_m</span><span class="tok-punct">(</span><span class="tok-keyword">long</span> <span class="tok-keyword">double</span> v<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">return</span> <span class="tok-function">Length</span><span class="tok-punct">(</span><span class="tok-keyword">static_cast</span><span class="tok-operator">&lt;</span><span class="tok-keyword">double</span><span class="tok-operator">&gt;</span><span class="tok-punct">(</span>v<span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span>
+
+<span class="tok-keyword">constexpr</span> <span class="tok-type">Time</span> <span class="tok-keyword">operator</span><span class="tok-string">&quot;&quot;</span> <span class="tok-function">_s</span><span class="tok-punct">(</span><span class="tok-keyword">long</span> <span class="tok-keyword">double</span> v<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">return</span> <span class="tok-function">Time</span><span class="tok-punct">(</span><span class="tok-keyword">static_cast</span><span class="tok-operator">&lt;</span><span class="tok-keyword">double</span><span class="tok-operator">&gt;</span><span class="tok-punct">(</span>v<span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span>
+
+<span class="tok-comment">// 计算速度</span>
+<span class="tok-keyword">auto</span> speed <span class="tok-operator">=</span> <span class="tok-number">10.</span>0_m <span class="tok-operator">/</span> <span class="tok-number">1.</span>0_s<span class="tok-punct">;</span></code></pre></div>
+<h4 id="可见性和声明次序">可见性和声明次序<a class="heading-anchor" href="#可见性和声明次序" aria-label="锚点">#</a></h4>
+<p>类的 <em>所有</em> 数据成员应该声明为私有 （private）， 除非是常量。 这样做可以简化类的不变式 （invariant）逻辑，代价是需要增加一些冗余的访问器 （accessor）代码 （通常是 const 方法）。</p>
+<p>将相似的声明放在一起。 公有 （public）部分放在最前面。</p>
+<hr>
+<h3 id="函数">函数<a class="heading-anchor" href="#函数" aria-label="锚点">#</a></h3>
+<h4 id="函数应当执行单一逻辑">函数应当执行单一逻辑<a class="heading-anchor" href="#函数应当执行单一逻辑" aria-label="锚点">#</a></h4>
+<p><strong>原因</strong>：执行单一操作的函数更易于理解、测试和复用。</p>
+<p>示例：考虑</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">void</span> <span class="tok-function">read_and_print</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">{</span> <span class="tok-comment">// bad</span>
+    <span class="tok-keyword">int</span> x<span class="tok-punct">;</span>
+    cin <span class="tok-operator">&gt;&gt;</span> x<span class="tok-punct">;</span>
+    <span class="tok-comment">// check for errors</span>
+    cout <span class="tok-operator">&lt;&lt;</span> x <span class="tok-operator">&lt;&lt;</span> <span class="tok-string">&quot;\n&quot;</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre></div>
+<p>这是一个与特定输入绑定的庞然大物，永远找不到另一个（不同的）用途。相反，将函数分解为合适的逻辑部分并进行参数化。</p>
+<div class="code-block" data-lang="java"><div class="code-head"><span class="code-lang">java</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-java">int read(istream&amp; is) { // better
+    int x;
+    is &gt;&gt; x;
+    // check for errors
+    return x;
+}
+
+void print(ostream&amp; os, int x) {
+    os &lt;&lt; x &lt;&lt; &quot;\n&quot;;
+}</code></pre></div>
+<p>现在可以在需要的地方组合这些。</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">void</span> <span class="tok-function">read_and_print</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">auto</span> x <span class="tok-operator">=</span> <span class="tok-function">read</span><span class="tok-punct">(</span>cin<span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-function">print</span><span class="tok-punct">(</span>cout<span class="tok-punct">,</span> x<span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre></div>
+<p>如果需要，我们可以进一步模板化数据类型、I/O 机制、对错误的响应等上的 <code>read()</code> 和 <code>print()</code>。</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">auto</span> read <span class="tok-operator">=</span> <span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">(</span><span class="tok-keyword">auto</span><span class="tok-operator">&amp;</span> input<span class="tok-punct">,</span> <span class="tok-keyword">auto</span><span class="tok-operator">&amp;</span> value<span class="tok-punct">)</span> <span class="tok-punct">{</span> <span class="tok-comment">// better</span>
+    input <span class="tok-operator">&gt;&gt;</span> value<span class="tok-punct">;</span>
+    <span class="tok-comment">// check for errors</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">void</span> <span class="tok-function">print</span><span class="tok-punct">(</span><span class="tok-keyword">auto</span><span class="tok-operator">&amp;</span> output<span class="tok-punct">,</span> <span class="tok-keyword">const</span> <span class="tok-keyword">auto</span><span class="tok-operator">&amp;</span> value<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    output <span class="tok-operator">&lt;&lt;</span> value <span class="tok-operator">&lt;&lt;</span> <span class="tok-string">&quot;\n&quot;</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre></div>
+<ul><li>将具有多个“输出”参数的函数视为可疑。改用返回值，包括用于多个返回值的 <code>tuple</code>。</li><li>将不适合在单个编辑器屏幕上显示的大函数视为可疑。考虑将此类函数分解为更小的、命名良好的子操作。</li><li>将具有 7 个或更多参数的函数视为可疑。</li></ul>
+<h4 id="保持函数简短且简单">保持函数简短且简单<a class="heading-anchor" href="#保持函数简短且简单" aria-label="锚点">#</a></h4>
+<p><strong>原因</strong>：大函数难以阅读，更有可能包含复杂代码，并且更有可能在比最小范围大的范围内拥有变量。具有复杂控制结构的函数更有可能冗长，并且更有可能隐藏逻辑错误。</p>
+<p>示例：</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">double</span> <span class="tok-function">simple_func</span><span class="tok-punct">(</span><span class="tok-keyword">double</span> val<span class="tok-punct">,</span> <span class="tok-keyword">int</span> flag1<span class="tok-punct">,</span> <span class="tok-keyword">int</span> flag2<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-comment">// simple_func: takes a value and calculates the expected ASIC output,</span>
+    <span class="tok-comment">// given the two mode flags.</span>
+    <span class="tok-keyword">double</span> intermediate<span class="tok-punct">;</span>
+    <span class="tok-keyword">if</span> <span class="tok-punct">(</span>flag1 <span class="tok-operator">&gt;</span> <span class="tok-number">0</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+        intermediate <span class="tok-operator">=</span> <span class="tok-function">func1</span><span class="tok-punct">(</span>val<span class="tok-punct">)</span><span class="tok-punct">;</span>
+        <span class="tok-keyword">if</span> <span class="tok-punct">(</span>flag2 <span class="tok-operator">%</span> <span class="tok-number">2</span><span class="tok-punct">)</span>
+             intermediate <span class="tok-operator">=</span> <span class="tok-function">sqrt</span><span class="tok-punct">(</span>intermediate<span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-punct">}</span>
+    <span class="tok-keyword">else</span> <span class="tok-keyword">if</span> <span class="tok-punct">(</span>flag1 <span class="tok-operator">==</span> <span class="tok-operator">-</span><span class="tok-number">1</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+        intermediate <span class="tok-operator">=</span> <span class="tok-function">func1</span><span class="tok-punct">(</span><span class="tok-operator">-</span>val<span class="tok-punct">)</span><span class="tok-punct">;</span>
+        <span class="tok-keyword">if</span> <span class="tok-punct">(</span>flag2 <span class="tok-operator">%</span> <span class="tok-number">2</span><span class="tok-punct">)</span>
+             intermediate <span class="tok-operator">=</span> <span class="tok-function">sqrt</span><span class="tok-punct">(</span><span class="tok-operator">-</span>intermediate<span class="tok-punct">)</span><span class="tok-punct">;</span>
+        flag1 <span class="tok-operator">=</span> <span class="tok-operator">-</span>flag1<span class="tok-punct">;</span>
+    <span class="tok-punct">}</span>
+    <span class="tok-keyword">if</span> <span class="tok-punct">(</span><span class="tok-function">abs</span><span class="tok-punct">(</span>flag2<span class="tok-punct">)</span> <span class="tok-operator">&gt;</span> <span class="tok-number">10</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+        intermediate <span class="tok-operator">=</span> <span class="tok-function">func2</span><span class="tok-punct">(</span>intermediate<span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-punct">}</span>
+    <span class="tok-keyword">switch</span> <span class="tok-punct">(</span>flag2 <span class="tok-operator">/</span> <span class="tok-number">10</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">case</span> <span class="tok-number">1</span><span class="tok-operator">:</span> <span class="tok-keyword">if</span> <span class="tok-punct">(</span>flag1 <span class="tok-operator">==</span> <span class="tok-operator">-</span><span class="tok-number">1</span><span class="tok-punct">)</span> <span class="tok-keyword">return</span> <span class="tok-function">finalize</span><span class="tok-punct">(</span>intermediate<span class="tok-punct">,</span> <span class="tok-number">1.171</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+            <span class="tok-keyword">break</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">case</span> <span class="tok-number">2</span><span class="tok-operator">:</span> <span class="tok-keyword">return</span> <span class="tok-function">finalize</span><span class="tok-punct">(</span>intermediate<span class="tok-punct">,</span> <span class="tok-number">13.1</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">default</span><span class="tok-operator">:</span> <span class="tok-keyword">break</span><span class="tok-punct">;</span>
+    <span class="tok-punct">}</span>
+    <span class="tok-keyword">return</span> <span class="tok-function">finalize</span><span class="tok-punct">(</span>intermediate<span class="tok-punct">,</span> <span class="tok-number">0</span><span class="tok-punct">.</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre></div>
+<p>重构为</p>
+<div class="code-block" data-lang="java"><div class="code-head"><span class="code-lang">java</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-java">double func1_muon(double val, int flag) {
+    // ???
+}
+
+double func1_tau(double val, int flag1, int flag2) {
+    // ???
+}
+
+double simple_func(double val, int flag1, int flag2) {
+    // simple_func: takes a value and calculates the expected ASIC output,
+    // given the two mode flags.
+    if (flag1 &gt; 0)
+        return func1_muon(val, flag2);
+    if (flag1 == -1)
+        // handled by func1_tau: flag1 = -flag1;
+        return func1_tau(-val, flag1, flag2);
+    return 0.;
+}</code></pre></div>
+<ul><li>“不适合屏幕”通常是“太大”的一个很好的实际定义。应将一到五行函数视为正常。</li><li>标记不“适合屏幕”的函数。屏幕有多大？尝试 60 行乘以 140 个字符；这大致是书籍页面上最舒适的尺寸。</li><li>标记过于复杂的函数。复杂到什么程度？您可以使用圈复杂度。尝试“超过 10 个逻辑路径”。将简单的 switch 语句算作一条路径。</li></ul>
+<h4 id="函数如果不能抛出异常声明-noexcept">函数如果不能抛出异常，声明 <code>noexcept</code><a class="heading-anchor" href="#函数如果不能抛出异常声明-noexcept" aria-label="锚点">#</a></h4>
+<p><strong>原因</strong>：如果预期不会抛出异常，则不能假定程序能够处理该错误，应尽快终止程序。将函数声明为 <code>noexcept</code> 通过减少备用执行路径的数量来帮助优化器。它还可以加快失败后的退出速度。</p>
+<p>示例：将 <code>noexcept</code> 应用于完全用 C 或任何其他没有异常的语言编写的函数。C++ 标准库对 C 标准库中的所有函数都隐式执行此操作。您甚至可以在可能抛出异常的函数上使用 <code>noexcept</code>。</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-builtin">vector</span><span class="tok-operator">&lt;</span><span class="tok-builtin">string</span><span class="tok-operator">&gt;</span> <span class="tok-function">collect</span><span class="tok-punct">(</span>istream<span class="tok-operator">&amp;</span> is<span class="tok-punct">)</span> <span class="tok-keyword">noexcept</span> <span class="tok-punct">{</span>
+    <span class="tok-builtin">vector</span><span class="tok-operator">&lt;</span><span class="tok-builtin">string</span><span class="tok-operator">&gt;</span> res<span class="tok-punct">;</span>
+    <span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-builtin">string</span> s<span class="tok-punct">;</span> is <span class="tok-operator">&gt;&gt;</span> s<span class="tok-punct">;</span><span class="tok-punct">)</span>
+        res<span class="tok-punct">.</span><span class="tok-function">push_back</span><span class="tok-punct">(</span>s<span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">return</span> res<span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre></div>
+<p>如果 <code>collect()</code> 内存不足，程序就会崩溃。除非程序被精心设计为能够应对内存耗尽，否则这可能正是正确的做法；<code>terminate()</code> 可能会生成合适的错误日志信息（但内存耗尽后很难做任何巧妙的事情）。</p>
+<p>在决定是否将函数标记为 <code>noexcept</code> 时，您必须了解代码运行的执行环境，特别是考虑到异常和分配的问题。旨在完全通用的代码（如标准库和其他此类实用代码）需要支持可以在其中有意义地处理 <code>bad_alloc</code> 异常的环境。然而，大多数程序和执行环境无法有意义地处理分配失败，而在这些情况下中止程序是对分配失败最干净、最简单的响应。如果您知道您的应用程序代码无法响应分配失败，那么即使在进行分配的函数上添加 <code>noexcept</code> 也是合适的。</p>
+<p>换句话说：在大多数程序中，大多数函数都可能抛出异常（例如，因为它们使用了 <code>new</code>，调用了执行此操作的函数，或者使用了通过抛出异常报告失败的库函数），因此在不考虑可能发生的异常是否可以处理的情况下，不要到处乱加 <code>noexcept</code>。</p>
+<p><code>noexcept</code> 对频繁使用、简单低级函数最有价值（也最明确正确）。</p>
+<ul><li>（困难）标记那些不 <code>noexcept</code> 但又不能抛出异常的低级函数。</li><li>标记那些会抛出异常的 <code>swap</code>、<code>move</code>、析构函数和默认构造函数。</li></ul>
+<h4 id="对于通用函数而言使用-t-或-t-传递参数">对于通用函数而言，使用 <code>T*</code> 或 <code>T&amp;</code> 传递参数<a class="heading-anchor" href="#对于通用函数而言使用-t-或-t-传递参数" aria-label="锚点">#</a></h4>
+<p><strong>原因</strong>：传递智能指针会转移或共享所有权，仅应在预期所有权语义时使用。不需要操作生命周期的函数应改用原始指针或引用。通过智能指针传递会限制函数的用法，只能由使用智能指针的调用者使用。需要 <code>widget</code> 的函数应该能够接受任何 <code>widget</code> 对象，而不仅仅是那些生命周期由特定类型的智能指针管理的。</p>
+<p>传递共享智能指针（例如 <code>std::shared_ptr</code>）会产生运行时开销。</p>
+<p>示例：</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-comment">// accepts any int*</span>
+<span class="tok-keyword">void</span> <span class="tok-function">f</span><span class="tok-punct">(</span><span class="tok-keyword">int</span><span class="tok-operator">*</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+<span class="tok-comment">// can only accept ints for which you want to transfer ownership</span>
+<span class="tok-keyword">void</span> <span class="tok-function">g</span><span class="tok-punct">(</span><span class="tok-builtin">unique_ptr</span><span class="tok-operator">&lt;</span><span class="tok-keyword">int</span><span class="tok-operator">&gt;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+<span class="tok-comment">// can only accept ints for which you are willing to share ownership</span>
+<span class="tok-keyword">void</span> <span class="tok-function">g</span><span class="tok-punct">(</span><span class="tok-builtin">shared_ptr</span><span class="tok-operator">&lt;</span><span class="tok-keyword">int</span><span class="tok-operator">&gt;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+<span class="tok-comment">// doesn&#x27;t change ownership, but requires a particular ownership of the caller</span>
+<span class="tok-keyword">void</span> <span class="tok-function">h</span><span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-builtin">unique_ptr</span><span class="tok-operator">&lt;</span><span class="tok-keyword">int</span><span class="tok-operator">&gt;&amp;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+<span class="tok-comment">// accepts any int</span>
+<span class="tok-keyword">void</span> <span class="tok-function">h</span><span class="tok-punct">(</span><span class="tok-keyword">int</span><span class="tok-operator">&amp;</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
+<p>错误示例：</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-comment">// callee</span>
+<span class="tok-keyword">void</span> <span class="tok-function">f</span><span class="tok-punct">(</span><span class="tok-builtin">shared_ptr</span><span class="tok-operator">&lt;</span>widget<span class="tok-operator">&gt;&amp;</span> w<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-comment">// ...</span>
+    <span class="tok-function">use</span><span class="tok-punct">(</span><span class="tok-operator">*</span>w<span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// only use of w -- the lifetime is not used at all</span>
+    <span class="tok-comment">// ...</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-comment">// caller</span>
+<span class="tok-builtin">shared_ptr</span><span class="tok-operator">&lt;</span>widget<span class="tok-operator">&gt;</span> my_widget <span class="tok-operator">=</span> <span class="tok-comment">/* ... */</span><span class="tok-punct">;</span>
+<span class="tok-function">f</span><span class="tok-punct">(</span>my_widget<span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+widget stack_widget<span class="tok-punct">;</span>
+<span class="tok-function">f</span><span class="tok-punct">(</span>stack_widget<span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// error</span></code></pre></div>
+<p>正确示例：</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-comment">// callee</span>
+<span class="tok-keyword">void</span> <span class="tok-function">f</span><span class="tok-punct">(</span>widget<span class="tok-operator">&amp;</span> w<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-comment">// ...</span>
+    <span class="tok-function">use</span><span class="tok-punct">(</span>w<span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-comment">// ...</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-comment">// caller</span>
+<span class="tok-builtin">shared_ptr</span><span class="tok-operator">&lt;</span>widget<span class="tok-operator">&gt;</span> my_widget <span class="tok-operator">=</span> <span class="tok-comment">/* ... */</span><span class="tok-punct">;</span>
+<span class="tok-function">f</span><span class="tok-punct">(</span><span class="tok-operator">*</span>my_widget<span class="tok-punct">)</span><span class="tok-punct">;</span>
+
+widget stack_widget<span class="tok-punct">;</span>
+<span class="tok-function">f</span><span class="tok-punct">(</span>stack_widget<span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-comment">// ok -- now this works</span></code></pre></div>
+<ul><li>（简单）当一个通过值传递的智能指针类型的参数（重载了 <code>operator-&gt;</code> 或 <code>operator*</code>）是可复制的，但函数仅调用 <code>operator*</code>、<code>operator-&gt;</code> 或 <code>get()</code> 中的任何一个时，应发出警告。建议改用 <code>T*</code> 或 <code>T&amp;</code>。</li><li>标记一个智能指针类型的参数（一个重载了 <code>operator-&gt;</code> 或 <code>operator*</code> 的类型），该参数是可复制/可移动的，但在函数体中从未被复制/移动过，并且从未被修改过，也没有被传递给可能这样做的另一个函数。这意味着所有权语义未被使用。建议改用 <code>T*</code> 或 <code>T&amp;</code>。</li></ul>
+<h4 id="优先使用纯函数">优先使用纯函数<a class="heading-anchor" href="#优先使用纯函数" aria-label="锚点">#</a></h4>
+<p><strong>原因</strong>：纯函数更容易推理，有时更容易优化（甚至并行化），有时可以进行记忆化。</p>
+<p>示例：</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">template</span><span class="tok-operator">&lt;</span><span class="tok-keyword">class</span> <span class="tok-type">T</span><span class="tok-operator">&gt;</span>
+<span class="tok-keyword">auto</span> <span class="tok-function">square</span><span class="tok-punct">(</span><span class="tok-type">T</span> t<span class="tok-punct">)</span> <span class="tok-punct">{</span> <span class="tok-keyword">return</span> t <span class="tok-operator">*</span> t<span class="tok-punct">;</span> <span class="tok-punct">}</span></code></pre></div>
+<h4 id="优先使用简单和惯用的信息传递方式">优先使用简单和惯用的信息传递方式<a class="heading-anchor" href="#优先使用简单和惯用的信息传递方式" aria-label="锚点">#</a></h4>
+<p><strong>原因</strong>：使用“不寻常且巧妙”的技术会引起意外，减慢其他程序员的理解速度，并鼓励错误。如果您确实觉得需要超出常用技术的优化，请进行测量以确保它确实是一种改进，并进行文档/注释，因为改进可能不具有可移植性。</p>
+<p>普通参数传递：</p>
+<p><img src="/assets/feishu/cpp-python-code-style/fig-01.webp" alt="图片.png" loading="lazy" decoding="async"></p>
+<p>高级参数传递：</p>
+<p><img src="/assets/feishu/cpp-python-code-style/fig-02.webp" alt="图片.png" loading="lazy" decoding="async"></p>
+<h4 id="要返回多个输出值优先使用结构体">要返回多个“输出”值，优先使用结构体<a class="heading-anchor" href="#要返回多个输出值优先使用结构体" aria-label="锚点">#</a></h4>
+<p>原因：请注意，C++ 确实有多个返回值，通过约定使用类似元组的类型（<code>struct</code>、<code>array</code>、<code>tuple</code> 等），可能还具有调用站点上的结构化绑定（C++17）的额外便利性。如果可能，优先使用命名的 <code>struct</code>。否则，<code>tuple</code> 在变长模板中很有用。</p>
+<p>示例：</p>
+<div class="code-block" data-lang="typescript"><div class="code-head"><span class="code-lang">typescript</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-typescript"><span class="tok-comment">// BAD: output-only parameter documented in a comment</span>
+int <span class="tok-function">f</span><span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-keyword">string</span><span class="tok-operator">&amp;</span> input<span class="tok-punct">,</span> <span class="tok-comment">/*output only*/</span> <span class="tok-keyword">string</span><span class="tok-operator">&amp;</span> output_data<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-comment">// ...</span>
+    output_data <span class="tok-operator">=</span> <span class="tok-function">something</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">return</span> status<span class="tok-punct">;</span>
+<span class="tok-punct">}</span>
+
+<span class="tok-comment">// GOOD: self-documenting</span>
+struct f_result <span class="tok-punct">{</span> int status<span class="tok-punct">;</span> <span class="tok-keyword">string</span> data<span class="tok-punct">;</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+f_result <span class="tok-function">f</span><span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-keyword">string</span><span class="tok-operator">&amp;</span> input<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-comment">// ...</span>
+    <span class="tok-keyword">return</span> <span class="tok-punct">{</span>status<span class="tok-punct">,</span> <span class="tok-function">something</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre></div>
+<ul><li>输出参数应被返回值替换。输出参数是函数写入、调用非 <code>const</code> 成员函数或作为非 <code>const</code> 对象传递的参数。</li><li><code>pair</code> 或 <code>tuple</code> 返回类型应尽可能被 <code>struct</code> 替换。在变长模板中，<code>tuple</code> 常常是不可避免的。</li></ul>
+<h4 id="当无参数是一个有效选项时优先使用-t-而不是-t">当“无参数”是一个有效选项时，优先使用 <code>T*</code> 而不是 <code>T&amp;</code><a class="heading-anchor" href="#当无参数是一个有效选项时优先使用-t-而不是-t" aria-label="锚点">#</a></h4>
+<p><strong>原因</strong>：指针（<code>T*</code>）可以是 <code>nullptr</code>，而引用（<code>T&amp;</code>）则不能，没有有效的“空引用”。有时将 <code>nullptr</code> 作为“无对象”的替代表示很有用，但如果不是，引用在表示法上更简单，并且可能产生更好的代码。</p>
+<p>示例：</p>
+<div class="code-block" data-lang="typescript"><div class="code-head"><span class="code-lang">typescript</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-typescript"><span class="tok-keyword">string</span> <span class="tok-function">zstring_to_string</span><span class="tok-punct">(</span>zstring p<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+<span class="tok-comment">// zstring is a char*; that is a C-style string</span>
+    <span class="tok-keyword">if</span> <span class="tok-punct">(</span><span class="tok-operator">!</span>p<span class="tok-punct">)</span> <span class="tok-keyword">return</span> <span class="tok-keyword">string</span><span class="tok-punct">{</span><span class="tok-punct">}</span><span class="tok-punct">;</span>    <span class="tok-comment">// p might be nullptr; remember to check</span>
+    <span class="tok-keyword">return</span> <span class="tok-keyword">string</span><span class="tok-punct">{</span>p<span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span>
+
+<span class="tok-keyword">void</span> <span class="tok-function">print</span><span class="tok-punct">(</span><span class="tok-keyword">const</span> vector<span class="tok-operator">&lt;</span>int<span class="tok-operator">&gt;&amp;</span> r<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-comment">// r refers to a vector&lt;int&gt;; no check needed</span>
+<span class="tok-punct">}</span></code></pre></div>
+<p>虽然不是有效的 C++，但有可能构造一个本质上是 <code>nullptr</code> 的引用（例如 <code>T* p = nullptr; T&amp; r = *p;</code>）。这种错误非常罕见。如果您倾向于使用指针表示法（<code>-&gt;</code> 和/或 <code>*</code> 而不是 <code>.</code>），<code>not_null&lt;T*&gt;</code> 提供与 <code>T&amp;</code> 相同的保证。</p>
+<h4 id="避免在将在非局部使用包括返回存储在堆上或传递给另一个线程的-lambda-中通过引用捕获">避免在将在非局部使用（包括返回、存储在堆上或传递给另一个线程）的 lambda 中通过引用捕获<a class="heading-anchor" href="#避免在将在非局部使用包括返回存储在堆上或传递给另一个线程的-lambda-中通过引用捕获" aria-label="锚点">#</a></h4>
+<p><strong>原因</strong>：指向局部的指针和引用不应超出其作用域。通过引用捕获的 lambda 只是存储局部对象引用的另一种方式，如果不希望它们（或其副本）超出作用域，则不应这样做。</p>
+<p>错误示例：</p>
+<div class="code-block" data-lang="java"><div class="code-head"><span class="code-lang">java</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-java">int local = 42;
+
+// Want a reference to local.
+// Note that after program exits this scope,
+// local no longer exists, therefore
+// process() call will have undefined behavior!
+thread_pool.queue_work([&amp;] { process(local); });</code></pre></div>
+<p>良好示例：</p>
+<div class="code-block" data-lang="java"><div class="code-head"><span class="code-lang">java</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-java">int local = 42;
+// Want a copy of local.
+// Since a copy of local is made, it will
+// always be available for the call.
+thread_pool.queue_work([=] { process(local); });</code></pre></div>
+<ul><li>（简单）当捕获列表包含对本地声明变量的引用时，发出警告。</li><li>（复杂）当捕获列表包含对本地声明变量的引用，并且 lambda 被传递给非 <code>const</code> 的非局部上下文时，标记。</li></ul>
+<hr>
+<h3 id="c-技巧和最佳实践">C++ 技巧和最佳实践<a class="heading-anchor" href="#c-技巧和最佳实践" aria-label="锚点">#</a></h3>
+<h4 id="代码中直接表达思想">代码中直接表达思想<a class="heading-anchor" href="#代码中直接表达思想" aria-label="锚点">#</a></h4>
+<p><strong>原因</strong>：编译器不会阅读评论(或设计文档),许多程序员(通常)也不会阅读。 代码中表达的内容定义了语义,原则上可以由编译器和其他工具进行检查。</p>
+<p>示例：</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">class</span> <span class="tok-type">Date</span> <span class="tok-punct">{</span>
+<span class="tok-keyword">public</span><span class="tok-operator">:</span>
+    <span class="tok-type">Month</span> <span class="tok-function">month</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-keyword">const</span><span class="tok-punct">;</span>  <span class="tok-comment">// 好</span>
+    <span class="tok-keyword">int</span> <span class="tok-function">month</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>          <span class="tok-comment">// 不好</span>
+    <span class="tok-comment">// ...</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span></code></pre></div>
+<p>第一个接口明确返回值为 <code>Month</code>类型，并且不会修改 <code>Date</code> 对象的状态，第二个接口需要让用户需要猜测返回数据的类型，并且没有约束相关行为，即可能存在接口内修改对象状态的情况，这可能会引入副作用。</p>
+<p>示例（bad）：这个循环是 <code>std::find</code> 的一种受限形式</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">void</span> <span class="tok-function">f</span><span class="tok-punct">(</span><span class="tok-builtin">vector</span><span class="tok-operator">&lt;</span><span class="tok-builtin">string</span><span class="tok-operator">&gt;&amp;</span> v<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-builtin">string</span> val<span class="tok-punct">;</span>
+    cin <span class="tok-operator">&gt;&gt;</span> val<span class="tok-punct">;</span>
+    <span class="tok-comment">// ...</span>
+    <span class="tok-keyword">int</span> index <span class="tok-operator">=</span> <span class="tok-operator">-</span><span class="tok-number">1</span><span class="tok-punct">;</span>                    <span class="tok-comment">// 不好, 可以使用 gsl::index</span>
+    <span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-keyword">int</span> i <span class="tok-operator">=</span> <span class="tok-number">0</span><span class="tok-punct">;</span> i <span class="tok-operator">&lt;</span> v<span class="tok-punct">.</span><span class="tok-function">size</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-operator">++</span>i<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+        <span class="tok-keyword">if</span> <span class="tok-punct">(</span>v<span class="tok-punct">[</span>i<span class="tok-punct">]</span> <span class="tok-operator">==</span> val<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+            index <span class="tok-operator">=</span> i<span class="tok-punct">;</span>
+            <span class="tok-keyword">break</span><span class="tok-punct">;</span>
+        <span class="tok-punct">}</span>
+    <span class="tok-punct">}</span>
+    <span class="tok-comment">// ...</span>
+<span class="tok-punct">}</span></code></pre></div>
+<p>示例（good）：更清晰的意图表达方式应该是</p>
+<div class="code-block" data-lang="typescript"><div class="code-head"><span class="code-lang">typescript</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-typescript"><span class="tok-keyword">void</span> <span class="tok-function">f</span><span class="tok-punct">(</span>vector<span class="tok-operator">&lt;</span><span class="tok-keyword">string</span><span class="tok-operator">&gt;&amp;</span> v<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">string</span> val<span class="tok-punct">;</span>
+    cin <span class="tok-operator">&gt;&gt;</span> val<span class="tok-punct">;</span>
+    <span class="tok-comment">// ...</span>
+    auto p <span class="tok-operator">=</span> <span class="tok-function">find</span><span class="tok-punct">(</span><span class="tok-function">begin</span><span class="tok-punct">(</span>v<span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-function">end</span><span class="tok-punct">(</span>v<span class="tok-punct">)</span><span class="tok-punct">,</span> val<span class="tok-punct">)</span><span class="tok-punct">;</span>  <span class="tok-comment">// 这样更好</span>
+    <span class="tok-comment">// ...</span>
+<span class="tok-punct">}</span></code></pre></div>
+<p>一个设计良好的库能够比直接使用语言特性更好地表达意图（要做什么，而不仅仅是如何做）。</p>
+<p>示例：</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-function">change_speed</span><span class="tok-punct">(</span><span class="tok-keyword">double</span> s<span class="tok-punct">)</span><span class="tok-punct">;</span>    <span class="tok-comment">// 不好: s 是什么含义？单位是什么？</span>
+<span class="tok-comment">// ...</span>
+<span class="tok-function">change_speed</span><span class="tok-punct">(</span><span class="tok-number">2.3</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-function">change_speed</span><span class="tok-punct">(</span><span class="tok-type">Speed</span> s<span class="tok-punct">)</span><span class="tok-punct">;</span>     <span class="tok-comment">// 更好: s 的含义被明确，同时具备</span>
+<span class="tok-comment">// ...</span>
+<span class="tok-function">change_speed</span><span class="tok-punct">(</span><span class="tok-number">2.3</span><span class="tok-punct">)</span><span class="tok-punct">;</span>         <span class="tok-comment">// 错误: 没有单位</span>
+<span class="tok-function">change_speed</span><span class="tok-punct">(</span>23_m <span class="tok-operator">/</span> 10s<span class="tok-punct">)</span><span class="tok-punct">;</span>  <span class="tok-comment">// 这样是最好的，但需要自定义字面量</span></code></pre></div>
+<p>我们可以接受一个普通的（无单位的） <code>double</code> 浮点数作为增量，但这很容易出错。如果我们既需要绝对速度又需要增量，我们就应该定义一个 <code>Delta</code> 类型。</p>
+<p>总结：</p>
+<ul><li>始终使用 <code>const</code> （检查成员函数是否修改其对象；检查函数是否修改通过指针或引用传递的参数）</li><li>标记类型转换的使用（类型转换会使类型系统中性）</li><li>检测模仿标准库的代码（难度较高）</li></ul>
+<h4 id="使用-iso-标准-c-编写">使用 ISO 标准 C++ 编写<a class="heading-anchor" href="#使用-iso-标准-c-编写" aria-label="锚点">#</a></h4>
+<p><strong>原因</strong>：通常而言，编译器实现会支持 ISO 标准的同时带有一定自定义的拓展，为了确保代码的一致性，需要限制代码可使用的标准范围（或是指定编译器，但这可能造成移植性问题）。</p>
+<ul><li>在某些情况下，扩展程序是必要的，例如访问系统资源。在这种情况下，应将必要的扩展程序的使用限制在特定区域，并使用非核心编码规范来控制它们的使用。如果可能，应构建封装扩展程序的接口，以便在不支持这些扩展程序的系统上禁用它们或将其编译移除。扩展通常缺乏严格定义的语义。即使是常见的、被多个编译器实现的扩展，也可能由于*缺乏*严格的标准定义而表现出略微不同的行为和极端情况。如果大量使用此类扩展，预期的可移植性将会受到影响。</li><li>在某些情况下，必须限制标准 C++ 语言或库功能的使用，例如，为了避免飞控软件标准要求的动态内存分配。在这种情况下，应根据具体环境，对这些编码指南进行扩展，以控制其使用（或禁用）。</li></ul>
+<blockquote><p>使用最新的 C++ 编译器（当前为 C++17），必要时设置不接受扩展的选项。</p></blockquote>
+<h4 id="表达意图">表达意图<a class="heading-anchor" href="#表达意图" aria-label="锚点">#</a></h4>
+<p><strong>原因</strong>：除非明确说明代码的意图（例如，在名称或注释中），否则无法判断代码是否执行了它应该执行的操作。</p>
+<p>示例：</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-comment">// 正常</span>
+gsl<span class="tok-operator">::</span>index i <span class="tok-operator">=</span> <span class="tok-number">0</span><span class="tok-punct">;</span>
+<span class="tok-keyword">while</span> <span class="tok-punct">(</span>i <span class="tok-operator">&lt;</span> v<span class="tok-punct">.</span><span class="tok-function">size</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-comment">// ... 操作 v[i] ...</span>
+<span class="tok-punct">}</span>
+<span class="tok-comment">// 这里并未明确说明“仅仅”遍历 v 的元素的意图。</span>
+<span class="tok-comment">// 索引的实现细节被暴露出来（因此可能被误用），</span>
+<span class="tok-comment">// 而且 i 生命周期超过了循环的作用域，这是否是预期行为尚不确定。读者仅凭这段代码无法判断。</span>
+
+<span class="tok-comment">// 更好</span>
+<span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-keyword">auto</span><span class="tok-operator">&amp;</span> x <span class="tok-operator">:</span> v<span class="tok-punct">)</span> <span class="tok-punct">{</span> <span class="tok-comment">/* 仅对 v 中元素进行操作 */</span> <span class="tok-punct">}</span>
+
+<span class="tok-comment">// 现在，代码中没有明确提及迭代机制，</span>
+<span class="tok-comment">// 而且循环操作的是 const 元素的引用，因此不会发生意外修改。</span>
+<span class="tok-comment">// 如果需要修改，请明确说明：</span>
+<span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-keyword">auto</span><span class="tok-operator">&amp;</span> x <span class="tok-operator">:</span> v<span class="tok-punct">)</span> <span class="tok-punct">{</span> <span class="tok-comment">/* 修改 x */</span> <span class="tok-punct">}</span></code></pre></div>
+<p>有时，使用命名算法会更好。如 <code>for_each</code> ，因为它直接表达了意图：</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-function">for_each</span><span class="tok-punct">(</span>v<span class="tok-punct">,</span> <span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">(</span><span class="tok-keyword">int</span> x<span class="tok-punct">)</span> <span class="tok-punct">{</span> <span class="tok-comment">/* 对 x 的值进行操作 */</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-function">for_each</span><span class="tok-punct">(</span>par<span class="tok-punct">,</span> v<span class="tok-punct">,</span> <span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">(</span><span class="tok-keyword">int</span> x<span class="tok-punct">)</span> <span class="tok-punct">{</span> <span class="tok-comment">/* 对 x 的值进行操作 */</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
+<p>第二个代码明确表明，我们对 <code>v</code> 的元素的处理顺序不感兴趣。</p>
+<p>程序员应该熟悉：</p>
+<ul><li><a href="https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#sl-the-standard-library" target="_blank" rel="noopener">ISO C++ 标准库</a></li><li>当前项目使用的任何基础库</li></ul>
+<h4 id="理想情况下程序应该是静态类型安全的">理想情况下，程序应该是静态类型安全的<a class="heading-anchor" href="#理想情况下程序应该是静态类型安全的" aria-label="锚点">#</a></h4>
+<p><strong>原因</strong>：理想情况下，程序应该完全静态（编译时）类型安全，但这是不可能的。</p>
+<p><strong>问题</strong>：</p>
+<ul><li>unions 联合体：类型系统无法静态验证“当前存的是什么”。</li><li>casts 类型转换：类型转换允许你绕过类型系统，当使用了错误的转换时，可能存在问题。</li><li>array decay：数组退化，指数组类型退化为指针的情况，指针丢失了长度信息，可能导致数组索引越界。</li><li>range errors ：C++ 不强制进行索引范围检查，比如 vector，可以通过 .at 函数进行运行时索引范围检查，但是无法做到静态检查。</li><li>narrowing conversions：该转换丢失信息，可能存在精度丢失、溢出、截断等问题。</li></ul>
+<p>对于这些问题，C++ 提供了一些解决方案：</p>
+<ul><li>unions：使用 <code>variant</code> （C++ 17 支持）。</li><li>casts：减少使用，某些情况下可以用模板来实现对不同类型的支持。</li><li>array decay：不要使用原始数组，尽量使用 STL 容器。</li><li>range errors：使用 <code>span</code>（来自 GSL）。</li><li>narrowing conversions：尽量减少使用，并在必要时使用 <code>narrow</code> 或 <code>narrow_cast</code> （来自 GSL）。</li></ul>
+<h4 id="优先选择编译时检查而非运行时检查">优先选择编译时检查而非运行时检查<a class="heading-anchor" href="#优先选择编译时检查而非运行时检查" aria-label="锚点">#</a></h4>
+<p><strong>原因</strong>：代码清晰且性能优异。无需为编译时捕获的错误编写错误处理程序。编译时无法检查的内容应该在运行时可以检查。</p>
+<p>示例：</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-comment">// Int 是整数的别名</span>
+<span class="tok-keyword">int</span> bits <span class="tok-operator">=</span> <span class="tok-number">0</span><span class="tok-punct">;</span>         <span class="tok-comment">// 以下是没有必要的特判</span>
+<span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-type">Int</span> i <span class="tok-operator">=</span> <span class="tok-number">1</span><span class="tok-punct">;</span> i<span class="tok-punct">;</span> i <span class="tok-operator">&lt;&lt;=</span> <span class="tok-number">1</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-operator">++</span>bits<span class="tok-punct">;</span>
+<span class="tok-punct">}</span>
+<span class="tok-keyword">if</span> <span class="tok-punct">(</span>bits <span class="tok-operator">&lt;</span> <span class="tok-number">32</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    cerr <span class="tok-operator">&lt;&lt;</span> <span class="tok-string">&quot;Int too small\n&quot;</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre></div>
+<p>这个例子未能达到预期目的（因为 overflow 未定义），应该用简单的 <code>static_assert</code> 替换：</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-comment">// Int 是整数的别名</span>
+<span class="tok-function">static_assert</span><span class="tok-punct">(</span><span class="tok-keyword">sizeof</span><span class="tok-punct">(</span><span class="tok-type">Int</span><span class="tok-punct">)</span> <span class="tok-operator">&gt;=</span> <span class="tok-number">4</span><span class="tok-punct">)</span><span class="tok-punct">;</span>    <span class="tok-comment">// 让检查在编译期进行</span></code></pre></div>
+<p>或者更好的办法是直接使用类型系统，将 <code>Int</code> 替换为 <code>int32_t</code> 。</p>
+<p>使用 <code>assert</code> 时请注意编译模式，DEBUG 模式和 RELEASE 模式存在不同行为。</p>
+<h4 id="尽早捕获运行时错误">尽早捕获运行时错误<a class="heading-anchor" href="#尽早捕获运行时错误" aria-label="锚点">#</a></h4>
+<p><strong>原因</strong>：避免出现“莫名其妙”的崩溃。避免因错误导致（可能无法识别的）错误结果。</p>
+<p>示例：</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">void</span> <span class="tok-function">increment1</span><span class="tok-punct">(</span><span class="tok-keyword">int</span><span class="tok-operator">*</span> p<span class="tok-punct">,</span> <span class="tok-keyword">int</span> n<span class="tok-punct">)</span> <span class="tok-punct">{</span>    <span class="tok-comment">// 不好：容易出错</span>
+    <span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-keyword">int</span> i <span class="tok-operator">=</span> <span class="tok-number">0</span><span class="tok-punct">;</span> i <span class="tok-operator">&lt;</span> n<span class="tok-punct">;</span> <span class="tok-operator">++</span>i<span class="tok-punct">)</span> <span class="tok-operator">++</span>p<span class="tok-punct">[</span>i<span class="tok-punct">]</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span>
+
+<span class="tok-keyword">void</span> <span class="tok-function">use1</span><span class="tok-punct">(</span><span class="tok-keyword">int</span> m<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">const</span> <span class="tok-keyword">int</span> n <span class="tok-operator">=</span> <span class="tok-number">10</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">int</span> a<span class="tok-punct">[</span>n<span class="tok-punct">]</span> <span class="tok-operator">=</span> <span class="tok-punct">{</span><span class="tok-punct">}</span><span class="tok-punct">;</span>
+    <span class="tok-comment">// ...</span>
+    <span class="tok-function">increment1</span><span class="tok-punct">(</span>a<span class="tok-punct">,</span> m<span class="tok-punct">)</span><span class="tok-punct">;</span>   <span class="tok-comment">// 可能是笔误，也可能是 m &lt;= n 的写法</span>
+                        <span class="tok-comment">// 但假设 m == 20</span>
+    <span class="tok-comment">// ...</span>
+<span class="tok-punct">}</span></code></pre></div>
+<p>这里我们在 <code>use1</code> 中犯了一个小错误，会导致数据损坏或程序崩溃。(指针，计数) 式的接口使得 <code>increment1()</code> 函数无法有效地防止越界错误。如果我们尝试检查下标是否存在越界访问，那么直到访问 <code>p[10]</code> 时才会发现这个错误。我们可以更早地进行检查并改进代码：</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">void</span> <span class="tok-function">increment2</span><span class="tok-punct">(</span>span<span class="tok-operator">&lt;</span><span class="tok-keyword">int</span><span class="tok-operator">&gt;</span> p<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-keyword">int</span><span class="tok-operator">&amp;</span> x <span class="tok-operator">:</span> p<span class="tok-punct">)</span> <span class="tok-operator">++</span>x<span class="tok-punct">;</span>
+<span class="tok-punct">}</span>
+
+<span class="tok-keyword">void</span> <span class="tok-function">use2</span><span class="tok-punct">(</span><span class="tok-keyword">int</span> m<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">const</span> <span class="tok-keyword">int</span> n <span class="tok-operator">=</span> <span class="tok-number">10</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">int</span> a<span class="tok-punct">[</span>n<span class="tok-punct">]</span> <span class="tok-operator">=</span> <span class="tok-punct">{</span><span class="tok-punct">}</span><span class="tok-punct">;</span>
+    <span class="tok-comment">// ...</span>
+    <span class="tok-function">increment2</span><span class="tok-punct">(</span><span class="tok-punct">{</span>a<span class="tok-punct">,</span> m<span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>    <span class="tok-comment">// 可能是笔误，也可能是 m &lt;= n 的写法</span>
+    <span class="tok-comment">// ...</span>
+<span class="tok-punct">}</span></code></pre></div>
+<p>现在，可以在调用点（早期）检查 <code>m &lt;= n</code> 而不是稍后检查。如果只是笔误，导致我们本意是使用 <code>n</code> 作为边界，那么代码可以进一步简化（从而消除出错的可能性）：</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">void</span> <span class="tok-function">use3</span><span class="tok-punct">(</span><span class="tok-keyword">int</span> m<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">const</span> <span class="tok-keyword">int</span> n <span class="tok-operator">=</span> <span class="tok-number">10</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">int</span> a<span class="tok-punct">[</span>n<span class="tok-punct">]</span> <span class="tok-operator">=</span> <span class="tok-punct">{</span><span class="tok-punct">}</span><span class="tok-punct">;</span>
+    <span class="tok-comment">// ...</span>
+    <span class="tok-function">increment2</span><span class="tok-punct">(</span>a<span class="tok-punct">)</span><span class="tok-punct">;</span>   <span class="tok-comment">// 元素的数量不必重复</span>
+    <span class="tok-comment">// ...</span>
+<span class="tok-punct">}</span></code></pre></div>
+<p>示例：bad，不要重复检查同一个值。不要将结构化数据作为字符串传递</p>
+<div class="code-block" data-lang="typescript"><div class="code-head"><span class="code-lang">typescript</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-typescript">
+<span class="tok-type">Date</span> <span class="tok-function">read_date</span><span class="tok-punct">(</span>istream<span class="tok-operator">&amp;</span> <span class="tok-keyword">is</span><span class="tok-punct">)</span><span class="tok-punct">;</span>    <span class="tok-comment">// 从 istream 读取日期</span>
+
+<span class="tok-type">Date</span> <span class="tok-function">extract_date</span><span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-keyword">string</span><span class="tok-operator">&amp;</span> s<span class="tok-punct">)</span><span class="tok-punct">;</span>    <span class="tok-comment">// 从字符串中提取日期</span>
+
+<span class="tok-keyword">void</span> <span class="tok-function">user1</span><span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-keyword">string</span><span class="tok-operator">&amp;</span> date<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    auto d <span class="tok-operator">=</span> <span class="tok-function">extract_date</span><span class="tok-punct">(</span>date<span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-comment">// ...</span>
+<span class="tok-punct">}</span>
+
+<span class="tok-keyword">void</span> <span class="tok-function">user2</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-type">Date</span> d <span class="tok-operator">=</span> <span class="tok-function">read_date</span><span class="tok-punct">(</span>cin<span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-comment">// ...</span>
+    <span class="tok-function">user1</span><span class="tok-punct">(</span>d<span class="tok-punct">.</span><span class="tok-function">to_string</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-comment">// ...</span>
+<span class="tok-punct">}</span></code></pre></div>
+<p>日期经过两次验证（通过 <code>Date</code> 构造函数），并以字符串（非结构化数据）的形式传递。</p>
+<p>示例：bad</p>
+<p>过多的检查会造成高昂的成本。有些情况下，过早检查效率低下，因为你可能永远不需要该值，或者只需要其中的一部分，而这部分值比全部值更容易检查。同样地，不要添加会改变接口渐近行为的有效性检查（例如，不要向平均复杂度为 <code>O(1)</code> 的接口添加 <code>O(n)</code> 检查）</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">class</span> <span class="tok-type">Jet</span> <span class="tok-punct">{</span>    <span class="tok-comment">// 物理上一定符合 e * e &lt; x * x + y * y + z * z</span>
+    <span class="tok-keyword">float</span> x<span class="tok-punct">;</span>
+    <span class="tok-keyword">float</span> y<span class="tok-punct">;</span>
+    <span class="tok-keyword">float</span> z<span class="tok-punct">;</span>
+    <span class="tok-keyword">float</span> e<span class="tok-punct">;</span>
+<span class="tok-keyword">public</span><span class="tok-operator">:</span>
+    <span class="tok-function">Jet</span><span class="tok-punct">(</span><span class="tok-keyword">float</span> x<span class="tok-punct">,</span> <span class="tok-keyword">float</span> y<span class="tok-punct">,</span> <span class="tok-keyword">float</span> z<span class="tok-punct">,</span> <span class="tok-keyword">float</span> e<span class="tok-punct">)</span>
+        <span class="tok-operator">:</span><span class="tok-function">x</span><span class="tok-punct">(</span>x<span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-function">y</span><span class="tok-punct">(</span>y<span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-function">z</span><span class="tok-punct">(</span>z<span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-function">e</span><span class="tok-punct">(</span>e<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+        <span class="tok-comment">// 我应该在这里检查一下这些数值是否具有物理意义吗？</span>
+    <span class="tok-punct">}</span>
+
+    <span class="tok-keyword">float</span> <span class="tok-function">m</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-keyword">const</span> <span class="tok-punct">{</span>
+        <span class="tok-comment">// 我应该处理这个特殊案例吗？</span>
+        <span class="tok-keyword">return</span> <span class="tok-function">sqrt</span><span class="tok-punct">(</span>x <span class="tok-operator">*</span> x <span class="tok-operator">+</span> y <span class="tok-operator">*</span> y <span class="tok-operator">+</span> z <span class="tok-operator">*</span> z <span class="tok-operator">-</span> e <span class="tok-operator">*</span> e<span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-punct">}</span>
+
+<span class="tok-punct">}</span><span class="tok-punct">;</span></code></pre></div>
+<p>喷气式飞行器的物理定律（<span class="math-inline" data-tex="e^2 &lt; x^2 + y^2 + z^2">e^2 &lt; x^2 + y^2 + z^2</span>）并不是一个不变式，但是因为测量误差的存在可能使其无法始终成立。这会导致即使理想情况下 <code>sqrt</code> 能正常工作，但由于现实测量误差等原因，可能出现意外情况，对于浮点数要特别注意误差情况。</p>
+<h4 id="不要泄露任何资源">不要泄露任何资源<a class="heading-anchor" href="#不要泄露任何资源" aria-label="锚点">#</a></h4>
+<p><strong>原因</strong>：即使资源增长缓慢，随着时间的推移，这些资源也会耗尽。这一点对于长期运行的程序尤为重要，也是负责任的编程行为中不可或缺的一部分。</p>
+<p>示例：bad</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">void</span> <span class="tok-function">f</span><span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-keyword">char</span><span class="tok-operator">*</span> name<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-type">FILE</span><span class="tok-operator">*</span> input <span class="tok-operator">=</span> <span class="tok-function">fopen</span><span class="tok-punct">(</span>name<span class="tok-punct">,</span> <span class="tok-string">&quot;r&quot;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-comment">// ...</span>
+    <span class="tok-keyword">if</span> <span class="tok-punct">(</span>something<span class="tok-punct">)</span> <span class="tok-keyword">return</span><span class="tok-punct">;</span>   <span class="tok-comment">// 不好：如果某个条件为真，则文件句柄泄漏</span>
+    <span class="tok-comment">// ...</span>
+    <span class="tok-function">fclose</span><span class="tok-punct">(</span>input<span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre></div>
+<p>更好的是 RAII：为了避免内存泄漏和手动资源管理的复杂性，C++ 语言强制执行的构造函数/析构函数对称性，与资源获取/释放函数对（例如 <code>fopen</code> / <code>fclose</code> 、 <code>lock</code> / <code>unlock</code> 和 <code>new</code> / <code>delete</code> 固有的对称性相呼应。每当您处理需要成对调用获取/释放函数的资源时，请将该资源封装在一个强制执行成对调用的对象中——在其构造函数中获取资源，并在其析构函数中释放资源。</p>
+<p>如果某个资源“行为异常”（即它没有被表示为带有析构函数的类），则应将其包装在一个类中或使用 <code>finally</code>。</p>
+<h4 id="不要浪费时间和空间">不要浪费时间和空间<a class="heading-anchor" href="#不要浪费时间和空间" aria-label="锚点">#</a></h4>
+<p><strong>原因</strong>：这是 C++。</p>
+<p>示例：bad</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">struct</span> <span class="tok-type">X</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">char</span> ch<span class="tok-punct">;</span>
+    <span class="tok-keyword">int</span> i<span class="tok-punct">;</span>
+    <span class="tok-builtin">string</span> s<span class="tok-punct">;</span>
+    <span class="tok-keyword">char</span> ch2<span class="tok-punct">;</span>
+
+    <span class="tok-type">X</span><span class="tok-operator">&amp;</span> <span class="tok-keyword">operator</span><span class="tok-operator">=</span><span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-type">X</span><span class="tok-operator">&amp;</span> a<span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-function">X</span><span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-type">X</span><span class="tok-operator">&amp;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-type">X</span> <span class="tok-function">waste</span><span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-keyword">char</span><span class="tok-operator">*</span> p<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-keyword">if</span> <span class="tok-punct">(</span><span class="tok-operator">!</span>p<span class="tok-punct">)</span> <span class="tok-keyword">throw</span> <span class="tok-type">Nullptr_error</span><span class="tok-punct">{</span><span class="tok-punct">}</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">int</span> n <span class="tok-operator">=</span> <span class="tok-function">strlen</span><span class="tok-punct">(</span>p<span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">auto</span> buf <span class="tok-operator">=</span> <span class="tok-keyword">new</span> <span class="tok-keyword">char</span><span class="tok-punct">[</span>n<span class="tok-punct">]</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">if</span> <span class="tok-punct">(</span><span class="tok-operator">!</span>buf<span class="tok-punct">)</span> <span class="tok-keyword">throw</span> <span class="tok-type">Allocation_error</span><span class="tok-punct">{</span><span class="tok-punct">}</span><span class="tok-punct">;</span>
+    <span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-keyword">int</span> i <span class="tok-operator">=</span> <span class="tok-number">0</span><span class="tok-punct">;</span> i <span class="tok-operator">&lt;</span> n<span class="tok-punct">;</span> <span class="tok-operator">++</span>i<span class="tok-punct">)</span> buf<span class="tok-punct">[</span>i<span class="tok-punct">]</span> <span class="tok-operator">=</span> p<span class="tok-punct">[</span>i<span class="tok-punct">]</span><span class="tok-punct">;</span>
+    <span class="tok-comment">// ... 操纵缓冲区 ...</span>
+    <span class="tok-type">X</span> x<span class="tok-punct">;</span>
+    x<span class="tok-punct">.</span>ch <span class="tok-operator">=</span> <span class="tok-string">&#x27;a&#x27;</span><span class="tok-punct">;</span>
+    x<span class="tok-punct">.</span>s <span class="tok-operator">=</span> <span class="tok-builtin">string</span><span class="tok-punct">(</span>n<span class="tok-punct">)</span><span class="tok-punct">;</span>    <span class="tok-comment">// 给 x.s 留出空间 *p</span>
+    <span class="tok-keyword">for</span> <span class="tok-punct">(</span>gsl<span class="tok-operator">::</span>index i <span class="tok-operator">=</span> <span class="tok-number">0</span><span class="tok-punct">;</span> i <span class="tok-operator">&lt;</span> x<span class="tok-punct">.</span>s<span class="tok-punct">.</span><span class="tok-function">size</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-operator">++</span>i<span class="tok-punct">)</span> x<span class="tok-punct">.</span>s<span class="tok-punct">[</span>i<span class="tok-punct">]</span> <span class="tok-operator">=</span> buf<span class="tok-punct">[</span>i<span class="tok-punct">]</span><span class="tok-punct">;</span>  <span class="tok-comment">// 将缓冲区复制到 x.s</span>
+    <span class="tok-keyword">delete</span><span class="tok-punct">[</span><span class="tok-punct">]</span> buf<span class="tok-punct">;</span>
+    <span class="tok-keyword">return</span> x<span class="tok-punct">;</span>
+<span class="tok-punct">}</span>
+
+<span class="tok-keyword">void</span> <span class="tok-function">driver</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-type">X</span> x <span class="tok-operator">=</span> <span class="tok-function">waste</span><span class="tok-punct">(</span><span class="tok-string">&quot;Typical argument&quot;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+    <span class="tok-comment">// ...</span>
+<span class="tok-punct">}</span></code></pre></div>
+<p>这只是个夸张的例子，但在生产代码中确实存在类似的错误，甚至更糟。注意， <code>X</code> 的布局保证了至少 6 个字节（很可能更多）被浪费。对复制操作的错误定义禁用了移动语义，导致返回操作速度很慢（请注意，这里无法保证返回值优化，即 RVO）。使用 <code>new</code> 和 <code>delete</code> 来处理 <code>buf</code> 是多余的；如果真的需要一个局部字符串，就应该直接使用局部 <code>string</code> 。此外，还有许多其他性能问题和不必要的复杂性。</p>
+<p>考虑可见性和作用范围可以帮助我们更好地理解这个实践技巧，应当在大部分将变量作用范围限定在函数内部，使用 <code>static</code> 和 <code>const</code> 是必要的，过重的构造函数不应当反复初始化（除非这是必要的）。</p>
+<h4 id="优先选择不可变数据而非可变数据">优先选择不可变数据而非可变数据<a class="heading-anchor" href="#优先选择不可变数据而非可变数据" aria-label="锚点">#</a></h4>
+<p><strong>原因</strong>：处理常量比处理变量更容易。不可变的事物不会发生意外变化。有时，不可变性有助于实现更好的优化。常量上不会出现数据竞争。</p>
+<p>保持5个规范即可：</p>
+<ol><li>默认情况下，对象是不可变的：</li></ol>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp">    <span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-keyword">int</span> i <span class="tok-operator">:</span> c<span class="tok-punct">)</span> cout <span class="tok-operator">&lt;&lt;</span> i <span class="tok-operator">&lt;&lt;</span> <span class="tok-string">&#x27;\n&#x27;</span><span class="tok-punct">;</span>    <span class="tok-comment">// 好： 只读，const</span>
+
+    <span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-keyword">int</span> i <span class="tok-operator">:</span> c<span class="tok-punct">)</span> cout <span class="tok-operator">&lt;&lt;</span> i <span class="tok-operator">&lt;&lt;</span> <span class="tok-string">&#x27;\n&#x27;</span><span class="tok-punct">;</span>          <span class="tok-comment">// 不好: 只读，但未加上 const</span></code></pre></div>
+<p>例外：如果局部变量按值返回且移动比复制更便宜，则不应声明为 <code>const</code> 因为它可能会强制进行不必要的复制。</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp">    <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">vector</span><span class="tok-operator">&lt;</span><span class="tok-keyword">int</span><span class="tok-operator">&gt;</span> <span class="tok-function">f</span><span class="tok-punct">(</span><span class="tok-keyword">int</span> i<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+        <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">vector</span><span class="tok-operator">&lt;</span><span class="tok-keyword">int</span><span class="tok-operator">&gt;</span> v<span class="tok-punct">{</span> i<span class="tok-punct">,</span> i<span class="tok-punct">,</span> i <span class="tok-punct">}</span><span class="tok-punct">;</span>  <span class="tok-comment">// const 不是必要的，这；里有 RVO 优化</span>
+        <span class="tok-keyword">return</span> v<span class="tok-punct">;</span>
+    <span class="tok-punct">}</span></code></pre></div>
+<p>通过值传递的函数参数很少会被修改，但也很少被声明为 <code>const</code> 。为了避免混淆和大量的误报，不要对函数参数强制执行此规则。</p>
+<ol><li>默认情况下，将成员函数设为 <code>const</code></li></ol>
+<p>除非成员函数会改变对象的可观察状态，否则应该将其标记为 <code>const</code> 。这样做可以更精确地表达设计意图，提高代码可读性，让编译器捕获更多错误，有时还能带来更多优化机会。</p>
+<p>示例：bad</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp">    <span class="tok-keyword">class</span> <span class="tok-type">Point</span> <span class="tok-punct">{</span>
+        <span class="tok-keyword">int</span> x<span class="tok-punct">,</span> y<span class="tok-punct">;</span>
+    <span class="tok-keyword">public</span><span class="tok-operator">:</span>
+        <span class="tok-keyword">int</span> <span class="tok-function">getx</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">{</span> <span class="tok-keyword">return</span> x<span class="tok-punct">;</span> <span class="tok-punct">}</span>    <span class="tok-comment">// 不好：应该设为常量，因为它不会修改对象的状态</span>
+        <span class="tok-comment">// ...</span>
+    <span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+    <span class="tok-keyword">void</span> <span class="tok-function">f</span><span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-type">Point</span><span class="tok-operator">&amp;</span> pt<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+        <span class="tok-keyword">int</span> x <span class="tok-operator">=</span> pt<span class="tok-punct">.</span><span class="tok-function">getx</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>          <span class="tok-comment">// 错误：编译失败，因为 getx 未标记为 const</span>
+    <span class="tok-punct">}</span></code></pre></div>
+<ol><li>默认情况下，将指针和引用传递给 <code>const</code></li></ol>
+<p>为了避免被调用函数意外地改变值。当被调用函数不修改状态时，程序更容易理解。</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp">    <span class="tok-keyword">void</span> <span class="tok-function">f</span><span class="tok-punct">(</span><span class="tok-keyword">char</span><span class="tok-operator">*</span> p<span class="tok-punct">)</span><span class="tok-punct">;</span>        <span class="tok-comment">// f 是否会修改 *p？（我们需要假设会）</span>
+    <span class="tok-keyword">void</span> <span class="tok-function">g</span><span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-keyword">char</span><span class="tok-operator">*</span> p<span class="tok-punct">)</span><span class="tok-punct">;</span>  <span class="tok-comment">// g 不修改 *p</span></code></pre></div>
+<ol><li>使用 <code>const</code> 定义构造后值不会改变的对象</li></ol>
+<p>防止因对象值意外更改而导致的意外情况。</p>
+<p>示例：</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp">    <span class="tok-keyword">void</span> <span class="tok-function">f</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+        <span class="tok-keyword">int</span> x <span class="tok-operator">=</span> <span class="tok-number">7</span><span class="tok-punct">;</span>
+        <span class="tok-keyword">const</span> <span class="tok-keyword">int</span> y <span class="tok-operator">=</span> <span class="tok-number">9</span><span class="tok-punct">;</span>
+
+        <span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-punct">;</span><span class="tok-punct">;</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+            <span class="tok-comment">// ...</span>
+        <span class="tok-punct">}</span>
+        <span class="tok-comment">// ...</span>
+    <span class="tok-punct">}</span></code></pre></div>
+<p>由于 <code>x</code> 不是 <code>const</code> ，我们必须假设它在循环中的某个地方被修改了。</p>
+<ol><li>对于可以在编译时计算的值，请使用 <code>constexpr</code></li></ol>
+<p>性能更佳，编译时检查更完善，保证编译时评估，不会出现竞态条件。</p>
+<p>示例：</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp">    <span class="tok-keyword">double</span> x <span class="tok-operator">=</span> <span class="tok-function">f</span><span class="tok-punct">(</span><span class="tok-number">2</span><span class="tok-punct">)</span><span class="tok-punct">;</span>            <span class="tok-comment">// 可能在运行时执行</span>
+    <span class="tok-keyword">const</span> <span class="tok-keyword">double</span> y <span class="tok-operator">=</span> <span class="tok-function">f</span><span class="tok-punct">(</span><span class="tok-number">2</span><span class="tok-punct">)</span><span class="tok-punct">;</span>      <span class="tok-comment">// 可能在运行时执行</span>
+    <span class="tok-keyword">constexpr</span> <span class="tok-keyword">double</span> z <span class="tok-operator">=</span> <span class="tok-function">f</span><span class="tok-punct">(</span><span class="tok-number">2</span><span class="tok-punct">)</span><span class="tok-punct">;</span>  <span class="tok-comment">// 除非 f(2) 可以在编译时求值，否则会出错</span></code></pre></div>
+<h4 id="将混乱的结构封装起来而不是散布在代码各处">将混乱的结构封装起来，而不是散布在代码各处<a class="heading-anchor" href="#将混乱的结构封装起来而不是散布在代码各处" aria-label="锚点">#</a></h4>
+<p>原因：混乱的代码更容易隐藏 bug，而且编写起来也更困难。一个好的界面使用起来更方便、更安全。混乱的底层代码会滋生更多类似的代码。</p>
+<p>示例 bad：</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">int</span> sz <span class="tok-operator">=</span> <span class="tok-number">100</span><span class="tok-punct">;</span>
+<span class="tok-keyword">int</span><span class="tok-operator">*</span> p <span class="tok-operator">=</span> <span class="tok-punct">(</span><span class="tok-keyword">int</span><span class="tok-operator">*</span><span class="tok-punct">)</span> <span class="tok-builtin">malloc</span><span class="tok-punct">(</span><span class="tok-keyword">sizeof</span><span class="tok-punct">(</span><span class="tok-keyword">int</span><span class="tok-punct">)</span> <span class="tok-operator">*</span> sz<span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">int</span> count <span class="tok-operator">=</span> <span class="tok-number">0</span><span class="tok-punct">;</span>
+<span class="tok-comment">// ...</span>
+<span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-punct">;</span><span class="tok-punct">;</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-comment">// ... 将一个整数读入 x，如果到达文件末尾则退出循环 ...</span>
+    <span class="tok-comment">// ... 检查 x 是否有效 ...</span>
+    <span class="tok-keyword">if</span> <span class="tok-punct">(</span>count <span class="tok-operator">==</span> sz<span class="tok-punct">)</span>
+        p <span class="tok-operator">=</span> <span class="tok-punct">(</span><span class="tok-keyword">int</span><span class="tok-operator">*</span><span class="tok-punct">)</span> <span class="tok-function">realloc</span><span class="tok-punct">(</span>p<span class="tok-punct">,</span> <span class="tok-keyword">sizeof</span><span class="tok-punct">(</span><span class="tok-keyword">int</span><span class="tok-punct">)</span> <span class="tok-operator">*</span> sz <span class="tok-operator">*</span> <span class="tok-number">2</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+    p<span class="tok-punct">[</span>count<span class="tok-operator">++</span><span class="tok-punct">]</span> <span class="tok-operator">=</span> x<span class="tok-punct">;</span>
+    <span class="tok-comment">// ...</span>
+<span class="tok-punct">}</span></code></pre></div>
+<p>这种方法底层、冗长且容易出错。例如，我们“忘记”测试内存耗尽情况并为 <code>sz</code> 赋新值。相反，我们可以使用 <code>vector</code> ：</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-builtin">vector</span><span class="tok-operator">&lt;</span><span class="tok-keyword">int</span><span class="tok-operator">&gt;</span> v<span class="tok-punct">;</span>
+v<span class="tok-punct">.</span><span class="tok-function">reserve</span><span class="tok-punct">(</span><span class="tok-number">100</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-comment">// ...</span>
+<span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-keyword">int</span> x<span class="tok-punct">;</span> cin <span class="tok-operator">&gt;&gt;</span> x<span class="tok-punct">;</span> <span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-comment">// ... 检查 x 是否有效 ...</span>
+    v<span class="tok-punct">.</span><span class="tok-function">push_back</span><span class="tok-punct">(</span>x<span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span></code></pre></div>
+<h4 id="酌情使用辅助工具和支持库">酌情使用辅助工具和支持库<a class="heading-anchor" href="#酌情使用辅助工具和支持库" aria-label="锚点">#</a></h4>
+<p><strong>原因</strong>：很多事情用现有工具会做会更好。比如使用 代码静态分析器，验证你的代码是否符合你希望它遵循的准则。使用格式化工具，保证代码符合编码格式，1.8节会提供 clang-format 和 clang-tidy 文件用于检查代码格式和规范。1.7节会提供一份CMake模板，其中包含了各类消毒水的启动选项。</p>
+<hr>
+<h3 id="命名约定和注释">命名约定和注释<a class="heading-anchor" href="#命名约定和注释" aria-label="锚点">#</a></h3>
+<p>几种命名方式：</p>
+<ul><li>大驼峰</li><li>小驼峰</li><li>小写 + 下划线</li><li>全大写 + 下划线</li><li>不强制命名格式（常量命名可能存在 k开头 + 其他命名规范）</li></ul>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-comment">// 相关命名内容用绿色背景标注</span>
+
+<span class="tok-comment">// 大驼峰</span>
+<span class="tok-keyword">class</span> <span class="tok-type">RobotController</span><span class="tok-punct">;</span>
+<span class="tok-comment">// 小驼峰</span>
+<span class="tok-type">RobotController</span><span class="tok-operator">::</span><span class="tok-function">update</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-type">RobotController</span><span class="tok-operator">::</span><span class="tok-function">registerRobot</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-comment">// 小写 + 下划线</span>
+<span class="tok-keyword">auto</span> robot_controller_ptr <span class="tok-operator">=</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">make_unique</span><span class="tok-operator">&lt;</span><span class="tok-type">RobotController</span><span class="tok-operator">&gt;</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-comment">// 全大写 + 下划线</span>
+<span class="tok-keyword">static</span> <span class="tok-keyword">constexpr</span> <span class="tok-keyword">auto</span> <span class="tok-type">ROBOT_CONTROLLER_XXX_DATA</span> <span class="tok-operator">=</span> <span class="tok-number">100</span><span class="tok-punct">;</span>
+<span class="tok-comment">// 不强制命名格式</span>
+<span class="tok-keyword">static</span> <span class="tok-keyword">constexpr</span> <span class="tok-keyword">auto</span> kRobotXXXData <span class="tok-operator">=</span> <span class="tok-number">100</span><span class="tok-punct">;</span></code></pre></div>
+<h4 id="类型命名">类型命名<a class="heading-anchor" href="#类型命名" aria-label="锚点">#</a></h4>
+<ul><li>类型命名（class、struct）使用 <strong>大驼峰</strong></li></ul>
+<p>示例：</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">class</span> <span class="tok-type">RobotController</span><span class="tok-punct">;</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">RobotControllerData</span><span class="tok-punct">;</span></code></pre></div>
+<h4 id="变量命名">变量命名<a class="heading-anchor" href="#变量命名" aria-label="锚点">#</a></h4>
+<ul><li>局部变量使用 <strong>小写 + 下划线</strong></li><li>私有成员变量使用 <strong>小写 + 下划线风格 必须 以下划线结尾</strong></li><li>静态常量 <strong>不强制命名格式</strong></li><li><code>constexpr</code> 变量使用 <strong>全大写 + 下划线</strong></li><li>Enum 变量使用 <strong>全大写 + 下划线</strong></li></ul>
+<p>示例：</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-comment">// constexpr 变量</span>
+<span class="tok-keyword">constexpr</span> <span class="tok-keyword">auto</span> <span class="tok-type">ROBOT_DEFAULT_JOINT_SIZE</span> <span class="tok-operator">=</span> <span class="tok-number">23</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">enum</span> <span class="tok-keyword">class</span> <span class="tok-type">RobotType</span> <span class="tok-punct">{</span>
+    <span class="tok-type">TYPE1</span><span class="tok-punct">,</span>
+    <span class="tok-type">TYPE2</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-keyword">class</span> <span class="tok-type">Robot</span> <span class="tok-punct">{</span>
+ <span class="tok-keyword">public</span><span class="tok-operator">:</span>
+    <span class="tok-keyword">void</span> <span class="tok-function">update</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+        <span class="tok-comment">// 静态常量（通常视作用范围定，此处与局部变量一致）</span>
+        <span class="tok-keyword">static</span> <span class="tok-keyword">const</span> <span class="tok-keyword">auto</span> k_robot_name <span class="tok-operator">=</span> <span class="tok-string">&quot;xxx&quot;</span><span class="tok-punct">;</span>
+        <span class="tok-comment">// 局部变量</span>
+        <span class="tok-keyword">const</span> <span class="tok-keyword">auto</span> joint_size <span class="tok-operator">=</span>  joint_index_vec_<span class="tok-punct">.</span><span class="tok-function">size</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+        <span class="tok-comment">// ...</span>
+    <span class="tok-punct">}</span>
+ <span class="tok-keyword">private</span><span class="tok-operator">:</span>
+    <span class="tok-comment">// 私有成员变量</span>
+    <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">vector</span><span class="tok-operator">&lt;</span><span class="tok-keyword">int</span><span class="tok-operator">&gt;</span> joint_index_vec_<span class="tok-punct">;</span>
+    <span class="tok-keyword">double</span> target_velocity_<span class="tok-punct">;</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span></code></pre></div>
+<h4 id="函数命名">函数命名<a class="heading-anchor" href="#函数命名" aria-label="锚点">#</a></h4>
+<ul><li>函数参数使用 <strong>小写下划线</strong></li><li><code>Public</code> 方法使用 <strong>小驼峰</strong></li><li><code>Protected</code>* *方法使用 <strong>小驼峰</strong></li><li><code>Private</code>* *方法使用 <strong>小驼峰</strong></li><li>全局函数使用 <strong>大驼峰</strong></li></ul>
+<p>示例：</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-keyword">class</span> <span class="tok-type">FSMBase</span> <span class="tok-punct">{</span>
+   <span class="tok-keyword">public</span><span class="tok-operator">:</span>
+       <span class="tok-keyword">bool</span> <span class="tok-function">changeState</span><span class="tok-punct">(</span><span class="tok-keyword">int</span> id<span class="tok-punct">)</span><span class="tok-punct">;</span>
+   <span class="tok-keyword">protected</span><span class="tok-operator">:</span>
+       <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">string</span> <span class="tok-function">getNowStateName</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+   <span class="tok-keyword">private</span><span class="tok-operator">:</span>
+       <span class="tok-keyword">bool</span> <span class="tok-function">execRun</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+
+<span class="tok-type">FSMBase</span><span class="tok-operator">*</span> <span class="tok-function">InitFSM</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre></div>
+<h4 id="其他命名">其他命名<a class="heading-anchor" href="#其他命名" aria-label="锚点">#</a></h4>
+<ul><li>命名空间命名使用 <strong>小写下划线</strong></li><li>模板参数命名使用 <strong>大驼峰</strong></li><li>宏定义命名使用 <strong>大写下划线</strong></li></ul>
+<p>示例：</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-preproc">#ifndef</span> <span class="tok-type">SPDLOG_ACTIVE_LEVEL</span>
+<span class="tok-preproc">#define</span> <span class="tok-type">SPDLOG_ACTIVE_LEVEL</span> <span class="tok-type">SPDLOG_LEVEL_TRACE</span>
+<span class="tok-preproc">#endif</span>
+
+<span class="tok-keyword">namespace</span> robot <span class="tok-punct">{</span>
+<span class="tok-keyword">namespace</span> infra <span class="tok-punct">{</span>
+<span class="tok-keyword">namespace</span> log <span class="tok-punct">{</span>
+
+<span class="tok-preproc">#define</span> <span class="tok-function">ROBOT_INFO</span><span class="tok-punct">(</span><span class="tok-punct">.</span><span class="tok-punct">.</span><span class="tok-punct">.</span><span class="tok-punct">)</span>                                                 \
+    <span class="tok-keyword">do</span> <span class="tok-punct">{</span>                                                               \
+        robot<span class="tok-operator">::</span>infra<span class="tok-operator">::</span>log<span class="tok-operator">::</span><span class="tok-function">EnsureInitialized</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>                          \
+        <span class="tok-function">SPDLOG_LOGGER_INFO</span><span class="tok-punct">(</span>robot<span class="tok-operator">::</span>infra<span class="tok-operator">::</span>log<span class="tok-operator">::</span>robot_logger<span class="tok-punct">,</span> __VA_ARGS__<span class="tok-punct">)</span><span class="tok-punct">;</span> \
+    <span class="tok-punct">}</span> <span class="tok-keyword">while</span> <span class="tok-punct">(</span><span class="tok-number">0</span><span class="tok-punct">)</span>
+
+<span class="tok-keyword">template</span> <span class="tok-operator">&lt;</span><span class="tok-keyword">typename</span><span class="tok-punct">.</span><span class="tok-punct">.</span><span class="tok-punct">.</span> <span class="tok-type">Args</span><span class="tok-operator">&gt;</span>
+<span class="tok-keyword">void</span> <span class="tok-function">Infoout</span><span class="tok-punct">(</span><span class="tok-keyword">const</span> <span class="tok-builtin">std</span><span class="tok-operator">::</span><span class="tok-builtin">string</span><span class="tok-operator">&amp;</span> fmt<span class="tok-punct">,</span> <span class="tok-keyword">const</span> <span class="tok-type">Args</span><span class="tok-operator">&amp;</span><span class="tok-punct">.</span><span class="tok-punct">.</span><span class="tok-punct">.</span> args<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    <span class="tok-function">EnsureInitialized</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+    robot_logger<span class="tok-operator">-&gt;</span><span class="tok-function">info</span><span class="tok-punct">(</span>fmt<span class="tok-punct">,</span> args<span class="tok-punct">.</span><span class="tok-punct">.</span><span class="tok-punct">.</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span>
+
+<span class="tok-punct">}</span><span class="tok-operator">*</span>  <span class="tok-comment">// namespace log*</span>
+<span class="tok-punct">}</span><span class="tok-operator">*</span>  <span class="tok-comment">// namespace infra*</span>
+<span class="tok-punct">}</span><span class="tok-operator">*</span>  <span class="tok-comment">// namespace robot*</span></code></pre></div>
+<hr>
+<h3 id="cmake-相关模板">CMake 相关模板<a class="heading-anchor" href="#cmake-相关模板" aria-label="锚点">#</a></h3>
+<p>其中包含了项目结构目录，基础的 CMakeLists.txt 和 常用的 CMake 函数封装。以及测试模板。</p>
+<blockquote><p>其中 examples 需要通过 make install 安装项目后才能正常编译，默认安装路径为 /opt/little_robot，在cmake/option.cmake 中可关闭编译 example 。之后每次更新库都需要重新安装才能使 examples 使用的库实现改变。</p></blockquote>
+<hr>
+<h3 id="代码格式及相关检查工具">代码格式及相关检查工具<a class="heading-anchor" href="#代码格式及相关检查工具" aria-label="锚点">#</a></h3>
+<h4 id="配置文件">配置文件<a class="heading-anchor" href="#配置文件" aria-label="锚点">#</a></h4>
+<p>使用 clang-tidy 进行代码静态检查，clang-format 进行格式化，cmake-format进行 CMake格式化，以下是配置文件。</p>
+<h4 id="如何在-vscode-中使用">如何在 Vscode 中使用<a class="heading-anchor" href="#如何在-vscode-中使用" aria-label="锚点">#</a></h4>
+<ol><li>先将配置文件拷贝到项目根目录下</li><li>系统安装如下依赖（以Ubuntu为例）</li></ol>
+<div class="code-block" data-lang="text"><div class="code-head"><span class="code-lang">text</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-text">sudo apt install clang-tidy clang-format cmake-format</code></pre></div>
+<ol><li>Vscode 安装插件</li></ol>
+<p><img src="/assets/feishu/cpp-python-code-style/fig-03.webp" alt="image.png" loading="lazy" decoding="async"></p>
+<p><img src="/assets/feishu/cpp-python-code-style/fig-04.webp" alt="image.png" loading="lazy" decoding="async"></p>
+<p><img src="/assets/feishu/cpp-python-code-style/fig-05.webp" alt="image.png" loading="lazy" decoding="async"></p>
+<ol><li>格式化快捷键：Ctrl + Shift + I</li><li>Clang-tidy 会在错误代码（警告）中标注</li></ol>
+<h4 id="临时禁用格式化">临时禁用格式化<a class="heading-anchor" href="#临时禁用格式化" aria-label="锚点">#</a></h4>
+<p>在代码中添加以下注释可临时禁用格式化：</p>
+<div class="code-block" data-lang="cpp"><div class="code-head"><span class="code-lang">cpp</span><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div><pre class="code-pre"><code class="language-cpp"><span class="tok-comment">// clang-format off</span>
+<span class="tok-comment">// 这里的代码不会被格式化</span>
+<span class="tok-keyword">void</span> <span class="tok-function">unformatted_code</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+<span class="tok-punct">}</span>
+<span class="tok-comment">// clang-format on</span></code></pre></div>
+<hr>
+<h2 id="python-代码规范todo">Python 代码规范（TODO）<a class="heading-anchor" href="#python-代码规范todo" aria-label="锚点">#</a></h2>
+<hr>
+<h2 id="操作系统架构-平台相关注意事项">操作系统/架构 平台相关注意事项<a class="heading-anchor" href="#操作系统架构-平台相关注意事项" aria-label="锚点">#</a></h2>
+<h3 id="总体原则">总体原则<a class="heading-anchor" href="#总体原则" aria-label="锚点">#</a></h3>
+<ol><li>不假设操作系统类型</li><li>不假设 CPU 架构</li><li>不假设字节序</li><li>不假设指针大小</li><li>不依赖未定义行为</li></ol>
+<p>最好要做到：同一份源码可在不同平台编译。</p></div>
+
+      <div class="post-end">
+        <span class="end-mark" aria-hidden="true">◆</span>
+      </div>
+
+      
+      <section class="related">
+        <h2>相关文章</h2>
+        <div class="grid grid-3">
+          <article class="card post-card reveal" data-tiltable>
+  
+  <a class="card-link" href="/posts/dds-qos-tuning/"><span class="sr-only">DDS 选型与调参：从 QoS 到零拷贝</span></a>
+  <div class="card-tilt">
+    
+    <div class="card-cover media-shim">
+      
+      <img src="/assets/bg/neon.jpg"
+           alt=""
+           width="2560" height="1440"
+           style="object-position: 50% 50%"
+           loading="lazy" decoding="async">
+      <span class="card-cover-veil"></span>
+    </div>
+    
+    <div class="card-body">
+      
+      <div class="card-tags">
+        <a class="pill" href="/tags/dds/">DDS</a><a class="pill" href="/tags/中间件/">中间件</a><a class="pill" href="/tags/系统工程/">系统工程</a>
+      </div>
+      
+      <h3 class="card-title">DDS 选型与调参：从 QoS 到零拷贝</h3>
+      <p class="card-summary">从消息语义出发选择 QoS，区分进程内通信、共享内存和零拷贝，并用可复现的测量定位 DDS 延迟与抖动。</p>
+      <div class="card-meta">
+        <time datetime="2026-04-12">2026 年 4 月 12 日</time>
+        <span class="sep" aria-hidden="true"></span>
+        <span>5 分钟</span>
+        <span class="card-meta-end">
+          
+          <span class="pin" title="精选">精选</span>
+          <span class="card-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/>
+            </svg>
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>
+</article>
+<article class="card post-card reveal" data-tiltable>
+  
+  <a class="card-link" href="/posts/small-humanoid-consensus/"><span class="sr-only">小型人形机器人的结构、硬件与算法共识</span></a>
+  <div class="card-tilt">
+    
+    <div class="card-cover media-shim">
+      
+      <img src="/assets/feishu/small-humanoid-consensus/fig-08.webp"
+           alt=""
+           width="1600" height="956"
+           style="object-position: 50% 50%"
+           loading="lazy" decoding="async">
+      <span class="card-cover-veil"></span>
+    </div>
+    
+    <div class="card-body">
+      
+      <div class="card-tags">
+        <a class="pill" href="/tags/人形/">人形</a><a class="pill" href="/tags/强化学习/">强化学习</a><a class="pill" href="/tags/系统工程/">系统工程</a>
+      </div>
+      
+      <h3 class="card-title">小型人形机器人的结构、硬件与算法共识</h3>
+      <p class="card-summary">把市面上四款小型人形机器人（G1 / PM01 / T1 / X2）的公开规格摆在一起看：关节数与运动空间、算力与传感器配置、电池与电机选型，以及它们在 SDK 通讯、状态机和行走算法上不约而同的选择。</p>
+      <div class="card-meta">
+        <time datetime="2026-02-20">2026 年 2 月 20 日</time>
+        <span class="sep" aria-hidden="true"></span>
+        <span>10 分钟</span>
+        <span class="card-meta-end">
+          
+          
+          <span class="card-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/>
+            </svg>
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>
+</article>
+<article class="card post-card reveal" data-tiltable>
+  
+  <a class="card-link" href="/posts/cpp-toolchain/"><span class="sr-only">C++ 工程工具链：构建、调试、依赖与代码质量</span></a>
+  <div class="card-tilt">
+    
+    <div class="card-body">
+      
+      <div class="card-tags">
+        <a class="pill" href="/tags/工具/">工具</a><a class="pill" href="/tags/c/">C++</a><a class="pill" href="/tags/系统工程/">系统工程</a>
+      </div>
+      
+      <h3 class="card-title">C++ 工程工具链：构建、调试、依赖与代码质量</h3>
+      <p class="card-summary">把一套能长期维护的 C++ 工程该配的东西过一遍：构建系统怎么选、调试与分析工具各自回答什么问题、依赖怎么管，以及 clang-tidy 与 clang-format 两份可以直接拿去用的配置。</p>
+      <div class="card-meta">
+        <time datetime="2025-09-08">2025 年 9 月 8 日</time>
+        <span class="sep" aria-hidden="true"></span>
+        <span>10 分钟</span>
+        <span class="card-meta-end">
+          
+          
+          <span class="card-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/>
+            </svg>
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>
+</article>
+
+        </div>
+      </section>
+      
+    </div>
+  </div>
+
+  <nav class="post-nav" aria-label="上下篇">
+    
+    <a class="post-nav-item prev" href="/posts/realtime-control-loop/">
+      <span class="dir">← 上一篇</span>
+      <span class="t">运控回路的实时性：1 kHz 到底能不能跑满</span>
+    </a>
+    
+    
+    <a class="post-nav-item next" href="/posts/cpp-toolchain/">
+      <span class="dir">下一篇 →</span>
+      <span class="t">C++ 工程工具链：构建、调试、依赖与代码质量</span>
+    </a>
+    
+  </nav>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="footer-glow" aria-hidden="true"></div>
+  <div class="footer-grid" aria-hidden="true"></div>
+  <span class="footer-corner tl" aria-hidden="true"></span>
+  <span class="footer-corner tr" aria-hidden="true"></span>
+
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="brand-mark lg" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M2.6 20.6h5.6" stroke-width="2.2"/>
+  <path d="M7.9 15.9 11.6 6.6" stroke-width="2.8"/>
+  <path d="M13.4 7.2 19.2 11.4" stroke-width="2.8"/>
+  <circle cx="5.6" cy="17.6" r="2.9" fill="currentColor" stroke="none"/>
+  <circle cx="12.2" cy="6.4" r="2.3" fill="currentColor" stroke="none"/>
+  <circle cx="20.4" cy="12.2" r="1.8" fill="currentColor" stroke="none"/>
+</svg>
+
+      </div>
+      <p class="footer-title">洛叶白</p>
+      <p class="footer-tag">中间件 · 运动控制 · 强化学习</p>
+
+      
+      <p class="footer-now"><span class="pulse" aria-hidden="true"></span>轮式双臂机器人（智元 G2）的工业场景落地与工具链</p>
+      
+
+      <div class="footer-social">
+        
+        <a class="footer-chip" href="https://github.com/luoyebai" rel="noopener">GitHub</a>
+        
+        <a class="footer-chip" href="mailto:2112216825@qq.com" rel="noopener">邮箱</a>
+        
+        <a class="footer-chip" href="mailto:luoyebai4444@gmail.com" rel="noopener">Gmail</a>
+        
+        <a class="footer-chip" href="tel:13407209575" rel="noopener">电话</a>
+        
+      </div>
+
+      <dl class="footer-stats">
+        <div><dt>12</dt><dd>篇文章</dd></div>
+        <div><dt>19</dt><dd>篇文档</dd></div>
+        <div><dt>3</dt><dd>个项目</dd></div>
+        <div><dt>204</dt><dd>页幻灯片</dd></div>
+      </dl>
+    </div>
+
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h4>最新文章</h4>
+        
+        <a class="footer-link" href="/posts/runnable-demos/">
+          <span class="t">可运行示例：让文章里的代码真的跑起来</span>
+          <span class="d">2026 年 9 月 24 日</span>
+        </a>
+        
+        <a class="footer-link" href="/posts/dds-qos-tuning/">
+          <span class="t">DDS 选型与调参：从 QoS 到零拷贝</span>
+          <span class="d">2026 年 4 月 12 日</span>
+        </a>
+        
+        <a class="footer-link" href="/posts/quadruped-mpc-kinematics/">
+          <span class="t">四足运控：MPC 代价函数推导与腿部正逆运动学</span>
+          <span class="d">2026 年 3 月 8 日</span>
+        </a>
+        
+        <a class="footer-more" href="/posts/">
+          全部文章
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/></svg>
+        </a>
+      </div>
+
+      <div class="footer-col">
+        <h4>文档课程</h4>
+        
+        <a class="footer-link" href="/docs/windows-to-linux/">
+          <span class="t">从 Windows 到 Linux</span>
+          <span class="d">6 篇 · 67 页</span>
+        </a>
+        
+        <a class="footer-link" href="/docs/cpp/">
+          <span class="t">从 C 语言到 C++</span>
+          <span class="d">1 篇 · 10 页</span>
+        </a>
+        
+        <a class="footer-link" href="/docs/vision/">
+          <span class="t">ROS 与机器视觉</span>
+          <span class="d">6 篇 · 72 页</span>
+        </a>
+        
+        <a class="footer-link" href="/docs/learning/">
+          <span class="t">从编程开始的学习</span>
+          <span class="d">6 篇 · 55 页</span>
+        </a>
+        
+        <a class="footer-more" href="/docs/">
+          文档总览
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/></svg>
+        </a>
+      </div>
+
+      <div class="footer-col">
+        <h4>导航</h4>
+        <nav class="footer-nav" aria-label="页脚导航">
+          <a href="/">首页</a><a href="/posts/">文章</a><a href="/projects/">项目</a><a href="/docs/">文档</a><a href="/graph/">图谱</a><a href="/archive/">归档</a><a href="/about/">关于</a>
+        </nav>
+
+        <h4 class="footer-h4-gap">站点</h4>
+        <nav class="footer-nav" aria-label="站点资源">
+          <a href="/tags/">标签</a>
+          <a href="/archive/">归档</a>
+          
+          <a href="/sitemap.xml">站点地图</a>
+          <a href="/search-index.json">搜索索引</a>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p class="footer-colophon">
+      <span>© 2022–2026 洛叶白</span>
+      <span class="sep" aria-hidden="true">·</span>
+      <span>除注明外均为原创，转载请注明出处</span>
+      <span class="sep" aria-hidden="true">·</span>
+      <span>构建于 <time datetime="2026-09-29">2026-09-29</time></span>
+    </p>
+    <p class="footer-meta">
+      <span class="footer-meta-label">字体</span>
+      <span class="footer-meta-item">Noto Serif SC<i>正文 · 宋体档</i></span><span class="footer-meta-item">Noto Sans SC<i>正文 · 黑体档</i></span><span class="footer-meta-item">FiraCode Nerd<i>代码与数学</i></span>
+      <span class="footer-meta-item is-accent">无第三方依赖 · 无追踪 · 无 Cookie</span>
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" type="button" data-to-top aria-label="回到顶部">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19V5"/><path d="m5.5 11.5 6.5-6.5 6.5 6.5"/>
+  </svg>
+</button>
+
+<div class="settings" id="settings" hidden>
+  <div class="settings-backdrop" data-close-settings></div>
+  <aside class="settings-panel" role="dialog" aria-modal="true" aria-label="外观设置">
+    <header class="settings-head">
+      <div>
+        <h2>外观设置</h2>
+        <p>设置会保存在本机浏览器，刷新后保持</p>
+      </div>
+      <button class="icon-btn" type="button" data-close-settings aria-label="关闭">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path d="M6 6l12 12M18 6 6 18"/>
+        </svg>
+      </button>
+    </header>
+
+    <div class="settings-body">
+
+      <section class="set-group">
+        <h3>主题</h3>
+        <div class="theme-grid">
+          
+          <button class="theme-card" type="button" data-theme-pick="dusk" title="暮色风车">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/dusk.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#ff9d5c"></i><i style="background:#7aa2ff"></i><i style="background:#0b1020"></i>
+              </span>
+            </span>
+            <span class="theme-name">暮色风车</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="neon" title="霓虹机房">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/neon.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#c04bff"></i><i style="background:#22d3ee"></i><i style="background:#0a0718"></i>
+              </span>
+            </span>
+            <span class="theme-name">霓虹机房</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="cyber" title="夜城投递">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/cyber.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#ff7ab6"></i><i style="background:#5ee7c4"></i><i style="background:#141019"></i>
+              </span>
+            </span>
+            <span class="theme-name">夜城投递</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="sakura" title="樱色光爆">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/sakura.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#ff6fa5"></i><i style="background:#b78bff"></i><i style="background:#120a14"></i>
+              </span>
+            </span>
+            <span class="theme-name">樱色光爆</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="void" title="虚空龙息">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/void.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#6ea8ff"></i><i style="background:#ffd166"></i><i style="background:#06080f"></i>
+              </span>
+            </span>
+            <span class="theme-name">虚空龙息</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="mono" title="黑白编辑">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/mono.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#e8e8e8"></i><i style="background:#9aa0a6"></i><i style="background:#0c0c0d"></i>
+              </span>
+            </span>
+            <span class="theme-name">黑白编辑</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="paper" title="留白纸面">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/paper.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#17b8a6"></i><i style="background:#f0a04b"></i><i style="background:#fbfcfc"></i>
+              </span>
+            </span>
+            <span class="theme-name">留白纸面</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="alpine" title="远山夜湖">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/alpine.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#5b8dd9"></i><i style="background:#78d9c8"></i><i style="background:#0a1220"></i>
+              </span>
+            </span>
+            <span class="theme-name">远山夜湖</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="moonlit" title="皎月水面">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/moonlit.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#7fd4f0"></i><i style="background:#ffd9a0"></i><i style="background:#050b1c"></i>
+              </span>
+            </span>
+            <span class="theme-name">皎月水面</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="comet" title="彗星山晚">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/comet.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#e07a5f"></i><i style="background:#9b8cff"></i><i style="background:#1c2242"></i>
+              </span>
+            </span>
+            <span class="theme-name">彗星山晚</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="lantern" title="林间提灯">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/lantern.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#e8a45c"></i><i style="background:#66d6a8"></i><i style="background:#141121"></i>
+              </span>
+            </span>
+            <span class="theme-name">林间提灯</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="sketch" title="素描线稿">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/sketch.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#5a6b96"></i><i style="background:#8a6f52"></i><i style="background:#1f2024"></i>
+              </span>
+            </span>
+            <span class="theme-name">素描线稿</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="manga" title="漫画分格">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/manga.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#cf4436"></i><i style="background:#4a6fa8"></i><i style="background:#242428"></i>
+              </span>
+            </span>
+            <span class="theme-name">漫画分格</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="lumen" title="暖灯夜色">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/lumen.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#ffbe4d"></i><i style="background:#7ad3e8"></i><i style="background:#0d1a28"></i>
+              </span>
+            </span>
+            <span class="theme-name">暖灯夜色</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="bocchi" title="波奇光晕">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/bocchi.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#eaa5bc"></i><i style="background:#6acbc9"></i><i style="background:#101b2d"></i>
+              </span>
+            </span>
+            <span class="theme-name">波奇光晕</span>
+          </button>
+          
+        </div>
+      </section>
+
+      <section class="set-group">
+        <h3>配色</h3>
+        <div class="set-field">
+          <span class="set-label">明暗模式</span>
+          <div class="seg" data-seg="mode">
+            <button type="button" data-val="dark">深色</button>
+            <button type="button" data-val="light">浅色</button>
+          </div>
+        </div>
+        <div class="set-field set-field--inline">
+          <span class="set-label">强调色覆盖</span>
+          <input type="color" data-color="accent" value="#ff9d5c" aria-label="强调色">
+        </div>
+        <p class="set-note">强调色默认由主题的种子色推导；想临时改一个色就动这里，留空色块即为跟随主题。</p>
+      </section>
+
+      <section class="set-group">
+        <h3>排版</h3>
+        <div class="set-field">
+          <span class="set-label">正文字体</span>
+          <div class="seg" data-seg="font">
+            <button type="button" data-val="sans">黑体</button>
+            <button type="button" data-val="serif">宋体</button>
+            <button type="button" data-val="mono">等宽</button>
+          </div>
+        </div>
+        <div class="set-field">
+          <span class="set-label">字号 <b data-out="scale">—</b></span>
+          <input type="range" data-range="scale" min="0.9" max="1.25" step="0.01" value="1" aria-label="字号">
+        </div>
+        <div class="set-field">
+          <span class="set-label">阅读宽度</span>
+          <div class="seg" data-seg="width">
+            <button type="button" data-val="narrow">窄</button>
+            <button type="button" data-val="normal">标准</button>
+            <button type="button" data-val="wide">宽</button>
+          </div>
+        </div>
+        <p class="set-note">黑体 / 宋体随站点自带，不依赖本机字体。</p>
+      </section>
+
+      <section class="set-group">
+        <h3>玻璃材质</h3>
+        <div class="set-field">
+          <span class="set-label">质感档位</span>
+          <div class="seg" data-seg="glass">
+            <button type="button" data-val="off">关闭</button>
+            <button type="button" data-val="low">弱</button>
+            <button type="button" data-val="med">中</button>
+            <button type="button" data-val="high">强</button>
+          </div>
+        </div>
+        <div class="set-field">
+          <span class="set-label">不透明度 <b data-out="glassAlpha">—</b></span>
+          <input type="range" data-range="glassAlpha" min="40" max="100" step="1" value="72" aria-label="玻璃不透明度">
+        </div>
+        <p class="set-note">越低越透、背后的壁纸越明显；低于 60% 时文字在花哨壁纸上会不太好读。选「关闭」为实底。</p>
+      </section>
+
+      <section class="set-group">
+        <h3>背景壁纸</h3>
+        <div class="set-field">
+          <span class="set-label">显示</span>
+          <div class="seg" data-seg="bg">
+            <button type="button" data-val="on">显示</button>
+            <button type="button" data-val="off">隐藏</button>
+          </div>
+        </div>
+        <div class="set-field">
+          <span class="set-label">来源</span>
+          <div class="seg" data-seg="bgmode">
+            <button type="button" data-val="image">静态图</button>
+            <button type="button" data-val="video">动态视频</button>
+          </div>
+        </div>
+        <p class="set-note">无声循环视频按当前主题加载；切到「动态视频」后才加载，后台标签页会暂停。</p>
+        <div class="set-divider"></div>
+        <div class="set-field">
+          <span class="set-label">可见度 <b data-out="bgOpacity">—</b></span>
+          <input type="range" data-range="bgOpacity" min="0" max="100" step="2" value="62" aria-label="壁纸可见度">
+        </div>
+        <div class="set-field">
+          <span class="set-label">模糊 <b data-out="bgBlur">—</b></span>
+          <input type="range" data-range="bgBlur" min="0" max="40" step="1" value="0" aria-label="壁纸模糊">
+        </div>
+      </section>
+
+      <section class="set-group">
+        <h3>交互</h3>
+        <div class="set-field">
+          <span class="set-label">卡片 3D 倾斜</span>
+          <div class="seg" data-seg="tilt">
+            <button type="button" data-val="0">关闭</button>
+            <button type="button" data-val="6">轻微</button>
+            <button type="button" data-val="12">标准</button>
+            <button type="button" data-val="20">明显</button>
+          </div>
+        </div>
+        <p class="set-note">鼠标移到文章 / 项目卡片上时跟着倾斜的角度，仅在精确指针设备生效。</p>
+        <div class="set-divider"></div>
+        <div class="set-field">
+          <span class="set-label">页面动效</span>
+          <div class="seg" data-seg="motion">
+            <button type="button" data-val="on">开启</button>
+            <button type="button" data-val="off">关闭</button>
+          </div>
+        </div>
+        <div class="set-field">
+          <span class="set-label">鼠标指针</span>
+          <div class="seg" data-seg="cursor">
+            <button type="button" data-val="on">自定义</button>
+            <button type="button" data-val="off">系统</button>
+          </div>
+        </div>
+        <p class="set-note">自定义指针是一个反相圆环，悬停会变形并显示提示；文字输入框仍用系统指针，触屏设备自动忽略。</p>
+      </section>
+
+    </div>
+
+    <footer class="settings-foot">
+      <button class="btn ghost" type="button" data-reset-appearance>恢复默认</button>
+      <button class="btn primary" type="button" data-close-settings>完成</button>
+    </footer>
+  </aside>
+</div>
+
+<div class="search" id="search" hidden>
+  <div class="search-backdrop" data-close-search></div>
+  <div class="search-panel" role="dialog" aria-modal="true" aria-label="搜索">
+    <div class="search-input">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <circle cx="11" cy="11" r="6.5"/><path d="M16.2 16.2 21 21"/>
+      </svg>
+      <input type="search" placeholder="搜索文章、项目、标签…" autocomplete="off" spellcheck="false" data-search-input>
+      <kbd>Esc</kbd>
+    </div>
+    <div class="search-results" data-search-results>
+      <p class="search-hint">输入关键词开始搜索 · ↑↓ 选择 · Enter 打开</p>
+    </div>
+  </div>
+</div>
+
+<div class="mobile-menu" id="mobile-menu" hidden>
+  <div class="mobile-menu-backdrop" data-close-menu></div>
+  <nav class="mobile-menu-panel">
+    <a href="/">首页</a><a href="/posts/">文章</a><a href="/projects/">项目</a><a href="/docs/">文档</a><a href="/graph/">图谱</a><a href="/archive/">归档</a><a href="/about/">关于</a>
+    <div class="mobile-menu-social">
+      <a href="https://github.com/luoyebai" rel="noopener">GitHub</a><a href="mailto:2112216825@qq.com" rel="noopener">邮箱</a><a href="mailto:luoyebai4444@gmail.com" rel="noopener">Gmail</a><a href="tel:13407209575" rel="noopener">电话</a>
+    </div>
+  </nav>
+</div>
+
+
+<script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
+
+
+<script defer src="/assets/vendor/katex/katex.min.js"></script>
+
+
+<script src="/assets/site.js?v=afafd87f" defer></script>
+
+</body>
+</html>
+

@@ -723,6 +723,8 @@
     else fn();
   }
   function wireShim(box) {
+    var vid = box.querySelector('video');
+    if (vid) { wireVideo(box, vid); return; }
     var img = box.querySelector('img');
     if (!img) { box.classList.add('is-ready'); return; }
     function done(failed) {
@@ -738,6 +740,30 @@
     box.setAttribute('aria-busy', 'true');
     img.addEventListener('load', function () { done(false); }, { once: true });
     img.addEventListener('error', function () { done(true); }, { once: true });
+  }
+  function wireVideo(box, vid) {
+    function done(failed) {
+      box.classList.remove('is-armed');
+      box.classList.add(failed ? 'is-failed' : 'is-ready');
+      box.removeAttribute('aria-busy');
+    }
+    if (vid.readyState >= 1) {
+      done(false);
+    } else {
+      box.classList.add('is-armed');
+      box.setAttribute('aria-busy', 'true');
+      vid.addEventListener('loadedmetadata', function () { done(false); }, { once: true });
+      vid.addEventListener('error', function () { done(true); }, { once: true });
+    }
+    var btn = box.querySelector('.docvideo-play');
+    if (btn) {
+      btn.addEventListener('click', function () {
+        vid.play().catch(function () {  });
+      });
+    }
+    vid.addEventListener('play', function () { box.classList.add('is-playing'); });
+    vid.addEventListener('pause', function () { box.classList.remove('is-playing'); });
+    vid.addEventListener('ended', function () { box.classList.remove('is-playing'); });
   }
   function findBoot(id) {
     if (byId[id]) return byId[id];

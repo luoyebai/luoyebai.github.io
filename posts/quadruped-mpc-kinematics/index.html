@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="zh-CN"
+      data-theme="dusk"
+      data-mode="dark"
+      data-bg="on"
+      data-bgmode="image"
+      data-tilt="12"
+      data-glass="med"
+      data-font="serif"
+      data-motion="on"
+      data-width="normal"
+      data-cursor="on"
+      data-root=""
+      data-search-url="/search-index.json">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>四足运控：MPC 代价函数推导与腿部正逆运动学 · 洛叶白</title>
+<meta name="description" content="把 MPC 从状态转移方程推到有限时域 QP 的代价函数，并解释为什么直接对输入加权会留下稳态误差、改用输入增量就能修掉；后半篇从单腿三个关节的变换矩阵推出足端正运动学，再从足端位置反解关节角。">
+<meta name="author" content="洛叶白">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0b0d14" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f7f7f5" media="(prefers-color-scheme: light)">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="洛叶白">
+<meta property="og:title" content="四足运控：MPC 代价函数推导与腿部正逆运动学">
+<meta property="og:description" content="把 MPC 从状态转移方程推到有限时域 QP 的代价函数，并解释为什么直接对输入加权会留下稳态误差、改用输入增量就能修掉；后半篇从单腿三个关节的变换矩阵推出足端正运动学，再从足端位置反解关节角。">
+<meta property="og:url" content="https://luoyebai.github.io/posts/quadruped-mpc-kinematics/">
+<meta property="og:image" content="https://luoyebai.github.io/assets/images/favicon.svg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://luoyebai.github.io/posts/quadruped-mpc-kinematics/">
+<link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
+
+<link rel="stylesheet" href="/assets/themes.css?v=afafd87f">
+<link rel="stylesheet" href="/assets/site.css?v=afafd87f">
+
+<noscript><style>.boot{display:none !important}</style></noscript>
+
+
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+
+
+<meta property="og:image" content="https://luoyebai.github.io/assets/feishu/quadruped-mpc-kinematics/fig-07.webp">
+  <meta name="author" content="洛叶白">
+<script>
+/* 在首次绘制前恢复外观偏好；URL 参数优先，便于分享特定主题的链接 */
+(function () {
+  var el = document.documentElement;
+  el.classList.add('js');   /* 只有 JS 可用时才启用进场动画的隐藏态 */
+  var compact = matchMedia('(pointer: coarse)').matches ||
+    (navigator.connection && navigator.connection.saveData) ||
+    (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
+    (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+  el.setAttribute('data-performance', compact ? 'compact' : 'standard');
+  var q = {};
+  try { new URLSearchParams(location.search).forEach(function (v, k) { q[k] = v; }); } catch (e) {}
+  var s = {};
+  try { s = JSON.parse(localStorage.getItem('blog.appearance') || '{}') || {}; } catch (e) {}
+  function pick(k) { return q[k] !== undefined ? q[k] : s[k]; }
+  ['theme', 'mode', 'bg', 'bgmode', 'tilt', 'glass', 'font', 'motion', 'width', 'cursor'].forEach(function (k) {
+    var v = pick(k);
+    if (v) el.setAttribute('data-' + k, v);
+  });
+  var op = pick('bgOpacity');
+  if (op !== undefined && op !== '') el.style.setProperty('--bg-opacity', (Number(op) / 100).toFixed(3));
+  var bl = pick('bgBlur');
+  if (bl !== undefined && bl !== '') el.style.setProperty('--bg-blur', Number(bl) + 'px');
+  var sc = pick('scale');
+  if (sc !== undefined && sc !== '') el.style.setProperty('--font-scale', String(sc));
+  var ac = pick('accent');
+  if (ac) el.style.setProperty('--accent', ac);
+})();
+</script>
+</head>
+<body class="page-post">
+<a class="skip-link" href="#main">跳到正文</a>
+
+<div class="bg-layer" aria-hidden="true">
+  <div class="bg-image"></div>
+  <video class="bg-video" muted loop playsinline preload="none" disablepictureinpicture></video>
+  <div class="bg-scrim"></div>
+  <div class="bg-aurora"><span></span><span></span><span></span></div>
+  <div class="bg-grid"></div>
+  <div class="bg-vignette"></div>
+</div>
+<div class="grain" aria-hidden="true"></div>
+<div class="spotlight" aria-hidden="true"></div>
+<div class="scroll-progress" aria-hidden="true"><i></i></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">
+      <span class="brand-mark" aria-hidden="true">
+        <!-- 站点标记：两连杆机械臂（造型见 partials/mark.html，页脚用的是同一份） -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M2.6 20.6h5.6" stroke-width="2.2"/>
+  <path d="M7.9 15.9 11.6 6.6" stroke-width="2.8"/>
+  <path d="M13.4 7.2 19.2 11.4" stroke-width="2.8"/>
+  <circle cx="5.6" cy="17.6" r="2.9" fill="currentColor" stroke="none"/>
+  <circle cx="12.2" cy="6.4" r="2.3" fill="currentColor" stroke="none"/>
+  <circle cx="20.4" cy="12.2" r="1.8" fill="currentColor" stroke="none"/>
+</svg>
+
+      </span>
+      <span class="brand-text">
+        <b>洛叶白</b>
+        <i>luoyebai</i>
+      </span>
+    </a>
+
+    <nav class="nav-links" aria-label="主导航">
+      
+      <a href="/">首页</a>
+      
+      <a href="/posts/" class="is-active" aria-current="page">文章</a>
+      
+      <a href="/projects/">项目</a>
+      
+      <a href="/docs/">文档</a>
+      
+      <a href="/graph/">图谱</a>
+      
+      <a href="/archive/">归档</a>
+      
+      <a href="/about/">关于</a>
+      
+    </nav>
+
+    <div class="nav-actions">
+      <button class="icon-btn" type="button" data-open-search aria-label="搜索 (Ctrl+K)" title="搜索  Ctrl+K">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <circle cx="11" cy="11" r="6.5"/><path d="M16.2 16.2 21 21"/>
+        </svg>
+      </button>
+      <button class="icon-btn" type="button" data-toggle-mode aria-label="切换明暗" title="切换明暗">
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+        </svg>
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+          <circle cx="12" cy="12" r="4.2"/>
+          <path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4 17 7M7 17l-1.6 1.6"/>
+        </svg>
+      </button>
+      <button class="icon-btn" type="button" data-open-settings aria-label="外观设置" title="外观设置">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 7h10M18 7h2M4 17h4M12 17h8"/>
+          <circle cx="16" cy="7" r="2.2"/><circle cx="10" cy="17" r="2.2"/>
+        </svg>
+      </button>
+      <button class="icon-btn nav-burger" type="button" data-open-menu aria-label="菜单">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+
+<main id="main">
+
+
+<article class="post">
+  
+  <header class="phero has-media is-soft">
+    
+    <div class="phero-media media-shim">
+      <img src="/assets/feishu/quadruped-mpc-kinematics/fig-07.webp"
+           alt="" aria-hidden="true"
+           width="914" height="309"
+           style="object-position: 50% 50%"
+           fetchpriority="high" decoding="async">
+    </div>
+    
+    <span class="phero-scrim" aria-hidden="true"></span>
+
+    <div class="phero-inner">
+      <nav class="crumbs" aria-label="面包屑">
+        <a href="/posts/">文章</a>
+        <span aria-hidden="true">/</span>
+        <span class="current">四足运控：MPC 代价函数推导与腿部正逆运动学</span>
+      </nav>
+
+      
+      <div class="post-tags">
+        
+        <a class="pill" href="/tags/四足/">四足</a>
+        
+        <a class="pill" href="/tags/运动控制/">运动控制</a>
+        
+        <a class="pill" href="/tags/mpc/">MPC</a>
+        
+        <a class="pill" href="/tags/运动学/">运动学</a>
+        
+      </div>
+      
+
+      <h1 class="phero-title reveal">四足运控：MPC 代价函数推导与腿部正逆运动学</h1>
+      <p class="phero-lede reveal">把 MPC 从状态转移方程推到有限时域 QP 的代价函数，并解释为什么直接对输入加权会留下稳态误差、改用输入增量就能修掉；后半篇从单腿三个关节的变换矩阵推出足端正运动学，再从足端位置反解关节角。</p>
+
+      <div class="phero-meta reveal">
+        <span class="meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/>
+          </svg>
+          <time datetime="2026-03-08">2026 年 3 月 8 日</time>
+        </span>
+        <span class="meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>
+          </svg>
+          7 分钟
+        </span>
+        
+      </div>
+    </div>
+  </header>
+
+  <div class="post-layout">
+    
+    <aside class="post-aside">
+      <nav class="toc" data-toc aria-label="目录">
+        <p class="toc-title">目录</p>
+        <ul>
+          
+          <li class="toc-l2"><a href="#概述">概述</a></li>
+          
+          <li class="toc-l3"><a href="#任务清单">任务清单</a></li>
+          
+          <li class="toc-l2"><a href="#mpc-控制简介">MPC 控制简介</a></li>
+          
+          <li class="toc-l2"><a href="#原理概述">原理概述</a></li>
+          
+          <li class="toc-l3"><a href="#mpc-相关公式代码">MPC 相关公式、代码</a></li>
+          
+          <li class="toc-l4"><a href="#代码实现及参考视频">代码实现及参考视频</a></li>
+          
+          <li class="toc-l4"><a href="#公式含义">公式含义</a></li>
+          
+          <li class="toc-l4"><a href="#修正稳态误差">修正稳态误差</a></li>
+          
+          <li class="toc-l4"><a href="#一个具体的例子">一个具体的例子</a></li>
+          
+          <li class="toc-l2"><a href="#机器狗运动学建模">机器狗运动学建模</a></li>
+          
+          <li class="toc-l3"><a href="#参考来源与约定">参考来源与约定</a></li>
+          
+          <li class="toc-l3"><a href="#正运动学">正运动学</a></li>
+          
+          <li class="toc-l3"><a href="#逆运动学">逆运动学</a></li>
+          
+          <li class="toc-l2"><a href="#wbc-控制简介">WBC 控制简介</a></li>
+          
+          <li class="toc-l2"><a href="#机器狗mpc-wbc控制原理">机器狗MPC-WBC控制原理</a></li>
+          
+        </ul>
+      </nav>
+    </aside>
+    
+
+    <div class="post-main">
+      
+      <details class="mobile-toc">
+        <summary>本页目录</summary>
+        <nav aria-label="本页目录"><ul>
+          <li class="toc-l2"><a href="#概述">概述</a></li><li class="toc-l3"><a href="#任务清单">任务清单</a></li><li class="toc-l2"><a href="#mpc-控制简介">MPC 控制简介</a></li><li class="toc-l2"><a href="#原理概述">原理概述</a></li><li class="toc-l3"><a href="#mpc-相关公式代码">MPC 相关公式、代码</a></li><li class="toc-l4"><a href="#代码实现及参考视频">代码实现及参考视频</a></li><li class="toc-l4"><a href="#公式含义">公式含义</a></li><li class="toc-l4"><a href="#修正稳态误差">修正稳态误差</a></li><li class="toc-l4"><a href="#一个具体的例子">一个具体的例子</a></li><li class="toc-l2"><a href="#机器狗运动学建模">机器狗运动学建模</a></li><li class="toc-l3"><a href="#参考来源与约定">参考来源与约定</a></li><li class="toc-l3"><a href="#正运动学">正运动学</a></li><li class="toc-l3"><a href="#逆运动学">逆运动学</a></li><li class="toc-l2"><a href="#wbc-控制简介">WBC 控制简介</a></li><li class="toc-l2"><a href="#机器狗mpc-wbc控制原理">机器狗MPC-WBC控制原理</a></li>
+        </ul></nav>
+      </details>
+      
+
+      <div class="prose reveal"><aside class="callout callout-note"><div class="callout-title">迁移说明</div><div class="callout-body"><p>原文档引用的《宇树机器狗课程》PDF 是付费课程资料，不随本文转载；「WBC 控制简介」与「MPC-WBC 控制原理」两节在原文档里是空壳，这里补上了正文。</p></div></aside>
+<h2 id="概述">概述<a class="heading-anchor" href="#概述" aria-label="锚点">#</a></h2>
+<p>宇树Go2Pro机器狗逆向报告输出</p>
+<h3 id="任务清单">任务清单<a class="heading-anchor" href="#任务清单" aria-label="锚点">#</a></h3>
+<ul class="task-list"><li class="task-item"><input type="checkbox" disabled checked> MPC 控制简介</li><li class="task-item"><input type="checkbox" disabled > 机器狗运动学建模</li><li class="task-item"><input type="checkbox" disabled > WBC 控制简介</li><li class="task-item"><input type="checkbox" disabled > 机器狗MPC-WBC控制原理</li></ul>
+<hr>
+<h2 id="mpc-控制简介">MPC 控制简介<a class="heading-anchor" href="#mpc-控制简介" aria-label="锚点">#</a></h2>
+<h2 id="原理概述">原理概述<a class="heading-anchor" href="#原理概述" aria-label="锚点">#</a></h2>
+<p>MPC通过滚动优化（即预测接下来<span class="math-inline" data-tex="N">N</span>个离散时间点被控制后的状态）实现控制，实际控制器只输出影响下一个时间点状态的输出结果<span class="math-inline" data-tex="u(k)">u(k)</span>,其代价方程通常为二次型形式，实际上MPC控制是一个优化求解问题。</p>
+<h3 id="mpc-相关公式代码">MPC 相关公式、代码<a class="heading-anchor" href="#mpc-相关公式代码" aria-label="锚点">#</a></h3>
+<h4 id="代码实现及参考视频">代码实现及参考视频<a class="heading-anchor" href="#代码实现及参考视频" aria-label="锚点">#</a></h4>
+<ul><li>sympy实现数学公式计算以及代码（登陆谷歌账号后可在线运行）：</li></ul>
+<p><a href="https://colab.research.google.com/github/luoyebai/mpc_study/blob/main/notebook/sympy_mpc.ipynb" target="_blank" rel="noopener">https://colab.research.google.com/github/luoyebai/mpc_study/blob/main/notebook/sympy_mpc.ipynb</a></p>
+<ul><li>参考视频</li></ul>
+<p><a href="https://www.bilibili.com/video/BV1Y44y1b7ke/" target="_blank" rel="noopener">https://www.bilibili.com/video/BV1Y44y1b7ke/</a></p>
+<h4 id="公式含义">公式含义<a class="heading-anchor" href="#公式含义" aria-label="锚点">#</a></h4>
+<ul><li>状态转移方程：</li></ul>
+<div class="math-block" data-tex="x(k+1)=\underbrace{A}_{n \times n}\underbrace{x(k)}_{n \times 1}+\underbrace{B}_{n \times p}\underbrace{u(k)}_{p \times 1}">$$x(k+1)=\underbrace{A}_{n \times n}\underbrace{x(k)}_{n \times 1}+\underbrace{B}_{n \times p}\underbrace{u(k)}_{p \times 1}$$</div>
+<ul><li>其中<span class="math-inline" data-tex="x(k+1)">x(k+1)</span>为下一个时间（离散）点的状态、<span class="math-inline" data-tex="x(k)">x(k)</span>为当前状态（<span class="math-inline" data-tex="n">n</span>维向量）。</li><li><span class="math-inline" data-tex="u(k)">u(k)</span>为控制器输出的结果，如力矩、力、位置、角度或是电流大小等（<span class="math-inline" data-tex="p">p</span>维向量）。</li><li>假设环境不存在扰动（即未知外因、外力干扰的情况），<span class="math-inline" data-tex="A,B">A,B</span>则是确定的状态转移矩阵（与物理世界对应），控制器输出及当前状态来决定下一个时间的状态。</li></ul>
+<ul><li>预测空间方程（预测接下来<span class="math-inline" data-tex="N">N</span>个离散时间点的状态）：<ul><li><span class="math-inline" data-tex="X(k)=Mx(k) + CU(k)">X(k)=Mx(k) + CU(k)</span></li><li>其中</li></ul></li></ul>
+<div class="math-block" data-tex="X(k) =
+\underbrace{
+\begin{bmatrix}
+x(k|k) \\
+x(k+1|k) \\
+\vdots \\
+x(k+i|k) \\
+\vdots \\
+x(k+N|k) \\
+\end{bmatrix}
+}_{n(N+1) \times 1}
+\\
+U(k)=
+\underbrace{
+\begin{bmatrix}
+u(k|k) \\
+u(k+1|k) \\
+\vdots \\
+u(k+i|k) \\
+\vdots \\
+u(k+N-1|k) \\
+\end{bmatrix}
+}_{Np \times 1}
+\\
+M =
+\underbrace{
+\begin{bmatrix}
+I_{n \times n} \\
+A_{n \times n} \\
+A_2 \\
+\vdots \\
+A_N \\
+\end{bmatrix}
+}_{n(N+1) \times n}
+\\
+C =
+\underbrace{
+\begin{bmatrix}
+0 &amp; 0 &amp; \cdots &amp; 0 \\
+\vdots &amp; \vdots &amp; \cdots &amp; \vdots \\
+0 &amp; 0 &amp; &amp; 0 \\
+B &amp; 0 &amp; \cdots &amp; 0 \\
+AB &amp; B &amp; \cdots &amp; 0 \\
+\vdots &amp; \vdots &amp; \ddots &amp; 0 \\
+A^{N-1}B &amp; A^{N-2}B &amp; \cdots &amp; B \\
+\end{bmatrix}
+}_{n(N+1) \times Np}">$$X(k) =
+\underbrace{
+\begin{bmatrix}
+x(k|k) \\
+x(k+1|k) \\
+\vdots \\
+x(k+i|k) \\
+\vdots \\
+x(k+N|k) \\
+\end{bmatrix}
+}_{n(N+1) \times 1}
+\\
+U(k)=
+\underbrace{
+\begin{bmatrix}
+u(k|k) \\
+u(k+1|k) \\
+\vdots \\
+u(k+i|k) \\
+\vdots \\
+u(k+N-1|k) \\
+\end{bmatrix}
+}_{Np \times 1}
+\\
+M =
+\underbrace{
+\begin{bmatrix}
+I_{n \times n} \\
+A_{n \times n} \\
+A_2 \\
+\vdots \\
+A_N \\
+\end{bmatrix}
+}_{n(N+1) \times n}
+\\
+C =
+\underbrace{
+\begin{bmatrix}
+0 &amp; 0 &amp; \cdots &amp; 0 \\
+\vdots &amp; \vdots &amp; \cdots &amp; \vdots \\
+0 &amp; 0 &amp; &amp; 0 \\
+B &amp; 0 &amp; \cdots &amp; 0 \\
+AB &amp; B &amp; \cdots &amp; 0 \\
+\vdots &amp; \vdots &amp; \ddots &amp; 0 \\
+A^{N-1}B &amp; A^{N-2}B &amp; \cdots &amp; B \\
+\end{bmatrix}
+}_{n(N+1) \times Np}$$</div>
+<ul><li>代价函数可定义为:</li></ul>
+<div class="math-block" data-tex="J = (MX_k+CU_k-x^*)^T\overline{Q}(MX_k+CU_k-x^*) + U_k^T\overline{R}U_k">$$J = (MX_k+CU_k-x^*)^T\overline{Q}(MX_k+CU_k-x^*) + U_k^T\overline{R}U_k$$</div>
+<ul><li>上述公式中<ul><li><span class="math-inline" data-tex="Q,F">Q,F</span>为<span class="math-inline" data-tex="n">n</span>维对角矩阵，<span class="math-inline" data-tex="R">R</span>为<span class="math-inline" data-tex="p">p</span>维对角矩阵，它们中每一项都表示权重。</li><li><span class="math-inline" data-tex="Q">Q</span>表示这个过程中控制器距离目标状态误差的代价权重，<span class="math-inline" data-tex="F">F</span>则是<span class="math-inline" data-tex="N">N</span>次输入之后距离目标状态的误差代价权重，<span class="math-inline" data-tex="R">R</span>表示过程中输入代价的权重。</li><li><span class="math-inline" data-tex="R">R</span>过大可能导致无法达到目标结果。</li><li>对接下来<span class="math-inline" data-tex="N">N</span>个时间形成权重矩阵（理论上我们可以为接下来的时间设置不同的权重矩阵，然而这些权重都只反映了达到目标过程中的代价，这与时间无关，所以权重是时不变的）</li></ul></li></ul>
+<div class="math-block" data-tex="\overline{Q} =
+\begin{bmatrix}
+Q &amp; \cdots &amp; 0  \\
+\vdots &amp; Q &amp; \vdots \\
+0  &amp; \cdots &amp; F \\
+\end{bmatrix}
+\quad \\
+\overline{R} =
+\begin{bmatrix}
+R &amp; \cdots &amp; 0 \\
+\vdots &amp; \ddots &amp; \vdots \\
+0 &amp; \cdots &amp; R \\
+\end{bmatrix}">$$\overline{Q} =
+\begin{bmatrix}
+Q &amp; \cdots &amp; 0  \\
+\vdots &amp; Q &amp; \vdots \\
+0  &amp; \cdots &amp; F \\
+\end{bmatrix}
+\quad \\
+\overline{R} =
+\begin{bmatrix}
+R &amp; \cdots &amp; 0 \\
+\vdots &amp; \ddots &amp; \vdots \\
+0 &amp; \cdots &amp; R \\
+\end{bmatrix}$$</div>
+<ul><li>公式中<span class="math-inline" data-tex="x(k)">x(k)</span>为当前状态，<span class="math-inline" data-tex="x^*">x^*</span>为目标状态，使<span class="math-inline" data-tex="J">J</span>最小的结果<span class="math-inline" data-tex="U(k)">U(k)</span>则为MPC控制器的输出结果。</li></ul>
+<blockquote><p>MPC 缺点：在不使用增量控制的情况下，稳态误差较大，在R过大的情况下会导致状态发散</p></blockquote>
+<h4 id="修正稳态误差">修正稳态误差<a class="heading-anchor" href="#修正稳态误差" aria-label="锚点">#</a></h4>
+<p>为了修正稳态误差，将输入增量权重矩阵作为代价函数的参考，而非直接使用输入权重矩阵。</p>
+<ul><li>代价函数修改为：</li></ul>
+<div class="math-block" data-tex="J = (MX_k+CU_k-x^*)^T\overline{Q}(MX_k+CU_k-x^*) + {\Delta U_k}^T \overline{R} {\Delta U_k}">$$J = (MX_k+CU_k-x^*)^T\overline{Q}(MX_k+CU_k-x^*) + {\Delta U_k}^T \overline{R} {\Delta U_k}$$</div>
+<ul><li>其中</li></ul>
+<p><span class="math-inline" data-tex="{\Delta U_k} = U_k - U_{k-1}">{\Delta U_k} = U_k - U_{k-1}</span></p>
+<h4 id="一个具体的例子">一个具体的例子<a class="heading-anchor" href="#一个具体的例子" aria-label="锚点">#</a></h4>
+<ul><li>状态转移方程如下：</li></ul>
+<div class="math-block" data-tex="\begin{bmatrix}
+x_1(k+1) \\
+x_2(k+1) \\
+\end{bmatrix}
+=
+\begin{bmatrix}
+1  &amp; 0.1 \\
+-1  &amp; -2 \\
+\end{bmatrix}
+\begin{bmatrix}
+x_1(k) \\
+x_2(k) \\
+\end{bmatrix}
+\begin{bmatrix}
+0.2 &amp; 1 \\
+0.5 &amp; 2 \\
+\end{bmatrix}u(k)">$$\begin{bmatrix}
+x_1(k+1) \\
+x_2(k+1) \\
+\end{bmatrix}
+=
+\begin{bmatrix}
+1  &amp; 0.1 \\
+-1  &amp; -2 \\
+\end{bmatrix}
+\begin{bmatrix}
+x_1(k) \\
+x_2(k) \\
+\end{bmatrix}
+\begin{bmatrix}
+0.2 &amp; 1 \\
+0.5 &amp; 2 \\
+\end{bmatrix}u(k)$$</div>
+<ul><li>如果权重矩阵如下：</li></ul>
+<div class="math-block" data-tex="Q
+=
+F
+=
+\begin{bmatrix}
+100  &amp; 0 \\
+0  &amp; 100 \\
+\end{bmatrix}
+\\
+R
+=
+\begin{bmatrix}
+0.1 &amp; 0 \\
+0 &amp; 0.1 \\
+\end{bmatrix}">$$Q
+=
+F
+=
+\begin{bmatrix}
+100  &amp; 0 \\
+0  &amp; 100 \\
+\end{bmatrix}
+\\
+R
+=
+\begin{bmatrix}
+0.1 &amp; 0 \\
+0 &amp; 0.1 \\
+\end{bmatrix}$$</div>
+<ul><li>参考值（目标值）为：</li></ul>
+<div class="math-block" data-tex="x^*
+=
+\begin{bmatrix}
+400 \\
+-400 \\
+\end{bmatrix}">$$x^*
+=
+\begin{bmatrix}
+400 \\
+-400 \\
+\end{bmatrix}$$</div>
+<ul><li>不使用增量控制：</li></ul>
+<p><img src="/assets/feishu/quadruped-mpc-kinematics/fig-01.webp" alt="input-noinc.png" loading="lazy" decoding="async"></p>
+<p><img src="/assets/feishu/quadruped-mpc-kinematics/fig-02.webp" alt="mpc-noinc.png" loading="lazy" decoding="async"></p>
+<ul><li>使用增量控制：</li></ul>
+<p><img src="/assets/feishu/quadruped-mpc-kinematics/fig-03.webp" alt="input-inc.png" loading="lazy" decoding="async"></p>
+<p><img src="/assets/feishu/quadruped-mpc-kinematics/fig-04.webp" alt="mpc-inc.png" loading="lazy" decoding="async"></p>
+<hr>
+<h2 id="机器狗运动学建模">机器狗运动学建模<a class="heading-anchor" href="#机器狗运动学建模" aria-label="锚点">#</a></h2>
+<p><img src="/assets/feishu/quadruped-mpc-kinematics/fig-05.webp" alt="图片.png" loading="lazy" decoding="async"></p>
+<h3 id="参考来源与约定">参考来源与约定<a class="heading-anchor" href="#参考来源与约定" aria-label="锚点">#</a></h3>
+<p><a href="https://www.robotsfan.com/posts/311d50f4.html" target="_blank" rel="noopener">https://www.robotsfan.com/posts/311d50f4.html</a></p>
+<h3 id="正运动学">正运动学<a class="heading-anchor" href="#正运动学" aria-label="锚点">#</a></h3>
+<p><img src="/assets/feishu/quadruped-mpc-kinematics/fig-06.webp" alt="图片.png" loading="lazy" decoding="async"></p>
+<p><img src="/assets/feishu/quadruped-mpc-kinematics/fig-07.webp" alt="图片.png" loading="lazy" decoding="async"></p>
+<ul><li>对于单条腿，从上往下，已知三个关节的角度 <span class="math-inline" data-tex="\theta_1,\theta_2,\theta_3">\theta_1,\theta_2,\theta_3</span>（对应<span class="math-inline" data-tex="roll,pitch,pitch">roll,pitch,pitch</span>）<ul><li>希望求出足端在坐标系<span class="math-inline" data-tex="\{0\}">\{0\}</span>中的坐标 <span class="math-inline" data-tex="x_p,y_p,z_p">x_p,y_p,z_p</span></li></ul></li><li>对应的变换矩阵为：</li></ul>
+<div class="math-block" data-tex="\begin{aligned}
+
+\boldsymbol{T}_{01}&amp;=
+\begin{bmatrix}
+\mathrm{rot}_x(\theta_1) &amp; \boldsymbol{0}_{3\times1} \\
+\boldsymbol{0}_{3\times3} &amp; 1
+\end{bmatrix}=
+\begin{bmatrix}
+1 &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; \cos(\theta_1) &amp; -\sin(\theta_1) &amp; 0 \\
+0 &amp; \sin(\theta_1) &amp; \cos(\theta_1) &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 1
+\end{bmatrix}\\
+
+\boldsymbol{T}_{12}&amp;=
+\begin{bmatrix}
+\mathrm{rot}_y(\theta_2) &amp; \boldsymbol{0}_{3\times1} \\
+\boldsymbol{0}_{3\times3} &amp; 1
+\end{bmatrix}=
+\begin{bmatrix}
+\cos(\theta_2) &amp; 0 &amp; \sin(\theta_2) &amp; 0 \\
+0 &amp; 1 &amp; 0 &amp; 0 \\
+-\sin(\theta_2) &amp; 0 &amp; \cos(\theta_2) &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 1
+\end{bmatrix}\\
+
+\boldsymbol{T}_{23}&amp;=
+\begin{bmatrix}
+\mathrm{rot}_y(\theta_3) &amp; \left[\begin{matrix}0\\l_1\\l_2\end{matrix}\right] \\
+\boldsymbol{0}_{3\times3} &amp; 1
+\end{bmatrix}=
+\begin{bmatrix}
+\cos(\theta_3) &amp; 0 &amp; \sin(\theta_3) &amp; 0 \\
+0 &amp; 1 &amp; 0 &amp; l_1 \\
+-\sin(\theta_3) &amp; 0 &amp; \cos(\theta_3) &amp; l_2 \\
+0 &amp; 0 &amp; 0 &amp; 1
+\end{bmatrix} \\
+
+\boldsymbol{p}_3 &amp;= \begin{bmatrix}0\\0\\l_3\end{bmatrix}
+
+\end{aligned}">$$\begin{aligned}
+
+\boldsymbol{T}_{01}&amp;=
+\begin{bmatrix}
+\mathrm{rot}_x(\theta_1) &amp; \boldsymbol{0}_{3\times1} \\
+\boldsymbol{0}_{3\times3} &amp; 1
+\end{bmatrix}=
+\begin{bmatrix}
+1 &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; \cos(\theta_1) &amp; -\sin(\theta_1) &amp; 0 \\
+0 &amp; \sin(\theta_1) &amp; \cos(\theta_1) &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 1
+\end{bmatrix}\\
+
+\boldsymbol{T}_{12}&amp;=
+\begin{bmatrix}
+\mathrm{rot}_y(\theta_2) &amp; \boldsymbol{0}_{3\times1} \\
+\boldsymbol{0}_{3\times3} &amp; 1
+\end{bmatrix}=
+\begin{bmatrix}
+\cos(\theta_2) &amp; 0 &amp; \sin(\theta_2) &amp; 0 \\
+0 &amp; 1 &amp; 0 &amp; 0 \\
+-\sin(\theta_2) &amp; 0 &amp; \cos(\theta_2) &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 1
+\end{bmatrix}\\
+
+\boldsymbol{T}_{23}&amp;=
+\begin{bmatrix}
+\mathrm{rot}_y(\theta_3) &amp; \left[\begin{matrix}0\\l_1\\l_2\end{matrix}\right] \\
+\boldsymbol{0}_{3\times3} &amp; 1
+\end{bmatrix}=
+\begin{bmatrix}
+\cos(\theta_3) &amp; 0 &amp; \sin(\theta_3) &amp; 0 \\
+0 &amp; 1 &amp; 0 &amp; l_1 \\
+-\sin(\theta_3) &amp; 0 &amp; \cos(\theta_3) &amp; l_2 \\
+0 &amp; 0 &amp; 0 &amp; 1
+\end{bmatrix} \\
+
+\boldsymbol{p}_3 &amp;= \begin{bmatrix}0\\0\\l_3\end{bmatrix}
+
+\end{aligned}$$</div>
+<ul><li><span class="math-inline" data-tex="p_3">p_3</span>表示为在图片2-2的坐标系<span class="math-inline" data-tex="\{3\}">\{3\}</span>中的坐标</li><li>其中（左右腿的连接方式是反过来的）</li></ul>
+<div class="math-block" data-tex="\begin{bmatrix}
+l_1 \\
+l_2 \\
+l_3
+\end{bmatrix}
+=
+\begin{bmatrix}
+\left\{ \begin{aligned}-l_{abad}&amp;,\text{right}\\l_{abad}&amp;,\text{left}\end{aligned}\right. \\
+-l_{hip} \\
+-l_{knee}
+\end{bmatrix} \tag{1}">$$\begin{bmatrix}
+l_1 \\
+l_2 \\
+l_3
+\end{bmatrix}
+=
+\begin{bmatrix}
+\left\{ \begin{aligned}-l_{abad}&amp;,\text{right}\\l_{abad}&amp;,\text{left}\end{aligned}\right. \\
+-l_{hip} \\
+-l_{knee}
+\end{bmatrix} \tag{1}$$</div>
+<ul><li>结果为：</li></ul>
+<div class="math-block" data-tex="\begin{bmatrix}
+p_0 \\
+1
+\end{bmatrix}
+=
+\begin{bmatrix}
+x_p\\y_p\\z_p\\1
+\end{bmatrix}
+=
+T_{01}T_{12}T_{23}
+\begin{bmatrix}
+p_3 \\
+1
+\end{bmatrix}
+=
+\begin{bmatrix}
+l_3\sin(\theta_1+\theta_2)+l_2\sin(\theta_2)\\
+-l_3\sin(\theta_1)\cos(\theta_2+\theta_3)+l_1\cos(\theta_1)-l_2\cos(\theta_2)\sin(\theta_1)\\
+l_3\cos(\theta_1)\cos(\theta_2+\theta_3)+l_1\sin(\theta_1)+l_2\cos(\theta_1)\cos(\theta_2)\\
+1
+\end{bmatrix}
+\tag{2}">$$\begin{bmatrix}
+p_0 \\
+1
+\end{bmatrix}
+=
+\begin{bmatrix}
+x_p\\y_p\\z_p\\1
+\end{bmatrix}
+=
+T_{01}T_{12}T_{23}
+\begin{bmatrix}
+p_3 \\
+1
+\end{bmatrix}
+=
+\begin{bmatrix}
+l_3\sin(\theta_1+\theta_2)+l_2\sin(\theta_2)\\
+-l_3\sin(\theta_1)\cos(\theta_2+\theta_3)+l_1\cos(\theta_1)-l_2\cos(\theta_2)\sin(\theta_1)\\
+l_3\cos(\theta_1)\cos(\theta_2+\theta_3)+l_1\sin(\theta_1)+l_2\cos(\theta_1)\cos(\theta_2)\\
+1
+\end{bmatrix}
+\tag{2}$$</div>
+<h3 id="逆运动学">逆运动学<a class="heading-anchor" href="#逆运动学" aria-label="锚点">#</a></h3>
+<ul><li>同样地，对于单条腿，已知足端空间位置<span class="math-inline" data-tex="x,y,z">x,y,z</span><ul><li>希望求出相应关节角度 <span class="math-inline" data-tex="\theta_1,\theta_2,\theta_3">\theta_1,\theta_2,\theta_3</span>（<span class="math-inline" data-tex="roll,pitch,pitch">roll,pitch,pitch</span>）</li></ul></li></ul>
+<p><img src="/assets/feishu/quadruped-mpc-kinematics/fig-08.webp" alt="图片.png" loading="lazy" decoding="async"></p>
+<p><img src="/assets/feishu/quadruped-mpc-kinematics/fig-09.webp" alt="图片.png" loading="lazy" decoding="async"></p>
+<ul><li>足端在该平面坐标系下的投影为</li></ul>
+<div class="math-block" data-tex="\begin{bmatrix}
+y_p \\
+z_p \\
+\end{bmatrix}
+=
+\begin{bmatrix}
+cos\theta_1 &amp; -sin\theta_1 \\
+sin\theta_1 &amp; cos\theta_1 \\
+\end{bmatrix}
+\begin{bmatrix}
+l_1 \\
+-L
+\end{bmatrix}">$$\begin{bmatrix}
+y_p \\
+z_p \\
+\end{bmatrix}
+=
+\begin{bmatrix}
+cos\theta_1 &amp; -sin\theta_1 \\
+sin\theta_1 &amp; cos\theta_1 \\
+\end{bmatrix}
+\begin{bmatrix}
+l_1 \\
+-L
+\end{bmatrix}$$</div>
+<ul><li>简单计算可得</li></ul>
+<p><span class="math-inline" data-tex="\theta_1 = arctan(\frac{z_pl_1+y_pL}{y_pl_1-z_pL})">\theta_1 = arctan(\frac{z_pl_1+y_pL}{y_pl_1-z_pL})</span></p>
+<ul><li>其中<span class="math-inline" data-tex="L">L</span>是机器人大腿和小腿连杆在<span class="math-inline" data-tex="yz">yz</span>平面上的投影长度</li></ul>
+<p><span class="math-inline" data-tex="L = \sqrt{y_p^2+z_p^2+l_1}">L = \sqrt{y_p^2+z_p^2+l_1}</span></p>
+<ul><li>那么</li></ul>
+<div class="math-block" data-tex="\theta_1 = arctan(\frac{z_pl_1+y_p\sqrt{y_p^2+z_p^2+l_1}}{y_pl_1-z_p\sqrt{y_p^2+z_p^2+l_1}})">$$\theta_1 = arctan(\frac{z_pl_1+y_p\sqrt{y_p^2+z_p^2+l_1}}{y_pl_1-z_p\sqrt{y_p^2+z_p^2+l_1}})$$</div>
+<p><img src="/assets/feishu/quadruped-mpc-kinematics/fig-10.webp" alt="图片.png" loading="lazy" decoding="async"></p>
+<p><img src="/assets/feishu/quadruped-mpc-kinematics/fig-11.webp" alt="图片.png" loading="lazy" decoding="async"></p>
+<ul><li>顺时针转动为负值，根据限位，那么<span class="math-inline" data-tex="\theta_3 &lt;0">\theta_3 &lt;0</span></li><li>显然</li></ul>
+<div class="math-block" data-tex="cos(\pi + \theta_3) =
+\frac
+{|{O_3A}|^2 + |{O_3P}|^2 - |AP|}
+{2|{O_3A}||{O_3P}|}">$$cos(\pi + \theta_3) =
+\frac
+{|{O_3A}|^2 + |{O_3P}|^2 - |AP|}
+{2|{O_3A}||{O_3P}|}$$</div>
+<ul><li>又有 图2-6所示，AOP显然为直角，根据勾股定理</li></ul>
+<p><span class="math-inline" data-tex="|AP| = \sqrt{x_p^2+y_p^2+z_p^2-l_1^2}">|AP| = \sqrt{x_p^2+y_p^2+z_p^2-l_1^2}</span></p>
+<ul><li>其中|O3A|、|O3P | 为大腿、小腿的长度</li></ul>
+<div class="math-block" data-tex="|O_3A| = -l_2 \\
+|O_3P| = -l_3 \\">$$|O_3A| = -l_2 \\
+|O_3P| = -l_3 \\$$</div>
+<ul><li>计算得到</li></ul>
+<div class="math-block" data-tex="\theta_3 =
+\pi - arccos(\frac
+{l_2^2 + l_3^2 - \sqrt{x_p^2+y_p^2+z_p^2-l_1^2}}
+{2l_2l_3})">$$\theta_3 =
+\pi - arccos(\frac
+{l_2^2 + l_3^2 - \sqrt{x_p^2+y_p^2+z_p^2-l_1^2}}
+{2l_2l_3})$$</div>
+<hr>
+<h2 id="wbc-控制简介">WBC 控制简介<a class="heading-anchor" href="#wbc-控制简介" aria-label="锚点">#</a></h2>
+<hr>
+<h2 id="机器狗mpc-wbc控制原理">机器狗MPC-WBC控制原理<a class="heading-anchor" href="#机器狗mpc-wbc控制原理" aria-label="锚点">#</a></h2>
+<hr></div>
+
+      <div class="post-end">
+        <span class="end-mark" aria-hidden="true">◆</span>
+      </div>
+
+      
+      <section class="related">
+        <h2>相关文章</h2>
+        <div class="grid grid-3">
+          <article class="card post-card reveal" data-tiltable>
+  
+  <a class="card-link" href="/posts/arm-impedance-control/"><span class="sr-only">机械臂运控：阻抗控制与力位混合</span></a>
+  <div class="card-tilt">
+    
+    <div class="card-cover media-shim">
+      
+      <img src="/assets/bg/cyber.jpg"
+           alt=""
+           width="2560" height="1440"
+           style="object-position: 50% 50%"
+           loading="lazy" decoding="async">
+      <span class="card-cover-veil"></span>
+    </div>
+    
+    <div class="card-body">
+      
+      <div class="card-tags">
+        <a class="pill" href="/tags/机械臂/">机械臂</a><a class="pill" href="/tags/运动控制/">运动控制</a><a class="pill" href="/tags/力控/">力控</a>
+      </div>
+      
+      <h3 class="card-title">机械臂运控：阻抗控制与力位混合</h3>
+      <p class="card-summary">从接口、量纲与坐标系出发区分阻抗、导纳和力位混合控制，给出可运行的一维示例与接触任务的验证方法。</p>
+      <div class="card-meta">
+        <time datetime="2026-01-22">2026 年 1 月 22 日</time>
+        <span class="sep" aria-hidden="true"></span>
+        <span>4 分钟</span>
+        <span class="card-meta-end">
+          
+          
+          <span class="card-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/>
+            </svg>
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>
+</article>
+<article class="card post-card reveal" data-tiltable>
+  
+  <a class="card-link" href="/posts/parallel-ankle-kinematics/"><span class="sr-only">脚踝并联机构：正逆运动学与静力学解算</span></a>
+  <div class="card-tilt">
+    
+    <div class="card-cover media-shim">
+      
+      <img src="/assets/feishu/parallel-ankle-kinematics/fig-03.webp"
+           alt=""
+           width="1600" height="766"
+           style="object-position: 50% 50%"
+           loading="lazy" decoding="async">
+      <span class="card-cover-veil"></span>
+    </div>
+    
+    <div class="card-body">
+      
+      <div class="card-tags">
+        <a class="pill" href="/tags/运动控制/">运动控制</a><a class="pill" href="/tags/运动学/">运动学</a><a class="pill" href="/tags/人形/">人形</a>
+      </div>
+      
+      <h3 class="card-title">脚踝并联机构：正逆运动学与静力学解算</h3>
+      <p class="card-summary">URDF 描述不了并联结构，电机角度和脚底欧拉角之间的映射只能自己解。记录两条路：采数据做符号回归拟合，以及从几何关系推出雅可比矩阵后迭代逼近，最后用虚功原理把末端力矩换算成电机力矩。</p>
+      <div class="card-meta">
+        <time datetime="2025-07-20">2025 年 7 月 20 日</time>
+        <span class="sep" aria-hidden="true"></span>
+        <span>9 分钟</span>
+        <span class="card-meta-end">
+          
+          
+          <span class="card-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/>
+            </svg>
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>
+</article>
+<article class="card post-card reveal" data-tiltable>
+  
+  <a class="card-link" href="/posts/legacy-gait-tuning/"><span class="sr-only">早期四足步态调参笔记（已归档）</span></a>
+  <div class="card-tilt">
+    
+    <div class="card-cover media-shim">
+      
+      <img src="/assets/bg/lantern.jpg"
+           alt=""
+           width="2560" height="1440"
+           style="object-position: 50% 50%"
+           loading="lazy" decoding="async">
+      <span class="card-cover-veil"></span>
+    </div>
+    
+    <div class="card-body">
+      
+      <div class="card-tags">
+        <a class="pill" href="/tags/四足/">四足</a><a class="pill" href="/tags/步态/">步态</a><a class="pill" href="/tags/调参/">调参</a>
+      </div>
+      
+      <h3 class="card-title">早期四足步态调参笔记（已归档）</h3>
+      <p class="card-summary">保留早期 Trot 调参的学习脉络，补齐轨迹示例，重新说明零位、接触与驱动限制；历史参数不作为其他平台的推荐值。</p>
+      <div class="card-meta">
+        <time datetime="2023-06-11">2023 年 6 月 11 日</time>
+        <span class="sep" aria-hidden="true"></span>
+        <span>3 分钟</span>
+        <span class="card-meta-end">
+          <span class="pin pin-muted" title="已归档">归档</span>
+          
+          <span class="card-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/>
+            </svg>
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>
+</article>
+
+        </div>
+      </section>
+      
+    </div>
+  </div>
+
+  <nav class="post-nav" aria-label="上下篇">
+    
+    <a class="post-nav-item prev" href="/posts/dds-qos-tuning/">
+      <span class="dir">← 上一篇</span>
+      <span class="t">DDS 选型与调参：从 QoS 到零拷贝</span>
+    </a>
+    
+    
+    <a class="post-nav-item next" href="/posts/small-humanoid-consensus/">
+      <span class="dir">下一篇 →</span>
+      <span class="t">小型人形机器人的结构、硬件与算法共识</span>
+    </a>
+    
+  </nav>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="footer-glow" aria-hidden="true"></div>
+  <div class="footer-grid" aria-hidden="true"></div>
+  <span class="footer-corner tl" aria-hidden="true"></span>
+  <span class="footer-corner tr" aria-hidden="true"></span>
+
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="brand-mark lg" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M2.6 20.6h5.6" stroke-width="2.2"/>
+  <path d="M7.9 15.9 11.6 6.6" stroke-width="2.8"/>
+  <path d="M13.4 7.2 19.2 11.4" stroke-width="2.8"/>
+  <circle cx="5.6" cy="17.6" r="2.9" fill="currentColor" stroke="none"/>
+  <circle cx="12.2" cy="6.4" r="2.3" fill="currentColor" stroke="none"/>
+  <circle cx="20.4" cy="12.2" r="1.8" fill="currentColor" stroke="none"/>
+</svg>
+
+      </div>
+      <p class="footer-title">洛叶白</p>
+      <p class="footer-tag">中间件 · 运动控制 · 强化学习</p>
+
+      
+      <p class="footer-now"><span class="pulse" aria-hidden="true"></span>轮式双臂机器人（智元 G2）的工业场景落地与工具链</p>
+      
+
+      <div class="footer-social">
+        
+        <a class="footer-chip" href="https://github.com/luoyebai" rel="noopener">GitHub</a>
+        
+        <a class="footer-chip" href="mailto:2112216825@qq.com" rel="noopener">邮箱</a>
+        
+        <a class="footer-chip" href="mailto:luoyebai4444@gmail.com" rel="noopener">Gmail</a>
+        
+        <a class="footer-chip" href="tel:13407209575" rel="noopener">电话</a>
+        
+      </div>
+
+      <dl class="footer-stats">
+        <div><dt>12</dt><dd>篇文章</dd></div>
+        <div><dt>19</dt><dd>篇文档</dd></div>
+        <div><dt>3</dt><dd>个项目</dd></div>
+        <div><dt>204</dt><dd>页幻灯片</dd></div>
+      </dl>
+    </div>
+
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h4>最新文章</h4>
+        
+        <a class="footer-link" href="/posts/runnable-demos/">
+          <span class="t">可运行示例：让文章里的代码真的跑起来</span>
+          <span class="d">2026 年 9 月 24 日</span>
+        </a>
+        
+        <a class="footer-link" href="/posts/dds-qos-tuning/">
+          <span class="t">DDS 选型与调参：从 QoS 到零拷贝</span>
+          <span class="d">2026 年 4 月 12 日</span>
+        </a>
+        
+        <a class="footer-link" href="/posts/quadruped-mpc-kinematics/">
+          <span class="t">四足运控：MPC 代价函数推导与腿部正逆运动学</span>
+          <span class="d">2026 年 3 月 8 日</span>
+        </a>
+        
+        <a class="footer-more" href="/posts/">
+          全部文章
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/></svg>
+        </a>
+      </div>
+
+      <div class="footer-col">
+        <h4>文档课程</h4>
+        
+        <a class="footer-link" href="/docs/windows-to-linux/">
+          <span class="t">从 Windows 到 Linux</span>
+          <span class="d">6 篇 · 67 页</span>
+        </a>
+        
+        <a class="footer-link" href="/docs/cpp/">
+          <span class="t">从 C 语言到 C++</span>
+          <span class="d">1 篇 · 10 页</span>
+        </a>
+        
+        <a class="footer-link" href="/docs/vision/">
+          <span class="t">ROS 与机器视觉</span>
+          <span class="d">6 篇 · 72 页</span>
+        </a>
+        
+        <a class="footer-link" href="/docs/learning/">
+          <span class="t">从编程开始的学习</span>
+          <span class="d">6 篇 · 55 页</span>
+        </a>
+        
+        <a class="footer-more" href="/docs/">
+          文档总览
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/></svg>
+        </a>
+      </div>
+
+      <div class="footer-col">
+        <h4>导航</h4>
+        <nav class="footer-nav" aria-label="页脚导航">
+          <a href="/">首页</a><a href="/posts/">文章</a><a href="/projects/">项目</a><a href="/docs/">文档</a><a href="/graph/">图谱</a><a href="/archive/">归档</a><a href="/about/">关于</a>
+        </nav>
+
+        <h4 class="footer-h4-gap">站点</h4>
+        <nav class="footer-nav" aria-label="站点资源">
+          <a href="/tags/">标签</a>
+          <a href="/archive/">归档</a>
+          
+          <a href="/sitemap.xml">站点地图</a>
+          <a href="/search-index.json">搜索索引</a>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p class="footer-colophon">
+      <span>© 2022–2026 洛叶白</span>
+      <span class="sep" aria-hidden="true">·</span>
+      <span>除注明外均为原创，转载请注明出处</span>
+      <span class="sep" aria-hidden="true">·</span>
+      <span>构建于 <time datetime="2026-09-29">2026-09-29</time></span>
+    </p>
+    <p class="footer-meta">
+      <span class="footer-meta-label">字体</span>
+      <span class="footer-meta-item">Noto Serif SC<i>正文 · 宋体档</i></span><span class="footer-meta-item">Noto Sans SC<i>正文 · 黑体档</i></span><span class="footer-meta-item">FiraCode Nerd<i>代码与数学</i></span>
+      <span class="footer-meta-item is-accent">无第三方依赖 · 无追踪 · 无 Cookie</span>
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" type="button" data-to-top aria-label="回到顶部">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19V5"/><path d="m5.5 11.5 6.5-6.5 6.5 6.5"/>
+  </svg>
+</button>
+
+<div class="settings" id="settings" hidden>
+  <div class="settings-backdrop" data-close-settings></div>
+  <aside class="settings-panel" role="dialog" aria-modal="true" aria-label="外观设置">
+    <header class="settings-head">
+      <div>
+        <h2>外观设置</h2>
+        <p>设置会保存在本机浏览器，刷新后保持</p>
+      </div>
+      <button class="icon-btn" type="button" data-close-settings aria-label="关闭">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path d="M6 6l12 12M18 6 6 18"/>
+        </svg>
+      </button>
+    </header>
+
+    <div class="settings-body">
+
+      <section class="set-group">
+        <h3>主题</h3>
+        <div class="theme-grid">
+          
+          <button class="theme-card" type="button" data-theme-pick="dusk" title="暮色风车">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/dusk.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#ff9d5c"></i><i style="background:#7aa2ff"></i><i style="background:#0b1020"></i>
+              </span>
+            </span>
+            <span class="theme-name">暮色风车</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="neon" title="霓虹机房">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/neon.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#c04bff"></i><i style="background:#22d3ee"></i><i style="background:#0a0718"></i>
+              </span>
+            </span>
+            <span class="theme-name">霓虹机房</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="cyber" title="夜城投递">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/cyber.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#ff7ab6"></i><i style="background:#5ee7c4"></i><i style="background:#141019"></i>
+              </span>
+            </span>
+            <span class="theme-name">夜城投递</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="sakura" title="樱色光爆">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/sakura.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#ff6fa5"></i><i style="background:#b78bff"></i><i style="background:#120a14"></i>
+              </span>
+            </span>
+            <span class="theme-name">樱色光爆</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="void" title="虚空龙息">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/void.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#6ea8ff"></i><i style="background:#ffd166"></i><i style="background:#06080f"></i>
+              </span>
+            </span>
+            <span class="theme-name">虚空龙息</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="mono" title="黑白编辑">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/mono.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#e8e8e8"></i><i style="background:#9aa0a6"></i><i style="background:#0c0c0d"></i>
+              </span>
+            </span>
+            <span class="theme-name">黑白编辑</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="paper" title="留白纸面">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/paper.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#17b8a6"></i><i style="background:#f0a04b"></i><i style="background:#fbfcfc"></i>
+              </span>
+            </span>
+            <span class="theme-name">留白纸面</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="alpine" title="远山夜湖">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/alpine.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#5b8dd9"></i><i style="background:#78d9c8"></i><i style="background:#0a1220"></i>
+              </span>
+            </span>
+            <span class="theme-name">远山夜湖</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="moonlit" title="皎月水面">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/moonlit.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#7fd4f0"></i><i style="background:#ffd9a0"></i><i style="background:#050b1c"></i>
+              </span>
+            </span>
+            <span class="theme-name">皎月水面</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="comet" title="彗星山晚">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/comet.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#e07a5f"></i><i style="background:#9b8cff"></i><i style="background:#1c2242"></i>
+              </span>
+            </span>
+            <span class="theme-name">彗星山晚</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="lantern" title="林间提灯">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/lantern.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#e8a45c"></i><i style="background:#66d6a8"></i><i style="background:#141121"></i>
+              </span>
+            </span>
+            <span class="theme-name">林间提灯</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="sketch" title="素描线稿">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/sketch.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#5a6b96"></i><i style="background:#8a6f52"></i><i style="background:#1f2024"></i>
+              </span>
+            </span>
+            <span class="theme-name">素描线稿</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="manga" title="漫画分格">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/manga.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#cf4436"></i><i style="background:#4a6fa8"></i><i style="background:#242428"></i>
+              </span>
+            </span>
+            <span class="theme-name">漫画分格</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="lumen" title="暖灯夜色">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/lumen.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#ffbe4d"></i><i style="background:#7ad3e8"></i><i style="background:#0d1a28"></i>
+              </span>
+            </span>
+            <span class="theme-name">暖灯夜色</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="bocchi" title="波奇光晕">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/bocchi.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#eaa5bc"></i><i style="background:#6acbc9"></i><i style="background:#101b2d"></i>
+              </span>
+            </span>
+            <span class="theme-name">波奇光晕</span>
+          </button>
+          
+        </div>
+      </section>
+
+      <section class="set-group">
+        <h3>配色</h3>
+        <div class="set-field">
+          <span class="set-label">明暗模式</span>
+          <div class="seg" data-seg="mode">
+            <button type="button" data-val="dark">深色</button>
+            <button type="button" data-val="light">浅色</button>
+          </div>
+        </div>
+        <div class="set-field set-field--inline">
+          <span class="set-label">强调色覆盖</span>
+          <input type="color" data-color="accent" value="#ff9d5c" aria-label="强调色">
+        </div>
+        <p class="set-note">强调色默认由主题的种子色推导；想临时改一个色就动这里，留空色块即为跟随主题。</p>
+      </section>
+
+      <section class="set-group">
+        <h3>排版</h3>
+        <div class="set-field">
+          <span class="set-label">正文字体</span>
+          <div class="seg" data-seg="font">
+            <button type="button" data-val="sans">黑体</button>
+            <button type="button" data-val="serif">宋体</button>
+            <button type="button" data-val="mono">等宽</button>
+          </div>
+        </div>
+        <div class="set-field">
+          <span class="set-label">字号 <b data-out="scale">—</b></span>
+          <input type="range" data-range="scale" min="0.9" max="1.25" step="0.01" value="1" aria-label="字号">
+        </div>
+        <div class="set-field">
+          <span class="set-label">阅读宽度</span>
+          <div class="seg" data-seg="width">
+            <button type="button" data-val="narrow">窄</button>
+            <button type="button" data-val="normal">标准</button>
+            <button type="button" data-val="wide">宽</button>
+          </div>
+        </div>
+        <p class="set-note">黑体 / 宋体随站点自带，不依赖本机字体。</p>
+      </section>
+
+      <section class="set-group">
+        <h3>玻璃材质</h3>
+        <div class="set-field">
+          <span class="set-label">质感档位</span>
+          <div class="seg" data-seg="glass">
+            <button type="button" data-val="off">关闭</button>
+            <button type="button" data-val="low">弱</button>
+            <button type="button" data-val="med">中</button>
+            <button type="button" data-val="high">强</button>
+          </div>
+        </div>
+        <div class="set-field">
+          <span class="set-label">不透明度 <b data-out="glassAlpha">—</b></span>
+          <input type="range" data-range="glassAlpha" min="40" max="100" step="1" value="72" aria-label="玻璃不透明度">
+        </div>
+        <p class="set-note">越低越透、背后的壁纸越明显；低于 60% 时文字在花哨壁纸上会不太好读。选「关闭」为实底。</p>
+      </section>
+
+      <section class="set-group">
+        <h3>背景壁纸</h3>
+        <div class="set-field">
+          <span class="set-label">显示</span>
+          <div class="seg" data-seg="bg">
+            <button type="button" data-val="on">显示</button>
+            <button type="button" data-val="off">隐藏</button>
+          </div>
+        </div>
+        <div class="set-field">
+          <span class="set-label">来源</span>
+          <div class="seg" data-seg="bgmode">
+            <button type="button" data-val="image">静态图</button>
+            <button type="button" data-val="video">动态视频</button>
+          </div>
+        </div>
+        <p class="set-note">无声循环视频按当前主题加载；切到「动态视频」后才加载，后台标签页会暂停。</p>
+        <div class="set-divider"></div>
+        <div class="set-field">
+          <span class="set-label">可见度 <b data-out="bgOpacity">—</b></span>
+          <input type="range" data-range="bgOpacity" min="0" max="100" step="2" value="62" aria-label="壁纸可见度">
+        </div>
+        <div class="set-field">
+          <span class="set-label">模糊 <b data-out="bgBlur">—</b></span>
+          <input type="range" data-range="bgBlur" min="0" max="40" step="1" value="0" aria-label="壁纸模糊">
+        </div>
+      </section>
+
+      <section class="set-group">
+        <h3>交互</h3>
+        <div class="set-field">
+          <span class="set-label">卡片 3D 倾斜</span>
+          <div class="seg" data-seg="tilt">
+            <button type="button" data-val="0">关闭</button>
+            <button type="button" data-val="6">轻微</button>
+            <button type="button" data-val="12">标准</button>
+            <button type="button" data-val="20">明显</button>
+          </div>
+        </div>
+        <p class="set-note">鼠标移到文章 / 项目卡片上时跟着倾斜的角度，仅在精确指针设备生效。</p>
+        <div class="set-divider"></div>
+        <div class="set-field">
+          <span class="set-label">页面动效</span>
+          <div class="seg" data-seg="motion">
+            <button type="button" data-val="on">开启</button>
+            <button type="button" data-val="off">关闭</button>
+          </div>
+        </div>
+        <div class="set-field">
+          <span class="set-label">鼠标指针</span>
+          <div class="seg" data-seg="cursor">
+            <button type="button" data-val="on">自定义</button>
+            <button type="button" data-val="off">系统</button>
+          </div>
+        </div>
+        <p class="set-note">自定义指针是一个反相圆环，悬停会变形并显示提示；文字输入框仍用系统指针，触屏设备自动忽略。</p>
+      </section>
+
+    </div>
+
+    <footer class="settings-foot">
+      <button class="btn ghost" type="button" data-reset-appearance>恢复默认</button>
+      <button class="btn primary" type="button" data-close-settings>完成</button>
+    </footer>
+  </aside>
+</div>
+
+<div class="search" id="search" hidden>
+  <div class="search-backdrop" data-close-search></div>
+  <div class="search-panel" role="dialog" aria-modal="true" aria-label="搜索">
+    <div class="search-input">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <circle cx="11" cy="11" r="6.5"/><path d="M16.2 16.2 21 21"/>
+      </svg>
+      <input type="search" placeholder="搜索文章、项目、标签…" autocomplete="off" spellcheck="false" data-search-input>
+      <kbd>Esc</kbd>
+    </div>
+    <div class="search-results" data-search-results>
+      <p class="search-hint">输入关键词开始搜索 · ↑↓ 选择 · Enter 打开</p>
+    </div>
+  </div>
+</div>
+
+<div class="mobile-menu" id="mobile-menu" hidden>
+  <div class="mobile-menu-backdrop" data-close-menu></div>
+  <nav class="mobile-menu-panel">
+    <a href="/">首页</a><a href="/posts/">文章</a><a href="/projects/">项目</a><a href="/docs/">文档</a><a href="/graph/">图谱</a><a href="/archive/">归档</a><a href="/about/">关于</a>
+    <div class="mobile-menu-social">
+      <a href="https://github.com/luoyebai" rel="noopener">GitHub</a><a href="mailto:2112216825@qq.com" rel="noopener">邮箱</a><a href="mailto:luoyebai4444@gmail.com" rel="noopener">Gmail</a><a href="tel:13407209575" rel="noopener">电话</a>
+    </div>
+  </nav>
+</div>
+
+
+<script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
+
+
+<script defer src="/assets/vendor/katex/katex.min.js"></script>
+
+
+<script src="/assets/site.js?v=afafd87f" defer></script>
+
+</body>
+</html>
+

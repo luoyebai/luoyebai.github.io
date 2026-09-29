@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="zh-CN"
+      data-theme="dusk"
+      data-mode="dark"
+      data-bg="on"
+      data-bgmode="image"
+      data-tilt="12"
+      data-glass="med"
+      data-font="serif"
+      data-motion="on"
+      data-width="normal"
+      data-cursor="on"
+      data-root=""
+      data-search-url="/search-index.json">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>小型人形机器人的结构、硬件与算法共识 · 洛叶白</title>
+<meta name="description" content="把市面上四款小型人形机器人（G1 / PM01 / T1 / X2）的公开规格摆在一起看：关节数与运动空间、算力与传感器配置、电池与电机选型，以及它们在 SDK 通讯、状态机和行走算法上不约而同的选择。">
+<meta name="author" content="洛叶白">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0b0d14" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f7f7f5" media="(prefers-color-scheme: light)">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="洛叶白">
+<meta property="og:title" content="小型人形机器人的结构、硬件与算法共识">
+<meta property="og:description" content="把市面上四款小型人形机器人（G1 / PM01 / T1 / X2）的公开规格摆在一起看：关节数与运动空间、算力与传感器配置、电池与电机选型，以及它们在 SDK 通讯、状态机和行走算法上不约而同的选择。">
+<meta property="og:url" content="https://luoyebai.github.io/posts/small-humanoid-consensus/">
+<meta property="og:image" content="https://luoyebai.github.io/assets/images/favicon.svg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://luoyebai.github.io/posts/small-humanoid-consensus/">
+<link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
+
+<link rel="stylesheet" href="/assets/themes.css?v=afafd87f">
+<link rel="stylesheet" href="/assets/site.css?v=afafd87f">
+
+<noscript><style>.boot{display:none !important}</style></noscript>
+
+
+<meta property="og:image" content="https://luoyebai.github.io/assets/feishu/small-humanoid-consensus/fig-08.webp">
+  <meta name="author" content="洛叶白">
+<script>
+/* 在首次绘制前恢复外观偏好；URL 参数优先，便于分享特定主题的链接 */
+(function () {
+  var el = document.documentElement;
+  el.classList.add('js');   /* 只有 JS 可用时才启用进场动画的隐藏态 */
+  var compact = matchMedia('(pointer: coarse)').matches ||
+    (navigator.connection && navigator.connection.saveData) ||
+    (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
+    (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+  el.setAttribute('data-performance', compact ? 'compact' : 'standard');
+  var q = {};
+  try { new URLSearchParams(location.search).forEach(function (v, k) { q[k] = v; }); } catch (e) {}
+  var s = {};
+  try { s = JSON.parse(localStorage.getItem('blog.appearance') || '{}') || {}; } catch (e) {}
+  function pick(k) { return q[k] !== undefined ? q[k] : s[k]; }
+  ['theme', 'mode', 'bg', 'bgmode', 'tilt', 'glass', 'font', 'motion', 'width', 'cursor'].forEach(function (k) {
+    var v = pick(k);
+    if (v) el.setAttribute('data-' + k, v);
+  });
+  var op = pick('bgOpacity');
+  if (op !== undefined && op !== '') el.style.setProperty('--bg-opacity', (Number(op) / 100).toFixed(3));
+  var bl = pick('bgBlur');
+  if (bl !== undefined && bl !== '') el.style.setProperty('--bg-blur', Number(bl) + 'px');
+  var sc = pick('scale');
+  if (sc !== undefined && sc !== '') el.style.setProperty('--font-scale', String(sc));
+  var ac = pick('accent');
+  if (ac) el.style.setProperty('--accent', ac);
+})();
+</script>
+</head>
+<body class="page-post">
+<a class="skip-link" href="#main">跳到正文</a>
+
+<div class="bg-layer" aria-hidden="true">
+  <div class="bg-image"></div>
+  <video class="bg-video" muted loop playsinline preload="none" disablepictureinpicture></video>
+  <div class="bg-scrim"></div>
+  <div class="bg-aurora"><span></span><span></span><span></span></div>
+  <div class="bg-grid"></div>
+  <div class="bg-vignette"></div>
+</div>
+<div class="grain" aria-hidden="true"></div>
+<div class="spotlight" aria-hidden="true"></div>
+<div class="scroll-progress" aria-hidden="true"><i></i></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">
+      <span class="brand-mark" aria-hidden="true">
+        <!-- 站点标记：两连杆机械臂（造型见 partials/mark.html，页脚用的是同一份） -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M2.6 20.6h5.6" stroke-width="2.2"/>
+  <path d="M7.9 15.9 11.6 6.6" stroke-width="2.8"/>
+  <path d="M13.4 7.2 19.2 11.4" stroke-width="2.8"/>
+  <circle cx="5.6" cy="17.6" r="2.9" fill="currentColor" stroke="none"/>
+  <circle cx="12.2" cy="6.4" r="2.3" fill="currentColor" stroke="none"/>
+  <circle cx="20.4" cy="12.2" r="1.8" fill="currentColor" stroke="none"/>
+</svg>
+
+      </span>
+      <span class="brand-text">
+        <b>洛叶白</b>
+        <i>luoyebai</i>
+      </span>
+    </a>
+
+    <nav class="nav-links" aria-label="主导航">
+      
+      <a href="/">首页</a>
+      
+      <a href="/posts/" class="is-active" aria-current="page">文章</a>
+      
+      <a href="/projects/">项目</a>
+      
+      <a href="/docs/">文档</a>
+      
+      <a href="/graph/">图谱</a>
+      
+      <a href="/archive/">归档</a>
+      
+      <a href="/about/">关于</a>
+      
+    </nav>
+
+    <div class="nav-actions">
+      <button class="icon-btn" type="button" data-open-search aria-label="搜索 (Ctrl+K)" title="搜索  Ctrl+K">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <circle cx="11" cy="11" r="6.5"/><path d="M16.2 16.2 21 21"/>
+        </svg>
+      </button>
+      <button class="icon-btn" type="button" data-toggle-mode aria-label="切换明暗" title="切换明暗">
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+        </svg>
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+          <circle cx="12" cy="12" r="4.2"/>
+          <path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4 17 7M7 17l-1.6 1.6"/>
+        </svg>
+      </button>
+      <button class="icon-btn" type="button" data-open-settings aria-label="外观设置" title="外观设置">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 7h10M18 7h2M4 17h4M12 17h8"/>
+          <circle cx="16" cy="7" r="2.2"/><circle cx="10" cy="17" r="2.2"/>
+        </svg>
+      </button>
+      <button class="icon-btn nav-burger" type="button" data-open-menu aria-label="菜单">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+
+<main id="main">
+
+
+<article class="post">
+  
+  <header class="phero has-media">
+    
+    <div class="phero-media media-shim">
+      <img src="/assets/feishu/small-humanoid-consensus/fig-08.webp"
+           alt="" aria-hidden="true"
+           width="1600" height="956"
+           style="object-position: 50% 50%"
+           fetchpriority="high" decoding="async">
+    </div>
+    
+    <span class="phero-scrim" aria-hidden="true"></span>
+
+    <div class="phero-inner">
+      <nav class="crumbs" aria-label="面包屑">
+        <a href="/posts/">文章</a>
+        <span aria-hidden="true">/</span>
+        <span class="current">小型人形机器人的结构、硬件与算法共识</span>
+      </nav>
+
+      
+      <div class="post-tags">
+        
+        <a class="pill" href="/tags/人形/">人形</a>
+        
+        <a class="pill" href="/tags/强化学习/">强化学习</a>
+        
+        <a class="pill" href="/tags/系统工程/">系统工程</a>
+        
+      </div>
+      
+
+      <h1 class="phero-title reveal">小型人形机器人的结构、硬件与算法共识</h1>
+      <p class="phero-lede reveal">把市面上四款小型人形机器人（G1 / PM01 / T1 / X2）的公开规格摆在一起看：关节数与运动空间、算力与传感器配置、电池与电机选型，以及它们在 SDK 通讯、状态机和行走算法上不约而同的选择。</p>
+
+      <div class="phero-meta reveal">
+        <span class="meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/>
+          </svg>
+          <time datetime="2026-02-20">2026 年 2 月 20 日</time>
+        </span>
+        <span class="meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>
+          </svg>
+          10 分钟
+        </span>
+        
+      </div>
+    </div>
+  </header>
+
+  <div class="post-layout">
+    
+    <aside class="post-aside">
+      <nav class="toc" data-toc aria-label="目录">
+        <p class="toc-title">目录</p>
+        <ul>
+          
+          <li class="toc-l2"><a href="#市面上常见的人形机器人产品">市面上常见的人形机器人产品</a></li>
+          
+          <li class="toc-l2"><a href="#结构上的共同点">结构上的共同点</a></li>
+          
+          <li class="toc-l2"><a href="#硬件上的共同点">硬件上的共同点</a></li>
+          
+          <li class="toc-l2"><a href="#软件上的共同点">软件上的共同点</a></li>
+          
+          <li class="toc-l3"><a href="#sdk接口的共同点">SDK接口的共同点</a></li>
+          
+          <li class="toc-l3"><a href="#客户端的共同点">客户端的共同点</a></li>
+          
+          <li class="toc-l3"><a href="#行走跳舞控制算法的共同点">行走/跳舞控制算法的共同点</a></li>
+          
+        </ul>
+      </nav>
+    </aside>
+    
+
+    <div class="post-main">
+      
+      <details class="mobile-toc">
+        <summary>本页目录</summary>
+        <nav aria-label="本页目录"><ul>
+          <li class="toc-l2"><a href="#市面上常见的人形机器人产品">市面上常见的人形机器人产品</a></li><li class="toc-l2"><a href="#结构上的共同点">结构上的共同点</a></li><li class="toc-l2"><a href="#硬件上的共同点">硬件上的共同点</a></li><li class="toc-l2"><a href="#软件上的共同点">软件上的共同点</a></li><li class="toc-l3"><a href="#sdk接口的共同点">SDK接口的共同点</a></li><li class="toc-l3"><a href="#客户端的共同点">客户端的共同点</a></li><li class="toc-l3"><a href="#行走跳舞控制算法的共同点">行走/跳舞控制算法的共同点</a></li>
+        </ul></nav>
+      </details>
+      
+
+      <div class="prose reveal"><aside class="callout callout-note"><div class="callout-title">迁移说明</div><div class="callout-body"><p>规格数据来自各厂商公开资料与实测，判断性结论都标注了「推测」。</p></div></aside>
+<h2 id="市面上常见的人形机器人产品">市面上常见的人形机器人产品<a class="heading-anchor" href="#市面上常见的人形机器人产品" aria-label="锚点">#</a></h2>
+<p>以下面四款小型人形机器人为例：</p>
+<ul><li>宇树G1：<a href="https://www.unitree.com/cn/g1" target="_blank" rel="noopener">https://www.unitree.com/cn/g1</a></li><li>众擎PM01：<a href="https://www.engineai.com.cn/product-pm01" target="_blank" rel="noopener">https://www.engineai.com.cn/product-pm01</a></li><li>加速进化T1：<a href="https://www.booster.tech/cn/booster-t1/" target="_blank" rel="noopener">https://www.booster.tech/cn/booster-t1/</a></li><li>智元灵犀X2：<a href="https://www.zhiyuan-robot.com/products/X2" target="_blank" rel="noopener">https://www.zhiyuan-robot.com/products/X2</a></li></ul>
+<p>以下简称G1、PM01、T1、X2。</p>
+<p><img src="/assets/feishu/small-humanoid-consensus/fig-01.webp" alt="图片.png" loading="lazy" decoding="async"></p>
+<p><img src="/assets/feishu/small-humanoid-consensus/fig-02.webp" alt="图片.png" loading="lazy" decoding="async"></p>
+<p><img src="/assets/feishu/small-humanoid-consensus/fig-03.webp" alt="图片.png" loading="lazy" decoding="async"></p>
+<p><img src="/assets/feishu/small-humanoid-consensus/fig-04.webp" alt="图片.png" loading="lazy" decoding="async"></p>
+<hr>
+<h2 id="结构上的共同点">结构上的共同点<a class="heading-anchor" href="#结构上的共同点" aria-label="锚点">#</a></h2>
+<ul><li>构形特征</li></ul>
+<p>四款机器人都采用 <strong>两条腿</strong>作为主要支撑和推进结构，而非轮式或履带式。</p>
+<p>每条腿通常由髋（hip）、膝（knee）、踝（ankle）关节组成，形成类似人类的下肢结构。</p>
+<p>上身通常由腰（waist）连接腿部与躯干，上身再延伸出手臂。这样的 “腿–腰–躯干–手臂–头”结构是人形机器人的通用骨架形式。</p>
+<p><img src="/assets/feishu/small-humanoid-consensus/fig-05.webp" alt="图片.png" loading="lazy" decoding="async"></p>
+<p><img src="/assets/feishu/small-humanoid-consensus/fig-06.webp" alt="图片.png" loading="lazy" decoding="async"></p>
+<p><strong>腿部脚踝处</strong>基本采用并链结构：</p>
+<p><img src="/assets/feishu/small-humanoid-consensus/fig-07.webp" alt="image.png" loading="lazy" decoding="async"></p>
+<p>详细解算：</p>
+<ul><li>规格总结</li></ul>
+<div class="table-wrap" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
+<thead><tr><th>机器人</th><th>G1</th><th>PM01</th><th>T1</th><th>X2</th></tr></thead>
+<tbody>
+<tr><td>关节数（无灵巧手）</td><td>23~25（腰部可选1~3）</td><td>24</td><td>23</td><td>25/29/30</td></tr>
+<tr><td>头部关节数</td><td>0</td><td>1</td><td>2</td><td>0/1</td></tr>
+<tr><td>腰部关节数</td><td>1~3</td><td>1</td><td>1</td><td>3</td></tr>
+<tr><td>单腿关节数</td><td>6</td><td>6</td><td>6</td><td>6/7</td></tr>
+<tr><td>单手臂关节数</td><td>5</td><td>5</td><td>4</td><td>5</td></tr>
+<tr><td>关节运动空间</td><td>腰关节：Z±155°、X±45°、Y±30°</td><td>腰关节：-230°~90°</td><td>腰关节：Y±58°</td><td>腰关节：P±18°、Y-196.5° ~ +136.5°、R±28°</td></tr>
+<tr><td></td><td>髋关节：P±154°、R-30~+170°、Y±158°</td><td>髋关节:R-29°~+134°、P-180°~+140°、Y-90°~+230°</td><td>髋关节：P±118°、R-21°~88°、Y±58°</td><td>髋关节：P±146.5°、R-166.5°~+13.5°、Y-96.5°~196.5°</td></tr>
+<tr><td></td><td>膝关节：0~165°</td><td>膝关节：-30°~+137°</td><td>膝关节：0°~123°</td><td>膝关节：0°~121.5°</td></tr>
+<tr><td></td><td>踝关节：P-50°~30°、R±15°</td><td>踝关节：P-39°~41.5°、R±15°</td><td>踝关节：P-50°~20°、R±25°</td><td>踝关节：P-46°~26°、R±15°</td></tr>
+<tr><td>高长宽（mm）</td><td>1320x450x200</td><td>1400x 535.55x252.66</td><td>1180x470x230</td><td>1310x460x210</td></tr>
+<tr><td>大致重量（kg）</td><td>35</td><td>42</td><td>30</td><td>35</td></tr>
+<tr><td>脚踝处是否采用并链结构</td><td>是</td><td>是</td><td>是</td><td>否</td></tr>
+</tbody></table></div>
+<ul><li>结构形态上：这些尺寸表明它们是 “成人小型”或 “青少年成人” 级别的人形机器人，接近人体下肢高度比例。上肢、腿部长度比例、关节布局都向人体结构靠近。</li><li>关节自由度上：他们手臂设计为4或5自由度、腿部除了X2皆为6自由度（同时X2并没有使用并链结构）、腰部1～3自由度、头部按需0～2自由度。</li><li>重量：都在30kg～45kg之间。</li><li>脚部：在这些机器人中，脚部通常设计为平面或带有限接触区域，以便于支撑和步态稳定。</li></ul>
+<p>总结：</p>
+<ul><li>结构设计前就需要确定机器人的关节数量，因为关系到后续关节选型、URDF、SDK封装等，因而需要尽早确定。</li><li>目前单条腿基本都为6自由度（6个关节）</li><li>小型人形机器人整机重量基本控制在 40kg 内（不含灵巧手）</li></ul>
+<hr>
+<h2 id="硬件上的共同点">硬件上的共同点<a class="heading-anchor" href="#硬件上的共同点" aria-label="锚点">#</a></h2>
+<ul><li>算力平台配置、传感器配置、电池容量、电机选型（方案）在一定程度上趋同，具体数据如下表</li></ul>
+<div class="table-wrap" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
+<thead><tr><th>机器人</th><th>G1</th><th>PM01</th><th>T1</th><th>X2</th></tr></thead>
+<tbody>
+<tr><td>算力配置</td><td>8核高性能CPU+NVIDIA Jetson Orin（可选）</td><td>4核高性能CPU+NVIDIA Jetson Orin NX (16G) 157Tops</td><td>8核高性能CPU（Express-i7、可选）+Jetson AGX Orin 32GB 200Tops<br></td><td>（RK3588*2）<br>+NVIDIA Jetson Orin NX 157Tops（可选）</td></tr>
+<tr><td>传感器配置</td><td>深度相机（头部 realsense D435i）+3D激光雷达（LIVOX-MID360）<br></td><td>深度相机*2（头部和腰部）<br></td><td>深度相机（头部）</td><td>RGB相机（交互）+ RGB相机*2（前后视）、双目RGB相机（前视）、3D激光雷达（可选）</td></tr>
+<tr><td>电池容量</td><td>48V 9Ah</td><td>48V（推测） 10Ah</td><td>48V 10.5Ah</td><td>48V（推测） 10.42Ah</td></tr>
+<tr><td>电机选型</td><td>双编码器旋转电机<br></td><td>双编码器全行星旋转电机</td><td>双编码器全行星旋转电机（因克斯）</td><td>Unknow<br></td></tr>
+</tbody></table></div>
+<ul><li>电机：多数人形机器人平台在腿部、膝关节等处采用高扭矩电机＋减速机构＋高精度编码器，以应对步态中快速切换、支撑变换、冲击力等。</li><li>目前已经售卖的产品基本都是旋转关节，而非直线关节，这可能是由于直线关节在结构、硬件、算法上的适配难度远高于旋转关节，但是直线关节在性能、能耗等方面均有较大优势，目前作为前沿的设计方案之一，如小鹏机器人*IRON。*</li><li>传感器：普遍参用多个深度相机 +  3D激光雷达（可选）的方案作为机器人的感知硬件配置，除此之外，IMU作为本体感知也是必不可少的传感器。</li><li>主控方案：基本都采用了 4/8核CPU+ Orin（可选）的方案。</li><li>电池：电池容量在10Ah左右，且都采用 48V 供电输出。</li></ul>
+<p>目前已经产品化的机器人基本都采用了相似的电机选型，几乎相同的电池配置和主控平台。</p>
+<hr>
+<h2 id="软件上的共同点">软件上的共同点<a class="heading-anchor" href="#软件上的共同点" aria-label="锚点">#</a></h2>
+<p>各厂商机器人后台代码基本都不会开放，因为这可能会暴露所使用的技术路线和硬件选择，也可能被破解逆向造成损失或是发现其中二进制漏洞造成事故。</p>
+<h3 id="sdk接口的共同点">SDK接口的共同点<a class="heading-anchor" href="#sdk接口的共同点" aria-label="锚点">#</a></h3>
+<ul><li>算力平台的软件配置基本均为<ul><li><strong>操作系统</strong>：Ubuntu 22.04/20.04 LTS</li><li><strong>ROS2 版本</strong>：Humble/Foxy</li><li><strong>Python 版本</strong>：Python 3.8 及以上</li><li><strong>C++ 标准</strong>：C++17</li></ul></li><li>都采用FSM（有限状态机）来进行模式切换</li></ul>
+<p><img src="/assets/feishu/small-humanoid-consensus/fig-08.webp" alt="image.png" loading="lazy" decoding="async"></p>
+<p><img src="/assets/feishu/small-humanoid-consensus/fig-09.webp" alt="image.png" loading="lazy" decoding="async"></p>
+<p><img src="/assets/feishu/small-humanoid-consensus/fig-10.webp" alt="image.png" loading="lazy" decoding="async"></p>
+<p><img src="/assets/feishu/small-humanoid-consensus/fig-11.webp" alt="image.png" loading="lazy" decoding="async"></p>
+<p><strong>通常包括以下状态：</strong></p>
+<ul><li><strong>零力矩模式</strong></li><li><strong>阻尼模式</strong></li><li><strong>站立准备模式</strong></li><li><strong>行走模式/跑步模式</strong></li><li><strong>其他特殊模式</strong></li></ul>
+<ul><li>SDK 通讯方案汇总</li></ul>
+<div class="table-wrap" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
+<thead><tr><th>通讯方案支持</th><th>G1</th><th>PM01</th><th>T1</th><th>X2</th></tr></thead>
+<tbody>
+<tr><td>DDS<br></td><td>Cyclone DDS<br></td><td>ROS2<br></td><td>Fast DDS</td><td>支持</td></tr>
+<tr><td>RPC<br></td><td>通过 DDS 自主实现的RPC</td><td>ROS2</td><td>通过 DDS 自主实现的RPC</td><td>支持</td></tr>
+<tr><td>ROS2接口</td><td>支持</td><td>支持</td><td>支持</td><td>支持</td></tr>
+<tr><td>自动类型发现</td><td>是</td><td>否</td><td>否</td><td>Unknow</td></tr>
+<tr><td>关节通讯频率</td><td>500hz</td><td>500hz</td><td>500hz</td><td>Unknow</td></tr>
+<tr><td>备注<br></td><td><img src="/assets/feishu/small-humanoid-consensus/fig-12.webp" alt="image.png" loading="lazy" decoding="async"></td><td>无<br></td><td><img src="/assets/feishu/small-humanoid-consensus/fig-13.webp" alt="image.png" loading="lazy" decoding="async"><br></td><td>无<br></td></tr>
+</tbody></table></div>
+<ul><li>这四家SDK通讯频率基本接近PM01参数：</li></ul>
+<p><img src="/assets/feishu/small-humanoid-consensus/fig-14.webp" alt="image.png" loading="lazy" decoding="async"></p>
+<ul><li>底层控制在500hz、高层控制5~50hz</li></ul>
+<ul><li>基本可以断定，目前都使用DDS作为通讯底层（读写硬件）接口。</li><li>内部实现是否使用其他组件通讯暂不清楚，可能存在部分进程间通讯会使用以下方案之一<ul><li>POSIX Shared Memory + Lock-Free Ring Buffer（手写底层通讯，与DDS底层相同）</li><li>LCM（其他类型的通讯组件）</li></ul></li></ul>
+<p><a href="https://lcm-proj.github.io/lcm/" target="_blank" rel="noopener">https://lcm-proj.github.io/lcm/</a></p>
+<ul><li>ZeroMQ（其他类型的通讯组件）</li></ul>
+<p><a href="https://github.com/zeromq/libzmq" target="_blank" rel="noopener">https://github.com/zeromq/libzmq</a></p>
+<ul><li>UDS（unix domain socket）</li></ul>
+<p>&gt; 小机器人内部除了DDS外还使用了UDS作为动态配置的方案，如通过UDS启动看门狗实现自动重启、暂停底层控制、启动底层控制等
+    &gt;
+    &gt;</p>
+<ul><li>与云端、手机客户端通讯方案<ul><li>为了支持 <strong>网络穿透（ICE/STUN/TURN）、长连接与实时性</strong>，通常采用 <strong>WebRTC</strong> 或 <strong>gRPC</strong> 作为通讯框架。</li><li><strong>WebRTC</strong><ul><li>信令阶段通常使用 JSON（因为信令由开发者自定义实现），</li><li>实际数据传输可使用任意格式，包括 JSON、Protobuf 或自定义二进制格式。</li></ul></li><li><strong>gRPC</strong><ul><li>使用 <strong>Protocol Buffers（Protobuf）</strong> 作为强类型、高效的序列化格式。</li><li>适用于结构化 RPC 调用和客户端-服务端通讯。</li></ul></li></ul></li></ul>
+<h3 id="客户端的共同点">客户端的共同点<a class="heading-anchor" href="#客户端的共同点" aria-label="锚点">#</a></h3>
+<ul><li>基本都配备了手机客户端（Android）。</li><li>具备图形化界面，图形化编程，上层控制等功能。</li><li>基本都采用AP直连的进行局域网通信。</li></ul>
+<h3 id="行走跳舞控制算法的共同点">行走/跳舞控制算法的共同点<a class="heading-anchor" href="#行走跳舞控制算法的共同点" aria-label="锚点">#</a></h3>
+<blockquote><p>运控主流的 IL(Imitation Learning) 算法可参考： 8.3小节
+一些前沿的机器人算法论文/存储库可关注：
+<a href="https://github.com/YanjieZe/awesome-humanoid-robot-learning" target="_blank" rel="noopener">https://github.com/YanjieZe/awesome-humanoid-robot-learning</a></p></blockquote>
+<p>这部分内容无法了解全貌，根据相关厂商开源：</p>
+<ul><li>宇树开源：</li></ul>
+<p><a href="https://github.com/unitreerobotics/unitree_rl_gym" target="_blank" rel="noopener">https://github.com/unitreerobotics/unitree_rl_gym</a></p>
+<p><a href="https://github.com/unitreerobotics/unitree_rl_lab" target="_blank" rel="noopener">https://github.com/unitreerobotics/unitree_rl_lab</a></p>
+<ul><li>第一份仓库基于IsaacGym进行训练，主要通过修改 <a href="https://github.com/leggedrobotics/legged_gym" target="_blank" rel="noopener">legged_gym</a> 实现基础的行走（线速度、角速度追踪任务）策略，仅使用下半身关节（12dof）。</li><li>第二份仓库基于IsaacLab进行训练，包括基础的行走策略和基于 <a href="https://github.com/HybridRobotics/whole_body_tracking" target="_blank" rel="noopener">BeyondMimic</a> 实现的全身追踪控制策略，</li></ul>
+<ul><li>众擎开源：</li></ul>
+<p><a href="https://github.com/engineai-robotics/engineai_rl_workspace" target="_blank" rel="noopener">https://github.com/engineai-robotics/engineai_rl_workspace</a></p>
+<ul><li>基于IsaacGym进行训练，同上，仅使用下半身关节（12dof）。</li><li>可能存在基于 <a href="https://github.com/Alescontrela/AMP_for_hardware" target="_blank" rel="noopener">AMP_for_hardware</a> 实现的风格化策略（比如拟人行走），但是并为开源数据集和代码。</li></ul>
+<ul><li>加速进化开源：</li></ul>
+<p><a href="https://github.com/BoosterRobotics/booster_gym" target="_blank" rel="noopener">https://github.com/BoosterRobotics/booster_gym</a></p>
+<ul><li>基于IsaacGym进行训练，同上，仅使用下半身关节（12dof）。</li></ul>
+<ul><li>智元没有开源 X2 相关的训练，但是开源了 X1 相关的训练：</li></ul>
+<p><a href="https://github.com/AgibotTech/agibot_x1_train" target="_blank" rel="noopener">https://github.com/AgibotTech/agibot_x1_train</a></p>
+<ul><li>基于IsaacGym进行训练，同上，仅使用下半身关节（12dof）。</li></ul>
+<p>目前常见的小机器人产品厂商开源的RL训练内容均与实际所使用的策略存在巨大差异，推测均为早期实现的开源，参考价值不大。</p>
+<p>根据实机表现，推测目前主流的方案如下：</p>
+<ol><li>风格化行走策略：基于 <a href="https://github.com/Alescontrela/AMP_for_hardware" target="_blank" rel="noopener">AMP_for_hardware</a> 实现的站立、行走、跑步自动切换（线速度追踪任务，根据参考数据集进行风格化处理和自动切换）。</li><li>全身控制（用于全身遥操，跳舞等）：基于 <a href="https://github.com/HybridRobotics/whole_body_tracking" target="_blank" rel="noopener">BeyondMimic</a> 实现的全身追踪，详细可参考，技术路线可参考 <a href="https://zhuanlan.zhihu.com/p/1973155848332280065" target="_blank" rel="noopener">机器人跳舞技术路线概述</a> 。</li><li>数据集来源：</li></ol>
+<ul><li><strong>开源人体动作数据集</strong></li></ul>
+<p>这些数据集主要来自动作捕捉（MoCap）系统，常用于 IM 模仿学习、Diffusion Policy、Trajectory Library 训练等。</p>
+<p>常用的开源数据集包括：</p>
+<ul><li><strong>AMASS</strong>：当前最大的统一 MoCap 数据集（包含 CMU、HumanEva、MPI 等子集）</li><li><strong>OMOMO</strong>：多场景、多动作的人体动作序列</li><li><strong>LAFAN1</strong>：适用于动作预测、单步步态生成</li></ul>
+<p>这些数据集通常提供 <strong>人体关节位姿（SMPL 或 3D 关节点）</strong>，可直接转为机器人可用的 joint-space 或 task-space 演示数据。</p>
+<ul><li><strong>通过视频生成动作数据：GVHMR + GMR</strong></li></ul>
+<p>从视频中恢复 3D 人类姿态 → 转换为机器人动作轨迹。最终得到的人形机器人“模仿数据”可直接用于：强化学习 warm-up、行为克隆（BC）、Diffusion Policy 训练、多技能融合策略（如站立、走路、挥手、踢腿等）。</p>
+<p>流程：详细请查看 。</p>
+<ul><li><strong>直接采集（遥操作 / Teleoperation）</strong></li></ul>
+<p>通过以下方式直接记录机器人自身的关节空间数据：</p>
+<ul><li>VR 手柄（Oculus/HTC）、外骨骼装置、力反馈机械臂、手持六维力传感器、操作者直接操控机器人。</li></ul>
+<p>采集的数据包括：</p>
+<ul><li>Joint position&amp;velocity、Base pose（IMU）、End-effector trajectory、Force/torque 数据。</li></ul>
+<p>遥操作的数据具有：</p>
+<ul><li><strong>高质量、可控动作</strong>（如抓取、搬运、平衡）</li><li><strong>最接近实际机器人动力学</strong>（最利于 sim2real）</li></ul>
+<p>通常用于：</p>
+<ul><li>复杂技能学习（如上楼梯、搬物、跑跳等）</li><li>低延迟控制策略（MPC+RL）</li><li>行为克隆 BC → PPO 微调</li></ul>
+<hr></div>
+
+      <div class="post-end">
+        <span class="end-mark" aria-hidden="true">◆</span>
+      </div>
+
+      
+      <section class="related">
+        <h2>相关文章</h2>
+        <div class="grid grid-3">
+          <article class="card post-card reveal" data-tiltable>
+  
+  <a class="card-link" href="/posts/dds-qos-tuning/"><span class="sr-only">DDS 选型与调参：从 QoS 到零拷贝</span></a>
+  <div class="card-tilt">
+    
+    <div class="card-cover media-shim">
+      
+      <img src="/assets/bg/neon.jpg"
+           alt=""
+           width="2560" height="1440"
+           style="object-position: 50% 50%"
+           loading="lazy" decoding="async">
+      <span class="card-cover-veil"></span>
+    </div>
+    
+    <div class="card-body">
+      
+      <div class="card-tags">
+        <a class="pill" href="/tags/dds/">DDS</a><a class="pill" href="/tags/中间件/">中间件</a><a class="pill" href="/tags/系统工程/">系统工程</a>
+      </div>
+      
+      <h3 class="card-title">DDS 选型与调参：从 QoS 到零拷贝</h3>
+      <p class="card-summary">从消息语义出发选择 QoS，区分进程内通信、共享内存和零拷贝，并用可复现的测量定位 DDS 延迟与抖动。</p>
+      <div class="card-meta">
+        <time datetime="2026-04-12">2026 年 4 月 12 日</time>
+        <span class="sep" aria-hidden="true"></span>
+        <span>5 分钟</span>
+        <span class="card-meta-end">
+          
+          <span class="pin" title="精选">精选</span>
+          <span class="card-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/>
+            </svg>
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>
+</article>
+<article class="card post-card reveal" data-tiltable>
+  
+  <a class="card-link" href="/posts/humanoid-0-to-1-toolchain/"><span class="sr-only">小型人形机器人 0→1：从 URDF 到真机部署的工具链</span></a>
+  <div class="card-tilt">
+    
+    <div class="card-cover media-shim">
+      
+      <img src="/assets/feishu/humanoid-0-to-1-toolchain/fig-13.webp"
+           alt=""
+           width="1600" height="882"
+           style="object-position: 50% 50%"
+           loading="lazy" decoding="async">
+      <span class="card-cover-veil"></span>
+    </div>
+    
+    <div class="card-body">
+      
+      <div class="card-tags">
+        <a class="pill" href="/tags/人形/">人形</a><a class="pill" href="/tags/工具链/">工具链</a><a class="pill" href="/tags/dds/">DDS</a><a class="pill" href="/tags/仿真/">仿真</a>
+      </div>
+      
+      <h3 class="card-title">小型人形机器人 0→1：从 URDF 到真机部署的工具链</h3>
+      <p class="card-summary">把一台小型人形机器人从结构图纸做到能跑策略，中间要过的每一道工具：URDF 导出后怎么查零件与关节、用 IDL + Fast DDS 设计通讯 SDK、怎么在 MuJoCo 里提前验证算法所需的硬件频率与鲁棒性、真机后台的分层架构，以及仿真到真机不改代码的部署方式。</p>
+      <div class="card-meta">
+        <time datetime="2026-02-14">2026 年 2 月 14 日</time>
+        <span class="sep" aria-hidden="true"></span>
+        <span>19 分钟</span>
+        <span class="card-meta-end">
+          
+          
+          <span class="card-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/>
+            </svg>
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>
+</article>
+<article class="card post-card reveal" data-tiltable>
+  
+  <a class="card-link" href="/posts/cpp-python-code-style/"><span class="sr-only">C++ / Python 代码规范</span></a>
+  <div class="card-tilt">
+    
+    <div class="card-cover media-shim">
+      
+      <img src="/assets/feishu/cpp-python-code-style/fig-02.webp"
+           alt=""
+           width="1412" height="619"
+           style="object-position: 50% 50%"
+           loading="lazy" decoding="async">
+      <span class="card-cover-veil"></span>
+    </div>
+    
+    <div class="card-body">
+      
+      <div class="card-tags">
+        <a class="pill" href="/tags/c/">C++</a><a class="pill" href="/tags/python/">Python</a><a class="pill" href="/tags/系统工程/">系统工程</a>
+      </div>
+      
+      <h3 class="card-title">C++ / Python 代码规范</h3>
+      <p class="card-summary">一份可以贴进项目仓库的代码规范：头文件自给自足与 include 顺序、命名空间与静态变量、类的隐式转换与继承、函数签名怎么设计、命名约定，以及平台相关代码不能假设什么。核心是「正确性优先，必要时才为优化让路」。</p>
+      <div class="card-meta">
+        <time datetime="2025-10-12">2025 年 10 月 12 日</time>
+        <span class="sep" aria-hidden="true"></span>
+        <span>38 分钟</span>
+        <span class="card-meta-end">
+          
+          
+          <span class="card-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/>
+            </svg>
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>
+</article>
+
+        </div>
+      </section>
+      
+    </div>
+  </div>
+
+  <nav class="post-nav" aria-label="上下篇">
+    
+    <a class="post-nav-item prev" href="/posts/quadruped-mpc-kinematics/">
+      <span class="dir">← 上一篇</span>
+      <span class="t">四足运控：MPC 代价函数推导与腿部正逆运动学</span>
+    </a>
+    
+    
+    <a class="post-nav-item next" href="/posts/humanoid-0-to-1-toolchain/">
+      <span class="dir">下一篇 →</span>
+      <span class="t">小型人形机器人 0→1：从 URDF 到真机部署的工具链</span>
+    </a>
+    
+  </nav>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="footer-glow" aria-hidden="true"></div>
+  <div class="footer-grid" aria-hidden="true"></div>
+  <span class="footer-corner tl" aria-hidden="true"></span>
+  <span class="footer-corner tr" aria-hidden="true"></span>
+
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="brand-mark lg" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M2.6 20.6h5.6" stroke-width="2.2"/>
+  <path d="M7.9 15.9 11.6 6.6" stroke-width="2.8"/>
+  <path d="M13.4 7.2 19.2 11.4" stroke-width="2.8"/>
+  <circle cx="5.6" cy="17.6" r="2.9" fill="currentColor" stroke="none"/>
+  <circle cx="12.2" cy="6.4" r="2.3" fill="currentColor" stroke="none"/>
+  <circle cx="20.4" cy="12.2" r="1.8" fill="currentColor" stroke="none"/>
+</svg>
+
+      </div>
+      <p class="footer-title">洛叶白</p>
+      <p class="footer-tag">中间件 · 运动控制 · 强化学习</p>
+
+      
+      <p class="footer-now"><span class="pulse" aria-hidden="true"></span>轮式双臂机器人（智元 G2）的工业场景落地与工具链</p>
+      
+
+      <div class="footer-social">
+        
+        <a class="footer-chip" href="https://github.com/luoyebai" rel="noopener">GitHub</a>
+        
+        <a class="footer-chip" href="mailto:2112216825@qq.com" rel="noopener">邮箱</a>
+        
+        <a class="footer-chip" href="mailto:luoyebai4444@gmail.com" rel="noopener">Gmail</a>
+        
+        <a class="footer-chip" href="tel:13407209575" rel="noopener">电话</a>
+        
+      </div>
+
+      <dl class="footer-stats">
+        <div><dt>12</dt><dd>篇文章</dd></div>
+        <div><dt>19</dt><dd>篇文档</dd></div>
+        <div><dt>3</dt><dd>个项目</dd></div>
+        <div><dt>204</dt><dd>页幻灯片</dd></div>
+      </dl>
+    </div>
+
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h4>最新文章</h4>
+        
+        <a class="footer-link" href="/posts/runnable-demos/">
+          <span class="t">可运行示例：让文章里的代码真的跑起来</span>
+          <span class="d">2026 年 9 月 24 日</span>
+        </a>
+        
+        <a class="footer-link" href="/posts/dds-qos-tuning/">
+          <span class="t">DDS 选型与调参：从 QoS 到零拷贝</span>
+          <span class="d">2026 年 4 月 12 日</span>
+        </a>
+        
+        <a class="footer-link" href="/posts/quadruped-mpc-kinematics/">
+          <span class="t">四足运控：MPC 代价函数推导与腿部正逆运动学</span>
+          <span class="d">2026 年 3 月 8 日</span>
+        </a>
+        
+        <a class="footer-more" href="/posts/">
+          全部文章
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/></svg>
+        </a>
+      </div>
+
+      <div class="footer-col">
+        <h4>文档课程</h4>
+        
+        <a class="footer-link" href="/docs/windows-to-linux/">
+          <span class="t">从 Windows 到 Linux</span>
+          <span class="d">6 篇 · 67 页</span>
+        </a>
+        
+        <a class="footer-link" href="/docs/cpp/">
+          <span class="t">从 C 语言到 C++</span>
+          <span class="d">1 篇 · 10 页</span>
+        </a>
+        
+        <a class="footer-link" href="/docs/vision/">
+          <span class="t">ROS 与机器视觉</span>
+          <span class="d">6 篇 · 72 页</span>
+        </a>
+        
+        <a class="footer-link" href="/docs/learning/">
+          <span class="t">从编程开始的学习</span>
+          <span class="d">6 篇 · 55 页</span>
+        </a>
+        
+        <a class="footer-more" href="/docs/">
+          文档总览
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/></svg>
+        </a>
+      </div>
+
+      <div class="footer-col">
+        <h4>导航</h4>
+        <nav class="footer-nav" aria-label="页脚导航">
+          <a href="/">首页</a><a href="/posts/">文章</a><a href="/projects/">项目</a><a href="/docs/">文档</a><a href="/graph/">图谱</a><a href="/archive/">归档</a><a href="/about/">关于</a>
+        </nav>
+
+        <h4 class="footer-h4-gap">站点</h4>
+        <nav class="footer-nav" aria-label="站点资源">
+          <a href="/tags/">标签</a>
+          <a href="/archive/">归档</a>
+          
+          <a href="/sitemap.xml">站点地图</a>
+          <a href="/search-index.json">搜索索引</a>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p class="footer-colophon">
+      <span>© 2022–2026 洛叶白</span>
+      <span class="sep" aria-hidden="true">·</span>
+      <span>除注明外均为原创，转载请注明出处</span>
+      <span class="sep" aria-hidden="true">·</span>
+      <span>构建于 <time datetime="2026-09-29">2026-09-29</time></span>
+    </p>
+    <p class="footer-meta">
+      <span class="footer-meta-label">字体</span>
+      <span class="footer-meta-item">Noto Serif SC<i>正文 · 宋体档</i></span><span class="footer-meta-item">Noto Sans SC<i>正文 · 黑体档</i></span><span class="footer-meta-item">FiraCode Nerd<i>代码与数学</i></span>
+      <span class="footer-meta-item is-accent">无第三方依赖 · 无追踪 · 无 Cookie</span>
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" type="button" data-to-top aria-label="回到顶部">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19V5"/><path d="m5.5 11.5 6.5-6.5 6.5 6.5"/>
+  </svg>
+</button>
+
+<div class="settings" id="settings" hidden>
+  <div class="settings-backdrop" data-close-settings></div>
+  <aside class="settings-panel" role="dialog" aria-modal="true" aria-label="外观设置">
+    <header class="settings-head">
+      <div>
+        <h2>外观设置</h2>
+        <p>设置会保存在本机浏览器，刷新后保持</p>
+      </div>
+      <button class="icon-btn" type="button" data-close-settings aria-label="关闭">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path d="M6 6l12 12M18 6 6 18"/>
+        </svg>
+      </button>
+    </header>
+
+    <div class="settings-body">
+
+      <section class="set-group">
+        <h3>主题</h3>
+        <div class="theme-grid">
+          
+          <button class="theme-card" type="button" data-theme-pick="dusk" title="暮色风车">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/dusk.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#ff9d5c"></i><i style="background:#7aa2ff"></i><i style="background:#0b1020"></i>
+              </span>
+            </span>
+            <span class="theme-name">暮色风车</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="neon" title="霓虹机房">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/neon.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#c04bff"></i><i style="background:#22d3ee"></i><i style="background:#0a0718"></i>
+              </span>
+            </span>
+            <span class="theme-name">霓虹机房</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="cyber" title="夜城投递">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/cyber.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#ff7ab6"></i><i style="background:#5ee7c4"></i><i style="background:#141019"></i>
+              </span>
+            </span>
+            <span class="theme-name">夜城投递</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="sakura" title="樱色光爆">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/sakura.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#ff6fa5"></i><i style="background:#b78bff"></i><i style="background:#120a14"></i>
+              </span>
+            </span>
+            <span class="theme-name">樱色光爆</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="void" title="虚空龙息">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/void.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#6ea8ff"></i><i style="background:#ffd166"></i><i style="background:#06080f"></i>
+              </span>
+            </span>
+            <span class="theme-name">虚空龙息</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="mono" title="黑白编辑">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/mono.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#e8e8e8"></i><i style="background:#9aa0a6"></i><i style="background:#0c0c0d"></i>
+              </span>
+            </span>
+            <span class="theme-name">黑白编辑</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="paper" title="留白纸面">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/paper.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#17b8a6"></i><i style="background:#f0a04b"></i><i style="background:#fbfcfc"></i>
+              </span>
+            </span>
+            <span class="theme-name">留白纸面</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="alpine" title="远山夜湖">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/alpine.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#5b8dd9"></i><i style="background:#78d9c8"></i><i style="background:#0a1220"></i>
+              </span>
+            </span>
+            <span class="theme-name">远山夜湖</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="moonlit" title="皎月水面">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/moonlit.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#7fd4f0"></i><i style="background:#ffd9a0"></i><i style="background:#050b1c"></i>
+              </span>
+            </span>
+            <span class="theme-name">皎月水面</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="comet" title="彗星山晚">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/comet.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#e07a5f"></i><i style="background:#9b8cff"></i><i style="background:#1c2242"></i>
+              </span>
+            </span>
+            <span class="theme-name">彗星山晚</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="lantern" title="林间提灯">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/lantern.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#e8a45c"></i><i style="background:#66d6a8"></i><i style="background:#141121"></i>
+              </span>
+            </span>
+            <span class="theme-name">林间提灯</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="sketch" title="素描线稿">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/sketch.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#5a6b96"></i><i style="background:#8a6f52"></i><i style="background:#1f2024"></i>
+              </span>
+            </span>
+            <span class="theme-name">素描线稿</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="manga" title="漫画分格">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/manga.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#cf4436"></i><i style="background:#4a6fa8"></i><i style="background:#242428"></i>
+              </span>
+            </span>
+            <span class="theme-name">漫画分格</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="lumen" title="暖灯夜色">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/lumen.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#ffbe4d"></i><i style="background:#7ad3e8"></i><i style="background:#0d1a28"></i>
+              </span>
+            </span>
+            <span class="theme-name">暖灯夜色</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="bocchi" title="波奇光晕">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/bocchi.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#eaa5bc"></i><i style="background:#6acbc9"></i><i style="background:#101b2d"></i>
+              </span>
+            </span>
+            <span class="theme-name">波奇光晕</span>
+          </button>
+          
+        </div>
+      </section>
+
+      <section class="set-group">
+        <h3>配色</h3>
+        <div class="set-field">
+          <span class="set-label">明暗模式</span>
+          <div class="seg" data-seg="mode">
+            <button type="button" data-val="dark">深色</button>
+            <button type="button" data-val="light">浅色</button>
+          </div>
+        </div>
+        <div class="set-field set-field--inline">
+          <span class="set-label">强调色覆盖</span>
+          <input type="color" data-color="accent" value="#ff9d5c" aria-label="强调色">
+        </div>
+        <p class="set-note">强调色默认由主题的种子色推导；想临时改一个色就动这里，留空色块即为跟随主题。</p>
+      </section>
+
+      <section class="set-group">
+        <h3>排版</h3>
+        <div class="set-field">
+          <span class="set-label">正文字体</span>
+          <div class="seg" data-seg="font">
+            <button type="button" data-val="sans">黑体</button>
+            <button type="button" data-val="serif">宋体</button>
+            <button type="button" data-val="mono">等宽</button>
+          </div>
+        </div>
+        <div class="set-field">
+          <span class="set-label">字号 <b data-out="scale">—</b></span>
+          <input type="range" data-range="scale" min="0.9" max="1.25" step="0.01" value="1" aria-label="字号">
+        </div>
+        <div class="set-field">
+          <span class="set-label">阅读宽度</span>
+          <div class="seg" data-seg="width">
+            <button type="button" data-val="narrow">窄</button>
+            <button type="button" data-val="normal">标准</button>
+            <button type="button" data-val="wide">宽</button>
+          </div>
+        </div>
+        <p class="set-note">黑体 / 宋体随站点自带，不依赖本机字体。</p>
+      </section>
+
+      <section class="set-group">
+        <h3>玻璃材质</h3>
+        <div class="set-field">
+          <span class="set-label">质感档位</span>
+          <div class="seg" data-seg="glass">
+            <button type="button" data-val="off">关闭</button>
+            <button type="button" data-val="low">弱</button>
+            <button type="button" data-val="med">中</button>
+            <button type="button" data-val="high">强</button>
+          </div>
+        </div>
+        <div class="set-field">
+          <span class="set-label">不透明度 <b data-out="glassAlpha">—</b></span>
+          <input type="range" data-range="glassAlpha" min="40" max="100" step="1" value="72" aria-label="玻璃不透明度">
+        </div>
+        <p class="set-note">越低越透、背后的壁纸越明显；低于 60% 时文字在花哨壁纸上会不太好读。选「关闭」为实底。</p>
+      </section>
+
+      <section class="set-group">
+        <h3>背景壁纸</h3>
+        <div class="set-field">
+          <span class="set-label">显示</span>
+          <div class="seg" data-seg="bg">
+            <button type="button" data-val="on">显示</button>
+            <button type="button" data-val="off">隐藏</button>
+          </div>
+        </div>
+        <div class="set-field">
+          <span class="set-label">来源</span>
+          <div class="seg" data-seg="bgmode">
+            <button type="button" data-val="image">静态图</button>
+            <button type="button" data-val="video">动态视频</button>
+          </div>
+        </div>
+        <p class="set-note">无声循环视频按当前主题加载；切到「动态视频」后才加载，后台标签页会暂停。</p>
+        <div class="set-divider"></div>
+        <div class="set-field">
+          <span class="set-label">可见度 <b data-out="bgOpacity">—</b></span>
+          <input type="range" data-range="bgOpacity" min="0" max="100" step="2" value="62" aria-label="壁纸可见度">
+        </div>
+        <div class="set-field">
+          <span class="set-label">模糊 <b data-out="bgBlur">—</b></span>
+          <input type="range" data-range="bgBlur" min="0" max="40" step="1" value="0" aria-label="壁纸模糊">
+        </div>
+      </section>
+
+      <section class="set-group">
+        <h3>交互</h3>
+        <div class="set-field">
+          <span class="set-label">卡片 3D 倾斜</span>
+          <div class="seg" data-seg="tilt">
+            <button type="button" data-val="0">关闭</button>
+            <button type="button" data-val="6">轻微</button>
+            <button type="button" data-val="12">标准</button>
+            <button type="button" data-val="20">明显</button>
+          </div>
+        </div>
+        <p class="set-note">鼠标移到文章 / 项目卡片上时跟着倾斜的角度，仅在精确指针设备生效。</p>
+        <div class="set-divider"></div>
+        <div class="set-field">
+          <span class="set-label">页面动效</span>
+          <div class="seg" data-seg="motion">
+            <button type="button" data-val="on">开启</button>
+            <button type="button" data-val="off">关闭</button>
+          </div>
+        </div>
+        <div class="set-field">
+          <span class="set-label">鼠标指针</span>
+          <div class="seg" data-seg="cursor">
+            <button type="button" data-val="on">自定义</button>
+            <button type="button" data-val="off">系统</button>
+          </div>
+        </div>
+        <p class="set-note">自定义指针是一个反相圆环，悬停会变形并显示提示；文字输入框仍用系统指针，触屏设备自动忽略。</p>
+      </section>
+
+    </div>
+
+    <footer class="settings-foot">
+      <button class="btn ghost" type="button" data-reset-appearance>恢复默认</button>
+      <button class="btn primary" type="button" data-close-settings>完成</button>
+    </footer>
+  </aside>
+</div>
+
+<div class="search" id="search" hidden>
+  <div class="search-backdrop" data-close-search></div>
+  <div class="search-panel" role="dialog" aria-modal="true" aria-label="搜索">
+    <div class="search-input">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <circle cx="11" cy="11" r="6.5"/><path d="M16.2 16.2 21 21"/>
+      </svg>
+      <input type="search" placeholder="搜索文章、项目、标签…" autocomplete="off" spellcheck="false" data-search-input>
+      <kbd>Esc</kbd>
+    </div>
+    <div class="search-results" data-search-results>
+      <p class="search-hint">输入关键词开始搜索 · ↑↓ 选择 · Enter 打开</p>
+    </div>
+  </div>
+</div>
+
+<div class="mobile-menu" id="mobile-menu" hidden>
+  <div class="mobile-menu-backdrop" data-close-menu></div>
+  <nav class="mobile-menu-panel">
+    <a href="/">首页</a><a href="/posts/">文章</a><a href="/projects/">项目</a><a href="/docs/">文档</a><a href="/graph/">图谱</a><a href="/archive/">归档</a><a href="/about/">关于</a>
+    <div class="mobile-menu-social">
+      <a href="https://github.com/luoyebai" rel="noopener">GitHub</a><a href="mailto:2112216825@qq.com" rel="noopener">邮箱</a><a href="mailto:luoyebai4444@gmail.com" rel="noopener">Gmail</a><a href="tel:13407209575" rel="noopener">电话</a>
+    </div>
+  </nav>
+</div>
+
+
+<script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
+
+<script src="/assets/site.js?v=afafd87f" defer></script>
+
+</body>
+</html>
+

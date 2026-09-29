@@ -31,8 +31,8 @@
 <link rel="canonical" href="https://luoyebai.github.io/posts/legacy-gait-tuning/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=e1ce531d">
-<link rel="stylesheet" href="/assets/site.css?v=e1ce531d">
+<link rel="stylesheet" href="/assets/themes.css?v=afafd87f">
+<link rel="stylesheet" href="/assets/site.css?v=afafd87f">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
 
@@ -286,7 +286,7 @@
 <p>固定初始姿态、地面、负载和测试时长。每次记录参数版本、足端跟踪误差、关节饱和、机体姿态和失败时刻。用相同条件重复试验，才能区分参数作用与偶然接触差异。</p>
 <p>没有给出作用点和持续时间的“最大侧推力”，或没有表面材料的“通过坡度”，都不适合跨平台比较。因此这里保留分析方法，不把早期性能数字作为当前能力承诺。</p>
 <h2 id="后续学习方向">后续学习方向<a class="heading-anchor" href="#后续学习方向" aria-label="锚点">#</a></h2>
-<p>位置轨迹提供了直观的入门，但接触力、状态估计与驱动约束决定了更多动态行为。进一步可阅读 <a href="/posts/quadruped-mpc-wbc/">MPC 与 WBC 分层</a>，并结合 <a href="/posts/realtime-control-loop/">实时回路测量</a>理解参考、反馈和执行之间的时间关系。</p></div>
+<p>位置轨迹提供了直观的入门，但接触力、状态估计与驱动约束决定了更多动态行为。进一步可阅读 <a href="/posts/quadruped-mpc-kinematics/">四足 MPC 与腿部运动学</a>，并结合 <a href="/posts/realtime-control-loop/">实时回路测量</a>理解参考、反馈和执行之间的时间关系。</p></div>
 
       <div class="post-end">
         <span class="end-mark" aria-hidden="true">◆</span>
@@ -298,14 +298,14 @@
         <div class="grid grid-3">
           <article class="card post-card reveal" data-tiltable>
   
-  <a class="card-link" href="/posts/quadruped-mpc-wbc/"><span class="sr-only">四足运控：MPC 与 WBC 的分层结构</span></a>
+  <a class="card-link" href="/posts/quadruped-mpc-kinematics/"><span class="sr-only">四足运控：MPC 代价函数推导与腿部正逆运动学</span></a>
   <div class="card-tilt">
     
     <div class="card-cover media-shim">
       
-      <img src="/assets/bg/dusk.jpg"
+      <img src="/assets/feishu/quadruped-mpc-kinematics/fig-07.webp"
            alt=""
-           width="2560" height="1440"
+           width="914" height="309"
            style="object-position: 50% 50%"
            loading="lazy" decoding="async">
       <span class="card-cover-veil"></span>
@@ -314,18 +314,18 @@
     <div class="card-body">
       
       <div class="card-tags">
-        <a class="pill" href="/tags/四足/">四足</a><a class="pill" href="/tags/运动控制/">运动控制</a><a class="pill" href="/tags/mpc/">MPC</a><a class="pill" href="/tags/wbc/">WBC</a>
+        <a class="pill" href="/tags/四足/">四足</a><a class="pill" href="/tags/运动控制/">运动控制</a><a class="pill" href="/tags/mpc/">MPC</a><a class="pill" href="/tags/运动学/">运动学</a>
       </div>
       
-      <h3 class="card-title">四足运控：MPC 与 WBC 的分层结构</h3>
-      <p class="card-summary">梳理单刚体 MPC 与全身控制的模型边界、接触约束和接口约定，说明哪些近似成立、哪些结果必须通过求解与实机验证。</p>
+      <h3 class="card-title">四足运控：MPC 代价函数推导与腿部正逆运动学</h3>
+      <p class="card-summary">把 MPC 从状态转移方程推到有限时域 QP 的代价函数，并解释为什么直接对输入加权会留下稳态误差、改用输入增量就能修掉；后半篇从单腿三个关节的变换矩阵推出足端正运动学，再从足端位置反解关节角。</p>
       <div class="card-meta">
         <time datetime="2026-03-08">2026 年 3 月 8 日</time>
         <span class="sep" aria-hidden="true"></span>
-        <span>4 分钟</span>
+        <span>7 分钟</span>
         <span class="card-meta-end">
           
-          <span class="pin" title="精选">精选</span>
+          
           <span class="card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/>
@@ -345,9 +345,9 @@
 
   <nav class="post-nav" aria-label="上下篇">
     
-    <a class="post-nav-item prev" href="/posts/realtime-control-loop/">
+    <a class="post-nav-item prev" href="/posts/parallel-ankle-kinematics/">
       <span class="dir">← 上一篇</span>
-      <span class="t">运控回路的实时性：1 kHz 到底能不能跑满</span>
+      <span class="t">脚踝并联机构：正逆运动学与静力学解算</span>
     </a>
     
     <span class="post-nav-item empty"></span>
@@ -395,9 +395,9 @@
       </div>
 
       <dl class="footer-stats">
-        <div><dt>7</dt><dd>篇文章</dd></div>
+        <div><dt>12</dt><dd>篇文章</dd></div>
         <div><dt>19</dt><dd>篇文档</dd></div>
-        <div><dt>5</dt><dd>个项目</dd></div>
+        <div><dt>3</dt><dd>个项目</dd></div>
         <div><dt>204</dt><dd>页幻灯片</dd></div>
       </dl>
     </div>
@@ -416,8 +416,8 @@
           <span class="d">2026 年 4 月 12 日</span>
         </a>
         
-        <a class="footer-link" href="/posts/quadruped-mpc-wbc/">
-          <span class="t">四足运控：MPC 与 WBC 的分层结构</span>
+        <a class="footer-link" href="/posts/quadruped-mpc-kinematics/">
+          <span class="t">四足运控：MPC 代价函数推导与腿部正逆运动学</span>
           <span class="d">2026 年 3 月 8 日</span>
         </a>
         
@@ -480,7 +480,7 @@
       <span class="sep" aria-hidden="true">·</span>
       <span>除注明外均为原创，转载请注明出处</span>
       <span class="sep" aria-hidden="true">·</span>
-      <span>构建于 <time datetime="2026-09-24">2026-09-24</time></span>
+      <span>构建于 <time datetime="2026-09-29">2026-09-29</time></span>
     </p>
     <p class="footer-meta">
       <span class="footer-meta-label">字体</span>
@@ -810,7 +810,7 @@
 
 <script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
 
-<script src="/assets/site.js?v=e1ce531d" defer></script>
+<script src="/assets/site.js?v=afafd87f" defer></script>
 
 </body>
 </html>

@@ -31,11 +31,11 @@
 <link rel="canonical" href="https://luoyebai.github.io/graph/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=e1ce531d">
-<link rel="stylesheet" href="/assets/site.css?v=e1ce531d">
+<link rel="stylesheet" href="/assets/themes.css?v=afafd87f">
+<link rel="stylesheet" href="/assets/site.css?v=afafd87f">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
-<link rel="stylesheet" href="/assets/graph.css?v=e1ce531d">
+<link rel="stylesheet" href="/assets/graph.css?v=afafd87f">
 
 
 
@@ -162,7 +162,7 @@
     <p class="graph-kicker"><span class="dot"></span>KNOWLEDGE ATLAS · 3D</p>
     <h1>知识图谱</h1>
     <p class="graph-lede">
-      7 篇文章、5 个项目、21 个标签，铺成一座三维书库。
+      12 篇文章、3 个项目、25 个标签，铺成一座三维书库。
       按住书脊可以把书抽出来，松手它就自己滑回架上；拖空白处转动书架，滚轮推拉镜头。
       共用标签的条目之间会连出弧线 —— 悬停任意一本，只看它牵出的关系。
     </p>
@@ -245,9 +245,9 @@
         </span>
       </a>
       
-      <a class="gcard gcl-2" href="/posts/quadruped-mpc-wbc/"
-         data-idx="2" data-kind="post" data-year="2026" data-cloth="2"
-         data-date="2026-03-08" data-tags="四足|运动控制|MPC|WBC">
+      <a class="gcard gcl-3" href="/posts/quadruped-mpc-kinematics/"
+         data-idx="2" data-kind="post" data-year="2026" data-cloth="3"
+         data-date="2026-03-08" data-tags="四足|运动控制|MPC|运动学">
         <span class="gcard-frame" aria-hidden="true"></span>
         <span class="gcard-head" aria-hidden="true"></span>
         <span class="gcard-edge" aria-hidden="true"></span>
@@ -256,17 +256,36 @@
             <span class="gcard-kind">文章</span>
             <span class="gcard-date">2026 年 3 月 8 日</span>
           </span>
-          <span class="gcard-title">四足运控：MPC 与 WBC 的分层结构</span>
-          <span class="gcard-sum">梳理单刚体 MPC 与全身控制的模型边界、接触约束和接口约定，说明哪些近似成立、哪些结果必须通过求解与实机验证。</span>
+          <span class="gcard-title">四足运控：MPC 代价函数推导与腿部正逆运动学</span>
+          <span class="gcard-sum">把 MPC 从状态转移方程推到有限时域 QP 的代价函数，并解释为什么直接对输入加权会留下稳态误差、改用输入增量就能修掉；后半篇从单腿三个关节的变换矩阵推出足端正运动学，再从足端位置反解关节角。</span>
           <span class="gcard-foot">
-            <span class="gcard-tag">四足</span><span class="gcard-tag">运动控制</span><span class="gcard-tag">MPC</span><span class="gcard-tag">WBC</span>
+            <span class="gcard-tag">四足</span><span class="gcard-tag">运动控制</span><span class="gcard-tag">MPC</span><span class="gcard-tag">运动学</span>
           </span>
         </span>
       </a>
       
-      <a class="gcard gcl-1" href="/posts/humanoid-rl-sim2real/"
-         data-idx="3" data-kind="post" data-year="2026" data-cloth="1"
-         data-date="2026-02-14" data-tags="人形|强化学习|sim2real">
+      <a class="gcard gcl-2" href="/posts/small-humanoid-consensus/"
+         data-idx="3" data-kind="post" data-year="2026" data-cloth="2"
+         data-date="2026-02-20" data-tags="人形|强化学习|系统工程">
+        <span class="gcard-frame" aria-hidden="true"></span>
+        <span class="gcard-head" aria-hidden="true"></span>
+        <span class="gcard-edge" aria-hidden="true"></span>
+        <span class="gcard-body">
+          <span class="gcard-top">
+            <span class="gcard-kind">文章</span>
+            <span class="gcard-date">2026 年 2 月 20 日</span>
+          </span>
+          <span class="gcard-title">小型人形机器人的结构、硬件与算法共识</span>
+          <span class="gcard-sum">把市面上四款小型人形机器人（G1 / PM01 / T1 / X2）的公开规格摆在一起看：关节数与运动空间、算力与传感器配置、电池与电机选型，以及它们在 SDK 通讯、状态机和行走算法上不约而同的选择。</span>
+          <span class="gcard-foot">
+            <span class="gcard-tag">人形</span><span class="gcard-tag">强化学习</span><span class="gcard-tag">系统工程</span>
+          </span>
+        </span>
+      </a>
+      
+      <a class="gcard gcl-2" href="/posts/humanoid-0-to-1-toolchain/"
+         data-idx="4" data-kind="post" data-year="2026" data-cloth="2"
+         data-date="2026-02-14" data-tags="人形|工具链|DDS|仿真">
         <span class="gcard-frame" aria-hidden="true"></span>
         <span class="gcard-head" aria-hidden="true"></span>
         <span class="gcard-edge" aria-hidden="true"></span>
@@ -275,16 +294,16 @@
             <span class="gcard-kind">文章</span>
             <span class="gcard-date">2026 年 2 月 14 日</span>
           </span>
-          <span class="gcard-title">人形机器人 RL：从 Isaac 训练到实机部署</span>
-          <span class="gcard-sum">把策略部署拆成观测约定、动作映射、导出一致性与闭环验证，避免把所有实机问题都归因于 sim2real gap。</span>
+          <span class="gcard-title">小型人形机器人 0→1：从 URDF 到真机部署的工具链</span>
+          <span class="gcard-sum">把一台小型人形机器人从结构图纸做到能跑策略，中间要过的每一道工具：URDF 导出后怎么查零件与关节、用 IDL + Fast DDS 设计通讯 SDK、怎么在 MuJoCo 里提前验证算法所需的硬件频率与鲁棒性、真机后台的分层架构，以及仿真到真机不改代码的部署方式。</span>
           <span class="gcard-foot">
-            <span class="gcard-tag">人形</span><span class="gcard-tag">强化学习</span><span class="gcard-tag">sim2real</span>
+            <span class="gcard-tag">人形</span><span class="gcard-tag">工具链</span><span class="gcard-tag">DDS</span><span class="gcard-tag">仿真</span>
           </span>
         </span>
       </a>
       
       <a class="gcard gcl-1" href="/posts/arm-impedance-control/"
-         data-idx="4" data-kind="post" data-year="2026" data-cloth="1"
+         data-idx="5" data-kind="post" data-year="2026" data-cloth="1"
          data-date="2026-01-22" data-tags="机械臂|运动控制|力控">
         <span class="gcard-frame" aria-hidden="true"></span>
         <span class="gcard-head" aria-hidden="true"></span>
@@ -302,8 +321,27 @@
         </span>
       </a>
       
+      <a class="gcard gcl-4" href="/posts/sam3-foundationpose-6d-pose/"
+         data-idx="6" data-kind="post" data-year="2025" data-cloth="4"
+         data-date="2025-12-26" data-tags="机器视觉|机械臂|ROS2">
+        <span class="gcard-frame" aria-hidden="true"></span>
+        <span class="gcard-head" aria-hidden="true"></span>
+        <span class="gcard-edge" aria-hidden="true"></span>
+        <span class="gcard-body">
+          <span class="gcard-top">
+            <span class="gcard-kind">文章</span>
+            <span class="gcard-date">2025 年 12 月 26 日</span>
+          </span>
+          <span class="gcard-title">用 SAM3 与 FoundationPose 做工件 6D 姿态估计</span>
+          <span class="gcard-sum">免训练的 6D 姿态估计路线：SAM3 负责按语义把工件分出来，FoundationPose 只在给 CAD 数模和少量参考图的前提下估计并跟踪位姿。记录显存与耗时实测、姿态注册的旋转网格参数怎么调，以及精度不够时几条可落地的改进方向。</span>
+          <span class="gcard-foot">
+            <span class="gcard-tag">机器视觉</span><span class="gcard-tag">机械臂</span><span class="gcard-tag">ROS2</span>
+          </span>
+        </span>
+      </a>
+      
       <a class="gcard gcl-3" href="/posts/realtime-control-loop/"
-         data-idx="5" data-kind="post" data-year="2025" data-cloth="3"
+         data-idx="7" data-kind="post" data-year="2025" data-cloth="3"
          data-date="2025-12-18" data-tags="实时系统|ROS2|运控">
         <span class="gcard-frame" aria-hidden="true"></span>
         <span class="gcard-head" aria-hidden="true"></span>
@@ -321,8 +359,65 @@
         </span>
       </a>
       
+      <a class="gcard gcl-3" href="/posts/cpp-python-code-style/"
+         data-idx="8" data-kind="post" data-year="2025" data-cloth="3"
+         data-date="2025-10-12" data-tags="C++|Python|系统工程">
+        <span class="gcard-frame" aria-hidden="true"></span>
+        <span class="gcard-head" aria-hidden="true"></span>
+        <span class="gcard-edge" aria-hidden="true"></span>
+        <span class="gcard-body">
+          <span class="gcard-top">
+            <span class="gcard-kind">文章</span>
+            <span class="gcard-date">2025 年 10 月 12 日</span>
+          </span>
+          <span class="gcard-title">C++ / Python 代码规范</span>
+          <span class="gcard-sum">一份可以贴进项目仓库的代码规范：头文件自给自足与 include 顺序、命名空间与静态变量、类的隐式转换与继承、函数签名怎么设计、命名约定，以及平台相关代码不能假设什么。核心是「正确性优先，必要时才为优化让路」。</span>
+          <span class="gcard-foot">
+            <span class="gcard-tag">C++</span><span class="gcard-tag">Python</span><span class="gcard-tag">系统工程</span>
+          </span>
+        </span>
+      </a>
+      
+      <a class="gcard gcl-4" href="/posts/cpp-toolchain/"
+         data-idx="9" data-kind="post" data-year="2025" data-cloth="4"
+         data-date="2025-09-08" data-tags="工具|C++|系统工程">
+        <span class="gcard-frame" aria-hidden="true"></span>
+        <span class="gcard-head" aria-hidden="true"></span>
+        <span class="gcard-edge" aria-hidden="true"></span>
+        <span class="gcard-body">
+          <span class="gcard-top">
+            <span class="gcard-kind">文章</span>
+            <span class="gcard-date">2025 年 9 月 8 日</span>
+          </span>
+          <span class="gcard-title">C++ 工程工具链：构建、调试、依赖与代码质量</span>
+          <span class="gcard-sum">把一套能长期维护的 C++ 工程该配的东西过一遍：构建系统怎么选、调试与分析工具各自回答什么问题、依赖怎么管，以及 clang-tidy 与 clang-format 两份可以直接拿去用的配置。</span>
+          <span class="gcard-foot">
+            <span class="gcard-tag">工具</span><span class="gcard-tag">C++</span><span class="gcard-tag">系统工程</span>
+          </span>
+        </span>
+      </a>
+      
+      <a class="gcard gcl-4" href="/posts/parallel-ankle-kinematics/"
+         data-idx="10" data-kind="post" data-year="2025" data-cloth="4"
+         data-date="2025-07-20" data-tags="运动控制|运动学|人形">
+        <span class="gcard-frame" aria-hidden="true"></span>
+        <span class="gcard-head" aria-hidden="true"></span>
+        <span class="gcard-edge" aria-hidden="true"></span>
+        <span class="gcard-body">
+          <span class="gcard-top">
+            <span class="gcard-kind">文章</span>
+            <span class="gcard-date">2025 年 7 月 20 日</span>
+          </span>
+          <span class="gcard-title">脚踝并联机构：正逆运动学与静力学解算</span>
+          <span class="gcard-sum">URDF 描述不了并联结构，电机角度和脚底欧拉角之间的映射只能自己解。记录两条路：采数据做符号回归拟合，以及从几何关系推出雅可比矩阵后迭代逼近，最后用虚功原理把末端力矩换算成电机力矩。</span>
+          <span class="gcard-foot">
+            <span class="gcard-tag">运动控制</span><span class="gcard-tag">运动学</span><span class="gcard-tag">人形</span>
+          </span>
+        </span>
+      </a>
+      
       <a class="gcard gcl-3 is-archived" href="/posts/legacy-gait-tuning/"
-         data-idx="6" data-kind="post" data-year="2023" data-cloth="3"
+         data-idx="11" data-kind="post" data-year="2023" data-cloth="3"
          data-date="2023-06-11" data-tags="四足|步态|调参">
         <span class="gcard-frame" aria-hidden="true"></span>
         <span class="gcard-head" aria-hidden="true"></span>
@@ -341,7 +436,7 @@
       </a>
       
       <a class="gcard gcl-5" href="/projects/git-vis/"
-         data-idx="7" data-kind="project" data-year="2026" data-cloth="5"
+         data-idx="12" data-kind="project" data-year="2026" data-cloth="5"
          data-date="2026-09-15" data-tags="工具|git|可视化">
         <span class="gcard-frame" aria-hidden="true"></span>
         <span class="gcard-head" aria-hidden="true"></span>
@@ -360,7 +455,7 @@
       </a>
       
       <a class="gcard gcl-5" href="/projects/dds-middleware-kit/"
-         data-idx="8" data-kind="project" data-year="2026" data-cloth="5"
+         data-idx="13" data-kind="project" data-year="2026" data-cloth="5"
          data-date="2026-04-02" data-tags="DDS|中间件|系统工程">
         <span class="gcard-frame" aria-hidden="true"></span>
         <span class="gcard-head" aria-hidden="true"></span>
@@ -378,46 +473,8 @@
         </span>
       </a>
       
-      <a class="gcard gcl-2" href="/projects/quadruped-wbc/"
-         data-idx="9" data-kind="project" data-year="2026" data-cloth="2"
-         data-date="2026-03-12" data-tags="四足|运动控制|MPC|WBC">
-        <span class="gcard-frame" aria-hidden="true"></span>
-        <span class="gcard-head" aria-hidden="true"></span>
-        <span class="gcard-edge" aria-hidden="true"></span>
-        <span class="gcard-body">
-          <span class="gcard-top">
-            <span class="gcard-kind">项目</span>
-            <span class="gcard-date">2026 年 3 月 12 日</span>
-          </span>
-          <span class="gcard-title">quadruped-wbc</span>
-          <span class="gcard-sum">梳理四足 MPC 与 WBC 的职责、带时序的参考接口，以及接触切换和求解失败的处理。</span>
-          <span class="gcard-foot">
-            <span class="gcard-tag">四足</span><span class="gcard-tag">运动控制</span><span class="gcard-tag">MPC</span><span class="gcard-tag">WBC</span>
-          </span>
-        </span>
-      </a>
-      
-      <a class="gcard gcl-1" href="/projects/humanoid-rl-pipeline/"
-         data-idx="10" data-kind="project" data-year="2026" data-cloth="1"
-         data-date="2026-02-20" data-tags="人形|强化学习|sim2real">
-        <span class="gcard-frame" aria-hidden="true"></span>
-        <span class="gcard-head" aria-hidden="true"></span>
-        <span class="gcard-edge" aria-hidden="true"></span>
-        <span class="gcard-body">
-          <span class="gcard-top">
-            <span class="gcard-kind">项目</span>
-            <span class="gcard-date">2026 年 2 月 20 日</span>
-          </span>
-          <span class="gcard-title">humanoid-rl-pipeline</span>
-          <span class="gcard-sum">用部署契约连接训练、导出、回放和实机运行，让观测与动作在每个环节保持一致。</span>
-          <span class="gcard-foot">
-            <span class="gcard-tag">人形</span><span class="gcard-tag">强化学习</span><span class="gcard-tag">sim2real</span>
-          </span>
-        </span>
-      </a>
-      
       <a class="gcard gcl-2" href="/projects/arm-impedance-ctrl/"
-         data-idx="11" data-kind="project" data-year="2026" data-cloth="2"
+         data-idx="14" data-kind="project" data-year="2026" data-cloth="2"
          data-date="2026-01-28" data-tags="机械臂|力控|运动控制">
         <span class="gcard-frame" aria-hidden="true"></span>
         <span class="gcard-head" aria-hidden="true"></span>
@@ -450,64 +507,68 @@
   <div class="graph-legend" id="graph-legend">
     <span class="graph-legend-label">标签</span>
     
+    <button type="button" class="graph-tag-chip" data-tag="系统工程" style="--n:5">
+      系统工程<i>5</i>
+    </button>
+    
     <button type="button" class="graph-tag-chip" data-tag="运动控制" style="--n:4">
       运动控制<i>4</i>
     </button>
     
-    <button type="button" class="graph-tag-chip" data-tag="四足" style="--n:3">
-      四足<i>3</i>
+    <button type="button" class="graph-tag-chip" data-tag="DDS" style="--n:3">
+      DDS<i>3</i>
     </button>
     
-    <button type="button" class="graph-tag-chip" data-tag="DDS" style="--n:2">
-      DDS<i>2</i>
+    <button type="button" class="graph-tag-chip" data-tag="人形" style="--n:3">
+      人形<i>3</i>
     </button>
     
-    <button type="button" class="graph-tag-chip" data-tag="MPC" style="--n:2">
-      MPC<i>2</i>
+    <button type="button" class="graph-tag-chip" data-tag="工具" style="--n:3">
+      工具<i>3</i>
     </button>
     
-    <button type="button" class="graph-tag-chip" data-tag="WBC" style="--n:2">
-      WBC<i>2</i>
+    <button type="button" class="graph-tag-chip" data-tag="机械臂" style="--n:3">
+      机械臂<i>3</i>
     </button>
     
-    <button type="button" class="graph-tag-chip" data-tag="sim2real" style="--n:2">
-      sim2real<i>2</i>
+    <button type="button" class="graph-tag-chip" data-tag="C++" style="--n:2">
+      C++<i>2</i>
+    </button>
+    
+    <button type="button" class="graph-tag-chip" data-tag="ROS2" style="--n:2">
+      ROS2<i>2</i>
     </button>
     
     <button type="button" class="graph-tag-chip" data-tag="中间件" style="--n:2">
       中间件<i>2</i>
     </button>
     
-    <button type="button" class="graph-tag-chip" data-tag="人形" style="--n:2">
-      人形<i>2</i>
-    </button>
-    
     <button type="button" class="graph-tag-chip" data-tag="力控" style="--n:2">
       力控<i>2</i>
     </button>
     
-    <button type="button" class="graph-tag-chip" data-tag="工具" style="--n:2">
-      工具<i>2</i>
+    <button type="button" class="graph-tag-chip" data-tag="四足" style="--n:2">
+      四足<i>2</i>
     </button>
     
-    <button type="button" class="graph-tag-chip" data-tag="强化学习" style="--n:2">
-      强化学习<i>2</i>
+    <button type="button" class="graph-tag-chip" data-tag="运动学" style="--n:2">
+      运动学<i>2</i>
     </button>
     
-    <button type="button" class="graph-tag-chip" data-tag="机械臂" style="--n:2">
-      机械臂<i>2</i>
+    <button type="button" class="graph-tag-chip" data-tag="MPC" style="--n:1">
+      MPC<i>1</i>
     </button>
     
-    <button type="button" class="graph-tag-chip" data-tag="系统工程" style="--n:2">
-      系统工程<i>2</i>
-    </button>
-    
-    <button type="button" class="graph-tag-chip" data-tag="ROS2" style="--n:1">
-      ROS2<i>1</i>
+    <button type="button" class="graph-tag-chip" data-tag="Python" style="--n:1">
+      Python<i>1</i>
     </button>
     
     <button type="button" class="graph-tag-chip" data-tag="git" style="--n:1">
       git<i>1</i>
+    </button>
+    
+    <button type="button" class="graph-tag-chip" data-tag="仿真" style="--n:1">
+      仿真<i>1</i>
     </button>
     
     <button type="button" class="graph-tag-chip" data-tag="可视化" style="--n:1">
@@ -518,8 +579,20 @@
       实时系统<i>1</i>
     </button>
     
+    <button type="button" class="graph-tag-chip" data-tag="工具链" style="--n:1">
+      工具链<i>1</i>
+    </button>
+    
+    <button type="button" class="graph-tag-chip" data-tag="强化学习" style="--n:1">
+      强化学习<i>1</i>
+    </button>
+    
     <button type="button" class="graph-tag-chip" data-tag="本站" style="--n:1">
       本站<i>1</i>
+    </button>
+    
+    <button type="button" class="graph-tag-chip" data-tag="机器视觉" style="--n:1">
+      机器视觉<i>1</i>
     </button>
     
     <button type="button" class="graph-tag-chip" data-tag="步态" style="--n:1">
@@ -538,7 +611,7 @@
 
   <noscript>
     <ul class="graph-plain">
-      <li><a href="/posts/runnable-demos/">文章 · 可运行示例：让文章里的代码真的跑起来</a></li><li><a href="/posts/dds-qos-tuning/">文章 · DDS 选型与调参：从 QoS 到零拷贝</a></li><li><a href="/posts/quadruped-mpc-wbc/">文章 · 四足运控：MPC 与 WBC 的分层结构</a></li><li><a href="/posts/humanoid-rl-sim2real/">文章 · 人形机器人 RL：从 Isaac 训练到实机部署</a></li><li><a href="/posts/arm-impedance-control/">文章 · 机械臂运控：阻抗控制与力位混合</a></li><li><a href="/posts/realtime-control-loop/">文章 · 运控回路的实时性：1 kHz 到底能不能跑满</a></li><li><a href="/posts/legacy-gait-tuning/">文章 · 早期四足步态调参笔记（已归档）</a></li><li><a href="/projects/git-vis/">项目 · git-vis</a></li><li><a href="/projects/dds-middleware-kit/">项目 · dds-middleware-kit</a></li><li><a href="/projects/quadruped-wbc/">项目 · quadruped-wbc</a></li><li><a href="/projects/humanoid-rl-pipeline/">项目 · humanoid-rl-pipeline</a></li><li><a href="/projects/arm-impedance-ctrl/">项目 · arm-impedance-ctrl</a></li>
+      <li><a href="/posts/runnable-demos/">文章 · 可运行示例：让文章里的代码真的跑起来</a></li><li><a href="/posts/dds-qos-tuning/">文章 · DDS 选型与调参：从 QoS 到零拷贝</a></li><li><a href="/posts/quadruped-mpc-kinematics/">文章 · 四足运控：MPC 代价函数推导与腿部正逆运动学</a></li><li><a href="/posts/small-humanoid-consensus/">文章 · 小型人形机器人的结构、硬件与算法共识</a></li><li><a href="/posts/humanoid-0-to-1-toolchain/">文章 · 小型人形机器人 0→1：从 URDF 到真机部署的工具链</a></li><li><a href="/posts/arm-impedance-control/">文章 · 机械臂运控：阻抗控制与力位混合</a></li><li><a href="/posts/sam3-foundationpose-6d-pose/">文章 · 用 SAM3 与 FoundationPose 做工件 6D 姿态估计</a></li><li><a href="/posts/realtime-control-loop/">文章 · 运控回路的实时性：1 kHz 到底能不能跑满</a></li><li><a href="/posts/cpp-python-code-style/">文章 · C++ / Python 代码规范</a></li><li><a href="/posts/cpp-toolchain/">文章 · C++ 工程工具链：构建、调试、依赖与代码质量</a></li><li><a href="/posts/parallel-ankle-kinematics/">文章 · 脚踝并联机构：正逆运动学与静力学解算</a></li><li><a href="/posts/legacy-gait-tuning/">文章 · 早期四足步态调参笔记（已归档）</a></li><li><a href="/projects/git-vis/">项目 · git-vis</a></li><li><a href="/projects/dds-middleware-kit/">项目 · dds-middleware-kit</a></li><li><a href="/projects/arm-impedance-ctrl/">项目 · arm-impedance-ctrl</a></li>
     </ul>
   </noscript>
 </section>
@@ -584,9 +657,9 @@
       </div>
 
       <dl class="footer-stats">
-        <div><dt>7</dt><dd>篇文章</dd></div>
+        <div><dt>12</dt><dd>篇文章</dd></div>
         <div><dt>19</dt><dd>篇文档</dd></div>
-        <div><dt>5</dt><dd>个项目</dd></div>
+        <div><dt>3</dt><dd>个项目</dd></div>
         <div><dt>204</dt><dd>页幻灯片</dd></div>
       </dl>
     </div>
@@ -605,8 +678,8 @@
           <span class="d">2026 年 4 月 12 日</span>
         </a>
         
-        <a class="footer-link" href="/posts/quadruped-mpc-wbc/">
-          <span class="t">四足运控：MPC 与 WBC 的分层结构</span>
+        <a class="footer-link" href="/posts/quadruped-mpc-kinematics/">
+          <span class="t">四足运控：MPC 代价函数推导与腿部正逆运动学</span>
           <span class="d">2026 年 3 月 8 日</span>
         </a>
         
@@ -669,7 +742,7 @@
       <span class="sep" aria-hidden="true">·</span>
       <span>除注明外均为原创，转载请注明出处</span>
       <span class="sep" aria-hidden="true">·</span>
-      <span>构建于 <time datetime="2026-09-24">2026-09-24</time></span>
+      <span>构建于 <time datetime="2026-09-29">2026-09-29</time></span>
     </p>
     <p class="footer-meta">
       <span class="footer-meta-label">字体</span>
@@ -999,8 +1072,8 @@
 
 <script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
 
-<script src="/assets/site.js?v=e1ce531d" defer></script>
-<script src="/assets/graph.js?v=e1ce531d" defer></script>
+<script src="/assets/site.js?v=afafd87f" defer></script>
+<script src="/assets/graph.js?v=afafd87f" defer></script>
 
 </body>
 </html>
