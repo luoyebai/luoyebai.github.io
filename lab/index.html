@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="zh-CN"
+      data-theme="dusk"
+      data-mode="dark"
+      data-bg="on"
+      data-bgmode="image"
+      data-tilt="12"
+      data-glass="med"
+      data-font="serif"
+      data-motion="on"
+      data-width="normal"
+      data-cursor="glow"
+      data-default-cursor="glow"
+      data-root=""
+      data-search-url="/search-index.json">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>机器人实验室 · 洛叶白</title>
+<meta name="description" content="调一组参数，看一次响应。用可以暂停、重置的浏览器实验，理解控制、通信与动画。">
+<meta name="author" content="洛叶白">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0b0d14" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f7f7f5" media="(prefers-color-scheme: light)">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="洛叶白">
+<meta property="og:title" content="机器人实验室">
+<meta property="og:description" content="调一组参数，看一次响应。用可以暂停、重置的浏览器实验，理解控制、通信与动画。">
+<meta property="og:url" content="https://luoyebai.github.io/lab/">
+
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://luoyebai.github.io/lab/">
+<link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
+
+<link rel="stylesheet" href="/assets/themes.css?v=82d4aca5">
+<link rel="stylesheet" href="/assets/site.css?v=82d4aca5">
+
+<noscript><style>.boot{display:none !important}</style></noscript>
+
+
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+
+
+
+<script>
+/* 在首次绘制前恢复外观偏好；URL 参数优先，便于分享特定主题的链接 */
+(function () {
+  var el = document.documentElement;
+  el.classList.add('js');   /* 只有 JS 可用时才启用进场动画的隐藏态 */
+  var compact = matchMedia('(pointer: coarse)').matches ||
+    (navigator.connection && navigator.connection.saveData) ||
+    (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
+    (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+  el.setAttribute('data-performance', compact ? 'compact' : 'standard');
+  var q = {};
+  try { new URLSearchParams(location.search).forEach(function (v, k) { q[k] = v; }); } catch (e) {}
+  var s = {};
+  try { s = JSON.parse(localStorage.getItem('blog.appearance') || '{}') || {}; } catch (e) {}
+  function pick(k) { return q[k] !== undefined ? q[k] : s[k]; }
+  el.setAttribute('data-focus', s.focus === 'on' ? 'on' : 'off');
+  ['theme', 'mode', 'bg', 'bgmode', 'tilt', 'glass', 'font', 'motion', 'width', 'cursor'].forEach(function (k) {
+    var v = pick(k);
+    if (k === 'cursor' && ['glow', 'on', 'off'].indexOf(v) === -1) return;
+    if (v) el.setAttribute('data-' + k, v);
+  });
+  var op = pick('bgOpacity');
+  if (op !== undefined && op !== '') el.style.setProperty('--bg-opacity', (Number(op) / 100).toFixed(3));
+  var bl = pick('bgBlur');
+  if (bl !== undefined && bl !== '') el.style.setProperty('--bg-blur', Number(bl) + 'px');
+  var sc = pick('scale');
+  if (sc !== undefined && sc !== '') el.style.setProperty('--font-scale', String(sc));
+  var ac = pick('accent');
+  if (ac) el.style.setProperty('--accent', ac);
+})();
+</script>
+</head>
+<body class="page-single page-lab">
+<a class="skip-link" href="#main">跳到正文</a>
+
+<div class="bg-layer" aria-hidden="true">
+  <div class="bg-image"></div>
+  <video class="bg-video" muted loop playsinline preload="none" disablepictureinpicture></video>
+  <div class="bg-scrim"></div>
+  <div class="bg-aurora"><span></span><span></span><span></span></div>
+  <div class="bg-grid"></div>
+  <div class="bg-vignette"></div>
+</div>
+<div class="grain" aria-hidden="true"></div>
+<div class="spotlight" aria-hidden="true"></div>
+<div class="scroll-progress" aria-hidden="true"><i></i></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">
+      <span class="brand-mark" aria-hidden="true">
+        <!-- 站点标记：两连杆机械臂（造型见 partials/mark.html，页脚用的是同一份） -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M2.6 20.6h5.6" stroke-width="2.2"/>
+  <path d="M7.9 15.9 11.6 6.6" stroke-width="2.8"/>
+  <path d="M13.4 7.2 19.2 11.4" stroke-width="2.8"/>
+  <circle cx="5.6" cy="17.6" r="2.9" fill="currentColor" stroke="none"/>
+  <circle cx="12.2" cy="6.4" r="2.3" fill="currentColor" stroke="none"/>
+  <circle cx="20.4" cy="12.2" r="1.8" fill="currentColor" stroke="none"/>
+</svg>
+
+      </span>
+      <span class="brand-text">
+        <b>洛叶白</b>
+        <i>luoyebai</i>
+      </span>
+    </a>
+
+    <nav class="nav-links" aria-label="主导航">
+      
+      <a href="/">首页</a>
+      
+      <a href="/posts/">文章</a>
+      
+      <a href="/projects/">项目</a>
+      
+      <a href="/docs/">文档</a>
+      
+      <a href="/lab/" class="is-active" aria-current="page">实验室</a>
+      
+      <a href="/graph/">图谱</a>
+      
+      <a href="/archive/">归档</a>
+      
+      <a href="/links/">一些网站</a>
+      
+      <a href="/about/">关于</a>
+      
+    </nav>
+
+    <div class="nav-actions">
+      <button class="icon-btn" type="button" data-open-search aria-label="搜索 (Ctrl+K)" title="搜索  Ctrl+K">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <circle cx="11" cy="11" r="6.5"/><path d="M16.2 16.2 21 21"/>
+        </svg>
+      </button>
+      <button class="icon-btn" type="button" data-toggle-mode aria-label="切换明暗" title="切换明暗">
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+        </svg>
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+          <circle cx="12" cy="12" r="4.2"/>
+          <path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4 17 7M7 17l-1.6 1.6"/>
+        </svg>
+      </button>
+      <button class="icon-btn" type="button" data-open-settings aria-label="外观设置" title="外观设置">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 7h10M18 7h2M4 17h4M12 17h8"/>
+          <circle cx="16" cy="7" r="2.2"/><circle cx="10" cy="17" r="2.2"/>
+        </svg>
+      </button>
+      <button class="icon-btn nav-burger" type="button" data-open-menu aria-label="菜单">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+
+<main id="main">
+
+
+<article class="post">
+  <header class="phero has-media">
+    
+    <div class="phero-media media-shim">
+      <img src="/assets/uploads/7286p3-7286p3-d0aaa302ed.webp"
+           alt="" aria-hidden="true"
+           width="2000" height="1125"
+           style="object-position: 50% 50%"
+           fetchpriority="high" decoding="async">
+    </div>
+    <span class="phero-scrim" aria-hidden="true"></span>
+    
+    <div class="phero-inner">
+      
+      
+      <h1 class="phero-title reveal">机器人实验室</h1>
+      
+      <p class="phero-lede">调一组参数，看一次响应。用可以暂停、重置的浏览器实验，理解控制、通信与动画。</p>
+      
+    </div>
+  </header>
+
+  <div class="post-layout">
+    
+    <aside class="post-aside">
+      <nav class="toc" data-toc aria-label="目录">
+        <p class="toc-title">目录</p>
+        <ul>
+          
+          <li class="toc-l2"><a href="#把控制环调稳">把控制环调稳</a></li>
+          
+          <li class="toc-l2"><a href="#计算与控制">计算与控制</a></li>
+          
+          <li class="toc-l2"><a href="#动画工具">动画工具</a></li>
+          
+          <li class="toc-l2"><a href="#休息一下">休息一下</a></li>
+          
+        </ul>
+      </nav>
+    </aside>
+    
+    <div class="post-main">
+      
+      <details class="mobile-toc">
+        <summary>本页目录</summary>
+        <nav aria-label="本页目录"><ul>
+          <li class="toc-l2"><a href="#把控制环调稳">把控制环调稳</a></li><li class="toc-l2"><a href="#计算与控制">计算与控制</a></li><li class="toc-l2"><a href="#动画工具">动画工具</a></li><li class="toc-l2"><a href="#休息一下">休息一下</a></li>
+        </ul></nav>
+      </details>
+      
+
+      <div class="prose reveal"><p>从下面的控制挑战开始，也可以直接打开一个小工具。每个实验都在浏览器里独立计算，先点代码面板上的 <strong>运行</strong>，再点实验里的 <strong>开始</strong>；离开画面会暂停动画，回来后继续。</p>
+<h2 id="把控制环调稳">把控制环调稳<a class="heading-anchor" href="#把控制环调稳" aria-label="锚点">#</a></h2>
+<p>让一维执行器从 <strong>0 m</strong> 移动到 <strong>1 m</strong>：先压住超调，再让它在目标附近稳定下来。切换关卡会重置参数；修改参数会暂停并重新准备这一轮，让每次比较使用相同起点。</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
+<thead><tr><th>关卡</th><th>第 2 秒发生什么</th><th>想一想</th></tr></thead>
+<tbody>
+<tr><td>01 · 基础响应</td><td>无额外变化，质量为 1 kg</td><td>为什么阻尼过小会反复摆动？</td></tr>
+<tr><td>02 · 带上负载</td><td>质量从 1 kg 增加到 1.8 kg</td><td>同一组参数，还能保持同样快的响应吗？</td></tr>
+<tr><td>03 · 迟到的反馈</td><td>反馈延迟从 0 增加到 100 ms</td><td>对过去的位置用力，会怎样？</td></tr>
+<tr><td>04 · 测量有噪声</td><td>位置测量叠加两种固定频率扰动，幅值之和不超过 9 mm</td><td>误差曲线里的细小抖动一定是真实运动吗？</td></tr>
+</tbody></table></div>
+<p><strong>通关条件：</strong> 模拟运行 10 秒，整轮超调不超过 15%，最后连续至少 2 秒满足位置误差 ≤ 2 cm、速度 ≤ 3 cm/s。绿色提示表示这一次模拟符合条件，不是控制器稳定性证明。</p>
+<div class="demo" data-demo="js"><div class="demo-head"><span class="demo-badge">可运行示例</span><span class="demo-lang">JavaScript</span><div class="demo-actions"><button class="demo-toggle" type="button" data-demo-toggle aria-expanded="false"><span data-demo-toggle-label>查看代码</span><svg class="demo-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button><button class="demo-run" type="button" data-demo-run><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg><span data-demo-run-label>运行</span></button><button class="demo-reset" type="button" data-demo-reset hidden>重置</button></div></div><pre class="code-pre" data-demo-code hidden><code class="language-js">demo<span class="tok-punct">.</span>root<span class="tok-punct">.</span>innerHTML <span class="tok-operator">=</span> <span class="tok-string">`
+&lt;style&gt;
+ .control-lab{padding:14px;border:1px solid var(--border-2,#354760);border-radius:16px;background:var(--surface,#101a28);font:13px/1.5 system-ui;color:var(--text,#e6efff)}
+ .control-lab *{box-sizing:border-box}.control-top{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.control-top strong{font-size:16px}.control-top select{max-width:100%;font-size:12px}
+ .control-lab canvas{width:100%;height:auto;margin:10px 0;border:1px solid #314458;background:#0c1624;border-radius:12px}
+ .control-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}.control-fields label{display:grid;grid-template-columns:1fr auto;gap:4px}.control-fields input{grid-column:1/-1;width:100%;min-width:0}.control-fields output{font-size:12px}
+ .control-actions{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}.control-actions button{min-height:38px;font-size:12px}.control-actions button:first-child{background:#244e51;color:#e7fffa;border-color:#5ac8b5}
+ .control-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:11px;color:var(--text-2,#b6c6db)}.control-stats output{display:block;font-size:17px;color:var(--accent-2,#7fe4d3)}
+ .control-message{min-height:38px;margin:8px 0 0;font-size:12px;color:var(--text-2,#b6c6db)}.control-hint{font-size:11px;color:var(--text-3,#92a4bc);margin:0}
+ @media(max-width:380px){.control-fields{gap:6px}.control-stats output{font-size:15px}.control-top select{width:100%}}
+&lt;/style&gt;
+&lt;section class=&quot;control-lab&quot; aria-label=&quot;一维控制挑战&quot;&gt;
+ &lt;div class=&quot;control-top&quot;&gt;&lt;strong&gt;CONTROL / 调稳这一程&lt;/strong&gt;&lt;select id=&quot;control-level&quot; aria-label=&quot;选择控制关卡&quot;&gt;&lt;option value=&quot;base&quot;&gt;01 · 基础响应&lt;/option&gt;&lt;option value=&quot;load&quot;&gt;02 · 带上负载&lt;/option&gt;&lt;option value=&quot;delay&quot;&gt;03 · 迟到的反馈&lt;/option&gt;&lt;option value=&quot;noise&quot;&gt;04 · 测量有噪声&lt;/option&gt;&lt;/select&gt;&lt;/div&gt;
+ &lt;canvas id=&quot;control-canvas&quot; width=&quot;640&quot; height=&quot;190&quot; role=&quot;img&quot; aria-label=&quot;执行器位置动画与响应曲线：青色为真实位置，虚线为一米目标，紫色为测量值&quot;&gt;&lt;/canvas&gt;
+ &lt;div class=&quot;control-fields&quot;&gt;
+  &lt;label&gt;刚度 K &lt;output id=&quot;control-k-value&quot;&gt;&lt;/output&gt;&lt;input id=&quot;control-k&quot; aria-label=&quot;刚度，牛顿每米&quot; type=&quot;range&quot; min=&quot;4&quot; max=&quot;40&quot; step=&quot;1&quot; value=&quot;18&quot;&gt;&lt;/label&gt;
+  &lt;label&gt;阻尼 D &lt;output id=&quot;control-d-value&quot;&gt;&lt;/output&gt;&lt;input id=&quot;control-d&quot; aria-label=&quot;阻尼，牛顿秒每米&quot; type=&quot;range&quot; min=&quot;1&quot; max=&quot;18&quot; step=&quot;0.5&quot; value=&quot;2&quot;&gt;&lt;/label&gt;
+ &lt;/div&gt;
+ &lt;div class=&quot;control-actions&quot;&gt;&lt;button id=&quot;control-start&quot; type=&quot;button&quot;&gt;开始挑战&lt;/button&gt;&lt;button id=&quot;control-pause&quot; type=&quot;button&quot; disabled&gt;暂停&lt;/button&gt;&lt;button id=&quot;control-reset&quot; type=&quot;button&quot;&gt;重置本关&lt;/button&gt;&lt;/div&gt;
+ &lt;div class=&quot;control-stats&quot;&gt;&lt;span&gt;模拟时间&lt;output id=&quot;control-time&quot;&gt;0.0 / 10 s&lt;/output&gt;&lt;/span&gt;&lt;span&gt;整轮最大超调&lt;output id=&quot;control-peak&quot;&gt;0.0%&lt;/output&gt;&lt;/span&gt;&lt;span&gt;当前位置误差&lt;output id=&quot;control-error&quot;&gt;100.0 cm&lt;/output&gt;&lt;/span&gt;&lt;/div&gt;
+ &lt;p class=&quot;control-message&quot; id=&quot;control-message&quot; role=&quot;status&quot; aria-live=&quot;polite&quot;&gt;先选参数，再开始。原生滑块支持方向键，也可触屏拖动。&lt;/p&gt;
+ &lt;p class=&quot;control-hint&quot;&gt;青色：真实位置 · 紫色：测量位置 · 虚线：目标。这里是简化模型，不连接硬件。&lt;/p&gt;
+&lt;/section&gt;`</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> controlNode <span class="tok-operator">=</span> id <span class="tok-operator">=&gt;</span> demo<span class="tok-punct">.</span>root<span class="tok-punct">.</span><span class="tok-function">querySelector</span><span class="tok-punct">(</span><span class="tok-string">&#x27;#control-&#x27;</span> <span class="tok-operator">+</span> id<span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> controlCanvas <span class="tok-operator">=</span> <span class="tok-function">controlNode</span><span class="tok-punct">(</span><span class="tok-string">&#x27;canvas&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">,</span> controlPaint <span class="tok-operator">=</span> controlCanvas<span class="tok-punct">.</span><span class="tok-function">getContext</span><span class="tok-punct">(</span><span class="tok-string">&#x27;2d&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> controlK <span class="tok-operator">=</span> <span class="tok-function">controlNode</span><span class="tok-punct">(</span><span class="tok-string">&#x27;k&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">,</span> controlD <span class="tok-operator">=</span> <span class="tok-function">controlNode</span><span class="tok-punct">(</span><span class="tok-string">&#x27;d&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">,</span> controlLevel <span class="tok-operator">=</span> <span class="tok-function">controlNode</span><span class="tok-punct">(</span><span class="tok-string">&#x27;level&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">const</span> controlStep <span class="tok-operator">=</span> <span class="tok-number">0.005</span><span class="tok-punct">,</span> controlDuration <span class="tok-operator">=</span> <span class="tok-number">10</span><span class="tok-punct">;</span>
+<span class="tok-keyword">function</span> <span class="tok-function">newChallenge</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+  <span class="tok-keyword">return</span> <span class="tok-punct">{</span> x<span class="tok-operator">:</span> <span class="tok-number">0</span><span class="tok-punct">,</span> v<span class="tok-operator">:</span> <span class="tok-number">0</span><span class="tok-punct">,</span> time<span class="tok-operator">:</span> <span class="tok-number">0</span><span class="tok-punct">,</span> steps<span class="tok-operator">:</span> <span class="tok-number">0</span><span class="tok-punct">,</span> pending<span class="tok-operator">:</span> <span class="tok-number">0</span><span class="tok-punct">,</span> peak<span class="tok-operator">:</span> <span class="tok-number">0</span><span class="tok-punct">,</span> stable<span class="tok-operator">:</span> <span class="tok-number">0</span><span class="tok-punct">,</span> measured<span class="tok-operator">:</span> <span class="tok-number">0</span><span class="tok-punct">,</span>
+    mode<span class="tok-operator">:</span> <span class="tok-string">&#x27;ready&#x27;</span><span class="tok-punct">,</span> history<span class="tok-operator">:</span> <span class="tok-punct">[</span><span class="tok-punct">{</span> x<span class="tok-operator">:</span> <span class="tok-number">0</span><span class="tok-punct">,</span> v<span class="tok-operator">:</span> <span class="tok-number">0</span> <span class="tok-punct">}</span><span class="tok-punct">]</span><span class="tok-punct">,</span> trace<span class="tok-operator">:</span> <span class="tok-punct">[</span><span class="tok-punct">{</span> t<span class="tok-operator">:</span> <span class="tok-number">0</span><span class="tok-punct">,</span> x<span class="tok-operator">:</span> <span class="tok-number">0</span><span class="tok-punct">,</span> measured<span class="tok-operator">:</span> <span class="tok-number">0</span> <span class="tok-punct">}</span><span class="tok-punct">]</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span>
+<span class="tok-keyword">function</span> <span class="tok-function">controlParameters</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+  <span class="tok-keyword">return</span> <span class="tok-punct">{</span> k<span class="tok-operator">:</span> <span class="tok-builtin">Math</span><span class="tok-punct">.</span><span class="tok-function">max</span><span class="tok-punct">(</span><span class="tok-number">4</span><span class="tok-punct">,</span> <span class="tok-builtin">Math</span><span class="tok-punct">.</span><span class="tok-function">min</span><span class="tok-punct">(</span><span class="tok-number">40</span><span class="tok-punct">,</span> <span class="tok-builtin">Number</span><span class="tok-punct">(</span>controlK<span class="tok-punct">.</span>value<span class="tok-punct">)</span> <span class="tok-operator">||</span> <span class="tok-number">18</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">,</span>
+    d<span class="tok-operator">:</span> <span class="tok-builtin">Math</span><span class="tok-punct">.</span><span class="tok-function">max</span><span class="tok-punct">(</span><span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-builtin">Math</span><span class="tok-punct">.</span><span class="tok-function">min</span><span class="tok-punct">(</span><span class="tok-number">18</span><span class="tok-punct">,</span> <span class="tok-builtin">Number</span><span class="tok-punct">(</span>controlD<span class="tok-punct">.</span>value<span class="tok-punct">)</span> <span class="tok-operator">||</span> <span class="tok-number">2</span><span class="tok-punct">)</span><span class="tok-punct">)</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span>
+<span class="tok-comment">// Fixed 5 ms integration steps; rendering speed never changes the experiment.</span>
+<span class="tok-keyword">function</span> <span class="tok-function">integrateChallenge</span><span class="tok-punct">(</span>s<span class="tok-punct">,</span> p<span class="tok-punct">,</span> level<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+  <span class="tok-keyword">if</span> <span class="tok-punct">(</span>s<span class="tok-punct">.</span>mode <span class="tok-operator">!==</span> <span class="tok-string">&#x27;running&#x27;</span><span class="tok-punct">)</span> <span class="tok-keyword">return</span><span class="tok-punct">;</span>
+  s<span class="tok-punct">.</span>steps <span class="tok-operator">+=</span> <span class="tok-number">1</span><span class="tok-punct">;</span> s<span class="tok-punct">.</span>time <span class="tok-operator">=</span> s<span class="tok-punct">.</span>steps <span class="tok-operator">*</span> controlStep<span class="tok-punct">;</span>
+  <span class="tok-keyword">const</span> changed <span class="tok-operator">=</span> s<span class="tok-punct">.</span>time <span class="tok-operator">&gt;=</span> <span class="tok-number">2</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">const</span> mass <span class="tok-operator">=</span> level <span class="tok-operator">===</span> <span class="tok-string">&#x27;load&#x27;</span> <span class="tok-operator">&amp;&amp;</span> changed <span class="tok-operator">?</span> <span class="tok-number">1.8</span> <span class="tok-operator">:</span> <span class="tok-number">1</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">const</span> delaySteps <span class="tok-operator">=</span> level <span class="tok-operator">===</span> <span class="tok-string">&#x27;delay&#x27;</span> <span class="tok-operator">&amp;&amp;</span> changed <span class="tok-operator">?</span> <span class="tok-number">20</span> <span class="tok-operator">:</span> <span class="tok-number">0</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">const</span> past <span class="tok-operator">=</span> s<span class="tok-punct">.</span>history<span class="tok-punct">[</span><span class="tok-builtin">Math</span><span class="tok-punct">.</span><span class="tok-function">max</span><span class="tok-punct">(</span><span class="tok-number">0</span><span class="tok-punct">,</span> s<span class="tok-punct">.</span>history<span class="tok-punct">.</span>length <span class="tok-operator">-</span> <span class="tok-number">1</span> <span class="tok-operator">-</span> delaySteps<span class="tok-punct">)</span><span class="tok-punct">]</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">const</span> noise <span class="tok-operator">=</span> level <span class="tok-operator">===</span> <span class="tok-string">&#x27;noise&#x27;</span> <span class="tok-operator">&amp;&amp;</span> changed <span class="tok-operator">?</span> <span class="tok-number">0.006</span> <span class="tok-operator">*</span> <span class="tok-punct">(</span><span class="tok-builtin">Math</span><span class="tok-punct">.</span><span class="tok-function">sin</span><span class="tok-punct">(</span><span class="tok-number">43</span> <span class="tok-operator">*</span> s<span class="tok-punct">.</span>time<span class="tok-punct">)</span> <span class="tok-operator">+</span> <span class="tok-number">0.5</span> <span class="tok-operator">*</span> <span class="tok-builtin">Math</span><span class="tok-punct">.</span><span class="tok-function">sin</span><span class="tok-punct">(</span><span class="tok-number">71</span> <span class="tok-operator">*</span> s<span class="tok-punct">.</span>time<span class="tok-punct">)</span><span class="tok-punct">)</span> <span class="tok-operator">:</span> <span class="tok-number">0</span><span class="tok-punct">;</span>
+  s<span class="tok-punct">.</span>measured <span class="tok-operator">=</span> past<span class="tok-punct">.</span>x <span class="tok-operator">+</span> noise<span class="tok-punct">;</span>
+  <span class="tok-keyword">const</span> force <span class="tok-operator">=</span> <span class="tok-builtin">Math</span><span class="tok-punct">.</span><span class="tok-function">max</span><span class="tok-punct">(</span><span class="tok-operator">-</span><span class="tok-number">18</span><span class="tok-punct">,</span> <span class="tok-builtin">Math</span><span class="tok-punct">.</span><span class="tok-function">min</span><span class="tok-punct">(</span><span class="tok-number">18</span><span class="tok-punct">,</span> p<span class="tok-punct">.</span>k <span class="tok-operator">*</span> <span class="tok-punct">(</span><span class="tok-number">1</span> <span class="tok-operator">-</span> s<span class="tok-punct">.</span>measured<span class="tok-punct">)</span> <span class="tok-operator">-</span> p<span class="tok-punct">.</span>d <span class="tok-operator">*</span> past<span class="tok-punct">.</span>v<span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+  s<span class="tok-punct">.</span>v <span class="tok-operator">+=</span> force <span class="tok-operator">/</span> mass <span class="tok-operator">*</span> controlStep<span class="tok-punct">;</span> s<span class="tok-punct">.</span>x <span class="tok-operator">+=</span> s<span class="tok-punct">.</span>v <span class="tok-operator">*</span> controlStep<span class="tok-punct">;</span>
+  s<span class="tok-punct">.</span>history<span class="tok-punct">.</span><span class="tok-function">push</span><span class="tok-punct">(</span><span class="tok-punct">{</span> x<span class="tok-operator">:</span> s<span class="tok-punct">.</span>x<span class="tok-punct">,</span> v<span class="tok-operator">:</span> s<span class="tok-punct">.</span>v <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">if</span> <span class="tok-punct">(</span>s<span class="tok-punct">.</span>history<span class="tok-punct">.</span>length <span class="tok-operator">&gt;</span> <span class="tok-number">21</span><span class="tok-punct">)</span> s<span class="tok-punct">.</span>history<span class="tok-punct">.</span><span class="tok-function">shift</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+  s<span class="tok-punct">.</span>peak <span class="tok-operator">=</span> <span class="tok-builtin">Math</span><span class="tok-punct">.</span><span class="tok-function">max</span><span class="tok-punct">(</span>s<span class="tok-punct">.</span>peak<span class="tok-punct">,</span> s<span class="tok-punct">.</span>x <span class="tok-operator">-</span> <span class="tok-number">1</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+  s<span class="tok-punct">.</span>stable <span class="tok-operator">=</span> s<span class="tok-punct">.</span>time <span class="tok-operator">&gt;=</span> <span class="tok-number">2</span> <span class="tok-operator">&amp;&amp;</span> <span class="tok-builtin">Math</span><span class="tok-punct">.</span><span class="tok-function">abs</span><span class="tok-punct">(</span><span class="tok-number">1</span> <span class="tok-operator">-</span> s<span class="tok-punct">.</span>x<span class="tok-punct">)</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0.02</span> <span class="tok-operator">&amp;&amp;</span> <span class="tok-builtin">Math</span><span class="tok-punct">.</span><span class="tok-function">abs</span><span class="tok-punct">(</span>s<span class="tok-punct">.</span>v<span class="tok-punct">)</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0.03</span> <span class="tok-operator">?</span> s<span class="tok-punct">.</span>stable <span class="tok-operator">+</span> controlStep <span class="tok-operator">:</span> <span class="tok-number">0</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">if</span> <span class="tok-punct">(</span>s<span class="tok-punct">.</span>steps <span class="tok-operator">%</span> <span class="tok-number">4</span> <span class="tok-operator">===</span> <span class="tok-number">0</span><span class="tok-punct">)</span> s<span class="tok-punct">.</span>trace<span class="tok-punct">.</span><span class="tok-function">push</span><span class="tok-punct">(</span><span class="tok-punct">{</span> t<span class="tok-operator">:</span> s<span class="tok-punct">.</span>time<span class="tok-punct">,</span> x<span class="tok-operator">:</span> s<span class="tok-punct">.</span>x<span class="tok-punct">,</span> measured<span class="tok-operator">:</span> s<span class="tok-punct">.</span>measured <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">if</span> <span class="tok-punct">(</span><span class="tok-operator">!</span><span class="tok-builtin">Number</span><span class="tok-punct">.</span><span class="tok-function">isFinite</span><span class="tok-punct">(</span>s<span class="tok-punct">.</span>x<span class="tok-punct">)</span> <span class="tok-operator">||</span> <span class="tok-builtin">Math</span><span class="tok-punct">.</span><span class="tok-function">abs</span><span class="tok-punct">(</span>s<span class="tok-punct">.</span>x<span class="tok-punct">)</span> <span class="tok-operator">&gt;</span> <span class="tok-number">3</span> <span class="tok-operator">||</span> <span class="tok-builtin">Math</span><span class="tok-punct">.</span><span class="tok-function">abs</span><span class="tok-punct">(</span>s<span class="tok-punct">.</span>v<span class="tok-punct">)</span> <span class="tok-operator">&gt;</span> <span class="tok-number">20</span><span class="tok-punct">)</span> s<span class="tok-punct">.</span>mode <span class="tok-operator">=</span> <span class="tok-string">&#x27;unstable&#x27;</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">else</span> <span class="tok-keyword">if</span> <span class="tok-punct">(</span>s<span class="tok-punct">.</span>steps <span class="tok-operator">&gt;=</span> controlDuration <span class="tok-operator">/</span> controlStep<span class="tok-punct">)</span> s<span class="tok-punct">.</span>mode <span class="tok-operator">=</span> s<span class="tok-punct">.</span>peak <span class="tok-operator">&lt;=</span> <span class="tok-number">0.15</span> <span class="tok-operator">&amp;&amp;</span> s<span class="tok-punct">.</span>stable <span class="tok-operator">&gt;=</span> <span class="tok-number">2</span> <span class="tok-operator">?</span> <span class="tok-string">&#x27;success&#x27;</span> <span class="tok-operator">:</span> <span class="tok-string">&#x27;retry&#x27;</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span>
+<span class="tok-keyword">let</span> challenge <span class="tok-operator">=</span> <span class="tok-function">newChallenge</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">function</span> <span class="tok-function">drawChallenge</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+  <span class="tok-keyword">const</span> g <span class="tok-operator">=</span> controlPaint<span class="tok-punct">,</span> w <span class="tok-operator">=</span> <span class="tok-number">640</span><span class="tok-punct">,</span> h <span class="tok-operator">=</span> <span class="tok-number">190</span><span class="tok-punct">;</span>
+  g<span class="tok-punct">.</span><span class="tok-function">clearRect</span><span class="tok-punct">(</span><span class="tok-number">0</span><span class="tok-punct">,</span> <span class="tok-number">0</span><span class="tok-punct">,</span> w<span class="tok-punct">,</span> h<span class="tok-punct">)</span><span class="tok-punct">;</span> g<span class="tok-punct">.</span>fillStyle <span class="tok-operator">=</span> <span class="tok-string">&#x27;#0c1624&#x27;</span><span class="tok-punct">;</span> g<span class="tok-punct">.</span><span class="tok-function">fillRect</span><span class="tok-punct">(</span><span class="tok-number">0</span><span class="tok-punct">,</span> <span class="tok-number">0</span><span class="tok-punct">,</span> w<span class="tok-punct">,</span> h<span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">const</span> px <span class="tok-operator">=</span> t <span class="tok-operator">=&gt;</span> <span class="tok-number">42</span> <span class="tok-operator">+</span> t <span class="tok-string">/ 10 * 574, py = x =&gt; 167 - x /</span> <span class="tok-number">1.5</span> <span class="tok-operator">*</span> <span class="tok-number">88</span><span class="tok-punct">;</span>
+  g<span class="tok-punct">.</span>font <span class="tok-operator">=</span> <span class="tok-string">&#x27;11px system-ui&#x27;</span><span class="tok-punct">;</span> g<span class="tok-punct">.</span>fillStyle <span class="tok-operator">=</span> <span class="tok-string">&#x27;#a9bcd0&#x27;</span><span class="tok-punct">;</span> g<span class="tok-punct">.</span><span class="tok-function">fillText</span><span class="tok-punct">(</span><span class="tok-string">&#x27;位置 / m&#x27;</span><span class="tok-punct">,</span> <span class="tok-number">42</span><span class="tok-punct">,</span> <span class="tok-number">65</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+  g<span class="tok-punct">.</span>strokeStyle <span class="tok-operator">=</span> <span class="tok-string">&#x27;#243748&#x27;</span><span class="tok-punct">;</span> g<span class="tok-punct">.</span>lineWidth <span class="tok-operator">=</span> <span class="tok-number">1</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-keyword">const</span> y <span class="tok-keyword">of</span> <span class="tok-punct">[</span><span class="tok-number">0</span><span class="tok-punct">,</span> <span class="tok-number">0.5</span><span class="tok-punct">,</span> <span class="tok-number">1</span><span class="tok-punct">,</span> <span class="tok-number">1.5</span><span class="tok-punct">]</span><span class="tok-punct">)</span> <span class="tok-punct">{</span> g<span class="tok-punct">.</span><span class="tok-function">beginPath</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span> g<span class="tok-punct">.</span><span class="tok-function">moveTo</span><span class="tok-punct">(</span><span class="tok-number">42</span><span class="tok-punct">,</span> <span class="tok-function">py</span><span class="tok-punct">(</span>y<span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span> g<span class="tok-punct">.</span><span class="tok-function">lineTo</span><span class="tok-punct">(</span><span class="tok-number">616</span><span class="tok-punct">,</span> <span class="tok-function">py</span><span class="tok-punct">(</span>y<span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span> g<span class="tok-punct">.</span><span class="tok-function">stroke</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span> g<span class="tok-punct">.</span><span class="tok-function">fillText</span><span class="tok-punct">(</span>y<span class="tok-punct">.</span><span class="tok-function">toFixed</span><span class="tok-punct">(</span><span class="tok-number">1</span><span class="tok-punct">)</span><span class="tok-punct">,</span> <span class="tok-number">12</span><span class="tok-punct">,</span> <span class="tok-function">py</span><span class="tok-punct">(</span>y<span class="tok-punct">)</span> <span class="tok-operator">+</span> <span class="tok-number">4</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-punct">}</span>
+  g<span class="tok-punct">.</span><span class="tok-function">setLineDash</span><span class="tok-punct">(</span><span class="tok-punct">[</span><span class="tok-number">4</span><span class="tok-punct">,</span> <span class="tok-number">5</span><span class="tok-punct">]</span><span class="tok-punct">)</span><span class="tok-punct">;</span> g<span class="tok-punct">.</span>strokeStyle <span class="tok-operator">=</span> <span class="tok-string">&#x27;#d8b570&#x27;</span><span class="tok-punct">;</span> g<span class="tok-punct">.</span><span class="tok-function">beginPath</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span> g<span class="tok-punct">.</span><span class="tok-function">moveTo</span><span class="tok-punct">(</span><span class="tok-number">42</span><span class="tok-punct">,</span> <span class="tok-function">py</span><span class="tok-punct">(</span><span class="tok-number">1</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span> g<span class="tok-punct">.</span><span class="tok-function">lineTo</span><span class="tok-punct">(</span><span class="tok-number">616</span><span class="tok-punct">,</span> <span class="tok-function">py</span><span class="tok-punct">(</span><span class="tok-number">1</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span> g<span class="tok-punct">.</span><span class="tok-function">stroke</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span> g<span class="tok-punct">.</span><span class="tok-function">setLineDash</span><span class="tok-punct">(</span><span class="tok-punct">[</span><span class="tok-punct">]</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+  g<span class="tok-punct">.</span>fillStyle <span class="tok-operator">=</span> <span class="tok-string">&#x27;#a9bcd0&#x27;</span><span class="tok-punct">;</span> g<span class="tok-punct">.</span><span class="tok-function">fillText</span><span class="tok-punct">(</span><span class="tok-string">&#x27;0&#x27;</span><span class="tok-punct">,</span> <span class="tok-number">40</span><span class="tok-punct">,</span> <span class="tok-number">184</span><span class="tok-punct">)</span><span class="tok-punct">;</span> g<span class="tok-punct">.</span><span class="tok-function">fillText</span><span class="tok-punct">(</span><span class="tok-string">&#x27;5&#x27;</span><span class="tok-punct">,</span> <span class="tok-number">326</span><span class="tok-punct">,</span> <span class="tok-number">184</span><span class="tok-punct">)</span><span class="tok-punct">;</span> g<span class="tok-punct">.</span><span class="tok-function">fillText</span><span class="tok-punct">(</span><span class="tok-string">&#x27;10 s&#x27;</span><span class="tok-punct">,</span> <span class="tok-number">593</span><span class="tok-punct">,</span> <span class="tok-number">184</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">function</span> <span class="tok-function">curve</span><span class="tok-punct">(</span>key<span class="tok-punct">,</span> color<span class="tok-punct">,</span> width<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    g<span class="tok-punct">.</span>strokeStyle <span class="tok-operator">=</span> color<span class="tok-punct">;</span> g<span class="tok-punct">.</span>lineWidth <span class="tok-operator">=</span> width<span class="tok-punct">;</span> g<span class="tok-punct">.</span><span class="tok-function">beginPath</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+    challenge<span class="tok-punct">.</span>trace<span class="tok-punct">.</span><span class="tok-function">forEach</span><span class="tok-punct">(</span><span class="tok-punct">(</span>sample<span class="tok-punct">,</span> i<span class="tok-punct">)</span> <span class="tok-operator">=&gt;</span> <span class="tok-punct">{</span> <span class="tok-keyword">const</span> y <span class="tok-operator">=</span> <span class="tok-function">py</span><span class="tok-punct">(</span><span class="tok-builtin">Math</span><span class="tok-punct">.</span><span class="tok-function">max</span><span class="tok-punct">(</span><span class="tok-operator">-</span><span class="tok-number">0.12</span><span class="tok-punct">,</span> <span class="tok-builtin">Math</span><span class="tok-punct">.</span><span class="tok-function">min</span><span class="tok-punct">(</span><span class="tok-number">1.58</span><span class="tok-punct">,</span> sample<span class="tok-punct">[</span>key<span class="tok-punct">]</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span> i <span class="tok-operator">?</span> g<span class="tok-punct">.</span><span class="tok-function">lineTo</span><span class="tok-punct">(</span><span class="tok-function">px</span><span class="tok-punct">(</span>sample<span class="tok-punct">.</span>t<span class="tok-punct">)</span><span class="tok-punct">,</span> y<span class="tok-punct">)</span> <span class="tok-operator">:</span> g<span class="tok-punct">.</span><span class="tok-function">moveTo</span><span class="tok-punct">(</span><span class="tok-function">px</span><span class="tok-punct">(</span>sample<span class="tok-punct">.</span>t<span class="tok-punct">)</span><span class="tok-punct">,</span> y<span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span> g<span class="tok-punct">.</span><span class="tok-function">stroke</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-punct">}</span>
+  <span class="tok-function">curve</span><span class="tok-punct">(</span><span class="tok-string">&#x27;measured&#x27;</span><span class="tok-punct">,</span> <span class="tok-string">&#x27;#ba9ce7&#x27;</span><span class="tok-punct">,</span> <span class="tok-number">1</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-function">curve</span><span class="tok-punct">(</span><span class="tok-string">&#x27;x&#x27;</span><span class="tok-punct">,</span> <span class="tok-string">&#x27;#6de0c4&#x27;</span><span class="tok-punct">,</span> <span class="tok-number">2</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">const</span> cart <span class="tok-operator">=</span> <span class="tok-number">44</span> <span class="tok-operator">+</span> <span class="tok-builtin">Math</span><span class="tok-punct">.</span><span class="tok-function">max</span><span class="tok-punct">(</span><span class="tok-operator">-</span><span class="tok-number">0.02</span><span class="tok-punct">,</span> <span class="tok-builtin">Math</span><span class="tok-punct">.</span><span class="tok-function">min</span><span class="tok-punct">(</span><span class="tok-number">1.5</span><span class="tok-punct">,</span> challenge<span class="tok-punct">.</span>x<span class="tok-punct">)</span><span class="tok-punct">)</span> <span class="tok-operator">/</span> <span class="tok-number">1.5</span> <span class="tok-operator">*</span> <span class="tok-number">564</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">const</span> goal <span class="tok-operator">=</span> <span class="tok-number">44</span> <span class="tok-operator">+</span> <span class="tok-number">564</span> <span class="tok-operator">/</span> <span class="tok-number">1.5</span><span class="tok-punct">;</span>
+  g<span class="tok-punct">.</span>strokeStyle <span class="tok-operator">=</span> <span class="tok-string">&#x27;#344e63&#x27;</span><span class="tok-punct">;</span> g<span class="tok-punct">.</span>lineWidth <span class="tok-operator">=</span> <span class="tok-number">2</span><span class="tok-punct">;</span> g<span class="tok-punct">.</span><span class="tok-function">beginPath</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span> g<span class="tok-punct">.</span><span class="tok-function">moveTo</span><span class="tok-punct">(</span><span class="tok-number">42</span><span class="tok-punct">,</span> <span class="tok-number">46</span><span class="tok-punct">)</span><span class="tok-punct">;</span> g<span class="tok-punct">.</span><span class="tok-function">lineTo</span><span class="tok-punct">(</span><span class="tok-number">616</span><span class="tok-punct">,</span> <span class="tok-number">46</span><span class="tok-punct">)</span><span class="tok-punct">;</span> g<span class="tok-punct">.</span><span class="tok-function">stroke</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+  g<span class="tok-punct">.</span>fillStyle <span class="tok-operator">=</span> <span class="tok-string">&#x27;#d8b570&#x27;</span><span class="tok-punct">;</span> g<span class="tok-punct">.</span><span class="tok-function">fillRect</span><span class="tok-punct">(</span>goal <span class="tok-operator">-</span> <span class="tok-number">2</span><span class="tok-punct">,</span> <span class="tok-number">12</span><span class="tok-punct">,</span> <span class="tok-number">4</span><span class="tok-punct">,</span> <span class="tok-number">35</span><span class="tok-punct">)</span><span class="tok-punct">;</span> g<span class="tok-punct">.</span><span class="tok-function">fillText</span><span class="tok-punct">(</span><span class="tok-string">&#x27;目标 1 m&#x27;</span><span class="tok-punct">,</span> goal <span class="tok-operator">+</span> <span class="tok-number">9</span><span class="tok-punct">,</span> <span class="tok-number">23</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+  g<span class="tok-punct">.</span>fillStyle <span class="tok-operator">=</span> <span class="tok-string">&#x27;#6de0c4&#x27;</span><span class="tok-punct">;</span> g<span class="tok-punct">.</span><span class="tok-function">fillRect</span><span class="tok-punct">(</span>cart <span class="tok-operator">-</span> <span class="tok-number">13</span><span class="tok-punct">,</span> <span class="tok-number">27</span><span class="tok-punct">,</span> <span class="tok-number">26</span><span class="tok-punct">,</span> <span class="tok-number">16</span><span class="tok-punct">)</span><span class="tok-punct">;</span> g<span class="tok-punct">.</span>fillStyle <span class="tok-operator">=</span> <span class="tok-string">&#x27;#d8fff4&#x27;</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">for</span> <span class="tok-punct">(</span><span class="tok-keyword">const</span> offset <span class="tok-keyword">of</span> <span class="tok-punct">[</span><span class="tok-operator">-</span><span class="tok-number">7</span><span class="tok-punct">,</span> <span class="tok-number">7</span><span class="tok-punct">]</span><span class="tok-punct">)</span> <span class="tok-punct">{</span> g<span class="tok-punct">.</span><span class="tok-function">beginPath</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span> g<span class="tok-punct">.</span><span class="tok-function">arc</span><span class="tok-punct">(</span>cart <span class="tok-operator">+</span> offset<span class="tok-punct">,</span> <span class="tok-number">44</span><span class="tok-punct">,</span> <span class="tok-number">3</span><span class="tok-punct">,</span> <span class="tok-number">0</span><span class="tok-punct">,</span> <span class="tok-builtin">Math</span><span class="tok-punct">.</span><span class="tok-type">PI</span> <span class="tok-operator">*</span> <span class="tok-number">2</span><span class="tok-punct">)</span><span class="tok-punct">;</span> g<span class="tok-punct">.</span><span class="tok-function">fill</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-punct">}</span>
+  <span class="tok-keyword">const</span> p <span class="tok-operator">=</span> <span class="tok-function">controlParameters</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-function">controlNode</span><span class="tok-punct">(</span><span class="tok-string">&#x27;k-value&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">.</span>textContent <span class="tok-operator">=</span> p<span class="tok-punct">.</span>k <span class="tok-operator">+</span> <span class="tok-string">&#x27; N/m&#x27;</span><span class="tok-punct">;</span> <span class="tok-function">controlNode</span><span class="tok-punct">(</span><span class="tok-string">&#x27;d-value&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">.</span>textContent <span class="tok-operator">=</span> p<span class="tok-punct">.</span>d<span class="tok-punct">.</span><span class="tok-function">toFixed</span><span class="tok-punct">(</span><span class="tok-number">1</span><span class="tok-punct">)</span> <span class="tok-operator">+</span> <span class="tok-string">&#x27; N·s/m&#x27;</span><span class="tok-punct">;</span>
+  <span class="tok-function">controlNode</span><span class="tok-punct">(</span><span class="tok-string">&#x27;time&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">.</span>textContent <span class="tok-operator">=</span> challenge<span class="tok-punct">.</span>time<span class="tok-punct">.</span><span class="tok-function">toFixed</span><span class="tok-punct">(</span><span class="tok-number">1</span><span class="tok-punct">)</span> <span class="tok-operator">+</span> <span class="tok-string">&#x27; / 10 s&#x27;</span><span class="tok-punct">;</span>
+  <span class="tok-function">controlNode</span><span class="tok-punct">(</span><span class="tok-string">&#x27;peak&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">.</span>textContent <span class="tok-operator">=</span> <span class="tok-punct">(</span>challenge<span class="tok-punct">.</span>peak <span class="tok-operator">*</span> <span class="tok-number">100</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-function">toFixed</span><span class="tok-punct">(</span><span class="tok-number">1</span><span class="tok-punct">)</span> <span class="tok-operator">+</span> <span class="tok-string">&#x27;%&#x27;</span><span class="tok-punct">;</span>
+  <span class="tok-function">controlNode</span><span class="tok-punct">(</span><span class="tok-string">&#x27;error&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">.</span>textContent <span class="tok-operator">=</span> <span class="tok-punct">(</span><span class="tok-builtin">Math</span><span class="tok-punct">.</span><span class="tok-function">abs</span><span class="tok-punct">(</span><span class="tok-number">1</span> <span class="tok-operator">-</span> challenge<span class="tok-punct">.</span>x<span class="tok-punct">)</span> <span class="tok-operator">*</span> <span class="tok-number">100</span><span class="tok-punct">)</span><span class="tok-punct">.</span><span class="tok-function">toFixed</span><span class="tok-punct">(</span><span class="tok-number">1</span><span class="tok-punct">)</span> <span class="tok-operator">+</span> <span class="tok-string">&#x27; cm&#x27;</span><span class="tok-punct">;</span>
+  <span class="tok-function">controlNode</span><span class="tok-punct">(</span><span class="tok-string">&#x27;pause&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">.</span>disabled <span class="tok-operator">=</span> challenge<span class="tok-punct">.</span>mode <span class="tok-operator">!==</span> <span class="tok-string">&#x27;running&#x27;</span><span class="tok-punct">;</span>
+  <span class="tok-function">controlNode</span><span class="tok-punct">(</span><span class="tok-string">&#x27;start&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">.</span>disabled <span class="tok-operator">=</span> challenge<span class="tok-punct">.</span>mode <span class="tok-operator">===</span> <span class="tok-string">&#x27;running&#x27;</span><span class="tok-punct">;</span>
+  <span class="tok-function">controlNode</span><span class="tok-punct">(</span><span class="tok-string">&#x27;start&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">.</span>textContent <span class="tok-operator">=</span> challenge<span class="tok-punct">.</span>mode <span class="tok-operator">===</span> <span class="tok-string">&#x27;paused&#x27;</span> <span class="tok-operator">?</span> <span class="tok-string">&#x27;继续挑战&#x27;</span> <span class="tok-operator">:</span> <span class="tok-string">&#x27;开始挑战&#x27;</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span>
+<span class="tok-keyword">function</span> <span class="tok-function">challengeMessage</span><span class="tok-punct">(</span>text<span class="tok-punct">)</span> <span class="tok-punct">{</span> <span class="tok-function">controlNode</span><span class="tok-punct">(</span><span class="tok-string">&#x27;message&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">.</span>textContent <span class="tok-operator">=</span> text<span class="tok-punct">;</span> <span class="tok-punct">}</span>
+<span class="tok-keyword">function</span> <span class="tok-function">finishChallenge</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+  <span class="tok-keyword">if</span> <span class="tok-punct">(</span>challenge<span class="tok-punct">.</span>mode <span class="tok-operator">===</span> <span class="tok-string">&#x27;success&#x27;</span><span class="tok-punct">)</span> <span class="tok-function">challengeMessage</span><span class="tok-punct">(</span><span class="tok-string">&#x27;通关！超调与最后 2 秒的位置、速度都满足条件。可以换一关，观察同一思路是否仍然有效。&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">else</span> <span class="tok-keyword">if</span> <span class="tok-punct">(</span>challenge<span class="tok-punct">.</span>mode <span class="tok-operator">===</span> <span class="tok-string">&#x27;unstable&#x27;</span><span class="tok-punct">)</span> <span class="tok-function">challengeMessage</span><span class="tok-punct">(</span><span class="tok-string">&#x27;本轮响应超出了显示范围。暂停计算；降低刚度或增大阻尼后再试。&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">else</span> <span class="tok-function">challengeMessage</span><span class="tok-punct">(</span><span class="tok-string">&#x27;再试一次：&#x27;</span> <span class="tok-operator">+</span> <span class="tok-punct">(</span>challenge<span class="tok-punct">.</span>peak <span class="tok-operator">&gt;</span> <span class="tok-number">0.15</span> <span class="tok-operator">?</span> <span class="tok-string">&#x27;整轮超调超过 15%。尝试增大阻尼，或降低刚度。&#x27;</span> <span class="tok-operator">:</span> <span class="tok-string">&#x27;最后连续稳定时间不足 2 秒。过大的阻尼也会拖慢响应。&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span>
+<span class="tok-keyword">const</span> controlLoop <span class="tok-operator">=</span> demo<span class="tok-punct">.</span><span class="tok-function">animate</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">{</span> delta <span class="tok-punct">}</span><span class="tok-punct">)</span> <span class="tok-operator">=&gt;</span> <span class="tok-punct">{</span>
+  challenge<span class="tok-punct">.</span>pending <span class="tok-operator">+=</span> delta<span class="tok-punct">;</span>
+  <span class="tok-keyword">const</span> p <span class="tok-operator">=</span> <span class="tok-function">controlParameters</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">while</span> <span class="tok-punct">(</span>challenge<span class="tok-punct">.</span>pending <span class="tok-operator">+</span> <span class="tok-number">1e-12</span> <span class="tok-operator">&gt;=</span> controlStep <span class="tok-operator">&amp;&amp;</span> challenge<span class="tok-punct">.</span>mode <span class="tok-operator">===</span> <span class="tok-string">&#x27;running&#x27;</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+    challenge<span class="tok-punct">.</span>pending <span class="tok-operator">-=</span> controlStep<span class="tok-punct">;</span> <span class="tok-function">integrateChallenge</span><span class="tok-punct">(</span>challenge<span class="tok-punct">,</span> p<span class="tok-punct">,</span> controlLevel<span class="tok-punct">.</span>value<span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-punct">}</span>
+  <span class="tok-function">drawChallenge</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">if</span> <span class="tok-punct">(</span>challenge<span class="tok-punct">.</span>mode <span class="tok-operator">!==</span> <span class="tok-string">&#x27;running&#x27;</span><span class="tok-punct">)</span> <span class="tok-punct">{</span> <span class="tok-function">finishChallenge</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-keyword">return</span> false<span class="tok-punct">;</span> <span class="tok-punct">}</span>
+<span class="tok-punct">}</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-keyword">function</span> <span class="tok-function">resetChallenge</span><span class="tok-punct">(</span>defaults<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+  controlLoop<span class="tok-punct">.</span><span class="tok-function">reset</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-keyword">if</span> <span class="tok-punct">(</span>defaults<span class="tok-punct">)</span> <span class="tok-punct">{</span> controlK<span class="tok-punct">.</span>value <span class="tok-operator">=</span> <span class="tok-string">&#x27;18&#x27;</span><span class="tok-punct">;</span> controlD<span class="tok-punct">.</span>value <span class="tok-operator">=</span> <span class="tok-string">&#x27;2&#x27;</span><span class="tok-punct">;</span> <span class="tok-punct">}</span>
+  challenge <span class="tok-operator">=</span> <span class="tok-function">newChallenge</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-function">drawChallenge</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-function">challengeMessage</span><span class="tok-punct">(</span><span class="tok-string">&#x27;已准备新一轮。参数修改后需要重新开始；试着让超调低于 15%。&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span>
+<span class="tok-function">controlNode</span><span class="tok-punct">(</span><span class="tok-string">&#x27;start&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">.</span>onclick <span class="tok-operator">=</span> <span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-operator">=&gt;</span> <span class="tok-punct">{</span>
+  <span class="tok-keyword">if</span> <span class="tok-punct">(</span><span class="tok-operator">!</span><span class="tok-punct">[</span><span class="tok-string">&#x27;ready&#x27;</span><span class="tok-punct">,</span> <span class="tok-string">&#x27;paused&#x27;</span><span class="tok-punct">]</span><span class="tok-punct">.</span><span class="tok-function">includes</span><span class="tok-punct">(</span>challenge<span class="tok-punct">.</span>mode<span class="tok-punct">)</span><span class="tok-punct">)</span> <span class="tok-function">resetChallenge</span><span class="tok-punct">(</span>false<span class="tok-punct">)</span><span class="tok-punct">;</span>
+  challenge<span class="tok-punct">.</span>mode <span class="tok-operator">=</span> <span class="tok-string">&#x27;running&#x27;</span><span class="tok-punct">;</span> <span class="tok-function">challengeMessage</span><span class="tok-punct">(</span><span class="tok-string">&#x27;计算中：&#x27;</span> <span class="tok-operator">+</span> <span class="tok-punct">(</span><span class="tok-punct">{</span>base<span class="tok-operator">:</span><span class="tok-string">&#x27;质量 1 kg，无额外扰动。&#x27;</span><span class="tok-punct">,</span>load<span class="tok-operator">:</span><span class="tok-string">&#x27;第 2 秒增加负载。&#x27;</span><span class="tok-punct">,</span>delay<span class="tok-operator">:</span><span class="tok-string">&#x27;第 2 秒引入 100 ms 反馈延迟。&#x27;</span><span class="tok-punct">,</span>noise<span class="tok-operator">:</span><span class="tok-string">&#x27;第 2 秒叠加位置测量噪声。&#x27;</span><span class="tok-punct">}</span><span class="tok-punct">[</span>controlLevel<span class="tok-punct">.</span>value<span class="tok-punct">]</span><span class="tok-punct">)</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+  <span class="tok-function">drawChallenge</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span> controlLoop<span class="tok-punct">.</span><span class="tok-function">start</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-function">controlNode</span><span class="tok-punct">(</span><span class="tok-string">&#x27;pause&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">.</span>onclick <span class="tok-operator">=</span> <span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-operator">=&gt;</span> <span class="tok-punct">{</span> <span class="tok-keyword">if</span> <span class="tok-punct">(</span>challenge<span class="tok-punct">.</span>mode <span class="tok-operator">!==</span> <span class="tok-string">&#x27;running&#x27;</span><span class="tok-punct">)</span> <span class="tok-keyword">return</span><span class="tok-punct">;</span> controlLoop<span class="tok-punct">.</span><span class="tok-function">pause</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span> challenge<span class="tok-punct">.</span>mode <span class="tok-operator">=</span> <span class="tok-string">&#x27;paused&#x27;</span><span class="tok-punct">;</span> <span class="tok-function">drawChallenge</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-function">challengeMessage</span><span class="tok-punct">(</span><span class="tok-string">&#x27;已暂停，参数与曲线保留。点继续挑战从此处恢复。&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">;</span> <span class="tok-punct">}</span><span class="tok-punct">;</span>
+<span class="tok-function">controlNode</span><span class="tok-punct">(</span><span class="tok-string">&#x27;reset&#x27;</span><span class="tok-punct">)</span><span class="tok-punct">.</span>onclick <span class="tok-operator">=</span> <span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-operator">=&gt;</span> <span class="tok-function">resetChallenge</span><span class="tok-punct">(</span>true<span class="tok-punct">)</span><span class="tok-punct">;</span>
+controlLevel<span class="tok-punct">.</span>onchange <span class="tok-operator">=</span> <span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-operator">=&gt;</span> <span class="tok-function">resetChallenge</span><span class="tok-punct">(</span>true<span class="tok-punct">)</span><span class="tok-punct">;</span>
+controlK<span class="tok-punct">.</span>oninput <span class="tok-operator">=</span> controlD<span class="tok-punct">.</span>oninput <span class="tok-operator">=</span> <span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-operator">=&gt;</span> <span class="tok-function">resetChallenge</span><span class="tok-punct">(</span>false<span class="tok-punct">)</span><span class="tok-punct">;</span>
+<span class="tok-function">drawChallenge</span><span class="tok-punct">(</span><span class="tok-punct">)</span><span class="tok-punct">;</span></code></pre><div class="demo-stage" data-demo-stage hidden><div class="demo-frame-wrap" data-demo-mount></div><div class="demo-log" data-demo-log hidden></div><p class="demo-status" data-demo-status></p></div><noscript><p class="demo-noscript">这段示例需要 JavaScript 才能运行。</p></noscript><script type="application/json" data-demo-src>"demo.root.innerHTML = `\n\u003cstyle>\n .control-lab{padding:14px;border:1px solid var(--border-2,#354760);border-radius:16px;background:var(--surface,#101a28);font:13px/1.5 system-ui;color:var(--text,#e6efff)}\n .control-lab *{box-sizing:border-box}.control-top{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.control-top strong{font-size:16px}.control-top select{max-width:100%;font-size:12px}\n .control-lab canvas{width:100%;height:auto;margin:10px 0;border:1px solid #314458;background:#0c1624;border-radius:12px}\n .control-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}.control-fields label{display:grid;grid-template-columns:1fr auto;gap:4px}.control-fields input{grid-column:1/-1;width:100%;min-width:0}.control-fields output{font-size:12px}\n .control-actions{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}.control-actions button{min-height:38px;font-size:12px}.control-actions button:first-child{background:#244e51;color:#e7fffa;border-color:#5ac8b5}\n .control-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:11px;color:var(--text-2,#b6c6db)}.control-stats output{display:block;font-size:17px;color:var(--accent-2,#7fe4d3)}\n .control-message{min-height:38px;margin:8px 0 0;font-size:12px;color:var(--text-2,#b6c6db)}.control-hint{font-size:11px;color:var(--text-3,#92a4bc);margin:0}\n @media(max-width:380px){.control-fields{gap:6px}.control-stats output{font-size:15px}.control-top select{width:100%}}\n\u003c/style>\n\u003csection class=\"control-lab\" aria-label=\"一维控制挑战\">\n \u003cdiv class=\"control-top\">\u003cstrong>CONTROL / 调稳这一程\u003c/strong>\u003cselect id=\"control-level\" aria-label=\"选择控制关卡\">\u003coption value=\"base\">01 · 基础响应\u003c/option>\u003coption value=\"load\">02 · 带上负载\u003c/option>\u003coption value=\"delay\">03 · 迟到的反馈\u003c/option>\u003coption value=\"noise\">04 · 测量有噪声\u003c/option>\u003c/select>\u003c/div>\n \u003ccanvas id=\"control-canvas\" width=\"640\" height=\"190\" role=\"img\" aria-label=\"执行器位置动画与响应曲线：青色为真实位置，虚线为一米目标，紫色为测量值\">\u003c/canvas>\n \u003cdiv class=\"control-fields\">\n  \u003clabel>刚度 K \u003coutput id=\"control-k-value\">\u003c/output>\u003cinput id=\"control-k\" aria-label=\"刚度，牛顿每米\" type=\"range\" min=\"4\" max=\"40\" step=\"1\" value=\"18\">\u003c/label>\n  \u003clabel>阻尼 D \u003coutput id=\"control-d-value\">\u003c/output>\u003cinput id=\"control-d\" aria-label=\"阻尼，牛顿秒每米\" type=\"range\" min=\"1\" max=\"18\" step=\"0.5\" value=\"2\">\u003c/label>\n \u003c/div>\n \u003cdiv class=\"control-actions\">\u003cbutton id=\"control-start\" type=\"button\">开始挑战\u003c/button>\u003cbutton id=\"control-pause\" type=\"button\" disabled>暂停\u003c/button>\u003cbutton id=\"control-reset\" type=\"button\">重置本关\u003c/button>\u003c/div>\n \u003cdiv class=\"control-stats\">\u003cspan>模拟时间\u003coutput id=\"control-time\">0.0 / 10 s\u003c/output>\u003c/span>\u003cspan>整轮最大超调\u003coutput id=\"control-peak\">0.0%\u003c/output>\u003c/span>\u003cspan>当前位置误差\u003coutput id=\"control-error\">100.0 cm\u003c/output>\u003c/span>\u003c/div>\n \u003cp class=\"control-message\" id=\"control-message\" role=\"status\" aria-live=\"polite\">先选参数，再开始。原生滑块支持方向键，也可触屏拖动。\u003c/p>\n \u003cp class=\"control-hint\">青色：真实位置 · 紫色：测量位置 · 虚线：目标。这里是简化模型，不连接硬件。\u003c/p>\n\u003c/section>`;\nconst controlNode = id => demo.root.querySelector('#control-' + id);\nconst controlCanvas = controlNode('canvas'), controlPaint = controlCanvas.getContext('2d');\nconst controlK = controlNode('k'), controlD = controlNode('d'), controlLevel = controlNode('level');\nconst controlStep = 0.005, controlDuration = 10;\nfunction newChallenge() {\n  return { x: 0, v: 0, time: 0, steps: 0, pending: 0, peak: 0, stable: 0, measured: 0,\n    mode: 'ready', history: [{ x: 0, v: 0 }], trace: [{ t: 0, x: 0, measured: 0 }] };\n}\nfunction controlParameters() {\n  return { k: Math.max(4, Math.min(40, Number(controlK.value) || 18)),\n    d: Math.max(1, Math.min(18, Number(controlD.value) || 2)) };\n}\n// Fixed 5 ms integration steps; rendering speed never changes the experiment.\nfunction integrateChallenge(s, p, level) {\n  if (s.mode !== 'running') return;\n  s.steps += 1; s.time = s.steps * controlStep;\n  const changed = s.time >= 2;\n  const mass = level === 'load' && changed ? 1.8 : 1;\n  const delaySteps = level === 'delay' && changed ? 20 : 0;\n  const past = s.history[Math.max(0, s.history.length - 1 - delaySteps)];\n  const noise = level === 'noise' && changed ? 0.006 * (Math.sin(43 * s.time) + 0.5 * Math.sin(71 * s.time)) : 0;\n  s.measured = past.x + noise;\n  const force = Math.max(-18, Math.min(18, p.k * (1 - s.measured) - p.d * past.v));\n  s.v += force / mass * controlStep; s.x += s.v * controlStep;\n  s.history.push({ x: s.x, v: s.v });\n  if (s.history.length > 21) s.history.shift();\n  s.peak = Math.max(s.peak, s.x - 1);\n  s.stable = s.time >= 2 && Math.abs(1 - s.x) \u003c= 0.02 && Math.abs(s.v) \u003c= 0.03 ? s.stable + controlStep : 0;\n  if (s.steps % 4 === 0) s.trace.push({ t: s.time, x: s.x, measured: s.measured });\n  if (!Number.isFinite(s.x) || Math.abs(s.x) > 3 || Math.abs(s.v) > 20) s.mode = 'unstable';\n  else if (s.steps >= controlDuration / controlStep) s.mode = s.peak \u003c= 0.15 && s.stable >= 2 ? 'success' : 'retry';\n}\nlet challenge = newChallenge();\nfunction drawChallenge() {\n  const g = controlPaint, w = 640, h = 190;\n  g.clearRect(0, 0, w, h); g.fillStyle = '#0c1624'; g.fillRect(0, 0, w, h);\n  const px = t => 42 + t / 10 * 574, py = x => 167 - x / 1.5 * 88;\n  g.font = '11px system-ui'; g.fillStyle = '#a9bcd0'; g.fillText('位置 / m', 42, 65);\n  g.strokeStyle = '#243748'; g.lineWidth = 1;\n  for (const y of [0, 0.5, 1, 1.5]) { g.beginPath(); g.moveTo(42, py(y)); g.lineTo(616, py(y)); g.stroke(); g.fillText(y.toFixed(1), 12, py(y) + 4); }\n  g.setLineDash([4, 5]); g.strokeStyle = '#d8b570'; g.beginPath(); g.moveTo(42, py(1)); g.lineTo(616, py(1)); g.stroke(); g.setLineDash([]);\n  g.fillStyle = '#a9bcd0'; g.fillText('0', 40, 184); g.fillText('5', 326, 184); g.fillText('10 s', 593, 184);\n  function curve(key, color, width) {\n    g.strokeStyle = color; g.lineWidth = width; g.beginPath();\n    challenge.trace.forEach((sample, i) => { const y = py(Math.max(-0.12, Math.min(1.58, sample[key]))); i ? g.lineTo(px(sample.t), y) : g.moveTo(px(sample.t), y); }); g.stroke();\n  }\n  curve('measured', '#ba9ce7', 1); curve('x', '#6de0c4', 2);\n  const cart = 44 + Math.max(-0.02, Math.min(1.5, challenge.x)) / 1.5 * 564;\n  const goal = 44 + 564 / 1.5;\n  g.strokeStyle = '#344e63'; g.lineWidth = 2; g.beginPath(); g.moveTo(42, 46); g.lineTo(616, 46); g.stroke();\n  g.fillStyle = '#d8b570'; g.fillRect(goal - 2, 12, 4, 35); g.fillText('目标 1 m', goal + 9, 23);\n  g.fillStyle = '#6de0c4'; g.fillRect(cart - 13, 27, 26, 16); g.fillStyle = '#d8fff4';\n  for (const offset of [-7, 7]) { g.beginPath(); g.arc(cart + offset, 44, 3, 0, Math.PI * 2); g.fill(); }\n  const p = controlParameters(); controlNode('k-value').textContent = p.k + ' N/m'; controlNode('d-value').textContent = p.d.toFixed(1) + ' N·s/m';\n  controlNode('time').textContent = challenge.time.toFixed(1) + ' / 10 s';\n  controlNode('peak').textContent = (challenge.peak * 100).toFixed(1) + '%';\n  controlNode('error').textContent = (Math.abs(1 - challenge.x) * 100).toFixed(1) + ' cm';\n  controlNode('pause').disabled = challenge.mode !== 'running';\n  controlNode('start').disabled = challenge.mode === 'running';\n  controlNode('start').textContent = challenge.mode === 'paused' ? '继续挑战' : '开始挑战';\n}\nfunction challengeMessage(text) { controlNode('message').textContent = text; }\nfunction finishChallenge() {\n  if (challenge.mode === 'success') challengeMessage('通关！超调与最后 2 秒的位置、速度都满足条件。可以换一关，观察同一思路是否仍然有效。');\n  else if (challenge.mode === 'unstable') challengeMessage('本轮响应超出了显示范围。暂停计算；降低刚度或增大阻尼后再试。');\n  else challengeMessage('再试一次：' + (challenge.peak > 0.15 ? '整轮超调超过 15%。尝试增大阻尼，或降低刚度。' : '最后连续稳定时间不足 2 秒。过大的阻尼也会拖慢响应。'));\n}\nconst controlLoop = demo.animate(({ delta }) => {\n  challenge.pending += delta;\n  const p = controlParameters();\n  while (challenge.pending + 1e-12 >= controlStep && challenge.mode === 'running') {\n    challenge.pending -= controlStep; integrateChallenge(challenge, p, controlLevel.value);\n  }\n  drawChallenge();\n  if (challenge.mode !== 'running') { finishChallenge(); return false; }\n});\nfunction resetChallenge(defaults) {\n  controlLoop.reset();\n  if (defaults) { controlK.value = '18'; controlD.value = '2'; }\n  challenge = newChallenge(); drawChallenge();\n  challengeMessage('已准备新一轮。参数修改后需要重新开始；试着让超调低于 15%。');\n}\ncontrolNode('start').onclick = () => {\n  if (!['ready', 'paused'].includes(challenge.mode)) resetChallenge(false);\n  challenge.mode = 'running'; challengeMessage('计算中：' + ({base:'质量 1 kg，无额外扰动。',load:'第 2 秒增加负载。',delay:'第 2 秒引入 100 ms 反馈延迟。',noise:'第 2 秒叠加位置测量噪声。'}[controlLevel.value]));\n  drawChallenge(); controlLoop.start();\n};\ncontrolNode('pause').onclick = () => { if (challenge.mode !== 'running') return; controlLoop.pause(); challenge.mode = 'paused'; drawChallenge(); challengeMessage('已暂停，参数与曲线保留。点继续挑战从此处恢复。'); };\ncontrolNode('reset').onclick = () => resetChallenge(true);\ncontrolLevel.onchange = () => resetChallenge(true);\ncontrolK.oninput = controlD.oninput = () => resetChallenge(false);\ndrawChallenge();"</script></div>
+<p>不知道从哪里开始时，可以试 <strong>K = 16 N/m、D = 8 N·s/m</strong>，再与默认的低阻尼参数比较；进入延迟关后，先观察测量曲线为何落后于真实位置。原生滑块可用方向键微调，所有按钮都可用 Tab / Enter 操作。</p>
+<p>模型使用 <span class="math-wrap"><span class="math-inline" data-tex="F=K(1-x_{measured})-D v_{measured}">F=K(1-x_{measured})-D v_{measured}</span><button class="math-copy" type="button" data-math-copy aria-label="复制 LaTeX 公式" title="复制 LaTeX"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M6 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1"/></svg><span data-copy-label>复制 LaTeX</span></button></span>，力限制为 ±18 N，固定 5 ms 积分步长。基础质量为 1 kg，负载关增加惯量；噪声只施加在位置测量，速度测量保持理想。实验没有摩擦、驱动内环、完整刚体动力学或网络随机性，因此只用于观察趋势。真实参数选取还需要对应硬件的测量与验证。读完可继续看 <a href="/posts/arm-impedance-control/">机械臂阻抗与力位混合</a> 和 <a href="/posts/dds-qos-tuning/">DDS 选型与调参</a>。</p>
+<h2 id="计算与控制">计算与控制<a class="heading-anchor" href="#计算与控制" aria-label="锚点">#</a></h2>
+<div class="table-wrap" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
+<thead><tr><th>实验</th><th>做什么</th><th>打开</th></tr></thead>
+<tbody>
+<tr><td>01 · 控制周期预算</td><td>把采样、通信和求解的时间加起来，找出余量</td><td><a href="/posts/runnable-demos/#例-1纯计算看输出">查看预算</a></td></tr>
+<tr><td>02 · 阻尼响应对比</td><td>同一目标，比较三种阻尼的峰值与振荡</td><td><a href="/posts/runnable-demos/#例-2算完画出来">对比响应</a></td></tr>
+<tr><td>03 · 参数实验台</td><td>调阻尼比和自然频率，观察超调与调节时间</td><td><a href="/posts/runnable-demos/#例-3带交互">拖动参数</a></td></tr>
+</tbody></table></div>
+<h2 id="动画工具">动画工具<a class="heading-anchor" href="#动画工具" aria-label="锚点">#</a></h2>
+<div class="table-wrap" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
+<thead><tr><th>工具</th><th>做什么</th><th>打开</th></tr></thead>
+<tbody>
+<tr><td>04 · 缓动曲线</td><td>一边预览运动，一边生成 CSS cubic-bezier 参数</td><td><a href="/posts/runnable-demos/#例-4缓动曲线工具">设计一条曲线</a></td></tr>
+<tr><td>05 · 弹簧追踪器</td><td>拖动目标或施加冲量，看阻尼如何改变回弹</td><td><a href="/posts/runnable-demos/#例-5弹簧追踪器">试试回弹</a></td></tr>
+</tbody></table></div>
+<h2 id="休息一下">休息一下<a class="heading-anchor" href="#休息一下" aria-label="锚点">#</a></h2>
+<div class="table-wrap" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
+<thead><tr><th>小游戏</th><th>玩法</th><th>打开</th></tr></thead>
+<tbody>
+<tr><td>06 · 陨石航线</td><td>45 秒躲避挑战；键盘、拖动与触屏按钮都能操作</td><td><a href="/posts/runnable-demos/#例-6陨石航线">进入航线</a></td></tr>
+<tr><td>07 · 记忆翻牌</td><td>找齐八对图案，支持键盘选卡和翻开</td><td><a href="/posts/runnable-demos/#例-7记忆翻牌">开始翻牌</a></td></tr>
+</tbody></table></div>
+<p>所有示例都能查看源码。想给自己的文章加一个实验，可以参考 <a href="/posts/runnable-demos/">可运行示例的写法</a>。</p></div>
+    </div>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="footer-glow" aria-hidden="true"></div>
+  <div class="footer-grid" aria-hidden="true"></div>
+  <span class="footer-corner tl" aria-hidden="true"></span>
+  <span class="footer-corner tr" aria-hidden="true"></span>
+
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="brand-mark lg" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M2.6 20.6h5.6" stroke-width="2.2"/>
+  <path d="M7.9 15.9 11.6 6.6" stroke-width="2.8"/>
+  <path d="M13.4 7.2 19.2 11.4" stroke-width="2.8"/>
+  <circle cx="5.6" cy="17.6" r="2.9" fill="currentColor" stroke="none"/>
+  <circle cx="12.2" cy="6.4" r="2.3" fill="currentColor" stroke="none"/>
+  <circle cx="20.4" cy="12.2" r="1.8" fill="currentColor" stroke="none"/>
+</svg>
+
+      </div>
+      <p class="footer-title">洛叶白</p>
+      <p class="footer-tag">中间件 · 运动控制 · 强化学习</p>
+
+      
+      <p class="footer-now"><span class="pulse" aria-hidden="true"></span>轮式双臂机器人（智元 G2）的工业场景落地与工具链</p>
+      
+
+      <div class="footer-social">
+        
+        <a class="footer-chip" href="https://github.com/luoyebai" rel="noopener">GitHub</a>
+        
+        <a class="footer-chip" href="mailto:2112216825@qq.com" rel="noopener">邮箱</a>
+        
+        <a class="footer-chip" href="mailto:luoyebai4444@gmail.com" rel="noopener">Gmail</a>
+        
+        <a class="footer-chip" href="tel:13407209575" rel="noopener">电话</a>
+        
+      </div>
+
+      <dl class="footer-stats">
+        <div><dt>12</dt><dd>篇文章</dd></div>
+        <div><dt>19</dt><dd>篇文档</dd></div>
+        <div><dt>4</dt><dd>个项目</dd></div>
+        <div><dt>204</dt><dd>页幻灯片</dd></div>
+      </dl>
+    </div>
+
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h4>最新文章</h4>
+        
+        <a class="footer-link" href="/posts/runnable-demos/">
+          <span class="t">可运行示例：让文章里的代码真的跑起来</span>
+          <span class="d">2026 年 9 月 24 日</span>
+        </a>
+        
+        <a class="footer-link" href="/posts/dds-qos-tuning/">
+          <span class="t">DDS 选型与调参：从 QoS 到零拷贝</span>
+          <span class="d">2026 年 4 月 12 日</span>
+        </a>
+        
+        <a class="footer-link" href="/posts/quadruped-mpc-kinematics/">
+          <span class="t">四足运控：MPC 代价函数推导与腿部正逆运动学</span>
+          <span class="d">2026 年 3 月 8 日</span>
+        </a>
+        
+        <a class="footer-more" href="/posts/">
+          全部文章
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/></svg>
+        </a>
+      </div>
+
+      <div class="footer-col">
+        <h4>文档课程</h4>
+        
+        <a class="footer-link" href="/docs/windows-to-linux/">
+          <span class="t">从 Windows 到 Linux</span>
+          <span class="d">6 篇 · 67 页</span>
+        </a>
+        
+        <a class="footer-link" href="/docs/cpp/">
+          <span class="t">从 C 语言到 C++</span>
+          <span class="d">1 篇 · 10 页</span>
+        </a>
+        
+        <a class="footer-link" href="/docs/vision/">
+          <span class="t">ROS 与机器视觉</span>
+          <span class="d">6 篇 · 72 页</span>
+        </a>
+        
+        <a class="footer-link" href="/docs/learning/">
+          <span class="t">从编程开始的学习</span>
+          <span class="d">6 篇 · 55 页</span>
+        </a>
+        
+        <a class="footer-more" href="/docs/">
+          文档总览
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/></svg>
+        </a>
+      </div>
+
+      <div class="footer-col">
+        <h4>导航</h4>
+        <nav class="footer-nav" aria-label="页脚导航">
+          <a href="/">首页</a><a href="/posts/">文章</a><a href="/projects/">项目</a><a href="/docs/">文档</a><a href="/lab/">实验室</a><a href="/graph/">图谱</a><a href="/archive/">归档</a><a href="/links/">一些网站</a><a href="/about/">关于</a>
+        </nav>
+
+        <h4 class="footer-h4-gap">站点</h4>
+        <nav class="footer-nav" aria-label="站点资源">
+          <a href="/learning/">学习路线</a>
+          <a href="/tags/">标签</a>
+          <a href="/archive/">归档</a>
+          
+          <a href="/sitemap.xml">站点地图</a>
+          <a href="/search-index.json">搜索索引</a>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p class="footer-colophon">
+      <span>© 2022–2026 洛叶白</span>
+      <span class="sep" aria-hidden="true">·</span>
+      <span>除注明外均为原创，转载请注明出处</span>
+      <span class="sep" aria-hidden="true">·</span>
+      <span>构建于 <time datetime="2026-10-02">2026-10-02</time></span>
+    </p>
+    <p class="footer-meta">
+      <span class="footer-meta-label">字体</span>
+      <span class="footer-meta-item">Noto Serif SC<i>正文 · 宋体档</i></span><span class="footer-meta-item">Noto Sans SC<i>正文 · 黑体档</i></span><span class="footer-meta-item">FiraCode Nerd<i>代码与数学</i></span>
+      <span class="footer-meta-item is-accent">无第三方依赖 · 无追踪 · 无 Cookie</span>
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" type="button" data-to-top aria-label="回到顶部">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19V5"/><path d="m5.5 11.5 6.5-6.5 6.5 6.5"/>
+  </svg>
+</button>
+
+<div class="settings" id="settings" hidden>
+  <div class="settings-backdrop" data-close-settings></div>
+  <aside class="settings-panel" role="dialog" aria-modal="true" aria-label="外观设置">
+    <header class="settings-head">
+      <div>
+        <h2>外观设置</h2>
+        <p>设置会保存在本机浏览器，刷新后保持</p>
+      </div>
+      <button class="icon-btn" type="button" data-close-settings aria-label="关闭">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path d="M6 6l12 12M18 6 6 18"/>
+        </svg>
+      </button>
+    </header>
+
+    <div class="settings-body">
+
+      <section class="set-group">
+        <h3>专注阅读</h3>
+        <div class="set-field">
+          <span class="set-label">阅读预设</span>
+          <div class="seg" data-seg="focus">
+            <button type="button" data-val="off">日常</button>
+            <button type="button" data-val="on">专注</button>
+          </div>
+        </div>
+        <p class="set-note">收起壁纸、聚光和装饰动效，缩小文章头图区并保留封面；主题配色不变，退出后恢复原来的外观设置。</p>
+      </section>
+
+      <section class="set-group">
+        <h3>主题</h3>
+        <div class="theme-grid">
+          
+          <button class="theme-card" type="button" data-theme-pick="dusk" title="暮色风车">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/dusk.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#ff9d5c"></i><i style="background:#7aa2ff"></i><i style="background:#0b1020"></i>
+              </span>
+            </span>
+            <span class="theme-name">暮色风车</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="neon" title="霓虹机房">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/neon.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#c04bff"></i><i style="background:#22d3ee"></i><i style="background:#0a0718"></i>
+              </span>
+            </span>
+            <span class="theme-name">霓虹机房</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="cyber" title="夜城投递">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/cyber.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#ff7ab6"></i><i style="background:#5ee7c4"></i><i style="background:#141019"></i>
+              </span>
+            </span>
+            <span class="theme-name">夜城投递</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="sakura" title="樱色光爆">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/sakura.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#ff6fa5"></i><i style="background:#b78bff"></i><i style="background:#120a14"></i>
+              </span>
+            </span>
+            <span class="theme-name">樱色光爆</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="void" title="虚空龙息">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/void.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#6ea8ff"></i><i style="background:#ffd166"></i><i style="background:#06080f"></i>
+              </span>
+            </span>
+            <span class="theme-name">虚空龙息</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="mono" title="黑白编辑">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/mono.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#e8e8e8"></i><i style="background:#9aa0a6"></i><i style="background:#0c0c0d"></i>
+              </span>
+            </span>
+            <span class="theme-name">黑白编辑</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="paper" title="留白纸面">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/paper.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#17b8a6"></i><i style="background:#f0a04b"></i><i style="background:#fbfcfc"></i>
+              </span>
+            </span>
+            <span class="theme-name">留白纸面</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="alpine" title="远山夜湖">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/alpine.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#5b8dd9"></i><i style="background:#78d9c8"></i><i style="background:#0a1220"></i>
+              </span>
+            </span>
+            <span class="theme-name">远山夜湖</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="moonlit" title="皎月水面">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/moonlit.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#7fd4f0"></i><i style="background:#ffd9a0"></i><i style="background:#050b1c"></i>
+              </span>
+            </span>
+            <span class="theme-name">皎月水面</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="comet" title="彗星山晚">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/comet.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#e07a5f"></i><i style="background:#9b8cff"></i><i style="background:#1c2242"></i>
+              </span>
+            </span>
+            <span class="theme-name">彗星山晚</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="lantern" title="林间提灯">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/lantern.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#e8a45c"></i><i style="background:#66d6a8"></i><i style="background:#141121"></i>
+              </span>
+            </span>
+            <span class="theme-name">林间提灯</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="sketch" title="素描线稿">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/sketch.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#5a6b96"></i><i style="background:#8a6f52"></i><i style="background:#1f2024"></i>
+              </span>
+            </span>
+            <span class="theme-name">素描线稿</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="manga" title="漫画分格">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/manga.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#cf4436"></i><i style="background:#4a6fa8"></i><i style="background:#242428"></i>
+              </span>
+            </span>
+            <span class="theme-name">漫画分格</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="lumen" title="暖灯夜色">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/lumen.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#ffbe4d"></i><i style="background:#7ad3e8"></i><i style="background:#0d1a28"></i>
+              </span>
+            </span>
+            <span class="theme-name">暖灯夜色</span>
+          </button>
+          
+          <button class="theme-card" type="button" data-theme-pick="bocchi" title="波奇光晕">
+            <span class="theme-thumb" style="background-image:url(/assets/bg/bocchi.jpg)">
+              <span class="theme-swatches">
+                <i style="background:#eaa5bc"></i><i style="background:#6acbc9"></i><i style="background:#101b2d"></i>
+              </span>
+            </span>
+            <span class="theme-name">波奇光晕</span>
+          </button>
+          
+        </div>
+      </section>
+
+      <section class="set-group">
+        <h3>配色</h3>
+        <div class="set-field">
+          <span class="set-label">明暗模式</span>
+          <div class="seg" data-seg="mode">
+            <button type="button" data-val="dark">深色</button>
+            <button type="button" data-val="light">浅色</button>
+          </div>
+        </div>
+        <div class="set-field set-field--inline">
+          <span class="set-label">强调色覆盖</span>
+          <input type="color" data-color="accent" value="#ff9d5c" aria-label="强调色">
+        </div>
+        <p class="set-note">强调色默认由主题的种子色推导；想临时改一个色就动这里，留空色块即为跟随主题。</p>
+      </section>
+
+      <section class="set-group">
+        <h3>排版</h3>
+        <div class="set-field">
+          <span class="set-label">正文字体</span>
+          <div class="seg" data-seg="font">
+            <button type="button" data-val="sans">黑体</button>
+            <button type="button" data-val="serif">宋体</button>
+            <button type="button" data-val="mono">等宽</button>
+          </div>
+        </div>
+        <div class="set-field">
+          <span class="set-label">字号 <b data-out="scale">—</b></span>
+          <input type="range" data-range="scale" min="0.9" max="1.25" step="0.01" value="1" aria-label="字号">
+        </div>
+        <div class="set-field">
+          <span class="set-label">阅读宽度</span>
+          <div class="seg" data-seg="width">
+            <button type="button" data-val="narrow">窄</button>
+            <button type="button" data-val="normal">标准</button>
+            <button type="button" data-val="wide">宽</button>
+          </div>
+        </div>
+        <p class="set-note">黑体 / 宋体随站点自带，不依赖本机字体。</p>
+      </section>
+
+      <section class="set-group">
+        <h3>玻璃材质</h3>
+        <div class="set-field">
+          <span class="set-label">质感档位</span>
+          <div class="seg" data-seg="glass">
+            <button type="button" data-val="off">关闭</button>
+            <button type="button" data-val="low">弱</button>
+            <button type="button" data-val="med">中</button>
+            <button type="button" data-val="high">强</button>
+          </div>
+        </div>
+        <div class="set-field">
+          <span class="set-label">不透明度 <b data-out="glassAlpha">—</b></span>
+          <input type="range" data-range="glassAlpha" min="40" max="100" step="1" value="72" aria-label="玻璃不透明度">
+        </div>
+        <p class="set-note">越低越透、背后的壁纸越明显；低于 60% 时文字在花哨壁纸上会不太好读。选「关闭」为实底。</p>
+      </section>
+
+      <section class="set-group">
+        <h3>背景壁纸</h3>
+        <div class="set-field">
+          <span class="set-label">显示</span>
+          <div class="seg" data-seg="bg">
+            <button type="button" data-val="on">显示</button>
+            <button type="button" data-val="off">隐藏</button>
+          </div>
+        </div>
+        <div class="set-field">
+          <span class="set-label">来源</span>
+          <div class="seg" data-seg="bgmode">
+            <button type="button" data-val="image">静态图</button>
+            <button type="button" data-val="video">动态视频</button>
+          </div>
+        </div>
+        <p class="set-note">无声循环视频按当前主题加载；切到「动态视频」后才加载，后台标签页会暂停。</p>
+        <div class="set-divider"></div>
+        <div class="set-field">
+          <span class="set-label">可见度 <b data-out="bgOpacity">—</b></span>
+          <input type="range" data-range="bgOpacity" min="0" max="100" step="2" value="62" aria-label="壁纸可见度">
+        </div>
+        <div class="set-field">
+          <span class="set-label">模糊 <b data-out="bgBlur">—</b></span>
+          <input type="range" data-range="bgBlur" min="0" max="40" step="1" value="0" aria-label="壁纸模糊">
+        </div>
+      </section>
+
+      <section class="set-group">
+        <h3>交互</h3>
+        <div class="set-field">
+          <span class="set-label">卡片 3D 倾斜</span>
+          <div class="seg" data-seg="tilt">
+            <button type="button" data-val="0">关闭</button>
+            <button type="button" data-val="6">轻微</button>
+            <button type="button" data-val="12">标准</button>
+            <button type="button" data-val="20">明显</button>
+          </div>
+        </div>
+        <p class="set-note">鼠标移到文章 / 项目卡片上时跟着倾斜的角度，仅在精确指针设备生效。</p>
+        <div class="set-divider"></div>
+        <div class="set-field">
+          <span class="set-label">页面动效</span>
+          <div class="seg" data-seg="motion">
+            <button type="button" data-val="on">开启</button>
+            <button type="button" data-val="off">关闭</button>
+          </div>
+        </div>
+        <div class="set-field">
+          <span class="set-label">鼠标指针</span>
+          <div class="seg" data-seg="cursor">
+            <button type="button" data-val="glow">微光</button>
+            <button type="button" data-val="on">圆环</button>
+            <button type="button" data-val="off">系统</button>
+          </div>
+        </div>
+        <p class="set-note">微光保留系统指针，移动时轻柔跟随，进入正文或输入框时收起；圆环悬停时会变形。关闭页面动效或使用触屏时，自动使用系统指针。</p>
+      </section>
+
+    </div>
+
+    <footer class="settings-foot">
+      <button class="btn ghost" type="button" data-reset-appearance>恢复默认</button>
+      <button class="btn primary" type="button" data-close-settings>完成</button>
+    </footer>
+  </aside>
+</div>
+
+<div class="search" id="search" hidden>
+  <div class="search-backdrop" data-close-search></div>
+  <div class="search-panel" role="dialog" aria-modal="true" aria-label="搜索">
+    <div class="search-input">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <circle cx="11" cy="11" r="6.5"/><path d="M16.2 16.2 21 21"/>
+      </svg>
+      <input type="search" placeholder="搜索文章、项目、文档…" autocomplete="off" spellcheck="false" data-search-input>
+      <kbd>Esc</kbd>
+    </div>
+    <div class="search-results" data-search-results>
+      <p class="search-hint">输入关键词开始搜索 · ↑↓ 选择 · Enter 打开</p>
+    </div>
+  </div>
+</div>
+
+<div class="mobile-menu" id="mobile-menu" hidden>
+  <div class="mobile-menu-backdrop" data-close-menu></div>
+  <nav class="mobile-menu-panel">
+    <a href="/">首页</a><a href="/posts/">文章</a><a href="/projects/">项目</a><a href="/docs/">文档</a><a href="/lab/" class="is-active" aria-current="page">实验室</a><a href="/graph/">图谱</a><a href="/archive/">归档</a><a href="/links/">一些网站</a><a href="/about/">关于</a>
+    <div class="mobile-menu-social">
+      <a href="https://github.com/luoyebai" rel="noopener">GitHub</a><a href="mailto:2112216825@qq.com" rel="noopener">邮箱</a><a href="mailto:luoyebai4444@gmail.com" rel="noopener">Gmail</a><a href="tel:13407209575" rel="noopener">电话</a>
+    </div>
+  </nav>
+</div>
+
+
+
+
+
+<script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
+
+
+<script defer src="/assets/vendor/katex/katex.min.js"></script>
+
+
+<script src="/assets/site.js?v=82d4aca5" defer></script>
+
+<script src="/assets/reading.js?v=82d4aca5" defer></script>
+</body>
+</html>
+

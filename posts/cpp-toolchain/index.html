@@ -9,7 +9,8 @@
       data-font="serif"
       data-motion="on"
       data-width="normal"
-      data-cursor="on"
+      data-cursor="glow"
+      data-default-cursor="glow"
       data-root=""
       data-search-url="/search-index.json">
 <head>
@@ -31,8 +32,8 @@
 <link rel="canonical" href="https://luoyebai.github.io/posts/cpp-toolchain/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=a860e2c6">
-<link rel="stylesheet" href="/assets/site.css?v=a860e2c6">
+<link rel="stylesheet" href="/assets/themes.css?v=82d4aca5">
+<link rel="stylesheet" href="/assets/site.css?v=82d4aca5">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
 
@@ -57,8 +58,10 @@
   var s = {};
   try { s = JSON.parse(localStorage.getItem('blog.appearance') || '{}') || {}; } catch (e) {}
   function pick(k) { return q[k] !== undefined ? q[k] : s[k]; }
+  el.setAttribute('data-focus', s.focus === 'on' ? 'on' : 'off');
   ['theme', 'mode', 'bg', 'bgmode', 'tilt', 'glass', 'font', 'motion', 'width', 'cursor'].forEach(function (k) {
     var v = pick(k);
+    if (k === 'cursor' && ['glow', 'on', 'off'].indexOf(v) === -1) return;
     if (v) el.setAttribute('data-' + k, v);
   });
   var op = pick('bgOpacity');
@@ -118,9 +121,13 @@
       
       <a href="/docs/">文档</a>
       
+      <a href="/lab/">实验室</a>
+      
       <a href="/graph/">图谱</a>
       
       <a href="/archive/">归档</a>
+      
+      <a href="/links/">一些网站</a>
       
       <a href="/about/">关于</a>
       
@@ -281,6 +288,7 @@
 换后端不用改脚本。</li><li><strong>给 CN 环境准备代理或镜像</strong>。<code>FetchContent</code> / <code>find_package</code> 拉 GitHub 超时是常态。</li></ul>
 <p>推荐上手路径：<a href="https://cmake.org/cmake/help/latest/guide/tutorial/index.html" target="_blank" rel="noopener" class="site-link" data-site="cmake.org"><svg class="site-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#site-cmake"/></svg>CMake 官方 Tutorial</a>，
 配合 <a href="https://cliutils.gitlab.io/modern-cmake/" target="_blank" rel="noopener">Modern CMake</a>（比官方教程更贴近工程实际）。</p>
+<blockquote><p>现在让 <em>AI</em>  写  <em>CMAKE</em>，组织架构可能是更合适的选择 <em>（？）</em></p></blockquote>
 <h3 id="xmake">Xmake<a class="heading-anchor" href="#xmake" aria-label="锚点">#</a></h3>
 <p><a href="https://xmake.io/zh/" target="_blank" rel="noopener">Xmake</a> 用 Lua 描述构建，语法比 CMake 短得多，
 自带包管理（<code>add_requires("eigen")</code> 直接拉依赖，不用手写 <code>FindXXX.cmake</code>）。
@@ -327,7 +335,7 @@ cmake <span class="tok-operator">-</span><span class="tok-type">DCMAKE_BUILD_TYP
 <span class="tok-comment"># 线程：数据竞争</span>
 cmake <span class="tok-operator">-</span><span class="tok-type">DCMAKE_CXX_FLAGS</span><span class="tok-operator">=</span><span class="tok-string">&quot;-fsanitize=thread&quot;</span> ..</code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
 <p>注意 <strong>ASan 和 TSan 不能同时开</strong>。实时控制代码里 ASan 的耗时（数倍）会让环路跑不满，
-所以它适合跑单元测试和离线回放，不适合直接在实机 1 kHz 环上测。</p>
+所以它适合跑单元测试和离线回放，不适合高实时测试项。</p>
 <h3 id="perf">perf<a class="heading-anchor" href="#perf" aria-label="锚点">#</a></h3>
 <div class="code-block" data-lang="bash" data-lines="3"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">perf record <span class="tok-operator">-</span>g .<span class="tok-operator">/</span>my_node      <span class="tok-comment"># 采样 + 记录调用栈</span>
 perf report                   <span class="tok-comment"># 交互式看热点</span>
@@ -348,7 +356,7 @@ ARM 上更慢 —— 可以配二进制缓存（<code>VCPKG_BINARY_SOURCES</code
 <p>代价是每个包要维护一份 recipe，遇到没人打包的库得自己写。
 <strong>库多且杂、要交叉编译到 ARM 时选 Conan；纯 CMake 工程选 vcpkg 更省事。</strong></p>
 <blockquote><p>无论用哪个，都别用系统包管理器（<code>apt install libfoo-dev</code>）装构建依赖：
-版本随发行版走、无法复现，Ubuntu 20.04 和 22.04 上编出来的东西不是一回事。</p></blockquote>
+版本随发行版走、无法复现，例：Ubuntu 20.04 和 22.04 上各种依赖版本可能完全不同（<em>冲突</em>）。</p></blockquote>
 <h2 id="代码质量">代码质量<a class="heading-anchor" href="#代码质量" aria-label="锚点">#</a></h2>
 <h3 id="clang-tidy">clang-tidy<a class="heading-anchor" href="#clang-tidy" aria-label="锚点">#</a></h3>
 <p>静态检查。它和编译器警告的区别是：编译器只报语法与少数语义问题，
@@ -499,14 +507,14 @@ clang-tidy 能查「这个构造函数该标 <code>explicit</code>」「这个 <
 <p><a href="https://github.com/terryyin/lizard" target="_blank" rel="noopener" class="site-link" data-site="github.com"><svg class="site-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#site-github"/></svg>Lizard</a> 算圈复杂度（CCN）与函数长度，
 用来找「该拆但一直没拆」的函数：</p>
 <div class="code-block" data-lang="bash" data-lines="1"><div class="code-head"><span class="code-lang">bash</span><div class="code-tools"><button class="code-copy" type="button" data-copy aria-label="复制代码"><span data-copy-label>复制</span></button></div></div><pre class="code-pre"><code class="language-bash">lizard <span class="tok-operator">-</span>l cpp <span class="tok-operator">-</span><span class="tok-type">C</span> <span class="tok-number">15</span> src<span class="tok-operator">/</span>        <span class="tok-comment"># 只列 CCN &gt; 15 的函数</span></code></pre><button class="code-more" type="button" data-fold aria-label="展开全部代码" hidden><span data-fold-more>展开全部</span></button></div>
-<p>它不做数据流分析，所以不用指望它发现 bug；它的价值是把「这个函数太长了」
-从一个见仁见智的意见变成一条能进 CI 的硬指标。建议阈值先设宽（CCN 20），
-只对新增代码生效。</p>
+<p>该工具不做数据流分析，不用指望它发现 bug；它的做的是把「这个函数太长了」
+变成一条能进 CI 的硬指标。阈值推荐（CCN 20），只对新增代码生效。</p>
 <hr>
-<p>到这里这套工具链就闭环了：<strong>CMake 描述、Ninja 执行、vcpkg/Conan 供依赖、
+<aside class="callout callout-tip"><div class="callout-title">工具目标</div><div class="callout-body"><p>到这里这套工具链就闭环了：<strong>CMake 描述、Ninja 执行、vcpkg/Conan 供依赖、
 gdb/rr 查崩溃、sanitizer 查内存与并发、perf 查性能、clang-tidy/clang-format
-加 lizard 守质量</strong>。真正的门槛不在单个工具，而在于把它们接进 CI，
-让「不干净」的代码进不来 —— 靠人自觉维护的规范，三个月后就只剩文档了。</p></div>
+加 lizard 守质量</strong>。</p></div></aside>
+<aside class="callout callout-warn"><div class="callout-title">切记</div><div class="callout-body"><p>真正的门槛不在单个工具，而在于把它们接进 CI，
+让「不干净」的代码进不来 —— 靠人自觉维护的规范，三个月后就只剩文档了。</p></div></aside></div>
 
       <div class="post-end">
         <span class="end-mark" aria-hidden="true">◆</span>
@@ -521,14 +529,11 @@ gdb/rr 查崩溃、sanitizer 查内存与并发、perf 查性能、clang-tidy/cl
   <a class="card-link" href="/posts/runnable-demos/"><span class="sr-only">可运行示例：让文章里的代码真的跑起来</span></a>
   <div class="card-tilt">
     
-    <div class="card-cover media-shim is-fit">
+    <div class="card-cover media-shim">
       
-      
-      <span class="card-cover-blur" style="background-image:url('/assets/uploads/下载.gif')" aria-hidden="true"></span>
-      
-      <img src="/assets/uploads/下载.gif"
+      <img src="/assets/uploads/yxj5ox-yxj5ox-3b300a8448.webp"
            alt=""
-           width="240" height="240"
+           width="1920" height="1080"
            style="object-position: 50% 50%"
            loading="lazy" decoding="async">
       <span class="card-cover-veil"></span>
@@ -541,11 +546,11 @@ gdb/rr 查崩溃、sanitizer 查内存与并发、perf 查性能、clang-tidy/cl
       </div>
       
       <h3 class="card-title">可运行示例：让文章里的代码真的跑起来</h3>
-      <p class="card-summary">在 Markdown 里用 ```js run 标记一段代码，构建后它会变成带「运行」按钮的交互面板——访客可以自己点开跑，看到真实输出。</p>
+      <p class="card-summary">七个可以直接操作的浏览器示例：计算与绘图、阻尼调参、缓动曲线编辑、弹簧追踪，以及陨石躲避和记忆翻牌。每个面板独立运行，动画可以暂停和重置。</p>
       <div class="card-meta">
         <time datetime="2026-09-24">2026 年 9 月 24 日</time>
         <span class="sep" aria-hidden="true"></span>
-        <span>7 分钟</span>
+        <span>5 分钟</span>
         <span class="card-meta-end">
           
           <span class="pin" title="精选">精选</span>
@@ -767,11 +772,12 @@ gdb/rr 查崩溃、sanitizer 查内存与并发、perf 查性能、clang-tidy/cl
       <div class="footer-col">
         <h4>导航</h4>
         <nav class="footer-nav" aria-label="页脚导航">
-          <a href="/">首页</a><a href="/posts/">文章</a><a href="/projects/">项目</a><a href="/docs/">文档</a><a href="/graph/">图谱</a><a href="/archive/">归档</a><a href="/about/">关于</a>
+          <a href="/">首页</a><a href="/posts/">文章</a><a href="/projects/">项目</a><a href="/docs/">文档</a><a href="/lab/">实验室</a><a href="/graph/">图谱</a><a href="/archive/">归档</a><a href="/links/">一些网站</a><a href="/about/">关于</a>
         </nav>
 
         <h4 class="footer-h4-gap">站点</h4>
         <nav class="footer-nav" aria-label="站点资源">
+          <a href="/learning/">学习路线</a>
           <a href="/tags/">标签</a>
           <a href="/archive/">归档</a>
           
@@ -788,7 +794,7 @@ gdb/rr 查崩溃、sanitizer 查内存与并发、perf 查性能、clang-tidy/cl
       <span class="sep" aria-hidden="true">·</span>
       <span>除注明外均为原创，转载请注明出处</span>
       <span class="sep" aria-hidden="true">·</span>
-      <span>构建于 <time datetime="2026-09-30">2026-09-30</time></span>
+      <span>构建于 <time datetime="2026-10-02">2026-10-02</time></span>
     </p>
     <p class="footer-meta">
       <span class="footer-meta-label">字体</span>
@@ -820,6 +826,18 @@ gdb/rr 查崩溃、sanitizer 查内存与并发、perf 查性能、clang-tidy/cl
     </header>
 
     <div class="settings-body">
+
+      <section class="set-group">
+        <h3>专注阅读</h3>
+        <div class="set-field">
+          <span class="set-label">阅读预设</span>
+          <div class="seg" data-seg="focus">
+            <button type="button" data-val="off">日常</button>
+            <button type="button" data-val="on">专注</button>
+          </div>
+        </div>
+        <p class="set-note">收起壁纸、聚光和装饰动效，缩小文章头图区并保留封面；主题配色不变，退出后恢复原来的外观设置。</p>
+      </section>
 
       <section class="set-group">
         <h3>主题</h3>
@@ -1073,11 +1091,12 @@ gdb/rr 查崩溃、sanitizer 查内存与并发、perf 查性能、clang-tidy/cl
         <div class="set-field">
           <span class="set-label">鼠标指针</span>
           <div class="seg" data-seg="cursor">
-            <button type="button" data-val="on">自定义</button>
+            <button type="button" data-val="glow">微光</button>
+            <button type="button" data-val="on">圆环</button>
             <button type="button" data-val="off">系统</button>
           </div>
         </div>
-        <p class="set-note">自定义指针是一个反相圆环，悬停会变形并显示提示；文字输入框仍用系统指针，触屏设备自动忽略。</p>
+        <p class="set-note">微光保留系统指针，移动时轻柔跟随，进入正文或输入框时收起；圆环悬停时会变形。关闭页面动效或使用触屏时，自动使用系统指针。</p>
       </section>
 
     </div>
@@ -1096,7 +1115,7 @@ gdb/rr 查崩溃、sanitizer 查内存与并发、perf 查性能、clang-tidy/cl
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
         <circle cx="11" cy="11" r="6.5"/><path d="M16.2 16.2 21 21"/>
       </svg>
-      <input type="search" placeholder="搜索文章、项目、标签…" autocomplete="off" spellcheck="false" data-search-input>
+      <input type="search" placeholder="搜索文章、项目、文档…" autocomplete="off" spellcheck="false" data-search-input>
       <kbd>Esc</kbd>
     </div>
     <div class="search-results" data-search-results>
@@ -1108,7 +1127,7 @@ gdb/rr 查崩溃、sanitizer 查内存与并发、perf 查性能、clang-tidy/cl
 <div class="mobile-menu" id="mobile-menu" hidden>
   <div class="mobile-menu-backdrop" data-close-menu></div>
   <nav class="mobile-menu-panel">
-    <a href="/">首页</a><a href="/posts/">文章</a><a href="/projects/">项目</a><a href="/docs/">文档</a><a href="/graph/">图谱</a><a href="/archive/">归档</a><a href="/about/">关于</a>
+    <a href="/">首页</a><a href="/posts/" class="is-active" aria-current="page">文章</a><a href="/projects/">项目</a><a href="/docs/">文档</a><a href="/lab/">实验室</a><a href="/graph/">图谱</a><a href="/archive/">归档</a><a href="/links/">一些网站</a><a href="/about/">关于</a>
     <div class="mobile-menu-social">
       <a href="https://github.com/luoyebai" rel="noopener">GitHub</a><a href="mailto:2112216825@qq.com" rel="noopener">邮箱</a><a href="mailto:luoyebai4444@gmail.com" rel="noopener">Gmail</a><a href="tel:13407209575" rel="noopener">电话</a>
     </div>
@@ -1125,8 +1144,9 @@ gdb/rr 查崩溃、sanitizer 查内存与并发、perf 查性能、clang-tidy/cl
 <script defer src="/assets/vendor/katex/katex.min.js"></script>
 
 
-<script src="/assets/site.js?v=a860e2c6" defer></script>
+<script src="/assets/site.js?v=82d4aca5" defer></script>
 
+<script src="/assets/reading.js?v=82d4aca5" defer></script>
 </body>
 </html>
 

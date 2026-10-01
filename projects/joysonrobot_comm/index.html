@@ -9,7 +9,8 @@
       data-font="serif"
       data-motion="on"
       data-width="normal"
-      data-cursor="on"
+      data-cursor="glow"
+      data-default-cursor="glow"
       data-root=""
       data-search-url="/search-index.json">
 <head>
@@ -31,8 +32,8 @@
 <link rel="canonical" href="https://luoyebai.github.io/projects/joysonrobot_comm/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=a860e2c6">
-<link rel="stylesheet" href="/assets/site.css?v=a860e2c6">
+<link rel="stylesheet" href="/assets/themes.css?v=82d4aca5">
+<link rel="stylesheet" href="/assets/site.css?v=82d4aca5">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
 
@@ -56,8 +57,10 @@
   var s = {};
   try { s = JSON.parse(localStorage.getItem('blog.appearance') || '{}') || {}; } catch (e) {}
   function pick(k) { return q[k] !== undefined ? q[k] : s[k]; }
+  el.setAttribute('data-focus', s.focus === 'on' ? 'on' : 'off');
   ['theme', 'mode', 'bg', 'bgmode', 'tilt', 'glass', 'font', 'motion', 'width', 'cursor'].forEach(function (k) {
     var v = pick(k);
+    if (k === 'cursor' && ['glow', 'on', 'off'].indexOf(v) === -1) return;
     if (v) el.setAttribute('data-' + k, v);
   });
   var op = pick('bgOpacity');
@@ -117,9 +120,13 @@
       
       <a href="/docs/">文档</a>
       
+      <a href="/lab/">实验室</a>
+      
       <a href="/graph/">图谱</a>
       
       <a href="/archive/">归档</a>
+      
+      <a href="/links/">一些网站</a>
       
       <a href="/about/">关于</a>
       
@@ -399,11 +406,12 @@ sudo make install</code></pre><button class="code-more" type="button" data-fold 
       <div class="footer-col">
         <h4>导航</h4>
         <nav class="footer-nav" aria-label="页脚导航">
-          <a href="/">首页</a><a href="/posts/">文章</a><a href="/projects/">项目</a><a href="/docs/">文档</a><a href="/graph/">图谱</a><a href="/archive/">归档</a><a href="/about/">关于</a>
+          <a href="/">首页</a><a href="/posts/">文章</a><a href="/projects/">项目</a><a href="/docs/">文档</a><a href="/lab/">实验室</a><a href="/graph/">图谱</a><a href="/archive/">归档</a><a href="/links/">一些网站</a><a href="/about/">关于</a>
         </nav>
 
         <h4 class="footer-h4-gap">站点</h4>
         <nav class="footer-nav" aria-label="站点资源">
+          <a href="/learning/">学习路线</a>
           <a href="/tags/">标签</a>
           <a href="/archive/">归档</a>
           
@@ -420,7 +428,7 @@ sudo make install</code></pre><button class="code-more" type="button" data-fold 
       <span class="sep" aria-hidden="true">·</span>
       <span>除注明外均为原创，转载请注明出处</span>
       <span class="sep" aria-hidden="true">·</span>
-      <span>构建于 <time datetime="2026-09-30">2026-09-30</time></span>
+      <span>构建于 <time datetime="2026-10-02">2026-10-02</time></span>
     </p>
     <p class="footer-meta">
       <span class="footer-meta-label">字体</span>
@@ -452,6 +460,18 @@ sudo make install</code></pre><button class="code-more" type="button" data-fold 
     </header>
 
     <div class="settings-body">
+
+      <section class="set-group">
+        <h3>专注阅读</h3>
+        <div class="set-field">
+          <span class="set-label">阅读预设</span>
+          <div class="seg" data-seg="focus">
+            <button type="button" data-val="off">日常</button>
+            <button type="button" data-val="on">专注</button>
+          </div>
+        </div>
+        <p class="set-note">收起壁纸、聚光和装饰动效，缩小文章头图区并保留封面；主题配色不变，退出后恢复原来的外观设置。</p>
+      </section>
 
       <section class="set-group">
         <h3>主题</h3>
@@ -705,11 +725,12 @@ sudo make install</code></pre><button class="code-more" type="button" data-fold 
         <div class="set-field">
           <span class="set-label">鼠标指针</span>
           <div class="seg" data-seg="cursor">
-            <button type="button" data-val="on">自定义</button>
+            <button type="button" data-val="glow">微光</button>
+            <button type="button" data-val="on">圆环</button>
             <button type="button" data-val="off">系统</button>
           </div>
         </div>
-        <p class="set-note">自定义指针是一个反相圆环，悬停会变形并显示提示；文字输入框仍用系统指针，触屏设备自动忽略。</p>
+        <p class="set-note">微光保留系统指针，移动时轻柔跟随，进入正文或输入框时收起；圆环悬停时会变形。关闭页面动效或使用触屏时，自动使用系统指针。</p>
       </section>
 
     </div>
@@ -728,7 +749,7 @@ sudo make install</code></pre><button class="code-more" type="button" data-fold 
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
         <circle cx="11" cy="11" r="6.5"/><path d="M16.2 16.2 21 21"/>
       </svg>
-      <input type="search" placeholder="搜索文章、项目、标签…" autocomplete="off" spellcheck="false" data-search-input>
+      <input type="search" placeholder="搜索文章、项目、文档…" autocomplete="off" spellcheck="false" data-search-input>
       <kbd>Esc</kbd>
     </div>
     <div class="search-results" data-search-results>
@@ -740,7 +761,7 @@ sudo make install</code></pre><button class="code-more" type="button" data-fold 
 <div class="mobile-menu" id="mobile-menu" hidden>
   <div class="mobile-menu-backdrop" data-close-menu></div>
   <nav class="mobile-menu-panel">
-    <a href="/">首页</a><a href="/posts/">文章</a><a href="/projects/">项目</a><a href="/docs/">文档</a><a href="/graph/">图谱</a><a href="/archive/">归档</a><a href="/about/">关于</a>
+    <a href="/">首页</a><a href="/posts/">文章</a><a href="/projects/" class="is-active" aria-current="page">项目</a><a href="/docs/">文档</a><a href="/lab/">实验室</a><a href="/graph/">图谱</a><a href="/archive/">归档</a><a href="/links/">一些网站</a><a href="/about/">关于</a>
     <div class="mobile-menu-social">
       <a href="https://github.com/luoyebai" rel="noopener">GitHub</a><a href="mailto:2112216825@qq.com" rel="noopener">邮箱</a><a href="mailto:luoyebai4444@gmail.com" rel="noopener">Gmail</a><a href="tel:13407209575" rel="noopener">电话</a>
     </div>
@@ -757,8 +778,9 @@ sudo make install</code></pre><button class="code-more" type="button" data-fold 
 <script defer src="/assets/vendor/katex/katex.min.js"></script>
 
 
-<script src="/assets/site.js?v=a860e2c6" defer></script>
+<script src="/assets/site.js?v=82d4aca5" defer></script>
 
+<script src="/assets/reading.js?v=82d4aca5" defer></script>
 </body>
 </html>
 

@@ -17,7 +17,8 @@
     font: HTML.getAttribute('data-font') || 'sans',
     motion: HTML.getAttribute('data-motion') || 'on',
     width: HTML.getAttribute('data-width') || 'normal',
-    cursor: HTML.getAttribute('data-cursor') || 'on',
+    cursor: HTML.getAttribute('data-default-cursor') || 'glow',
+    focus: 'off',
     bgOpacity: 72,
     bgBlur: 0,
     glassAlpha: 72,
@@ -44,7 +45,7 @@
     var s = Theme.state;
     var meta = (window.__THEMES__ || {})[s.theme] || {};
     var root = HTML.getAttribute('data-root') || '';
-    var want = s.bgmode === 'video' && s.bg === 'on' && s.motion !== 'off'
+    var want = s.focus !== 'on' && s.bgmode === 'video' && s.bg === 'on' && s.motion !== 'off'
       && !_reduced.matches && !document.hidden && !!meta.video &&
       !(navigator.connection && navigator.connection.saveData);
     if (!want) {
@@ -107,6 +108,8 @@
     });
     var over = urlOverrides();
     Object.keys(over).forEach(function (k) { state[k] = over[k]; });
+    if (['glow', 'on', 'off'].indexOf(state.cursor) === -1) state.cursor = DEFAULTS.cursor;
+    state.focus = state.focus === 'on' ? 'on' : 'off';
     return state;
   }
   function save(state) {
@@ -117,7 +120,10 @@
     listeners: [],
     onChange: function (fn) { this.listeners.push(fn); },
     apply: function () {
-      var s = this.state;
+      var s = this.state.focus === 'on'
+        ? Object.assign({}, this.state, { bg: 'off', motion: 'off', tilt: '0', cursor: 'off' })
+        : this.state;
+      HTML.setAttribute('data-focus', this.state.focus);
       ATTRS.forEach(function (k) { HTML.setAttribute('data-' + k, s[k]); });
       HTML.style.setProperty('--bg-opacity', (Number(s.bgOpacity) / 100).toFixed(3));
       HTML.style.setProperty('--bg-blur', Number(s.bgBlur) + 'px');
@@ -135,6 +141,10 @@
       this.syncPanel();
       syncVideo();
       this.listeners.forEach(function (fn) { try { fn(s); } catch (e) {} });
+      document.querySelectorAll('[data-toggle-focus]').forEach(function (button) {
+        button.setAttribute('aria-pressed', s.focus === 'on' ? 'true' : 'false');
+        button.textContent = s.focus === 'on' ? '退出专注' : '专注阅读';
+      });
     },
     set: function (patch, persist) {
       Object.assign(this.state, patch);
@@ -245,6 +255,9 @@
   Theme.apply();
   if (/[?&]panel=1\b/.test(location.search)) Theme.open();
   window.Theme = Theme;
+  document.addEventListener('click', function (event) {
+    if (event.target.closest('[data-toggle-focus]')) Theme.set({ focus: Theme.state.focus === 'on' ? 'off' : 'on' });
+  });
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', syncVideo);
   }
@@ -347,19 +360,28 @@
     });
   }
   var spot = document.querySelector('.spotlight');
-  if (spot && motionOn() && window.matchMedia('(pointer: fine)').matches) {
+  if (spot && window.matchMedia('(pointer: fine)').matches) {
     var sx = 0, sy = 0, cx = 0, cy = 0, raf = null;
+    function stopSpot() {
+      if (raf) cancelAnimationFrame(raf);
+      raf = null;
+      spot.classList.remove('is-on');
+    }
     window.addEventListener('pointermove', function (ev) {
+      if (!motionOn() || document.hidden) { stopSpot(); return; }
       sx = ev.clientX; sy = ev.clientY;
       spot.classList.add('is-on');
       if (!raf) raf = window.requestAnimationFrame(step);
     }, { passive: true });
     function step() {
+      if (!motionOn() || document.hidden) { stopSpot(); return; }
       cx += (sx - cx) * 0.12;
       cy += (sy - cy) * 0.12;
       spot.style.transform = 'translate3d(' + cx.toFixed(1) + 'px,' + cy.toFixed(1) + 'px,0)';
       raf = (Math.abs(sx - cx) > 0.6 || Math.abs(sy - cy) > 0.6) ? window.requestAnimationFrame(step) : null;
     }
+    if (window.Theme && Theme.onChange) Theme.onChange(function () { if (!motionOn()) stopSpot(); });
+    document.addEventListener('visibilitychange', function () { if (document.hidden) stopSpot(); });
   }
   var toc = document.querySelector('[data-toc]');
   if (toc) {
@@ -464,7 +486,7 @@
   wire('[data-open-menu]', 'mobile-menu', 'data-close-menu');
   document.addEventListener('keydown', function (ev) {
     if (ev.key !== 'Escape') return;
-    ['settings', 'search', 'mobile-menu'].forEach(function (id) {
+    ['settings', 'mobile-menu'].forEach(function (id) {
       var p = document.getElementById(id);
       if (p && !p.hidden) { p.hidden = true; document.body.style.overflow = ''; }
     });
@@ -474,13 +496,13 @@
   'use strict';
   var root = document.documentElement;
   var fine = window.matchMedia('(hover: hover) and (pointer: fine)');
-  if (!fine.matches) return;
   var el = document.createElement('div');
   el.className = 'cursor';
   el.setAttribute('aria-hidden', 'true');
   el.innerHTML =
     '<span class="cursor-ring"></span>' +
     '<span class="cursor-dot"></span>' +
+    '<span class="cursor-trail"></span>' +
     '<span class="cursor-icon">' +
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"' +
     ' stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/>' +
@@ -490,11 +512,12 @@
   var ring = el.querySelector('.cursor-ring');
   var dot = el.querySelector('.cursor-dot');
   var icon = el.querySelector('.cursor-icon');
+  var trail = el.querySelector('.cursor-trail');
   var label = el.querySelector('.cursor-label');
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
   var x = -100, y = -100, rx = -100, ry = -100, dx = -100, dy = -100;
   var shown = false, raf = 0, down = false, state = '';
-  var interactive = 'a,button,summary,label,[role="button"],[data-cursor]';
+  var interactive = 'a,button,summary,label,[role="button"],[data-cursor]:not(html)';
   var barDrag = false, guessTimer = 0, lastMove = 0;
   function overflowScroll(node) {
     if (!node || node.nodeType !== 1) return null;
@@ -537,6 +560,10 @@
   }
   function describe(target) {
     if (!target || !target.closest) return null;
+    var text = target.closest('input,textarea,select,[contenteditable],iframe,video,audio');
+    if (text) return { s: 'native', t: '' };
+    var dis = target.closest('[disabled],[aria-disabled="true"]');
+    if (dis) return { s: 'native', t: '' };
     var host = target.closest('[data-cursor-label]');
     if (host) {
       return { s: host.getAttribute('data-cursor') || 'link',
@@ -544,14 +571,13 @@
     }
     var drag = target.closest('[data-cursor="drag"]');
     if (drag) return { s: 'drag', t: '' };
-    var text = target.closest('input,textarea,select,[contenteditable]');
-    if (text) return { s: 'native', t: '' };
-    var dis = target.closest('[disabled],[aria-disabled="true"]');
-    if (dis) return { s: 'native', t: '' };
     var zoom = target.closest('img.is-zoomable');
     if (zoom && !zoom.closest('a')) return { s: 'zoom', t: '看原图' };
     var inter = target.closest(interactive);
     if (inter) return { s: 'link', t: inter.getAttribute('data-cursor-hint') || '' };
+    if (target.closest('.prose,.slide-inner,.phero-title,.phero-lede,.doc-title,.doc-lede')) {
+      return { s: 'text', t: '' };
+    }
     return { s: '', t: '' };
   }
   function set(target) {
@@ -562,6 +588,14 @@
       state = s;
       el.setAttribute('data-state', s);
     }
+    root.classList.toggle('is-cursor-text', s === 'text');
+    root.classList.toggle('is-cursor-native', s === 'native');
+    if (s === 'native' || s === 'text') {
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
+      rx = dx = x; ry = dy = y;
+      el.classList.remove('is-moving');
+    }
     if (label.textContent !== t) {
       label.textContent = t;
       el.classList.toggle('has-label', !!t);
@@ -569,21 +603,31 @@
   }
   function tick() {
     raf = 0;
-    if (!enabled() || !shown) return;
+    if (!enabled() || !shown || state === 'native' || state === 'text') return;
     var k = reduce.matches ? 1 : 0.22;
     rx += (x - rx) * k;
     ry += (y - ry) * k;
     dx += (x - dx) * (reduce.matches ? 1 : 0.55);
     dy += (y - dy) * (reduce.matches ? 1 : 0.55);
-    ring.style.transform = 'translate3d(' + rx.toFixed(2) + 'px,' + ry.toFixed(2) + 'px,0) translate(-50%,-50%)';
-    dot.style.transform = 'translate3d(' + dx.toFixed(2) + 'px,' + dy.toFixed(2) + 'px,0) translate(-50%,-50%)';
+    var glow = root.getAttribute('data-cursor') === 'glow';
+    var ox = glow ? 14 : 0, oy = glow ? 18 : 0;
+    ring.style.transform = 'translate3d(' + (rx + ox).toFixed(2) + 'px,' + (ry + oy).toFixed(2) + 'px,0) translate(-50%,-50%)';
+    dot.style.transform = 'translate3d(' + (dx + ox).toFixed(2) + 'px,' + (dy + oy).toFixed(2) + 'px,0) translate(-50%,-50%)';
+    icon.style.transform = 'translate3d(' + x.toFixed(2) + 'px,' + y.toFixed(2) + 'px,0) translate(-50%,-50%)';
+    if (glow) {
+      var tx = rx - dx, ty = ry - dy;
+      trail.style.width = Math.min(22, Math.hypot(tx, ty)).toFixed(2) + 'px';
+      trail.style.transform = 'translate3d(' + (dx + ox).toFixed(2) + 'px,' + (dy + oy).toFixed(2) + 'px,0) rotate(' + Math.atan2(ty, tx).toFixed(3) + 'rad)';
+    }
     label.style.transform = 'translate3d(' + (rx + 22).toFixed(2) + 'px,' + (ry + 20).toFixed(2) + 'px,0)';
     if (Math.abs(x - rx) + Math.abs(y - ry) + Math.abs(x - dx) + Math.abs(y - dy) > 0.15) {
       raf = requestAnimationFrame(tick);
+    } else {
+      el.classList.remove('is-moving');
     }
   }
   function start() {
-    if (raf) return;
+    if (raf || state === 'native' || state === 'text' || !shown || !enabled()) return;
     attach();
     root.classList.add('has-custom-cursor');
     raf = requestAnimationFrame(tick);
@@ -593,23 +637,26 @@
     raf = 0;
     shown = false;
     el.classList.remove('is-on');
-    root.classList.remove('has-custom-cursor');
+    el.classList.remove('is-moving');
+    root.classList.remove('has-custom-cursor', 'is-cursor-native', 'is-cursor-text');
   }
   function sync() {
     if (!enabled()) stop();
+    else if (shown) { set(document.elementFromPoint(x, y)); start(); }
   }
   document.addEventListener('pointermove', function (e) {
     if (e.pointerType !== 'mouse') { stop(); return; }
     if (!enabled()) return;
-    if (!raf) start();
-    lastMove = e.timeStamp || Date.now();
+    lastMove = Date.now();
     if (barDrag) { releaseToNative(false); clearTimeout(guessTimer); }
     x = e.clientX; y = e.clientY;
     if (!shown) { shown = true; rx = x; ry = y; dx = x; dy = y; el.classList.add('is-on'); }
     set(e.target);
+    if (state !== 'native' && state !== 'text') el.classList.add('is-moving');
+    start();
   }, { passive: true, capture: true });
   document.addEventListener('pointerdown', function (e) {
-    if (e.pointerType !== 'mouse') return;
+    if (e.pointerType !== 'mouse' || !enabled()) return;
     if (!down) {
       down = true;
       el.classList.add('is-down');
@@ -619,7 +666,7 @@
       clearTimeout(guessTimer);
     } else if (nearestScroller(e.target)) {
       clearTimeout(guessTimer);
-      lastMove = e.timeStamp || Date.now();
+      lastMove = Date.now();
       guessTimer = setTimeout(function () {
         if (down && Date.now() - lastMove > 110) releaseToNative(true);
       }, 120);
@@ -654,7 +701,12 @@
     el.classList.remove('is-on');
     stop();
   });
-  window.addEventListener('scroll', function () { set(document.elementFromPoint(x, y)); }, { passive: true });
+  document.addEventListener('pointerout', function (e) {
+    if (!e.relatedTarget || (e.relatedTarget.closest && e.relatedTarget.closest('iframe'))) stop();
+  }, { passive: true });
+  window.addEventListener('scroll', function () {
+    if (shown && enabled()) { set(document.elementFromPoint(x, y)); start(); }
+  }, { passive: true, capture: true });
   if (window.MutationObserver) {
     new MutationObserver(sync).observe(root, { attributes: true, attributeFilter: ['data-cursor', 'data-motion'] });
   }
@@ -672,141 +724,138 @@
   if (!panel) return;
   var input = panel.querySelector('[data-search-input]');
   var box = panel.querySelector('[data-search-results]');
-  var indexUrl = (document.documentElement.getAttribute('data-search-url') || '/search-index.json');
-  var docs = null;
-  var loading = null;
-  var results = [];
-  var active = -1;
-  function strip(s) { return String(s == null ? '' : s); }
+  var indexUrl = document.documentElement.getAttribute('data-search-url') || '/search-index.json';
+  var docs = null, loading = null, loadError = false;
+  var results = [], active = -1, selectedType = 'all', opener = null, previousOverflow = '';
+  var labels = { all: '全部', post: '文章', project: '项目', doc: '文档' };
+  var filters = document.createElement('div');
+  filters.className = 'search-filters';
+  filters.setAttribute('role', 'group');
+  filters.setAttribute('aria-label', '搜索内容类型');
+  Object.keys(labels).forEach(function (type) {
+    var button = document.createElement('button');
+    button.type = 'button'; button.textContent = labels[type];
+    button.setAttribute('data-search-type', type);
+    button.setAttribute('aria-pressed', type === selectedType ? 'true' : 'false');
+    filters.appendChild(button);
+  });
+  box.before(filters);
+  box.setAttribute('aria-live', 'polite');
+  input.setAttribute('aria-label', '搜索文章、项目和文档');
+  function text(s) { return String(s == null ? '' : s); }
+  function escapeHtml(s) {
+    return text(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function safeUrl(value) {
+    if (typeof value !== 'string' || !value.trim()) return '';
+    try {
+      var url = new URL(value, location.href);
+      return url.origin === location.origin && /^https?:$/.test(url.protocol) ? url.pathname + url.search + url.hash : '';
+    } catch (e) { return ''; }
+  }
   function load() {
     if (docs) return Promise.resolve(docs);
     if (loading) return loading;
+    loadError = false;
     loading = fetch(indexUrl, { credentials: 'same-origin' })
-      .then(function (r) { return r.ok ? r.json() : []; })
-      .then(function (data) { docs = Array.isArray(data) ? data : []; return docs; })
-      .catch(function () { docs = []; return docs; });
+      .then(function (r) { if (!r.ok) throw new Error('index'); return r.json(); })
+      .then(function (data) {
+        if (!Array.isArray(data)) throw new Error('index');
+        docs = data.filter(function (d) { return d && safeUrl(d.url); }); return docs;
+      }).catch(function () { loadError = true; return null; })
+      .finally(function () { loading = null; });
     return loading;
   }
   function score(doc, q) {
-    var title = strip(doc.title).toLowerCase();
-    var tags = (doc.tags || []).join(' ').toLowerCase();
-    var summary = strip(doc.summary).toLowerCase();
-    var text = strip(doc.text).toLowerCase();
     var s = 0;
-    if (title.indexOf(q) >= 0) s += 12;
-    if (tags.indexOf(q) >= 0) s += 6;
-    if (summary.indexOf(q) >= 0) s += 4;
-    if (text.indexOf(q) >= 0) s += 1;
+    if (text(doc.title).toLowerCase().indexOf(q) >= 0) s += 12;
+    if ((Array.isArray(doc.tags) ? doc.tags : []).join(' ').toLowerCase().indexOf(q) >= 0) s += 6;
+    if (text(doc.summary).toLowerCase().indexOf(q) >= 0) s += 4;
+    if (text(doc.text).toLowerCase().indexOf(q) >= 0) s += 1;
     return s;
   }
-  function escapeHtml(s) {
-    return strip(s).replace(/[&<>"]/g, function (c) {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
-    });
-  }
-  function mark(text, q) {
-    var safe = escapeHtml(text);
-    if (!q) return safe;
-    var lower = safe.toLowerCase();
-    var at = lower.indexOf(q);
-    if (at < 0) return safe;
-    var out = '';
-    var i = 0;
+  function mark(value, q) {
+    var raw = text(value), lower = raw.toLowerCase(), out = '', i = 0, at = lower.indexOf(q);
+    if (!q) return escapeHtml(raw);
     while (at >= 0) {
-      out += safe.slice(i, at) + '<mark>' + safe.slice(at, at + q.length) + '</mark>';
-      i = at + q.length;
-      at = lower.indexOf(q, i);
+      out += escapeHtml(raw.slice(i, at)) + '<mark>' + escapeHtml(raw.slice(at, at + q.length)) + '</mark>';
+      i = at + q.length; at = lower.indexOf(q, i);
     }
-    return out + safe.slice(i);
+    return out + escapeHtml(raw.slice(i));
+  }
+  function snippet(doc, q) {
+    var summary = text(doc.summary), body = text(doc.text);
+    var raw = body.toLowerCase().indexOf(q) >= 0 ? body : summary || body;
+    raw = raw.replace(/\s+/g, ' ').trim();
+    var at = raw.toLowerCase().indexOf(q), start = Math.max(0, at - 38);
+    var end = Math.min(raw.length, start + Math.max(150, q.length + 76));
+    return (start ? '…' : '') + raw.slice(start, end) + (end < raw.length ? '…' : '');
   }
   function renderLoading() {
-    box.innerHTML = '<p class="search-hint search-loading">正在载入搜索索引'
-      + '<span class="boot-dots" aria-hidden="true"><i></i><i></i><i></i></span></p>';
+    results = []; active = -1;
+    box.innerHTML = '<p class="search-hint search-loading">正在载入搜索索引<span class="boot-dots" aria-hidden="true"><i></i><i></i><i></i></span></p>';
   }
-  function render(list, q) {
-    if (!q) {
-      box.innerHTML = '<p class="search-hint">输入关键词开始搜索 · ↑↓ 选择 · Enter 打开</p>';
-      return;
+  function search(query) {
+    var q = query.trim().toLowerCase(); results = []; active = -1;
+    if (loadError && !docs) {
+      box.innerHTML = '<p class="search-hint">暂时无法载入搜索索引。<button type="button" class="btn ghost" data-search-retry>重新加载</button></p>'; return;
     }
-    if (!list.length) {
-      box.innerHTML = '<p class="search-hint">没有匹配的结果</p>';
-      return;
-    }
-    var html = '<div class="search-count">' + list.length + ' 条结果</div>';
-    list.forEach(function (d, i) {
-      html += '<a class="search-item' + (i === active ? ' is-active' : '') + '" href="' + d.url + '">'
-        + '<span class="st">' + (d.t === 'project' ? '项目' : '文章')
-        + (d.date ? ' · ' + escapeHtml(d.date) : '') + '</span>'
-        + '<span class="sname">' + mark(d.title, q) + '</span>'
-        + '<span class="ssum">' + mark(d.summary || d.text || '', q) + '</span>'
-        + '</a>';
+    if (!q) { box.innerHTML = '<p class="search-hint">输入关键词开始搜索 · ↑↓ 选择 · Enter 打开</p>'; return; }
+    if (!docs) { renderLoading(); return; }
+    var matched = docs.filter(function (d) { return selectedType === 'all' || d.t === selectedType; })
+      .map(function (d) { return { d: d, s: score(d, q) }; })
+      .filter(function (x) { return x.s > 0; }).sort(function (a, b) { return b.s - a.s; });
+    results = matched.slice(0, 40).map(function (x) { return x.d; });
+    active = results.length ? 0 : -1;
+    if (!results.length) { box.innerHTML = '<p class="search-hint">没有匹配的' + (selectedType === 'all' ? '结果' : labels[selectedType]) + '，试试其他关键词或内容类型。</p>'; return; }
+    var html = '<div class="search-count">' + matched.length + ' 条结果' + (matched.length > 40 ? ' · 显示前 40 条' : '') + '</div>';
+    results.forEach(function (d, i) {
+      html += '<a class="search-item' + (i === active ? ' is-active' : '') + '" href="' + escapeHtml(safeUrl(d.url)) + '">'
+        + '<span class="st">' + (labels[d.t] || '内容') + (d.date ? ' · ' + escapeHtml(d.date) : '') + '</span>'
+        + '<span class="sname">' + mark(d.title, q) + '</span><span class="ssum">' + mark(snippet(d, q), q) + '</span></a>';
     });
     box.innerHTML = html;
   }
-  function search(q) {
-    q = q.trim().toLowerCase();
-    if (!q) { results = []; active = -1; render([], ''); return; }
-    if (!docs) { renderLoading(); return; }
-    results = (docs || [])
-      .map(function (d) { return { d: d, s: score(d, q) }; })
-      .filter(function (x) { return x.s > 0; })
-      .sort(function (a, b) { return b.s - a.s; })
-      .slice(0, 24)
-      .map(function (x) { return x.d; });
-    active = results.length ? 0 : -1;
-    render(results, q);
-  }
+  function ensureIndex() { renderLoading(); load().then(function () { search(input.value); }); }
   function open() {
-    panel.hidden = false;
-    document.body.style.overflow = 'hidden';
-    input.focus({ preventScroll: true });
-    input.select();
-    if (docs) {
-      if (input.value.trim()) search(input.value);
-      return;
-    }
-    renderLoading();
-    load().then(function () {
-      if (input.value.trim()) search(input.value);
-      else render([], '');
-    });
+    if (panel.hidden) { opener = document.activeElement; previousOverflow = document.body.style.overflow; }
+    panel.hidden = false; document.body.style.overflow = 'hidden';
+    input.focus({ preventScroll: true }); input.select();
+    if (docs) search(input.value); else ensureIndex();
   }
   function close() {
-    panel.hidden = true;
-    document.body.style.overflow = '';
+    panel.hidden = true; document.body.style.overflow = previousOverflow;
+    if (opener && opener.isConnected) opener.focus({ preventScroll: true });
   }
-  document.querySelectorAll('[data-open-search]').forEach(function (b) {
-    b.addEventListener('click', open);
+  document.querySelectorAll('[data-open-search]').forEach(function (b) { b.addEventListener('click', open); });
+  panel.addEventListener('click', function (ev) {
+    if (ev.target.closest('[data-close-search]')) { close(); return; }
+    if (ev.target.closest('[data-search-retry]')) { ensureIndex(); return; }
+    var button = ev.target.closest('[data-search-type]'); if (!button) return;
+    selectedType = button.getAttribute('data-search-type');
+    filters.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', b === button ? 'true' : 'false'); });
+    search(input.value);
   });
   var timer = null;
   input.addEventListener('input', function () {
-    window.clearTimeout(timer);
-    var v = input.value;
-    timer = window.setTimeout(function () { search(v); }, 90);
+    window.clearTimeout(timer); timer = window.setTimeout(function () { search(input.value); }, 90);
   });
   input.addEventListener('keydown', function (ev) {
     if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
-      ev.preventDefault();
-      if (!results.length) return;
+      ev.preventDefault(); if (!results.length) return;
       active = (active + (ev.key === 'ArrowDown' ? 1 : -1) + results.length) % results.length;
       var items = box.querySelectorAll('.search-item');
       items.forEach(function (el, i) { el.classList.toggle('is-active', i === active); });
       if (items[active]) items[active].scrollIntoView({ block: 'nearest' });
-    } else if (ev.key === 'Enter') {
-      var pick = results[active];
-      if (pick) { ev.preventDefault(); window.location.href = pick.url; }
-    }
+    } else if (ev.key === 'Enter' && results[active]) { ev.preventDefault(); window.location.href = safeUrl(results[active].url); }
   });
   document.addEventListener('keydown', function (ev) {
     var k = ev.key.toLowerCase();
-    if ((ev.ctrlKey || ev.metaKey) && k === 'k') {
-      ev.preventDefault();
-      panel.hidden ? open() : close();
-    }
-    if (k === '/' && panel.hidden && !/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) {
-      ev.preventDefault();
-      open();
-    }
+    if (k === 'escape' && !panel.hidden) { ev.preventDefault(); close(); }
+    if ((ev.ctrlKey || ev.metaKey) && k === 'k') { ev.preventDefault(); panel.hidden ? open() : close(); }
+    if (k === '/' && panel.hidden && !ev.ctrlKey && !ev.metaKey && !ev.altKey && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName) && !document.activeElement.isContentEditable) { ev.preventDefault(); open(); }
   });
   window.__openSearch = open;
 })();
@@ -1161,10 +1210,102 @@
 })();
 (function () {
   'use strict';
-  var MAX_HEIGHT = 520;
+  var MAX_HEIGHT = 720;
   var MAX_LOG_LINES = 500;
   var BLOCKED_HINT_MS = 8000;
   var sessions = {};          // token -> { panel, frame }
+  var panels = [];
+  var activityObserver = null;
+  var activityFrame = 0;
+  function inViewport(panel) {
+    var rect = panel.getBoundingClientRect();
+    return rect.height > 0 && rect.width > 0 && rect.bottom > 0 && rect.top < window.innerHeight &&
+      rect.right > 0 && rect.left < window.innerWidth;
+  }
+  function sendActivity(state, force) {
+    if (!state || !state.frame || !state.frame.contentWindow) return;
+    var active = !document.hidden && state.visible;
+    if (!force && state.lastActive === active) return;
+    state.lastActive = active;
+    state.frame.contentWindow.postMessage({ __demoToken: state.token, type: 'activity', payload: { active: active } }, '*');
+  }
+  function refreshActivity() {
+    activityFrame = 0;
+    panels.forEach(function (panel) {
+      var state = panel.__demoState;
+      if (!state) return;
+      if (!activityObserver) state.visible = inViewport(panel);
+      sendActivity(state);
+    });
+  }
+  function animationRuntime(demo, token, send) {
+    var loops = [];
+    var parentActive = false;
+    var disposed = false;
+    function active() { return !disposed && parentActive && !document.hidden; }
+    function stopFrame(loop) {
+      if (loop.frame) cancelAnimationFrame(loop.frame);
+      loop.frame = 0;
+      loop.previous = null;
+    }
+    function schedule(loop) {
+      if (!loop.frame && loop.playing && active()) loop.frame = requestAnimationFrame(loop.tick);
+    }
+    function sync() {
+      loops.forEach(function (loop) {
+        if (active()) schedule(loop);
+        else stopFrame(loop);
+      });
+    }
+    function dispose() {
+      if (disposed) return;
+      disposed = true;
+      loops.forEach(function (loop) { loop.playing = false; stopFrame(loop); });
+      loops.length = 0;
+    }
+    demo.animate = function (callback) {
+      if (typeof callback !== 'function') throw new TypeError('demo.animate 需要一个回调函数');
+      var loop = { playing: false, frame: 0, previous: null, elapsed: 0 };
+      var api = {
+        start: function () {
+          if (disposed) return api;
+          if (!loop.playing) loop.previous = null;
+          loop.playing = true;
+          schedule(loop);
+          return api;
+        },
+        pause: function () { loop.playing = false; stopFrame(loop); return api; },
+        reset: function () { api.pause(); loop.elapsed = 0; return api; },
+        isRunning: function () { return loop.playing && !disposed; }
+      };
+      loop.tick = function (timestamp) {
+        loop.frame = 0;
+        if (!loop.playing || !active()) { loop.previous = null; return; }
+        var delta = loop.previous === null ? 0 : Math.min(0.05, Math.max(0, (timestamp - loop.previous) / 1000));
+        loop.previous = timestamp;
+        loop.elapsed += delta;
+        try {
+          if (callback({ time: loop.elapsed, delta: delta }) === false) api.pause();
+        } catch (error) {
+          api.pause();
+          send('error', { text: (error && (error.stack || error.message)) || String(error) });
+        }
+        schedule(loop);
+      };
+      loops.push(loop);
+      return api;
+    };
+    window.addEventListener('message', function (event) {
+      var message = event.data;
+      if (event.source !== parent || !message || message.__demoToken !== token) return;
+      if (message.type === 'dispose') { dispose(); return; }
+      if (message.type !== 'activity') return;
+      parentActive = !!(message.payload && message.payload.active === true);
+      sync();
+    });
+    document.addEventListener('visibilitychange', sync);
+    window.addEventListener('pagehide', dispose, { once: true });
+  }
   function resolveColor(expr, fallback) {
     var d = document.createElement('div');
     d.style.color = expr;
@@ -1201,11 +1342,20 @@
       '#demo-root:empty{display:none}' +
       'canvas,svg,video{max-width:100%;height:auto}' +
       'img{max-width:100%;height:auto}' +
-      'button{font:inherit;color:inherit;cursor:pointer;padding:.3em .75em;border-radius:6px;' +
+      'button{font:inherit;color:inherit;cursor:pointer;min-height:36px;padding:.38em .9em;border-radius:8px;' +
       'background:var(--surface-2,rgba(255,255,255,.06));border:1px solid var(--border-2,rgba(255,255,255,.2))}' +
       'button:hover{border-color:var(--accent,#7aa2ff)}' +
+      'button:disabled{cursor:default;opacity:.5}' +
+      ':is(button,input,select,textarea,a):focus-visible{outline:2px solid var(--accent,#7aa2ff);outline-offset:3px}' +
       'input,select,textarea{font:inherit;color:inherit;padding:.28em .55em;border-radius:6px;' +
       'background:var(--surface-2,rgba(255,255,255,.06));border:1px solid var(--border-2,rgba(255,255,255,.2))}' +
+      'input,select,textarea{max-width:100%}input[type="range"]{accent-color:var(--accent,#7aa2ff);min-height:28px;padding:0;cursor:pointer}' +
+      'input[type="checkbox"],input[type="radio"]{accent-color:var(--accent,#7aa2ff)}' +
+      'label{display:inline-flex;align-items:center;gap:.55em;flex-wrap:wrap}' +
+      'fieldset{min-width:0;border:1px solid var(--border,rgba(255,255,255,.15));border-radius:10px}' +
+      'output,.demo-readout{font-variant-numeric:tabular-nums;color:var(--accent-2,#7aa2ff)}' +
+      '.demo-controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:12px 0}' +
+      'canvas{display:block;border-radius:10px;touch-action:pan-y}' +
       'a{color:var(--accent-2,#7aa2ff)}' +
       'h1,h2,h3,h4{margin:.8em 0 .4em;line-height:1.3}' +
       'table{border-collapse:collapse}td,th{border:1px solid var(--border,rgba(255,255,255,.15));padding:.3em .6em}' +
@@ -1240,6 +1390,7 @@
       'console[k]=function(){write(k==="debug"?"log":k,arguments);};});' +
       'var demo={root:root,log:function(){write("log",arguments);},warn:function(){write("warn",arguments);},' +
       'error:function(){write("error",arguments);},clear:function(){root.innerHTML="";send("clear");}};' +
+      '(' + animationRuntime.toString() + ')(demo,TOKEN,send);' +
       'try{window.demo=demo;}catch(e){}' +
       'window.addEventListener("error",function(ev){' +
       'send("error",{text:(ev.message||"Script error")+(ev.lineno?"  (第 "+ev.lineno+" 行)":"")});});' +
@@ -1252,8 +1403,12 @@
       'return {h:hasDom?Math.ceil(b.height+28):0,hasDom:hasDom};}' +
       'function report(){var m=measure();' +
       'if(m.h!==lastH){lastH=m.h;send("height",{h:m.h,hasDom:m.hasDom});}}' +
-      'if(window.ResizeObserver){try{new ResizeObserver(report).observe(document.getElementById("demo-root").parentNode);}catch(e){}}' +
-      'setInterval(report,400);' +
+      'var resizeWatcher=null,resizeTimer=0;' +
+      'if(window.ResizeObserver){try{resizeWatcher=new ResizeObserver(report);resizeWatcher.observe(root);}catch(e){if(resizeWatcher)resizeWatcher.disconnect();resizeWatcher=null;}}' +
+      'if(!resizeWatcher)resizeTimer=setInterval(report,400);' +
+      'function cleanupMeasure(){if(resizeWatcher)resizeWatcher.disconnect();if(resizeTimer)clearInterval(resizeTimer);resizeWatcher=null;resizeTimer=0;}' +
+      'window.addEventListener("pagehide",cleanupMeasure,{once:true});' +
+      'window.addEventListener("message",function(e){var d=e.data;if(e.source===parent&&d&&d.__demoToken===TOKEN&&d.type==="dispose")cleanupMeasure();});' +
       'send("start");' +
       'try{' +
       'if(P.lang==="html"){root.innerHTML=P.code;}' +
@@ -1290,7 +1445,7 @@
     if (typeof code !== 'string') code = '';
     var lang = panel.getAttribute('data-demo') || 'js';
     var lineCount = 0;
-    var state = { frame: null, token: '', timer: null, done: false };
+    var state = { frame: null, token: '', timer: null, done: false, visible: inViewport(panel), lastActive: null };
     function setStatus(text, cls) {
       if (!statusEl) return;
       statusEl.textContent = text || '';
@@ -1303,6 +1458,7 @@
     }
     function teardown() {
       if (state.frame) {
+        if (state.frame.contentWindow) state.frame.contentWindow.postMessage({ __demoToken: state.token, type: 'dispose' }, '*');
         if (sessions[state.token]) delete sessions[state.token];
         state.frame.remove();
         state.frame = null;
@@ -1310,6 +1466,7 @@
       if (state.timer) { clearTimeout(state.timer); state.timer = null; }
       state.token = '';
       state.done = false;
+      state.lastActive = null;
     }
     function reset() {
       teardown();
@@ -1332,10 +1489,13 @@
       frame.setAttribute('title', '可运行示例的运行结果');
       frame.srcdoc = sandboxDoc({ lang: lang, code: code }, token, themeVars());
       state.frame = frame;
-      sessions[token] = { panel: panel, frame: frame };
+      sessions[token] = { panel: panel, frame: frame, state: state };
+      frame.addEventListener('load', function () { if (state.frame === frame) sendActivity(state, true); });
       mountEl.innerHTML = '';
       mountEl.appendChild(frame);
       stage.hidden = false;
+      state.visible = inViewport(panel);
+      sendActivity(state, true);
       panel.classList.remove('is-done', 'is-error', 'is-blocked');
       panel.classList.add('is-running');
       runLabel.textContent = '重新运行';
@@ -1352,6 +1512,8 @@
     resetBtn.addEventListener('click', reset);
     panel.__demoReset = reset;
     panel.__demoState = state;
+    panels.push(panel);
+    if (activityObserver) activityObserver.observe(panel);
     panel.__demoAppendLog = function (level, text) {
       if (!logEl || lineCount >= MAX_LOG_LINES) return;
       if (lineCount === 0) logEl.hidden = false;
@@ -1379,6 +1541,10 @@
     var stage = panel.querySelector('[data-demo-stage]');
     var statusEl = panel.querySelector('[data-demo-status]');
     var frame = s.frame;
+    if (d.type === 'start') {
+      sendActivity(s.state, true);
+      return;
+    }
     if (d.type === 'height') {
       var p = d.payload || {};
       var h = Math.min(Math.max(0, p.h || 0), MAX_HEIGHT);
@@ -1421,7 +1587,34 @@
     }
   });
   function boot() {
+    if (window.IntersectionObserver) {
+      activityObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          var state = entry.target.__demoState;
+          if (!state) return;
+          state.visible = entry.isIntersecting && entry.intersectionRatio > 0;
+          sendActivity(state);
+        });
+      }, { threshold: [0, 0.01] });
+    } else {
+      var scheduleActivity = function () {
+        if (!activityFrame) activityFrame = requestAnimationFrame(refreshActivity);
+      };
+      document.addEventListener('scroll', scheduleActivity, { passive: true, capture: true });
+      window.addEventListener('resize', scheduleActivity, { passive: true });
+    }
     document.querySelectorAll('.demo[data-demo]').forEach(setupPanel);
+    document.addEventListener('visibilitychange', refreshActivity);
+    window.addEventListener('pagehide', function () {
+      panels.forEach(function (panel) { if (panel.__demoReset) panel.__demoReset(); });
+      if (activityObserver) activityObserver.disconnect();
+      if (activityFrame) cancelAnimationFrame(activityFrame);
+    });
+    window.addEventListener('pageshow', function (event) {
+      if (!event.persisted) return;
+      if (activityObserver) panels.forEach(function (panel) { activityObserver.observe(panel); });
+      refreshActivity();
+    });
     if (window.Theme && Theme.onChange) {
       Theme.onChange(function () {
         document.querySelectorAll('.demo[data-demo]').forEach(function (p) {

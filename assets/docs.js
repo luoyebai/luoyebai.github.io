@@ -121,6 +121,7 @@
     if (animate && location.hash !== '#' + (cur + 1)) {
       try { history.replaceState(null, '', '#' + (cur + 1)); } catch (e) {  }
     }
+    deck.dispatchEvent(new CustomEvent('deck:change'));
   }
   function go(n, animate) {
     n = clampNo(n);
@@ -256,6 +257,7 @@
     state: function () {
       return {
         mode: mode, current: cur, total: slides.length,
+        step: steps[cur], stepCount: fragments[cur].length,
         section: sectionOf(cur),
         title: slides[cur].getAttribute('data-title') || '',
         visible: slides.filter(function (s) { return s.getClientRects().length > 0; }).length,
@@ -263,6 +265,29 @@
         outlineOpen: !!(outline && !outline.hidden),
         progress: elProgress ? elProgress.style.width : ''
       };
+    },
+    bookmark: function () {
+      var page = cur;
+      if (mode === 'scroll') {
+        page = 0;
+        for (var i = 0; i < slides.length; i++) {
+          if (slides[i].getBoundingClientRect().top <= 150) page = i;
+          else break;
+        }
+      }
+      return { page: page, step: steps[page], mode: mode, total: slides.length,
+        stepCount: fragments[page].length, label: slides[page].getAttribute('data-title') || sectionOf(page),
+        complete: page === slides.length - 1 && (mode === 'scroll'
+          ? slides[page].getBoundingClientRect().bottom <= innerHeight + 20
+          : steps[page] >= fragments[page].length) };
+    },
+    restore: function (saved) {
+      var page = clampNo(Math.round(Number(saved.page) || 0));
+      steps[page] = Math.max(0, Math.min(fragments[page].length, Math.round(Number(saved.step) || 0)));
+      cur = page;
+      setMode(saved.mode === 'scroll' ? 'scroll' : 'paged', true);
+      go(page, false);
+      if (mode === 'paged') deck.scrollIntoView({ block: 'start', behavior: 'auto' });
     },
     go: function (n) { go(n, false); },
     mode: function (m) { setMode(m, true); },

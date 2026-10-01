@@ -9,7 +9,8 @@
       data-font="serif"
       data-motion="on"
       data-width="normal"
-      data-cursor="on"
+      data-cursor="glow"
+      data-default-cursor="glow"
       data-root=""
       data-search-url="/search-index.json">
 <head>
@@ -31,11 +32,11 @@
 <link rel="canonical" href="https://luoyebai.github.io/404.html">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=a860e2c6">
-<link rel="stylesheet" href="/assets/site.css?v=a860e2c6">
+<link rel="stylesheet" href="/assets/themes.css?v=82d4aca5">
+<link rel="stylesheet" href="/assets/site.css?v=82d4aca5">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
-<link rel="stylesheet" href="/assets/404.css?v=a860e2c6">
+<link rel="stylesheet" href="/assets/404.css?v=82d4aca5">
 
 
 
@@ -54,8 +55,10 @@
   var s = {};
   try { s = JSON.parse(localStorage.getItem('blog.appearance') || '{}') || {}; } catch (e) {}
   function pick(k) { return q[k] !== undefined ? q[k] : s[k]; }
+  el.setAttribute('data-focus', s.focus === 'on' ? 'on' : 'off');
   ['theme', 'mode', 'bg', 'bgmode', 'tilt', 'glass', 'font', 'motion', 'width', 'cursor'].forEach(function (k) {
     var v = pick(k);
+    if (k === 'cursor' && ['glow', 'on', 'off'].indexOf(v) === -1) return;
     if (v) el.setAttribute('data-' + k, v);
   });
   var op = pick('bgOpacity');
@@ -115,9 +118,13 @@
       
       <a href="/docs/">文档</a>
       
+      <a href="/lab/">实验室</a>
+      
       <a href="/graph/">图谱</a>
       
       <a href="/archive/">归档</a>
+      
+      <a href="/links/">一些网站</a>
       
       <a href="/about/">关于</a>
       
@@ -156,59 +163,52 @@
 
 <main id="main">
 
-
 <section class="lost" id="lost" aria-labelledby="lost-title">
   <div hidden id="lost-routes"><a href="/posts/runnable-demos/">可运行示例：让文章里的代码真的跑起来</a><a href="/posts/dds-qos-tuning/">DDS 选型与调参：从 QoS 到零拷贝</a><a href="/posts/quadruped-mpc-kinematics/">四足运控：MPC 代价函数推导与腿部正逆运动学</a><a href="/posts/small-humanoid-consensus/">小型人形机器人的结构、硬件与算法共识</a><a href="/posts/humanoid-0-to-1-toolchain/">小型人形机器人 0→1：从 URDF 到真机部署的工具链</a><a href="/posts/arm-impedance-control/">机械臂运控：阻抗控制与力位混合</a><a href="/posts/sam3-foundationpose-6d-pose/">用 SAM3 与 FoundationPose 做工件 6D 姿态估计</a><a href="/posts/realtime-control-loop/">运控回路的实时性：1 kHz 到底能不能跑满</a><a href="/posts/cpp-python-code-style/">C++ / Python 代码规范</a><a href="/posts/cpp-toolchain/">C++ 工程工具链：构建、调试、依赖与代码质量</a><a href="/posts/parallel-ankle-kinematics/">脚踝并联机构：正逆运动学与静力学解算</a><a href="/posts/legacy-gait-tuning/">早期四足步态调参笔记（已归档）</a><a href="/projects/cordis-cpp/">cordis-cpp</a><a href="/projects/git-vis/">git-vis</a><a href="/projects/joysonrobot_comm/">joysonrobot_comm</a><a href="/projects/arm-impedance-ctrl/">arm-impedance-ctrl</a><a href="/docs/linux-intro/">初识 Linux</a><a href="/docs/linux-c/">尝试在 Linux 上编写 C 程序</a><a href="/docs/pointers/">从指针来理解程序的执行</a><a href="/docs/shell-and-languages/">编程语言的使用</a><a href="/docs/build-and-maintain/">工程的构建与维护</a><a href="/docs/cpp-build-packages/">C++ 的构建与包管理</a><a href="/docs/c-to-cpp/">从 C 语言到 C++ 的转变</a><a href="/docs/ros-intro/">初识 ROS</a><a href="/docs/ros-tools/">节点和工具</a><a href="/docs/ros-sim/">仿真</a><a href="/docs/face-recognition/">简单的人脸识别</a><a href="/docs/slam-intro/">SLAM 入门</a><a href="/docs/camera-handeye-calibration/">标定：相机与手眼</a><a href="/docs/what-is-programming/">编程概述</a><a href="/docs/python-first/">从 Python 入手</a><a href="/docs/mini-linux/">从源码构建 mini Linux</a><a href="/docs/mini-sh/">mini_sh · 手写一个 shell</a><a href="/docs/attributes-and-reasons/">属性及其原因</a><a href="/docs/be-a-detective/">像侦探一样地</a></div>
   <div class="lost-copy">
-    <p class="lost-kicker"><span></span> OFF THE MAP · 404</p>
-    <h1 id="lost-title">坐标丢了，<br><em>好奇心还在。</em></h1>
-    <p class="lost-intro">这里没有你要找的页面，只有一位在宇宙里迷路的机器人。<br>顺手帮它找回信号，再一起返航吧。</p>
-    <div class="lost-mission" id="lost-mission" hidden>
-      <span class="lost-mission-label">小小救援任务</span>
-      <p id="lost-status" role="status" aria-live="polite">点亮 3 枚星标，随机降落到一个站内页面。</p>
-      <div class="lost-progress" aria-label="信标收集进度"><i></i><i></i><i></i></div>
-    </div>
+    <p class="lost-kicker"><span aria-hidden="true"></span> 404 / LOST COORDINATES</p>
+    <h1 id="lost-title">页面不见了，<br><span class="grad-text">探索可以继续。</span></h1>
+    <p class="lost-intro">这个地址没有对应的内容。<br>也许链接已移动，也许只是走错了一小步。</p>
     <div class="lost-actions">
-      <a class="btn primary" href="/">返回地球 · 首页 <span aria-hidden="true">↗</span></a>
-      <a class="lost-articles" href="/posts/">去文章里探索 <span aria-hidden="true">→</span></a>
+      <a class="btn primary" href="/">回到首页 <span aria-hidden="true">↗</span></a>
+      <button class="btn ghost" id="lost-search" type="button" data-open-search hidden>搜索站内内容</button>
     </div>
-    <p class="lost-caption">链接可能已移动，也可能只是敲错了一个字。</p>
+    <nav class="lost-shortcuts" aria-label="继续浏览">
+      <a href="/posts/">文章 <span aria-hidden="true">↗</span></a>
+      <a href="/docs/">文档 <span aria-hidden="true">↗</span></a>
+      <a href="/graph/">知识图谱 <span aria-hidden="true">↗</span></a>
+    </nav>
+    <div class="lost-mission" id="lost-mission" hidden>
+      <div class="lost-mission-head"><span>或者，偶遇一段新知识</span><span id="lost-count" aria-hidden="true">00 / 03</span></div>
+      <p id="lost-status" role="status" aria-live="polite">点亮星图里的 3 颗星，自动前往一个随机页面。</p>
+      <div class="lost-progress" aria-hidden="true"><i></i><i></i><i></i></div>
+    </div>
   </div>
-
-  <div class="lost-space" id="lost-space" aria-label="迷路机器人的星际救援场景">
-    <div class="lost-grid" aria-hidden="true"></div>
-    <div class="lost-coordinates" aria-hidden="true">SECTOR 04 / UNKNOWN<br>NO SIGNAL — EXPLORATION CONTINUES</div>
-    <div class="lost-number" aria-hidden="true"><span>4</span><span class="lost-zero">0</span><span>4</span></div>
-    <div class="lost-orbit lost-orbit-a" aria-hidden="true"></div>
-    <div class="lost-orbit lost-orbit-b" aria-hidden="true"></div>
-    <div class="lost-portal" aria-hidden="true"></div>
-    <!-- 机器人本体不带任何颜色：全部由 404.css 用主题变量上色。
-         原来这里写死了淡蓝/薄荷/蜜桃一堆十六进制值，结果换主题、切亮色都不跟着变 ——
-         全站只有它一个元素无视主题，亮色下还糊成一团。 -->
-    <div class="lost-bot" aria-hidden="true">
-      <svg viewBox="0 0 220 240" fill="none">
-        <defs><linearGradient id="bot-shell" x1="45" y1="60" x2="185" y2="180" gradientUnits="userSpaceOnUse"><stop class="bot-shell-a"/><stop class="bot-shell-b" offset="1"/></linearGradient></defs>
-        <path class="bot-stem" d="M110 58V34" stroke-width="5" stroke-linecap="round"/>
-        <circle class="bot-tip" cx="110" cy="28" r="9"/>
-        <path class="bot-limb" d="M57 137 29 156 41 178M163 137l28 19-12 22" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
-        <rect x="61" y="118" width="98" height="76" rx="30" fill="url(#bot-shell)"/>
-        <path class="bot-leg" d="m79 190-6 21m68-21 6 21" stroke-width="17" stroke-linecap="round"/>
-        <rect class="bot-head" x="44" y="58" width="132" height="91" rx="35" fill="url(#bot-shell)" stroke-width="2"/>
-        <rect class="bot-screen" x="57" y="72" width="106" height="61" rx="24"/>
-        <g class="lost-eyes"><rect class="bot-eye" x="79" y="92" width="12" height="20" rx="6"/><rect class="bot-eye" x="129" y="92" width="12" height="20" rx="6"/></g>
-        <path class="lost-smile bot-ink" d="M100 116q10 10 20 0" stroke-width="3" stroke-linecap="round"/>
-        <circle class="bot-button" cx="110" cy="168" r="10"/><path class="bot-ink" d="m105 168 4 4 7-8" stroke-width="3" stroke-linecap="round"/>
-        <path class="bot-glow" d="M81 224h58" stroke-width="5" stroke-linecap="round"/>
+  <div class="lost-chart">
+    <div class="lost-chart-heading" aria-hidden="true"><span>一张尚未连接的星图</span><span>MAP / 404</span></div>
+    <div class="lost-space" id="lost-space" role="group" aria-label="互动星图：点亮三颗星后随机跳转">
+      <svg class="lost-map" viewBox="0 0 600 460" fill="none" aria-hidden="true">
+        <defs><radialGradient id="lost-halo"><stop class="lost-halo-core"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></radialGradient></defs>
+        <circle cx="300" cy="230" r="215" fill="url(#lost-halo)"/>
+        <g class="lost-guides">
+          <path d="M300 22v416M40 230h520" stroke-dasharray="2 8"/>
+          <circle cx="300" cy="230" r="170"/>
+          <circle cx="300" cy="230" r="112" stroke-dasharray="2 8"/>
+          <ellipse cx="300" cy="230" rx="265" ry="93" transform="rotate(-24 300 230)"/>
+          <path d="M62 78h18m-9-9v18M512 374h18m-9-9v18M456 60h10m-5-5v10M80 350h10m-5-5v10"/>
+        </g>
+        <text class="lost-number" x="300" y="269" text-anchor="middle">404</text>
+        <g class="lost-dust"><circle cx="98" cy="191" r="2"/><circle cx="178" cy="81" r="1.5"/><circle cx="432" cy="320" r="2"/><circle cx="372" cy="98" r="2"/><circle cx="531" cy="263" r="1.5"/><circle cx="224" cy="385" r="2"/><circle cx="157" cy="303" r="1.5"/><circle cx="431" cy="140" r="1.5"/><circle cx="264" cy="45" r="1.5"/></g>
+        <g class="lost-connections"><path data-link="0" d="M120 132 300 230"/><path data-link="1" d="M488 188 300 230"/><path data-link="2" d="M332 370 300 230"/></g>
+        <g class="lost-core"><circle cx="300" cy="230" r="7"/><circle class="lost-core-ring" cx="300" cy="230" r="17"/><path d="M300 208v44m-22-22h44"/></g>
       </svg>
+      <button class="lost-beacon beacon-a" type="button" data-beacon="0" aria-label="点亮第一颗星" hidden><span aria-hidden="true">✦</span><small>01</small></button>
+      <button class="lost-beacon beacon-b" type="button" data-beacon="1" aria-label="点亮第二颗星" hidden><span aria-hidden="true">✦</span><small>02</small></button>
+      <button class="lost-beacon beacon-c" type="button" data-beacon="2" aria-label="点亮第三颗星" hidden><span aria-hidden="true">✦</span><small>03</small></button>
     </div>
-    <p class="lost-speech" id="lost-speech">有人收到我的信号吗？</p>
-    <button class="lost-beacon beacon-a" type="button" data-beacon="0" aria-label="收集左上方的导航信标" hidden><span aria-hidden="true">✦</span><small>01 · 导航</small></button>
-    <button class="lost-beacon beacon-b" type="button" data-beacon="1" aria-label="收集右侧的能量信标" hidden><span aria-hidden="true">✦</span><small>02 · 能量</small></button>
-    <button class="lost-beacon beacon-c" type="button" data-beacon="2" aria-label="收集左下方的归途信标" hidden><span aria-hidden="true">✦</span><small>03 · 归途</small></button>
-    <div class="lost-space-footer" aria-hidden="true"><span>LOST, BUT NOT ALONE.</span><span>✧ LUOYEBAI EXPLORER</span></div>
+    <div class="lost-chart-footer" aria-hidden="true"><span id="lost-signal">等待坐标连接</span><span>每一次偏航，都可能有新发现。</span></div>
   </div>
 </section>
-
 </main>
 
 <footer class="footer">
@@ -314,11 +314,12 @@
       <div class="footer-col">
         <h4>导航</h4>
         <nav class="footer-nav" aria-label="页脚导航">
-          <a href="/">首页</a><a href="/posts/">文章</a><a href="/projects/">项目</a><a href="/docs/">文档</a><a href="/graph/">图谱</a><a href="/archive/">归档</a><a href="/about/">关于</a>
+          <a href="/">首页</a><a href="/posts/">文章</a><a href="/projects/">项目</a><a href="/docs/">文档</a><a href="/lab/">实验室</a><a href="/graph/">图谱</a><a href="/archive/">归档</a><a href="/links/">一些网站</a><a href="/about/">关于</a>
         </nav>
 
         <h4 class="footer-h4-gap">站点</h4>
         <nav class="footer-nav" aria-label="站点资源">
+          <a href="/learning/">学习路线</a>
           <a href="/tags/">标签</a>
           <a href="/archive/">归档</a>
           
@@ -335,7 +336,7 @@
       <span class="sep" aria-hidden="true">·</span>
       <span>除注明外均为原创，转载请注明出处</span>
       <span class="sep" aria-hidden="true">·</span>
-      <span>构建于 <time datetime="2026-09-30">2026-09-30</time></span>
+      <span>构建于 <time datetime="2026-10-02">2026-10-02</time></span>
     </p>
     <p class="footer-meta">
       <span class="footer-meta-label">字体</span>
@@ -367,6 +368,18 @@
     </header>
 
     <div class="settings-body">
+
+      <section class="set-group">
+        <h3>专注阅读</h3>
+        <div class="set-field">
+          <span class="set-label">阅读预设</span>
+          <div class="seg" data-seg="focus">
+            <button type="button" data-val="off">日常</button>
+            <button type="button" data-val="on">专注</button>
+          </div>
+        </div>
+        <p class="set-note">收起壁纸、聚光和装饰动效，缩小文章头图区并保留封面；主题配色不变，退出后恢复原来的外观设置。</p>
+      </section>
 
       <section class="set-group">
         <h3>主题</h3>
@@ -620,11 +633,12 @@
         <div class="set-field">
           <span class="set-label">鼠标指针</span>
           <div class="seg" data-seg="cursor">
-            <button type="button" data-val="on">自定义</button>
+            <button type="button" data-val="glow">微光</button>
+            <button type="button" data-val="on">圆环</button>
             <button type="button" data-val="off">系统</button>
           </div>
         </div>
-        <p class="set-note">自定义指针是一个反相圆环，悬停会变形并显示提示；文字输入框仍用系统指针，触屏设备自动忽略。</p>
+        <p class="set-note">微光保留系统指针，移动时轻柔跟随，进入正文或输入框时收起；圆环悬停时会变形。关闭页面动效或使用触屏时，自动使用系统指针。</p>
       </section>
 
     </div>
@@ -643,7 +657,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
         <circle cx="11" cy="11" r="6.5"/><path d="M16.2 16.2 21 21"/>
       </svg>
-      <input type="search" placeholder="搜索文章、项目、标签…" autocomplete="off" spellcheck="false" data-search-input>
+      <input type="search" placeholder="搜索文章、项目、文档…" autocomplete="off" spellcheck="false" data-search-input>
       <kbd>Esc</kbd>
     </div>
     <div class="search-results" data-search-results>
@@ -655,7 +669,7 @@
 <div class="mobile-menu" id="mobile-menu" hidden>
   <div class="mobile-menu-backdrop" data-close-menu></div>
   <nav class="mobile-menu-panel">
-    <a href="/">首页</a><a href="/posts/">文章</a><a href="/projects/">项目</a><a href="/docs/">文档</a><a href="/graph/">图谱</a><a href="/archive/">归档</a><a href="/about/">关于</a>
+    <a href="/">首页</a><a href="/posts/">文章</a><a href="/projects/">项目</a><a href="/docs/">文档</a><a href="/lab/">实验室</a><a href="/graph/">图谱</a><a href="/archive/">归档</a><a href="/links/">一些网站</a><a href="/about/">关于</a>
     <div class="mobile-menu-social">
       <a href="https://github.com/luoyebai" rel="noopener">GitHub</a><a href="mailto:2112216825@qq.com" rel="noopener">邮箱</a><a href="mailto:luoyebai4444@gmail.com" rel="noopener">Gmail</a><a href="tel:13407209575" rel="noopener">电话</a>
     </div>
@@ -668,9 +682,10 @@
 
 <script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
 
-<script src="/assets/site.js?v=a860e2c6" defer></script>
-<script src="/assets/404.js?v=a860e2c6" defer></script>
+<script src="/assets/site.js?v=82d4aca5" defer></script>
+<script src="/assets/404.js?v=82d4aca5" defer></script>
 
+<script src="/assets/reading.js?v=82d4aca5" defer></script>
 </body>
 </html>
 
