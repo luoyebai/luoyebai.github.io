@@ -290,50 +290,59 @@
       window.scrollTo({ top: 0, behavior: motionOn() ? 'smooth' : 'auto' });
     });
   }
-  var revealables = document.querySelectorAll('.reveal');
+  var revealables = [].slice.call(document.querySelectorAll('.reveal'));
   if (revealables.length) {
-    var show = function (el, delay) {
-      if (delay) el.style.setProperty('--d', delay + 'ms');
-      el.classList.add('is-in');
+    var paint = function (el, p) {
+      var v = Math.round(p * 100) / 100;
+      if (el.__rv === v) return;
+      el.__rv = v;
+      el.style.setProperty('--rv', v);
+      if (v >= 1) el.classList.add('is-in');
+      else if (el.classList.contains('is-in')) el.classList.remove('is-in');
     };
-    if (!motionOn()) {
-      revealables.forEach(function (el) { show(el, 0); });
+    var showAll = function () { revealables.forEach(function (el) { paint(el, 1); }); };
+    if (!motionOn() || !window.requestAnimationFrame) {
+      showAll();
     } else {
-      var vh = window.innerHeight || 800;
-      var pending = [];
-      revealables.forEach(function (el) {
-        var r = el.getBoundingClientRect();
-        if (r.top < vh + 80 && r.bottom > -80) show(el, 0);
-        else pending.push(el);
-      });
-      if (!('IntersectionObserver' in window)) {
-        pending.forEach(function (el) { show(el, 0); });
-      } else {
-        var stagger = function (el) {
+      var docTop = function (el) {
+        var y = 0;
+        while (el) { y += el.offsetTop; el = el.offsetParent; }
+        return y;
+      };
+      var items = [], queued = false;
+      var update = function () {
+        queued = false;
+        var y = window.pageYOffset || 0;
+        var vh = window.innerHeight || 800;
+        var start = vh * 0.88, span = vh * 0.44;
+        for (var i = 0; i < items.length; i++) {
+          var it = items[i];
+          var p = (y + start - it.top) / span - it.lag;
+          paint(it.el, p < 0 ? 0 : (p > 1 ? 1 : p));
+        }
+      };
+      var measure = function () {
+        items = revealables.map(function (el) {
           var sibs = el.parentElement
             ? [].slice.call(el.parentElement.children).filter(function (c) {
                 return c.classList.contains('reveal');
               })
             : [];
           var i = sibs.indexOf(el);
-          return i > 0 ? Math.min(i * 90, 420) : 0;
-        };
-        var io = new IntersectionObserver(function (entries) {
-          entries.forEach(function (en) {
-            if (!en.isIntersecting) return;
-            show(en.target, stagger(en.target));
-            io.unobserve(en.target);
-          });
-        }, { rootMargin: '0px 0px -14% 0px', threshold: 0.05 });
-        pending.forEach(function (el) { io.observe(el); });
-        window.setTimeout(function () {
-          var vh = window.innerHeight || 800;
-          pending.forEach(function (el) {
-            if (el.classList.contains('is-in')) return;
-            if (el.getBoundingClientRect().top < vh) show(el, 0);
-          });
-        }, 2600);
-      }
+          return { el: el, top: docTop(el), lag: Math.min(Math.max(i, 0), 5) * 0.07 };
+        });
+        update();
+      };
+      var schedule = function () {
+        if (queued) return;
+        queued = true;
+        window.requestAnimationFrame(update);
+      };
+      measure();
+      window.addEventListener('scroll', schedule, { passive: true });
+      window.addEventListener('resize', measure, { passive: true });
+      window.addEventListener('load', measure);
+      window.setTimeout(measure, 1400);
     }
   }
   function maxTilt() {

@@ -6,7 +6,7 @@
   <meta name="description" content="用两个电机驱动真实闭环并联踝，观察被动脚底姿态与约束误差。">
   <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
   <link rel="canonical" href="https://luoyebai.github.io/lab/ankle/">
-  <link rel="stylesheet" href="/assets/tools/ankle/lab.css?v=a34392b4">
+  <link rel="stylesheet" href="/assets/tools/ankle/lab.css?v=89e54361">
   <script>var labQuery=new URLSearchParams(location.search),labAppearance={};try{labAppearance=JSON.parse(localStorage.getItem('blog.appearance')||'{}')||{};}catch(e){}document.documentElement.dataset.mode=(labQuery.get('mode')||labAppearance.mode)==='light'?'light':'dark';if(labQuery.get('embed')==='1')document.documentElement.classList.add('embedded');</script>
   <script type="importmap">{"imports":{"three":"/assets/vendor/three/three.module.min.js"}}</script>
 </head>
@@ -51,5 +51,5 @@
   <details class="model-sources"><summary>模型来源、约束与计算范围</summary><p>默认模型来自 <a href="https://github.com/limxdynamics/humanoid-description" target="_blank" rel="noopener">LimX 官方 humanoid-description</a>（Apache-2.0），保留两电机、球铰连杆、被动 Pitch/Roll 与两条 connect 约束。以固定小腿替代整机；几何与惯性来自原模型，PD 参数和观察范围为本实验设置。仿真结果不能代替真机参数标定。</p><p>教学模型使用明确标注的自定义尺寸，对应文章的双 Y 轴电机推导；它同样使用力矩驱动和真实闭环约束，并非 G1 硬件参数。MuJoCo 的等式约束是数值软约束，残差不应被解释为严格零。</p><p><a href="/assets/tools/ankle/limx/SOURCES.md" target="_blank">模型修改与固定版本</a> · <a href="/assets/tools/ankle/limx/limx-left-ankle.xml" download>下载 LimX MJCF</a> · <a href="/assets/vendor/mujoco/PROVENANCE.md" target="_blank">引擎来源</a> · <a href="/posts/parallel-ankle-kinematics/">文章与推导</a></p></details>
   <noscript><p>此实验需要 JavaScript、WebAssembly 与 WebGL。你仍可阅读文章推导或下载模型。</p></noscript>
 </main>
-<script type="module" src="/assets/tools/ankle/app.js?v=a34392b4"></script>
+<script type="module" src="/assets/tools/ankle/app.js?v=89e54361"></script>
 </body></html>
