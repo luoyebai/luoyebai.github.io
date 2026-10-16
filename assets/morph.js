@@ -12,7 +12,7 @@
   var compact = root.getAttribute('data-performance') === 'compact';
   var TAU = Math.PI * 2;
   var TILT = 0.64, ARMS = 3, TIGHT = 2.05;      
-  var SPAN = 1.55;                              
+  var SPAN = 1.32;                              
   var N = compact ? 520 : 900;
   var Q = compact ? 0.5 : 0.62;                 
   var LEVELS = [0.26, 0.46, 0.66, 0.92];
@@ -112,14 +112,20 @@
   }
   function assign() {
     if (textPts.length) {
+      var textCount = Math.max(120, Math.round(parts.length * 0.82));
       var ps = parts.slice().sort(function (p, q) {
         var px = Math.cos(p.a) * p.r, qx = Math.cos(q.a) * q.r;
         return (px - qx) || (p.y - q.y);
       });
       for (var i = 0; i < ps.length; i++) {
-        var pt = textPts[Math.floor(i * textPts.length / ps.length)];
-        ps[i].tx = pt[0];
-        ps[i].ty = pt[1];
+        if (i < textCount) {
+          var pt = textPts[Math.floor(i * textPts.length / textCount)];
+          ps[i].word = true;
+          ps[i].tx = pt[0];
+          ps[i].ty = pt[1];
+        } else {
+          ps[i].word = false;
+        }
       }
     }
     var per = cardEls.map(function (el) {
@@ -147,13 +153,16 @@
     var c = document.createElement('canvas');
     c.width = w; c.height = h;
     var x = c.getContext('2d');
-    var family = getComputedStyle(root).getPropertyValue('--font-sans').trim() || 'sans-serif';
+    var h2 = headEl.querySelector('h2') || headEl;
+    var hcs = getComputedStyle(h2);
+    var family = hcs.fontFamily || 'sans-serif';
+    var weight = hcs.fontWeight || '700';
     var size = Math.round(h * 0.82);
-    x.font = '700 ' + size + 'px ' + family;
+    x.font = weight + ' ' + size + 'px ' + family;
     var m = x.measureText(text).width || 1;
     if (m > w * 0.97) {
       size = Math.max(24, Math.floor(size * w * 0.97 / m));
-      x.font = '700 ' + size + 'px ' + family;
+      x.font = weight + ' ' + size + 'px ' + family;
     }
     x.textAlign = 'center';
     x.textBaseline = 'middle';
@@ -188,14 +197,23 @@
     return { w: own.width, h: own.height };
   }
   var TEXT_SCALE = 5.2;
-  function textTarget() {
+  function textTargets() {
     var h2 = headEl.querySelector('h2') || headEl;
     var own = h2.getBoundingClientRect();
     var box = textBox();
-    var w = Math.min(W * 0.62, box.w * TEXT_SCALE);
-    var h = w * box.h / Math.max(1, box.w);
-    var cy2 = Math.min(own.top + own.height / 2, H * 0.5);
-    return { x: W / 2 - w / 2, y: cy2 - h / 2, w: w, h: h };
+    var bigW = Math.min(W * 0.62, box.w * TEXT_SCALE);
+    var bigH = bigW * box.h / Math.max(1, box.w);
+    var cyBig = Math.min(own.top + own.height / 2, H * 0.5);
+    var cyExact = Math.min(own.top + own.height / 2, H * 0.5);
+    return {
+      big: { x: W / 2 - bigW / 2, y: cyBig - bigH / 2, w: bigW, h: bigH },
+      exact: { x: own.left + own.width / 2 - box.w / 2, y: cyExact - box.h / 2,
+               w: box.w, h: box.h }
+    };
+  }
+  function lerpBox(a, b, t) {
+    return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t,
+             w: a.w + (b.w - a.w) * t, h: a.h + (b.h - a.h) * t };
   }
   function resize() {
     var w = Math.max(320, window.innerWidth || 320);
@@ -213,13 +231,13 @@
     return true;
   }
   function phases(p) {
-    var s1 = ss(0.06, 0.34, p);                 
-    var s2 = ss(0.58, 0.76, p);                 
+    var s1 = ss(0.06, 0.32, p);                 
+    var s2 = ss(0.54, 0.72, p);                 
     return { g: 1 - s1, t: s1 * (1 - s2), c: s2, s1: s1, s2: s2 };
   }
   function turbulence(p) {
-    var a = Math.sin(ss(0.08, 0.40, p) * Math.PI);
-    var b = Math.sin(ss(0.58, 0.82, p) * Math.PI);
+    var a = Math.sin(ss(0.06, 0.32, p) * Math.PI);
+    var b = Math.sin(ss(0.54, 0.76, p) * Math.PI);
     return a * 0.20 + b * 0.10;
   }
   function rectOf(el) {
@@ -227,17 +245,20 @@
     return { x: r.left, y: r.top, w: r.width, h: r.height };
   }
   var P = { x: 0, y: 0, k: 1, r: 0 };
-  function galaxyPoint(p, heroRect, yaw) {
-    var cx = heroRect.x + heroRect.w * 0.76;
-    var cy = heroRect.y + heroRect.h * 0.48;
-    var RAD = Math.min(heroRect.w * 0.35, heroRect.h * 0.66);
+  function galaxyPoint(p, box, yaw, out) {
+    var cx = box.x + box.w * 0.76;
+    var cy = box.y + box.h * 0.48;
+    var RAD = Math.min(box.w * 0.35, box.h * 0.66);
     var ang = p.a + yaw * (0.55 / (0.34 + p.r));
     var x = Math.cos(ang) * p.r, z = Math.sin(ang) * p.r;
     var y2 = p.y * Math.cos(TILT) - z * Math.sin(TILT);
     var z2 = p.y * Math.sin(TILT) + z * Math.cos(TILT);
     var k = 2.35 / (2.35 + z2);
     var roll = -0.28, cr = Math.cos(roll), sr = Math.sin(roll);
-    return { x: cx + (x * cr - y2 * sr) * RAD * k, y: cy + (x * sr + y2 * cr) * RAD * k, k: k };
+    out.x = cx + (x * cr - y2 * sr) * RAD * k;
+    out.y = cy + (x * sr + y2 * cr) * RAD * k;
+    out.k = k;
+    return out;
   }
   function draw() {
     bctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -245,10 +266,11 @@
     bctx.globalCompositeOperation = 'lighter';
     var ph = phases(progress);
     var turb = turbulence(progress);
-    var fade = 1 - ss(0.90, 1.0, progress);
+    var fade = 1 - ss(0.76, 0.92, progress);
     var heroRect = rectOf(hero);
     var hx = heroRect.x * Q, hw = heroRect.w * Q, hy = heroRect.y * Q, hh = heroRect.h * Q;
-    var tb = textTarget();
+    var tbAll = textTargets();
+    var tb = lerpBox(tbAll.big, tbAll.exact, ss(0.40, 0.54, progress));
     var tx0 = tb.x * Q, ty0 = tb.y * Q, tw = tb.w * Q, th = tb.h * Q;
     var cardRects = cardEls.map(function (el) {
       var r = rectOf(el);
@@ -261,13 +283,15 @@
     for (var i = 0; i < parts.length; i++) {
       var p = parts[i];
       var gx = 0, gy = 0, k = 1;
-      if (ph.g > 0.001) {
-        galaxyPoint(p, gRect, yaw);
-        gx = P.x; gy = P.y; k = P.k;
-      } else {
-        galaxyPoint(p, gRect, yaw);
-      }
+      galaxyPoint(p, gRect, yaw, P);
+      gx = P.x; gy = P.y; k = P.k;
       var txp = tx0 + p.tx * tw, typ = ty0 + p.ty * th;
+      if (!p.word) {
+        var ang2 = p.nph + time * 0.22;
+        var rr = tw * (0.52 + 0.42 * (p.lv / LEVELS.length)) + th * 0.5;
+        txp = tx0 + tw * 0.5 + Math.cos(ang2) * rr;
+        typ = ty0 + th * 0.5 + Math.sin(ang2) * rr * 0.42;
+      }
       var cr2 = cardRects[p.ci] || cardRects[0];
       var cp = onRect(cr2, p.cu);
       var x = gx * ph.g + txp * ph.t + cp[0] * ph.c;
@@ -279,14 +303,20 @@
       }
       if (x < -60 || x > BW + 60 || y < -60 || y > BH + 60) continue;
       var sizeG = p.s * (2.6 + 4.4 * p.r) * (0.6 + 0.4 * k);
-      var sizeT = p.s * (1.55 + 1.05 * p.r);    
+      var sizeT = p.s * (p.word ? (2.4 + 1.6 * p.r) : (0.9 + 0.7 * p.r));
       var sizeC = p.s * (1.8 + 1.6 * p.r);
       var size = sizeG * ph.g + sizeT * ph.t + sizeC * ph.c;
       if (size < 1.2) size = 1.2;
       var tier, lv = p.lv % LEVELS.length;
+      var shrink = ss(0.40, 0.54, progress);
+      var hand = ss(0.54, 0.68, progress);
+      var aMul = ph.t > 0.2 ? (1 - shrink * (1 - hand)) * (p.word ? 1 : 0.72) : 1;
+      if (aMul < 0.06) continue;
       if (ph.t > 0.55) {
         tier = (i % 3 === 0) ? 2 : 0;
-        lv = (i % 4 === 0) ? 3 : (i % 4 === 1 ? 2 : 1);   
+        var base = p.word ? ((i % 4 === 0) ? 3 : (i % 4 === 1 ? 2 : 1)) : (p.lv % 2);
+        lv = Math.max(0, Math.min(LEVELS.length - 1,
+                                  Math.floor(base * (0.45 + 0.55 * aMul))));
       } else if (ph.c > 0.55) {
         tier = (i % 3 === 0) ? 2 : (i % 3 === 1 ? 1 : 0);
         lv = (i % 3 === 0) ? 3 : lv;
@@ -322,8 +352,8 @@
   }
   function syncDom(force) {
     var p = progress;
-    var headV = ss(0.44, 0.58, p);          
-    var cardV = ss(0.80, 0.96, p);          
+    var headV = ss(0.40, 0.54, p);          
+    var cardV = ss(0.62, 0.78, p);          
     if (force || lastVars.head !== headV) {
       lastVars.head = headV;
       setVar(headEl, headV, 'head');
@@ -425,17 +455,25 @@
         text: Math.round(ph.t * 1000) / 1000,
         cards: Math.round(ph.c * 1000) / 1000,
         turb: Math.round(turbulence(progress) * 1000) / 1000,
-        pts: textPts.length, live: live, running: !!raf,
+        pts: textPts.length, words: (function () {
+          var k = 0;
+          for (var i = 0; i < parts.length; i++) if (parts[i].word) k++;
+          return k;
+        })(), live: live, running: !!raf,
         tbox: [Math.round(textBox().w), Math.round(textBox().h)],
-        tgt: (function () { var t = textTarget(); return [Math.round(t.x), Math.round(t.y),
-                                                         Math.round(t.w), Math.round(t.h)]; })(),
+        tgt: (function () { var t = textTargets(); return [Math.round(t.big.w), Math.round(t.big.h),
+                                                         Math.round(t.exact.w), Math.round(t.exact.h)]; })(),
         ty: (function () {
-          var lo = 1, hi = 0;
+          var lo = 1, hi = 0, xlo = 1, xhi = 0;
           for (var i = 0; i < parts.length; i++) {
+            if (!parts[i].word) continue;
             if (parts[i].ty < lo) lo = parts[i].ty;
             if (parts[i].ty > hi) hi = parts[i].ty;
+            if (parts[i].tx < xlo) xlo = parts[i].tx;
+            if (parts[i].tx > xhi) xhi = parts[i].tx;
           }
-          return [Math.round(lo * 1000) / 1000, Math.round(hi * 1000) / 1000];
+          return [Math.round(lo * 1000) / 1000, Math.round(hi * 1000) / 1000,
+                  Math.round(xlo * 1000) / 1000, Math.round(xhi * 1000) / 1000];
         })(),
         sample: sampleInfo,
         ptsY: (function () {
