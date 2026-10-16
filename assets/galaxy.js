@@ -25,6 +25,7 @@
   var paused = false;
   var pauseBtn = document.querySelector('[data-galaxy-pause]');
   var px = 0, py = 0, tpx = 0, tpy = 0;      
+  var scrollT = 0, tScrollT = 0, lastVar = -1, strokeCols = ['255,255,255', '255,180,120', '120,160,255'];
   var actionButtons = hero.querySelectorAll('[data-galaxy-action]');
   var status = hero.querySelector('[data-galaxy-status]');
   var interaction = null, activePointer = null;
@@ -68,6 +69,7 @@
     warm = toRgb(g('--accent-2', '#ff9d5c')) || warm;
     cool = toRgb(g('--accent', '#7aa2ff')) || cool;
     var tiers = [null, warm, cool];
+    strokeCols = ['255,255,255', warm.join(','), cool.join(',')];
     sprites = [];
     for (var t = 0; t < tiers.length; t++) {
       var row = [];
@@ -104,8 +106,9 @@
     var z2 = p.y * Math.sin(TILT) + z * Math.cos(TILT);
     var k = 2.35 / (2.35 + z2);
     var roll = -0.28, cr = Math.cos(roll), sr = Math.sin(roll);
-    out.x = cx + (x * cr - y2 * sr) * RAD * k + px * (0.16 + 0.5 * p.r) * RAD * 0.13;
-    out.y = cy + (x * sr + y2 * cr) * RAD * k + py * (0.10 + 0.3 * p.r) * RAD * 0.10;
+    var zoom = 1 + scrollT * 0.62;
+    out.x = cx + (x * cr - y2 * sr) * RAD * k * zoom + px * (0.16 + 0.5 * p.r) * RAD * 0.13;
+    out.y = cy + (x * sr + y2 * cr) * RAD * k * zoom + py * (0.10 + 0.3 * p.r) * RAD * 0.10;
     out.k = k;
     out.depth = z2;
     return out;
@@ -230,6 +233,18 @@
       if (p.r < 0.10) tier = 0;
       if (size < 1.3) { tier = 0; size = 1.3; }
       var lv = (p.lv + (depth > 0.86 ? 1 : 0)) % LEVELS.length;
+      if (scrollT > 0.02) {
+        var dx = pt.x - cx, dy = pt.y - cy;
+        var dd = Math.sqrt(dx * dx + dy * dy) || 1;
+        var len = scrollT * (18 + 96 * p.r) * pt.k;
+        bctx.strokeStyle = 'rgba(' + strokeCols[tier] + ','
+          + (0.10 + 0.20 * scrollT).toFixed(3) + ')';
+        bctx.lineWidth = Math.max(0.7, size * 0.5);
+        bctx.beginPath();
+        bctx.moveTo(pt.x - dx / dd * len, pt.y - dy / dd * len);
+        bctx.lineTo(pt.x, pt.y);
+        bctx.stroke();
+      }
       bctx.drawImage(sprites[tier][lv], pt.x - size, pt.y - size, size * 2, size * 2);
     }
     drawInteraction();
@@ -263,11 +278,30 @@
     lastPaint = t;
     var dt = last ? Math.min(0.05, (t - last) / 1000) : 0.016;
     last = t;
-    yaw += dt * 0.055;
+    scrollT += (tScrollT - scrollT) * Math.min(1, dt * 4.2);
+    if (Math.abs(tScrollT - scrollT) < 0.0015) scrollT = tScrollT;
+    applyScrollVars();
+    yaw += dt * (0.055 + scrollT * 0.46);
     px += (tpx - px) * Math.min(1, dt * 3.2);
     py += (tpy - py) * Math.min(1, dt * 3.2);
     advanceInteraction(dt);
     draw();
+  }
+  function applyScrollVars() {
+    var v = Math.round(scrollT * 1000) / 1000;
+    if (v === lastVar) return;
+    lastVar = v;
+    hero.style.setProperty('--hero-scroll', v);
+  }
+  function readScroll() {
+    var h = hero.offsetHeight || 1;
+    var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+    tScrollT = Math.max(0, Math.min(1, y / Math.max(1, h * 0.92)));
+    if (frozen()) {          
+      scrollT = tScrollT;
+      applyScrollVars();
+      draw();
+    }
   }
   function frozen() {
     return paused || reduce.matches || root.getAttribute('data-motion') === 'off';
@@ -302,6 +336,9 @@
   }
   if (reduce.addEventListener) reduce.addEventListener('change', sync);
   document.addEventListener('visibilitychange', sync);
+  window.addEventListener('scroll', readScroll, { passive: true });
+  window.addEventListener('resize', readScroll, { passive: true });
+  readScroll();
   function isMouse(e) { return !e.pointerType || e.pointerType === 'mouse'; }
   function interactionPoint(e) {
     if (!isMouse(e) || (e.target && e.target.closest && e.target.closest(ignoredTargets))) return null;
@@ -403,6 +440,7 @@
         state: lastState, held: !!(interaction && interaction.held),
         strength: interaction ? interaction.strength : 0,
         point: interaction ? [interaction.x, interaction.y] : null,
+        scroll: Math.round(scrollT * 1000) / 1000,
         running: !!raf
       };
     },

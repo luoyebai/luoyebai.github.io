@@ -32,8 +32,8 @@
 <link rel="canonical" href="https://luoyebai.github.io/lab/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=82d4aca5">
-<link rel="stylesheet" href="/assets/site.css?v=82d4aca5">
+<link rel="stylesheet" href="/assets/themes.css?v=a34392b4">
+<link rel="stylesheet" href="/assets/site.css?v=a34392b4">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
 
@@ -195,6 +195,8 @@
         <p class="toc-title">目录</p>
         <ul>
           
+          <li class="toc-l2"><a href="#mujoco-并联踝实验">MuJoCo 并联踝实验</a></li>
+          
           <li class="toc-l2"><a href="#把控制环调稳">把控制环调稳</a></li>
           
           <li class="toc-l2"><a href="#计算与控制">计算与控制</a></li>
@@ -212,12 +214,16 @@
       <details class="mobile-toc">
         <summary>本页目录</summary>
         <nav aria-label="本页目录"><ul>
-          <li class="toc-l2"><a href="#把控制环调稳">把控制环调稳</a></li><li class="toc-l2"><a href="#计算与控制">计算与控制</a></li><li class="toc-l2"><a href="#动画工具">动画工具</a></li><li class="toc-l2"><a href="#休息一下">休息一下</a></li>
+          <li class="toc-l2"><a href="#mujoco-并联踝实验">MuJoCo 并联踝实验</a></li><li class="toc-l2"><a href="#把控制环调稳">把控制环调稳</a></li><li class="toc-l2"><a href="#计算与控制">计算与控制</a></li><li class="toc-l2"><a href="#动画工具">动画工具</a></li><li class="toc-l2"><a href="#休息一下">休息一下</a></li>
         </ul></nav>
       </details>
       
 
       <div class="prose reveal"><p>从下面的控制挑战开始，也可以直接打开一个小工具。每个实验都在浏览器里独立计算，先点代码面板上的 <strong>运行</strong>，再点实验里的 <strong>开始</strong>；离开画面会暂停动画，回来后继续。</p>
+<h2 id="mujoco-并联踝实验">MuJoCo 并联踝实验<a class="heading-anchor" href="#mujoco-并联踝实验" aria-label="锚点">#</a></h2>
+<p>两个电机、一对连杆、一个被动脚底。调节电机目标角度，用真实的闭环动力学观察脚踝如何运动，再施加外力，看电机力矩与最终姿态如何改变。</p>
+<p><a href="/lab/ankle/">打开并联踝实验台 →</a></p>
+<p>默认使用 <strong>LimX 官方 HU-D04 左踝模型</strong>，也可切换到与<a href="/posts/parallel-ankle-kinematics/">并联踝运动学推导</a>对应的教学机构。引擎与模型点击后才加载；支持暂停、单步、视角旋转和数据导出。</p>
 <h2 id="把控制环调稳">把控制环调稳<a class="heading-anchor" href="#把控制环调稳" aria-label="锚点">#</a></h2>
 <p>让一维执行器从 <strong>0 m</strong> 移动到 <strong>1 m</strong>：先压住超调，再让它在目标附近稳定下来。切换关卡会重置参数；修改参数会暂停并重新准备这一轮，让每次比较使用相同起点。</p>
 <div class="table-wrap" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
@@ -500,7 +506,7 @@ controlK<span class="tok-punct">.</span>oninput <span class="tok-operator">=</sp
       <span class="sep" aria-hidden="true">·</span>
       <span>除注明外均为原创，转载请注明出处</span>
       <span class="sep" aria-hidden="true">·</span>
-      <span>构建于 <time datetime="2026-10-02">2026-10-02</time></span>
+      <span>构建于 <time datetime="2026-10-17">2026-10-17</time></span>
     </p>
     <p class="footer-meta">
       <span class="footer-meta-label">字体</span>
@@ -850,9 +856,9 @@ controlK<span class="tok-punct">.</span>oninput <span class="tok-operator">=</sp
 <script defer src="/assets/vendor/katex/katex.min.js"></script>
 
 
-<script src="/assets/site.js?v=82d4aca5" defer></script>
+<script src="/assets/site.js?v=a34392b4" defer></script>
 
-<script src="/assets/reading.js?v=82d4aca5" defer></script>
+<script src="/assets/reading.js?v=a34392b4" defer></script>
 </body>
 </html>
 
