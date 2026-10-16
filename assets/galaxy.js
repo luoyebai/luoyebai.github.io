@@ -107,8 +107,8 @@
     var k = 2.35 / (2.35 + z2);
     var roll = -0.28, cr = Math.cos(roll), sr = Math.sin(roll);
     var zoom = 1 + scrollT * 0.62;
-    out.x = cx + (x * cr - y2 * sr) * RAD * k * zoom + px * (0.16 + 0.5 * p.r) * RAD * 0.13;
-    out.y = cy + (x * sr + y2 * cr) * RAD * k * zoom + py * (0.10 + 0.3 * p.r) * RAD * 0.10;
+    out.x = cx + (x * cr - y2 * sr) * RAD * k * zoom + px * (0.16 + 0.5 * p.r) * RAD * 0.34;
+    out.y = cy + (x * sr + y2 * cr) * RAD * k * zoom + py * (0.10 + 0.3 * p.r) * RAD * 0.26;
     out.k = k;
     out.depth = z2;
     return out;
@@ -282,8 +282,8 @@
     if (Math.abs(tScrollT - scrollT) < 0.0015) scrollT = tScrollT;
     applyScrollVars();
     yaw += dt * (0.055 + scrollT * 0.46);
-    px += (tpx - px) * Math.min(1, dt * 3.2);
-    py += (tpy - py) * Math.min(1, dt * 3.2);
+    px += (tpx - px) * Math.min(1, dt * 4.6);
+    py += (tpy - py) * Math.min(1, dt * 4.6);
     advanceInteraction(dt);
     draw();
   }

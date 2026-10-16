@@ -1,0 +1,462 @@
+(function () {
+  'use strict';
+  var cv = document.getElementById('morph-canvas');
+  if (!cv || !cv.getContext) return;
+  var hero = document.querySelector('.hero');
+  var headEl = document.querySelector('[data-morph="head"]');
+  var cardEls = [].slice.call(document.querySelectorAll('[data-morph="card"]'));
+  if (!hero || !headEl || !cardEls.length) return;
+  var root = document.documentElement;
+  var ctx = cv.getContext('2d');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  var compact = root.getAttribute('data-performance') === 'compact';
+  var TAU = Math.PI * 2;
+  var TILT = 0.64, ARMS = 3, TIGHT = 2.05;      
+  var SPAN = 1.55;                              
+  var N = compact ? 520 : 900;
+  var Q = compact ? 0.5 : 0.62;                 
+  var LEVELS = [0.26, 0.46, 0.66, 0.92];
+  var buf = document.createElement('canvas');
+  var bctx = buf.getContext('2d');
+  var W = 0, H = 0, BW = 0, BH = 0, DPR = 1;
+  var sprites = [], strokeCols = ['255,255,255', '255,180,120', '120,160,255'];
+  var warm = [255, 180, 120], cool = [120, 160, 255];
+  var parts = [];
+  var textPts = [];
+  var live = false, raf = 0, lastPaint = 0, frameBudget = 1000 / 30;
+  var progress = 0, targetProgress = 0, time = 0;
+  var lastVars = { head: -1, cards: -1 };
+  var sampleInfo = null;
+  function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
+  function ss(a, b, x) {              
+    var t = clamp((x - a) / (b - a), 0, 1);
+    return t * t * (3 - 2 * t);
+  }
+  function toRgb(c) {
+    if (!c) return null;
+    c = String(c).trim();
+    var m = c.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+    if (m) {
+      var h = m[1];
+      if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+      return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+    }
+    var m2 = c.match(/^rgba?\(([^)]+)\)/i);
+    if (m2) {
+      var p = m2[1].split(/[,\s/]+/).filter(Boolean).map(parseFloat);
+      if (p.length >= 3) return [p[0], p[1], p[2]];
+    }
+    return null;
+  }
+  function makeSprite(rgb, a, size) {
+    var c = document.createElement('canvas');
+    c.width = c.height = size;
+    var x = c.getContext('2d');
+    var r = size / 2;
+    var col = rgb ? (rgb[0] + ',' + rgb[1] + ',' + rgb[2]) : '255,255,255';
+    var g = x.createRadialGradient(r, r, 0, r, r, r);
+    g.addColorStop(0, 'rgba(' + col + ',' + a + ')');
+    g.addColorStop(0.22, 'rgba(' + col + ',' + (a * 0.72).toFixed(3) + ')');
+    g.addColorStop(0.55, 'rgba(' + col + ',' + (a * 0.16).toFixed(3) + ')');
+    g.addColorStop(1, 'rgba(' + col + ',0)');
+    x.fillStyle = g;
+    x.fillRect(0, 0, size, size);
+    return c;
+  }
+  function readPalette() {
+    var cs = getComputedStyle(root);
+    function g(n, f) { return (cs.getPropertyValue(n) || '').trim() || f; }
+    warm = toRgb(g('--accent-2', '#ff9d5c')) || warm;
+    cool = toRgb(g('--accent', '#7aa2ff')) || cool;
+    strokeCols = ['255,255,255', warm.join(','), cool.join(',')];
+    var tiers = [null, warm, cool];
+    sprites = [];
+    for (var t = 0; t < tiers.length; t++) {
+      var row = [];
+      for (var i = 0; i < LEVELS.length; i++) row.push(makeSprite(tiers[t], LEVELS[i], 64));
+      sprites.push(row);
+    }
+  }
+  function build() {
+    parts = [];
+    for (var i = 0; i < N; i++) {
+      var core = Math.random() < 0.12;
+      var t = core ? Math.pow(Math.random(), 2.2) : Math.sqrt(Math.random());
+      var arm = i % ARMS;
+      var spread = (0.34 + 0.30 * (1 - t)) * (Math.random() - 0.5) * 2;
+      var ang = arm * TAU / ARMS + t * TIGHT * Math.PI + spread;
+      var r = core ? t * 0.24 : 0.12 + t * 0.88 + (Math.random() - 0.5) * 0.07;
+      var h = (Math.random() + Math.random() + Math.random() - 1.5) / 1.5;
+      parts.push({
+        r: r, a: ang, y: h * (0.035 + 0.16 * r),
+        s: (core ? 0.85 : 0.4) + Math.random() * (core ? 0.8 : 0.7),
+        lv: (Math.random() * LEVELS.length) | 0,
+        nx: Math.cos(Math.random() * TAU), ny: Math.sin(Math.random() * TAU),
+        nph: Math.random() * TAU,
+        tx: 0, ty: 0, ci: 0, cu: 0
+      });
+    }
+    parts.sort(function (p, q) { return p.r - q.r; });
+    assign();
+  }
+  function onRect(r, u) {
+    var per = 2 * (r.w + r.h) || 1;
+    var d = u * per;
+    if (d < r.w) return [r.x + d, r.y];
+    d -= r.w;
+    if (d < r.h) return [r.x + r.w, r.y + d];
+    d -= r.h;
+    if (d < r.w) return [r.x + r.w - d, r.y + r.h];
+    d -= r.w;
+    return [r.x, r.y + r.h - d];
+  }
+  function assign() {
+    if (textPts.length) {
+      var ps = parts.slice().sort(function (p, q) {
+        var px = Math.cos(p.a) * p.r, qx = Math.cos(q.a) * q.r;
+        return (px - qx) || (p.y - q.y);
+      });
+      for (var i = 0; i < ps.length; i++) {
+        var pt = textPts[Math.floor(i * textPts.length / ps.length)];
+        ps[i].tx = pt[0];
+        ps[i].ty = pt[1];
+      }
+    }
+    var per = cardEls.map(function (el) {
+      var r = el.getBoundingClientRect();
+      return 2 * (r.width + r.height);
+    });
+    var total = per.reduce(function (a, b) { return a + b; }, 0) || 1;
+    var cursor = 0, ci = 0, inCard = 0;
+    var counts = per.map(function (p) { return Math.max(4, Math.round(N * p / total)); });
+    for (var k = 0; k < parts.length; k++) {
+      while (ci < counts.length - 1 && inCard >= counts[ci]) { ci++; inCard = 0; }
+      parts[k].ci = ci;
+      parts[k].cu = (inCard + 0.5) / counts[ci];
+      inCard++;
+      cursor++;
+    }
+    void cursor;
+  }
+  function sampleText(text) {
+    text = (text || '').replace(/\s+/g, ' ').trim();
+    if (!text) return [];
+    var box = textBox();                      
+    var w = 900;
+    var h = Math.max(48, Math.min(420, Math.round(w * box.h / Math.max(1, box.w))));
+    var c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    var x = c.getContext('2d');
+    var family = getComputedStyle(root).getPropertyValue('--font-sans').trim() || 'sans-serif';
+    var size = Math.round(h * 0.82);
+    x.font = '700 ' + size + 'px ' + family;
+    var m = x.measureText(text).width || 1;
+    if (m > w * 0.97) {
+      size = Math.max(24, Math.floor(size * w * 0.97 / m));
+      x.font = '700 ' + size + 'px ' + family;
+    }
+    x.textAlign = 'center';
+    x.textBaseline = 'middle';
+    x.fillStyle = '#fff';
+    x.fillText(text, w / 2, h / 2);
+    var data;
+    try { data = x.getImageData(0, 0, w, h).data; } catch (e) { return []; }
+    sampleInfo = { w: w, h: h, font: size, m: Math.round(m) };
+    var pts = [];
+    for (var yy = 0; yy < h; yy += 2) {
+      for (var xx = 0; xx < w; xx += 2) {
+        if (data[(yy * w + xx) * 4 + 3] > 140) pts.push([xx / w, yy / h]);
+      }
+    }
+    pts.sort(function (p, q) { return (p[0] - q[0]) || (p[1] - q[1]); });
+    return pts;
+  }
+  function textBox() {
+    var h2 = headEl.querySelector('h2') || headEl;
+    try {
+      var range = document.createRange();
+      range.selectNodeContents(h2);
+      var rects = range.getClientRects();
+      if (rects.length) {
+        var r = rects[0];
+        var w = r.width, h = r.height;
+        for (var i = 1; i < rects.length; i++) { w = Math.max(w, rects[i].right - r.left); }
+        if (w > 20 && h > 8) return { w: w, h: h };
+      }
+    } catch (e) {  }
+    var own = h2.getBoundingClientRect();
+    return { w: own.width, h: own.height };
+  }
+  var TEXT_SCALE = 5.2;
+  function textTarget() {
+    var h2 = headEl.querySelector('h2') || headEl;
+    var own = h2.getBoundingClientRect();
+    var box = textBox();
+    var w = Math.min(W * 0.62, box.w * TEXT_SCALE);
+    var h = w * box.h / Math.max(1, box.w);
+    var cy2 = Math.min(own.top + own.height / 2, H * 0.5);
+    return { x: W / 2 - w / 2, y: cy2 - h / 2, w: w, h: h };
+  }
+  function resize() {
+    var w = Math.max(320, window.innerWidth || 320);
+    var h = Math.max(280, window.innerHeight || 280);
+    if (w === W && h === H) return false;
+    W = w; H = h;
+    DPR = Math.min(compact ? 1 : 1.4, window.devicePixelRatio || 1);
+    cv.width = Math.round(W * DPR);
+    cv.height = Math.round(H * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    BW = Math.max(200, Math.round(W * Q));
+    BH = Math.max(180, Math.round(H * Q));
+    buf.width = BW; buf.height = BH;
+    bctx.setTransform(1, 0, 0, 1, 0, 0);
+    return true;
+  }
+  function phases(p) {
+    var s1 = ss(0.06, 0.34, p);                 
+    var s2 = ss(0.58, 0.76, p);                 
+    return { g: 1 - s1, t: s1 * (1 - s2), c: s2, s1: s1, s2: s2 };
+  }
+  function turbulence(p) {
+    var a = Math.sin(ss(0.08, 0.40, p) * Math.PI);
+    var b = Math.sin(ss(0.58, 0.82, p) * Math.PI);
+    return a * 0.20 + b * 0.10;
+  }
+  function rectOf(el) {
+    var r = el.getBoundingClientRect();
+    return { x: r.left, y: r.top, w: r.width, h: r.height };
+  }
+  var P = { x: 0, y: 0, k: 1, r: 0 };
+  function galaxyPoint(p, heroRect, yaw) {
+    var cx = heroRect.x + heroRect.w * 0.76;
+    var cy = heroRect.y + heroRect.h * 0.48;
+    var RAD = Math.min(heroRect.w * 0.35, heroRect.h * 0.66);
+    var ang = p.a + yaw * (0.55 / (0.34 + p.r));
+    var x = Math.cos(ang) * p.r, z = Math.sin(ang) * p.r;
+    var y2 = p.y * Math.cos(TILT) - z * Math.sin(TILT);
+    var z2 = p.y * Math.sin(TILT) + z * Math.cos(TILT);
+    var k = 2.35 / (2.35 + z2);
+    var roll = -0.28, cr = Math.cos(roll), sr = Math.sin(roll);
+    return { x: cx + (x * cr - y2 * sr) * RAD * k, y: cy + (x * sr + y2 * cr) * RAD * k, k: k };
+  }
+  function draw() {
+    bctx.setTransform(1, 0, 0, 1, 0, 0);
+    bctx.clearRect(0, 0, BW, BH);
+    bctx.globalCompositeOperation = 'lighter';
+    var ph = phases(progress);
+    var turb = turbulence(progress);
+    var fade = 1 - ss(0.90, 1.0, progress);
+    var heroRect = rectOf(hero);
+    var hx = heroRect.x * Q, hw = heroRect.w * Q, hy = heroRect.y * Q, hh = heroRect.h * Q;
+    var tb = textTarget();
+    var tx0 = tb.x * Q, ty0 = tb.y * Q, tw = tb.w * Q, th = tb.h * Q;
+    var cardRects = cardEls.map(function (el) {
+      var r = rectOf(el);
+      return { x: r.x * Q, y: r.y * Q, w: r.w * Q, h: r.h * Q };
+    });
+    var gRect = { x: hx, y: hy, w: hw, h: hh };
+    var yaw = 0.6 + time * 0.055;
+    var tint = 0, boost = 0;
+    if (ph.t > 0.02) tint = 0;                     
+    for (var i = 0; i < parts.length; i++) {
+      var p = parts[i];
+      var gx = 0, gy = 0, k = 1;
+      if (ph.g > 0.001) {
+        galaxyPoint(p, gRect, yaw);
+        gx = P.x; gy = P.y; k = P.k;
+      } else {
+        galaxyPoint(p, gRect, yaw);
+      }
+      var txp = tx0 + p.tx * tw, typ = ty0 + p.ty * th;
+      var cr2 = cardRects[p.ci] || cardRects[0];
+      var cp = onRect(cr2, p.cu);
+      var x = gx * ph.g + txp * ph.t + cp[0] * ph.c;
+      var y = gy * ph.g + typ * ph.t + cp[1] * ph.c;
+      if (turb > 0.001) {
+        var wob = turb * BH * 0.34;
+        x += p.nx * wob + Math.cos(time * 0.9 + p.nph) * wob * 0.35;
+        y += p.ny * wob + Math.sin(time * 0.7 + p.nph) * wob * 0.35;
+      }
+      if (x < -60 || x > BW + 60 || y < -60 || y > BH + 60) continue;
+      var sizeG = p.s * (2.6 + 4.4 * p.r) * (0.6 + 0.4 * k);
+      var sizeT = p.s * (1.55 + 1.05 * p.r);    
+      var sizeC = p.s * (1.8 + 1.6 * p.r);
+      var size = sizeG * ph.g + sizeT * ph.t + sizeC * ph.c;
+      if (size < 1.2) size = 1.2;
+      var tier, lv = p.lv % LEVELS.length;
+      if (ph.t > 0.55) {
+        tier = (i % 3 === 0) ? 2 : 0;
+        lv = (i % 4 === 0) ? 3 : (i % 4 === 1 ? 2 : 1);   
+      } else if (ph.c > 0.55) {
+        tier = (i % 3 === 0) ? 2 : (i % 3 === 1 ? 1 : 0);
+        lv = (i % 3 === 0) ? 3 : lv;
+      } else {
+        tier = p.r < 0.10 ? 0 : (p.r < 0.3 ? 1 : 2);
+      }
+      if (ph.s1 > 0.05 && ph.s1 < 0.95 && turb > 0.05) {
+        var dx = x - BW * 0.76, dy = y - BH * 0.48;
+        var dd = Math.sqrt(dx * dx + dy * dy) || 1;
+        var len = turb * (16 + 70 * p.r);
+        bctx.strokeStyle = 'rgba(' + strokeCols[tier] + ',' + (0.10 + 0.16 * turb).toFixed(3) + ')';
+        bctx.lineWidth = Math.max(0.7, size * 0.5);
+        bctx.beginPath();
+        bctx.moveTo(x - dx / dd * len, y - dy / dd * len);
+        bctx.lineTo(x, y);
+        bctx.stroke();
+      }
+      void boost; void tint;
+      bctx.drawImage(sprites[tier][lv], x - size, y - size, size * 2, size * 2);
+    }
+    bctx.globalCompositeOperation = 'source-over';
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    ctx.globalAlpha = fade;
+    ctx.drawImage(buf, 0, 0, BW, BH, 0, 0, W, H);
+    ctx.globalAlpha = 1;
+  }
+  function setVar(el, v, key) {
+    var r = Math.round(v * 1000) / 1000;
+    if (el.__v === r) return;
+    el.__v = r;
+    el.style.setProperty('--rv', r);
+  }
+  function syncDom(force) {
+    var p = progress;
+    var headV = ss(0.44, 0.58, p);          
+    var cardV = ss(0.80, 0.96, p);          
+    if (force || lastVars.head !== headV) {
+      lastVars.head = headV;
+      setVar(headEl, headV, 'head');
+    }
+    if (force || lastVars.cards !== cardV) {
+      lastVars.cards = cardV;
+      for (var i = 0; i < cardEls.length; i++) setVar(cardEls[i], cardV, 'card');
+    }
+  }
+  function readScroll() {
+    var vh = window.innerHeight || 800;
+    var y = window.pageYOffset || 0;
+    targetProgress = clamp(y / (vh * SPAN), 0, 1);
+    if (!raf) { progress = targetProgress; syncDom(false); }
+  }
+  function wanted() {
+    return !reduce.matches && root.getAttribute('data-motion') !== 'off';
+  }
+  function frame(t) {
+    raf = window.requestAnimationFrame(frame);
+    if (lastPaint && t - lastPaint < frameBudget - 1) return;
+    var dt = lastPaint ? Math.min(0.05, (t - lastPaint) / 1000) : 0.016;
+    lastPaint = t;
+    time += dt;
+    progress += (targetProgress - progress) * Math.min(1, dt * 5.5);
+    syncDom(false);
+    if (progress <= 0.012) {                 
+      cv.classList.remove('is-live');
+      live = false;
+      return;
+    }
+    cv.classList.add('is-live');
+    live = true;
+    draw();
+  }
+  function start() {
+    if (raf) return;
+    lastPaint = 0;
+    raf = window.requestAnimationFrame(frame);
+  }
+  function stop() {
+    if (raf) window.cancelAnimationFrame(raf);
+    raf = 0;
+    if (!live) cv.classList.remove('is-live');
+  }
+  function sync() {
+    if (!wanted()) {                         
+      stop();
+      cv.classList.remove('is-live');
+      progress = targetProgress = 0;
+      syncDom(true);
+      setVar(headEl, 1); for (var i = 0; i < cardEls.length; i++) setVar(cardEls[i], 1);
+      document.querySelectorAll('[data-morph]').forEach(function (el) {
+        el.style.setProperty('--rv', 1);
+      });
+      return;
+    }
+    readScroll();
+    if (document.hidden) { stop(); return; }
+    start();
+  }
+  readPalette();
+  resize();
+  build();
+  function loadText() {
+    var h2 = headEl.querySelector('h2');
+    textPts = sampleText(h2 ? h2.textContent : headEl.textContent);
+    assign();
+  }
+  loadText();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(loadText);
+  if (!wanted()) {
+    sync();
+  } else {
+    document.querySelectorAll('[data-morph]').forEach(function (el) {
+      el.style.setProperty('--rv', 0);
+    });
+    syncDom(true);
+  }
+  sync();
+  window.addEventListener('scroll', function () {
+    readScroll();
+    if (!raf && wanted()) start();
+  }, { passive: true });
+  window.addEventListener('resize', function () { resize(); assign(); });
+  if (reduce.addEventListener) reduce.addEventListener('change', sync);
+  document.addEventListener('visibilitychange', sync);
+  if (window.MutationObserver) {
+    new MutationObserver(function () { readPalette(); })
+      .observe(root, { attributes: true, attributeFilter: ['data-theme', 'data-mode'] });
+  }
+  window.__morph = {
+    info: function () {
+      var ph = phases(progress);
+      return {
+        n: parts.length, p: Math.round(progress * 1000) / 1000,
+        target: Math.round(targetProgress * 1000) / 1000,
+        galaxy: Math.round(ph.g * 1000) / 1000,
+        text: Math.round(ph.t * 1000) / 1000,
+        cards: Math.round(ph.c * 1000) / 1000,
+        turb: Math.round(turbulence(progress) * 1000) / 1000,
+        pts: textPts.length, live: live, running: !!raf,
+        tbox: [Math.round(textBox().w), Math.round(textBox().h)],
+        tgt: (function () { var t = textTarget(); return [Math.round(t.x), Math.round(t.y),
+                                                         Math.round(t.w), Math.round(t.h)]; })(),
+        ty: (function () {
+          var lo = 1, hi = 0;
+          for (var i = 0; i < parts.length; i++) {
+            if (parts[i].ty < lo) lo = parts[i].ty;
+            if (parts[i].ty > hi) hi = parts[i].ty;
+          }
+          return [Math.round(lo * 1000) / 1000, Math.round(hi * 1000) / 1000];
+        })(),
+        sample: sampleInfo,
+        ptsY: (function () {
+          if (!textPts.length) return null;
+          var lo = 1, hi = 0;
+          for (var i = 0; i < textPts.length; i++) {
+            if (textPts[i][1] < lo) lo = textPts[i][1];
+            if (textPts[i][1] > hi) hi = textPts[i][1];
+          }
+          return [Math.round(lo * 1000) / 1000, Math.round(hi * 1000) / 1000];
+        })(),
+        head: headEl.__v, card: cardEls[0] ? cardEls[0].__v : null,
+        w: W, h: H, bw: BW, bh: BH
+      };
+    },
+    bench: function (n) {
+      n = n || 30;
+      var t0 = performance.now();
+      for (var i = 0; i < n; i++) { time += 0.01; draw(); }
+      return (performance.now() - t0) / n;
+    },
+    setProgress: function (v) { progress = targetProgress = clamp(v, 0, 1); syncDom(true); draw(); }
+  };
+})();
