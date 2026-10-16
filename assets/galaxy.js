@@ -441,6 +441,7 @@
         strength: interaction ? interaction.strength : 0,
         point: interaction ? [interaction.x, interaction.y] : null,
         scroll: Math.round(scrollT * 1000) / 1000,
+        yaw: yaw,
         running: !!raf
       };
     },
