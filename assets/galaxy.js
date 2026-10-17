@@ -178,13 +178,16 @@
     var dx = point.x - a.x, dy = point.y - a.y;
     var distance = Math.sqrt(dx * dx + dy * dy);
     var radius = RAD * (a.mode === 'burst' ? 1.9 : 1.1);
+    if (distance < 0.01) return;
     var falloff = Math.max(0, 1 - distance / radius);
-    if (!falloff || distance < 0.01) return;
     var amount;
     if (a.mode === 'burst') amount = RAD * 0.72 * a.strength * Math.sqrt(falloff) / distance;
     else amount = (a.mode === 'attract' ? -0.88 : 1.05) * falloff * a.strength;
     point.x += dx * amount;
     point.y += dy * amount;
+    var pull = (a.mode === 'attract' ? -1 : 1) * RAD * 0.045 * a.strength;
+    point.x += dx / distance * pull;
+    point.y += dy / distance * pull;
   }
   function drawInteraction() {
     if (!interaction || interaction.strength <= 0) return;
@@ -440,6 +443,7 @@
         state: lastState, held: !!(interaction && interaction.held),
         strength: interaction ? interaction.strength : 0,
         point: interaction ? [interaction.x, interaction.y] : null,
+        px: Math.round(px * 1000) / 1000, py: Math.round(py * 1000) / 1000,
         scroll: Math.round(scrollT * 1000) / 1000,
         yaw: yaw,
         running: !!raf

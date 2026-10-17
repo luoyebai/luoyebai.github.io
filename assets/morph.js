@@ -277,7 +277,7 @@
     return any;
   }
   var P = { x: 0, y: 0, k: 1, r: 0 };
-  function galaxyPoint(p, box, yaw, out) {
+  function galaxyPoint(p, box, yaw, px, py, out) {
     var cx = box.x + box.w * 0.76;
     var cy = box.y + box.h * 0.48;
     var RAD = Math.min(box.w * 0.35, box.h * 0.66);
@@ -287,8 +287,11 @@
     var z2 = p.y * Math.sin(TILT) + z * Math.cos(TILT);
     var k = 2.35 / (2.35 + z2);
     var roll = -0.28, cr = Math.cos(roll), sr = Math.sin(roll);
-    out.x = cx + (x * cr - y2 * sr) * RAD * k;
-    out.y = cy + (x * sr + y2 * cr) * RAD * k;
+    out.x = cx + (x * cr - y2 * sr) * RAD * k
+      + px * (0.16 + 0.5 * p.r) * RAD * 0.34;
+    out.y = cy + (x * sr + y2 * cr) * RAD * k
+      + py * (0.10 + 0.3 * p.r) * RAD * 0.26;
+    out.rad = RAD;
     out.k = k;
     return out;
   }
@@ -308,8 +311,19 @@
     var cardRects = cardWindows(cardGate(progress));
     var anyLive = cardRects.any;
     var gRect = { x: hx, y: hy, w: hw, h: hh };
-    var yaw = (window.__galaxy && window.__galaxy.info)
-      ? window.__galaxy.info().yaw : (0.6 + time * 0.055);
+    var gi = (window.__galaxy && window.__galaxy.info) ? window.__galaxy.info() : null;
+    var yaw = gi ? gi.yaw : (0.6 + time * 0.055);
+    var gpx = gi ? gi.px || 0 : 0;
+    var gpy = gi ? gi.py || 0 : 0;
+    var inter = null;
+    if (gi && gi.point && gi.strength > 0.01 && gi.bw && gi.bh) {
+      inter = {
+        mode: gi.state,
+        x: gi.point[0] * BW / gi.bw,
+        y: gi.point[1] * BH / gi.bh,
+        strength: gi.strength
+      };
+    }
     var want = Math.max(arrive * lit * textFade(progress), anyLive * 0.6);
     var wG0 = 1 - arrive;                          
     for (var i = 0; i < parts.length; i++) {
@@ -322,8 +336,20 @@
       var sum = wG + wT + wC;
       if (sum < 0.04) continue;
       var aMul = (wG + wT * lit + wC) / sum;
-      galaxyPoint(p, gRect, yaw, P);
+      galaxyPoint(p, gRect, yaw, gpx, gpy, P);
       var gx = P.x, gy = P.y, k = P.k;
+      if (inter) {
+        var idx = gx - inter.x, idy = gy - inter.y;
+        var idist = Math.sqrt(idx * idx + idy * idy) || 1;
+        var irad = P.rad * (inter.mode === 'burst' ? 1.9 : 1.1);
+        var ifall = Math.max(0, 1 - idist / irad);
+        var iamt = inter.mode === 'burst'
+          ? P.rad * 0.72 * inter.strength * Math.sqrt(ifall) / idist
+          : (inter.mode === 'attract' ? -0.88 : 1.05) * ifall * inter.strength;
+        var ipull = (inter.mode === 'attract' ? -1 : 1) * P.rad * 0.045 * inter.strength;
+        gx += (idx * iamt + idx / idist * ipull) * wG;
+        gy += (idy * iamt + idy / idist * ipull) * wG;
+      }
       var txp = tx0 + p.tx * tw, typ = ty0 + p.ty * th;
       var cp = onRect(cr2, p.cu);
       var x = (gx * wG + txp * wT + cp[0] * wC) / sum;
@@ -508,6 +534,7 @@
                      live: Math.round(gate * ss(0.06, 0.34, rv) * (1 - ss(0.34, 0.80, rv)) * 1000) / 1000 });
       }
       var heroRect = rectOf(hero);
+      var gInfo = (window.__galaxy && window.__galaxy.info) ? window.__galaxy.info() : null;
       return {
         n: parts.length, p: Math.round(progress * 1000) / 1000,
         target: Math.round(targetProgress * 1000) / 1000,
@@ -519,6 +546,13 @@
         cardLive: Math.round(anyCardLive() * 1000) / 1000,
         idle: idle(), live: live, running: !!raf,
         headTop: headTop == null ? null : Math.round(headTop),
+        gpx: gInfo ? gInfo.px : null,
+        gpy: gInfo ? gInfo.py : null,
+        inter: (gInfo && gInfo.point && gInfo.strength > 0.01)
+          ? { mode: gInfo.state, strength: Math.round(gInfo.strength * 1000) / 1000,
+              at: [Math.round(gInfo.point[0] * BW / (gInfo.bw || 1)),
+                   Math.round(gInfo.point[1] * BH / (gInfo.bh || 1))] }
+          : null,
         g: [Math.round(heroRect.x + heroRect.w * 0.76), Math.round(heroRect.y + heroRect.h * 0.48)],
         pts: textPts.length, words: (function () {
           var k = 0;
