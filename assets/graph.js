@@ -94,7 +94,7 @@
   var grabT = 0;              
   var PULL_VMAX = 6000;       
   var raf = 0, lastT = null, W = 0, H = 0, DPR = 1, live = false, cachedPersp = '', cachedWorldT = '';
-  var cameraDirty = true, draws = 0, skyGradient = null, linkPhase = 0;
+  var cameraDirty = true, layoutDirty = true, draws = 0, skyGradient = null, linkPhase = 0;
   var worldDY = 0;            
   var CX = 0, CY = 0;         
   var C = null;
@@ -361,7 +361,7 @@
     ROW_GAP = CARD_H + 28;
     if (state.layout === 'nebula') layoutNebula(); else layoutShelf();
     buildTagAnchors();
-    cameraDirty = true;
+    cameraDirty = true; layoutDirty = false;
   }
   function buildTagAnchors() {
     var acc = {}, i, j;
@@ -458,6 +458,13 @@
     var r = canvas.getBoundingClientRect();
     var w = Math.max(280, Math.round(r.width));
     var h = Math.max(220, Math.round(r.height));
+    if (w !== W || h !== H) layoutDirty = true;
+    if (cards.length) {
+      var measuredWidth = cards[0].el.offsetWidth, measuredHeight = cards[0].el.offsetHeight;
+      if (measuredWidth > 0 && measuredHeight > 0 &&
+          (measuredWidth !== CARD_W || measuredHeight !== CARD_H)) layoutDirty = true;
+    }
+    if (CX !== r.width / 2 || CY !== r.height / 2) cameraDirty = true;
     CX = r.width / 2;
     CY = r.height / 2;
     var nextDPR = Math.min(compact ? 1 : 1.5, window.devicePixelRatio || 1);
@@ -477,6 +484,7 @@
   function frame(t) {
     raf = 0;
     if (!inViewport || document.hidden) return;
+    if (layoutDirty) relayout();
     var budget = compact ? 1000 / 30 : 0;
     if (lastPaint !== null && t - lastPaint < budget - 1) { raf = requestAnimationFrame(frame); return; }
     lastPaint = t;
@@ -1365,9 +1373,10 @@
     }
   };
   function onResize() {
-    if (!resize() || !live) return;
-    relayout();
-    wake();
+    var changed = resize();
+    if (!live) return;
+    if (layoutDirty) relayout();
+    if (changed || cameraDirty) wake();
   }
   if (window.ResizeObserver) {
     new ResizeObserver(onResize).observe(stage);
