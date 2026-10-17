@@ -117,22 +117,15 @@
   }
   function assign() {
     if (textPts.length) {
-      var box = textRect();
-      var want = Math.round(box.w * box.h / 26);
-      var textCount = Math.max(90, Math.min(Math.round(parts.length * 0.4), want));
       var ps = parts.slice().sort(function (p, q) {
         var px = Math.cos(p.a) * p.r, qx = Math.cos(q.a) * q.r;
         return (px - qx) || (p.y - q.y);
       });
       for (var i = 0; i < ps.length; i++) {
-        if (i < textCount) {
-          var pt = textPts[Math.floor(i * textPts.length / textCount)];
-          ps[i].word = true;
-          ps[i].tx = pt[0];
-          ps[i].ty = pt[1];
-        } else {
-          ps[i].word = false;
-        }
+        var pt = textPts[Math.floor(i * textPts.length / ps.length)];
+        ps[i].word = true;
+        ps[i].tx = pt[0];
+        ps[i].ty = pt[1];
       }
     }
     var per = cardEls.map(function (el) {
@@ -244,14 +237,14 @@
     else headEl.style.removeProperty('--rv');
   }
   function phases(p) {
-    var s1 = ss(0.42, 0.62, p);                 
+    var s1 = ss(0.34, 0.50, p);                 
     return { g: 1 - s1, t: s1, s1: s1 };
   }
-  function headVar(p) { return ss(0.58, 0.74, p); }
-  function textFade(p) { return 1 - ss(0.60, 0.80, p); }
+  function headVar(p) { return ss(0.54, 0.86, p); }
+  function textFade(p) { return 1 - ss(0.62, 0.92, p); }
   function cardGate(p) { return ss(0.66, 0.78, p); }
   function turbulence(p) {
-    return Math.sin(ss(0.10, 0.45, p) * Math.PI) * 0.20;
+    return Math.sin(ss(0.08, 0.40, p) * Math.PI) * 0.20;
   }
   function rectOf(el) {
     var r = el.getBoundingClientRect();
@@ -305,7 +298,9 @@
     bctx.globalCompositeOperation = 'lighter';
     var ph = phases(progress);
     var turb0 = turbulence(progress);
-    var aText = textFade(progress);
+    var arrive = ss(0.34, 0.50, progress);
+    var lit = ss(0.42, 0.68, progress);
+    var intro = ss(0.0, 0.06, progress);
     var heroRect = rectOf(hero);
     var hx = heroRect.x * Q, hw = heroRect.w * Q, hy = heroRect.y * Q, hh = heroRect.h * Q;
     var tb = textTarget();
@@ -315,25 +310,21 @@
     var gRect = { x: hx, y: hy, w: hw, h: hh };
     var yaw = (window.__galaxy && window.__galaxy.info)
       ? window.__galaxy.info().yaw : (0.6 + time * 0.055);
-    var want = Math.max(ph.t * aText, anyLive * 0.6);
-    var wG0 = ph.g * ss(0.0, 0.06, progress);      
+    var want = Math.max(arrive * lit * textFade(progress), anyLive * 0.6);
+    var wG0 = 1 - arrive;                          
     for (var i = 0; i < parts.length; i++) {
       var p = parts[i];
       var cr2 = cardRects[p.ci] || cardRects[0];
-      var wG = wG0;
-      var wT = ph.t * aText * (p.word ? 1 : 0.72);
+      var out = ss(0.62 + 0.08 * p.ptone, 0.84 + 0.08 * p.ptone, progress);
+      var wG = wG0;                          
+      var wT = arrive * (1 - out);           
       var wC = cr2.live;
       var sum = wG + wT + wC;
       if (sum < 0.04) continue;
+      var aMul = (wG + wT * lit + wC) / sum;
       galaxyPoint(p, gRect, yaw, P);
       var gx = P.x, gy = P.y, k = P.k;
       var txp = tx0 + p.tx * tw, typ = ty0 + p.ty * th;
-      if (!p.word) {
-        var ang2 = p.nph + time * 0.22;
-        var rr = tw * (0.52 + 0.42 * (p.lv / LEVELS.length)) + th * 0.5;
-        txp = tx0 + tw * 0.5 + Math.cos(ang2) * rr;
-        typ = ty0 + th * 0.5 + Math.sin(ang2) * rr * 0.42;
-      }
       var cp = onRect(cr2, p.cu);
       var x = (gx * wG + txp * wT + cp[0] * wC) / sum;
       var y = (gy * wG + typ * wT + cp[1] * wC) / sum;
@@ -345,7 +336,7 @@
       }
       if (x < -60 || x > BW + 60 || y < -60 || y > BH + 60) continue;
       var sizeG = p.s * (2.6 + 4.4 * p.r) * (0.6 + 0.4 * k);
-      var sizeT = p.s * (p.word ? (2.4 + 1.6 * p.r) : (0.9 + 0.7 * p.r));
+      var sizeT = p.s * (1.1 + 0.6 * p.r);
       var sizeC = p.s * (2.4 + 2.2 * p.r);
       var size = (sizeG * wG + sizeT * wT + sizeC * wC) / sum;
       if (size < 1.2) size = 1.2;
@@ -360,7 +351,7 @@
       else if (p.ptone < want * 0.94) tier = 2;
       else tier = p.r < 0.10 ? 0 : (p.r < 0.3 ? 1 : 2);
       var v = (p.lv / (LEVELS.length - 1)) * (1 - want * 0.35) + want * 0.45;
-      v *= (0.5 + 0.5 * Math.min(1, sum)) * sweepGlow;
+      v *= (0.25 + 0.75 * Math.min(1, aMul)) * sweepGlow;
       if (wC > 0.02 && v < 0.66 * wC) v = 0.66 * wC;
       var lv = Math.max(0, Math.min(LEVELS.length - 1,
                                     Math.round(v * (LEVELS.length - 1))));
@@ -380,7 +371,9 @@
     bctx.globalCompositeOperation = 'source-over';
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     ctx.clearRect(0, 0, W, H);
+    ctx.globalAlpha = intro;               
     ctx.drawImage(buf, 0, 0, BW, BH, 0, 0, W, H);
+    ctx.globalAlpha = 1;
   }
   function setVar(el, v) {
     if (!isFinite(v)) return;
@@ -414,9 +407,7 @@
   }
   function idle() {
     if (anyCardLive() > 0.02) return false;
-    if (progress <= 0.012) return true;
-    var ph = phases(progress);
-    return ph.g * ss(0.0, 0.06, progress) < 0.02 && ph.t * textFade(progress) < 0.02;
+    return progress <= 0.012 || progress >= 0.94;
   }
   function frame(t) {
     if (lastPaint && t - lastPaint < frameBudget - 1) {
