@@ -5,7 +5,7 @@
   var hero = document.querySelector('.hero');
   var headEl = document.querySelector('[data-morph="head"]');
   var cardEls = [].slice.call(document.querySelectorAll(
-    '.discovery-section .direction-card, .discovery-section .lab-invitation'));
+    '.direction-card, .lab-invitation, .post-card, .project-card'));
   if (!hero || !headEl || !cardEls.length) return;
   var root = document.documentElement;
   var ctx = cv.getContext('2d');
@@ -13,8 +13,9 @@
   var compact = root.getAttribute('data-performance') === 'compact';
   var TAU = Math.PI * 2;
   var TILT = 0.64, ARMS = 3, TIGHT = 2.05;      
+  var TRAVEL = 0.80;                            
   var SPAN = 1.10;                              
-  var N = compact ? 520 : 900;
+  var N = compact ? 520 : 1200;                 
   var Q = compact ? 0.5 : 0.62;                 
   var LEVELS = [0.26, 0.46, 0.66, 0.92];
   var buf = document.createElement('canvas');
@@ -26,7 +27,9 @@
   var textPts = [];
   var live = false, raf = 0, lastPaint = 0, frameBudget = 1000 / 30;
   var progress = 0, targetProgress = 0, time = 0;
-  var lastVars = { head: -1, cards: -1 };
+  var headTop = null;                           
+  var headBox = null;                           
+  var lastVars = { head: -1 };
   var sampleInfo = null;
   function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
   function ss(a, b, x) {              
@@ -114,7 +117,7 @@
   }
   function assign() {
     if (textPts.length) {
-      var box = textBox();
+      var box = textRect();
       var want = Math.round(box.w * box.h / 26);
       var textCount = Math.max(90, Math.min(Math.round(parts.length * 0.4), want));
       var ps = parts.slice().sort(function (p, q) {
@@ -151,40 +154,37 @@
   function sampleText(text) {
     text = (text || '').replace(/\s+/g, ' ').trim();
     if (!text) return [];
-    var box = textBox();                      
-    var w = 900;
-    var h = Math.max(48, Math.min(420, Math.round(w * box.h / Math.max(1, box.w))));
-    var c = document.createElement('canvas');
-    c.width = w; c.height = h;
-    var x = c.getContext('2d');
     var h2 = headEl.querySelector('h2') || headEl;
     var hcs = getComputedStyle(h2);
     var family = hcs.fontFamily || 'sans-serif';
     var weight = hcs.fontWeight || '700';
-    var size = Math.round(h * 0.82);
+    var ch = 200;                                  
+    var size = Math.max(16, Math.round(ch * lineRatio()));
+    var probe = document.createElement('canvas');
+    var pctx = probe.getContext('2d');
+    pctx.font = weight + ' ' + size + 'px ' + family;
+    var m = Math.max(8, Math.ceil(pctx.measureText(text).width));
+    var c = document.createElement('canvas');
+    c.width = m; c.height = ch;
+    var x = c.getContext('2d');
     x.font = weight + ' ' + size + 'px ' + family;
-    var m = x.measureText(text).width || 1;
-    if (m > w * 0.97) {
-      size = Math.max(24, Math.floor(size * w * 0.97 / m));
-      x.font = weight + ' ' + size + 'px ' + family;
-    }
-    x.textAlign = 'center';
+    x.textAlign = 'left';
     x.textBaseline = 'middle';
     x.fillStyle = '#fff';
-    x.fillText(text, w / 2, h / 2);
+    x.fillText(text, 0, ch / 2);
+    sampleInfo = { w: m, h: ch, font: size };
     var data;
-    try { data = x.getImageData(0, 0, w, h).data; } catch (e) { return []; }
-    sampleInfo = { w: w, h: h, font: size, m: Math.round(m) };
+    try { data = x.getImageData(0, 0, m, ch).data; } catch (e) { return []; }
     var pts = [];
-    for (var yy = 0; yy < h; yy += 2) {
-      for (var xx = 0; xx < w; xx += 2) {
-        if (data[(yy * w + xx) * 4 + 3] > 140) pts.push([xx / w, yy / h]);
+    for (var yy = 0; yy < ch; yy += 2) {
+      for (var xx = 0; xx < m; xx += 2) {
+        if (data[(yy * m + xx) * 4 + 3] > 140) pts.push([xx / m, yy / ch]);
       }
     }
     pts.sort(function (p, q) { return (p[0] - q[0]) || (p[1] - q[1]); });
     return pts;
   }
-  function textBox() {
+  function textRect() {
     var h2 = headEl.querySelector('h2') || headEl;
     try {
       var range = document.createRange();
@@ -192,22 +192,29 @@
       var rects = range.getClientRects();
       if (rects.length) {
         var r = rects[0];
-        var w = r.width, h = r.height;
-        for (var i = 1; i < rects.length; i++) { w = Math.max(w, rects[i].right - r.left); }
-        if (w > 20 && h > 8) return { w: w, h: h };
+        var w = r.width;
+        for (var i = 1; i < rects.length; i++) w = Math.max(w, rects[i].right - r.left);
+        if (w > 20 && r.height > 8) return { x: r.left, y: r.top, w: w, h: r.height };
       }
     } catch (e) {  }
     var own = h2.getBoundingClientRect();
-    return { w: own.width, h: own.height };
+    return { x: own.left, y: own.top, w: own.width, h: own.height };
+  }
+  function lineRatio() {
+    var hcs = getComputedStyle(headEl.querySelector('h2') || headEl);
+    var fs = parseFloat(hcs.fontSize) || 32;
+    var lh = parseFloat(hcs.lineHeight);
+    if (!lh || isNaN(lh)) lh = fs * 1.25;
+    return fs / lh;
   }
   function textTarget() {
-    var h2 = headEl.querySelector('h2') || headEl;
-    var own = h2.getBoundingClientRect();
-    var box = textBox();
-    var cy = own.top + own.height / 2;
-    cy = Math.max(H * 0.24, Math.min(H * 0.62, cy));
-    return { x: own.left + own.width / 2 - box.w / 2, y: cy - box.h / 2,
-             w: box.w, h: box.h };
+    var r = textRect();
+    if (isFinite(r.y) && r.w > 8 && r.h > 4) return r;
+    if (headBox) {
+      return { x: headBox.x, y: headBox.y - (window.pageYOffset || 0),
+               w: headBox.w, h: headBox.h };
+    }
+    return r;
   }
   function resize() {
     var w = Math.max(320, window.innerWidth || 320);
@@ -224,19 +231,57 @@
     bctx.setTransform(1, 0, 0, 1, 0, 0);
     return true;
   }
-  function phases(p) {
-    var s1 = ss(0.05, 0.28, p);                 
-    var s2 = ss(0.42, 0.68, p);                 
-    return { g: 1 - s1, t: s1 * (1 - s2), c: s2, s1: s1, s2: s2 };
+  function measureHead() {
+    if (!headEl) return;
+    var prev = headEl.style.getPropertyValue('--rv');
+    headEl.style.setProperty('--rv', '1');
+    var box = textRect();
+    if (isFinite(box.y) && box.w > 8 && box.h > 4) {
+      headBox = { x: box.x, y: box.y + (window.pageYOffset || 0), w: box.w, h: box.h };
+      headTop = headBox.y;
+    }
+    if (prev && prev !== 'NaN') headEl.style.setProperty('--rv', prev);
+    else headEl.style.removeProperty('--rv');
   }
+  function phases(p) {
+    var s1 = ss(0.42, 0.62, p);                 
+    return { g: 1 - s1, t: s1, s1: s1 };
+  }
+  function headVar(p) { return ss(0.58, 0.74, p); }
+  function textFade(p) { return 1 - ss(0.60, 0.80, p); }
+  function cardGate(p) { return ss(0.66, 0.78, p); }
   function turbulence(p) {
-    var a = Math.sin(ss(0.05, 0.28, p) * Math.PI);
-    var b = Math.sin(ss(0.42, 0.70, p) * Math.PI);
-    return a * 0.20 + b * 0.10;
+    return Math.sin(ss(0.10, 0.45, p) * Math.PI) * 0.20;
   }
   function rectOf(el) {
     var r = el.getBoundingClientRect();
     return { x: r.left, y: r.top, w: r.width, h: r.height };
+  }
+  function cardWindows(gate) {
+    var out = [], any = 0;
+    for (var i = 0; i < cardEls.length; i++) {
+      var el = cardEls[i];
+      var r = rectOf(el);
+      var rv = parseFloat(el.style.getPropertyValue('--rv'));
+      if (isNaN(rv)) rv = 1;
+      var live = gate * ss(0.06, 0.34, rv) * (1 - ss(0.34, 0.80, rv));
+      if (live > any) any = live;
+      out.push({ x: r.x * Q, y: r.y * Q, w: r.w * Q, h: r.h * Q, rv: rv, live: live });
+    }
+    out.any = any;
+    return out;
+  }
+  function anyCardLive() {
+    var gate = cardGate(progress);
+    if (gate <= 0.001) return 0;
+    var any = 0;
+    for (var i = 0; i < cardEls.length; i++) {
+      var rv = parseFloat(cardEls[i].style.getPropertyValue('--rv'));
+      if (isNaN(rv)) rv = 1;
+      var live = gate * ss(0.06, 0.34, rv) * (1 - ss(0.34, 0.80, rv));
+      if (live > any) any = live;
+    }
+    return any;
   }
   var P = { x: 0, y: 0, k: 1, r: 0 };
   function galaxyPoint(p, box, yaw, out) {
@@ -259,28 +304,29 @@
     bctx.clearRect(0, 0, BW, BH);
     bctx.globalCompositeOperation = 'lighter';
     var ph = phases(progress);
-    var turb = turbulence(progress);
-    var fade = (1 - ss(0.74, 0.96, progress)) * ss(0.0, 0.06, progress);
+    var turb0 = turbulence(progress);
+    var aText = textFade(progress);
     var heroRect = rectOf(hero);
     var hx = heroRect.x * Q, hw = heroRect.w * Q, hy = heroRect.y * Q, hh = heroRect.h * Q;
     var tb = textTarget();
     var tx0 = tb.x * Q, ty0 = tb.y * Q, tw = tb.w * Q, th = tb.h * Q;
-    var cardRects = cardEls.map(function (el) {
-      var r = rectOf(el);
-      return { x: r.x * Q, y: r.y * Q, w: r.w * Q, h: r.h * Q,
-               gone: ss(0.35, 0.85, parseFloat(el.style.getPropertyValue('--rv')) || 0) };
-    });
+    var cardRects = cardWindows(cardGate(progress));
+    var anyLive = cardRects.any;
     var gRect = { x: hx, y: hy, w: hw, h: hh };
     var yaw = (window.__galaxy && window.__galaxy.info)
       ? window.__galaxy.info().yaw : (0.6 + time * 0.055);
-    var tint = 0, boost = 0;
-    void boost; void tint;
-    var want = Math.max(ph.t, ph.c);
+    var want = Math.max(ph.t * aText, anyLive * 0.6);
+    var wG0 = ph.g * ss(0.0, 0.06, progress);      
     for (var i = 0; i < parts.length; i++) {
       var p = parts[i];
-      var gx = 0, gy = 0, k = 1;
+      var cr2 = cardRects[p.ci] || cardRects[0];
+      var wG = wG0;
+      var wT = ph.t * aText * (p.word ? 1 : 0.72);
+      var wC = cr2.live;
+      var sum = wG + wT + wC;
+      if (sum < 0.04) continue;
       galaxyPoint(p, gRect, yaw, P);
-      gx = P.x; gy = P.y; k = P.k;
+      var gx = P.x, gy = P.y, k = P.k;
       var txp = tx0 + p.tx * tw, typ = ty0 + p.ty * th;
       if (!p.word) {
         var ang2 = p.nph + time * 0.22;
@@ -288,10 +334,10 @@
         txp = tx0 + tw * 0.5 + Math.cos(ang2) * rr;
         typ = ty0 + th * 0.5 + Math.sin(ang2) * rr * 0.42;
       }
-      var cr2 = cardRects[p.ci] || cardRects[0];
       var cp = onRect(cr2, p.cu);
-      var x = gx * ph.g + txp * ph.t + cp[0] * ph.c;
-      var y = gy * ph.g + typ * ph.t + cp[1] * ph.c;
+      var x = (gx * wG + txp * wT + cp[0] * wC) / sum;
+      var y = (gy * wG + typ * wT + cp[1] * wC) / sum;
+      var turb = turb0 + wC * 0.10;
       if (turb > 0.001) {
         var wob = turb * BH * 0.34;
         x += p.nx * wob + Math.cos(time * 0.9 + p.nph) * wob * 0.35;
@@ -300,24 +346,25 @@
       if (x < -60 || x > BW + 60 || y < -60 || y > BH + 60) continue;
       var sizeG = p.s * (2.6 + 4.4 * p.r) * (0.6 + 0.4 * k);
       var sizeT = p.s * (p.word ? (2.4 + 1.6 * p.r) : (0.9 + 0.7 * p.r));
-      var sizeC = p.s * (1.8 + 1.6 * p.r);
-      var size = sizeG * ph.g + sizeT * ph.t + sizeC * ph.c;
+      var sizeC = p.s * (2.4 + 2.2 * p.r);
+      var size = (sizeG * wG + sizeT * wT + sizeC * wC) / sum;
       if (size < 1.2) size = 1.2;
-      var shrink = ss(0.28, 0.42, progress);
-      var hand = ss(0.42, 0.58, progress);
-      var aText = (1 - shrink * (1 - hand)) * (p.word ? 1 : 0.72);
-      var aCard = 1 - cr2.gone;
-      var aMul = ph.g + ph.t * aText + ph.c * aCard;
-      if (aMul < 0.05) continue;
+      var sweepGlow = 1;
+      if (wC > 0.001) {
+        var sw = p.cu - time * 0.22;
+        sw -= Math.floor(sw);
+        sweepGlow = 1.15 + 0.85 * Math.exp(-sw * sw * 55);
+      }
       var tier;
       if (p.ptone < want * 0.82) tier = 0;
       else if (p.ptone < want * 0.94) tier = 2;
       else tier = p.r < 0.10 ? 0 : (p.r < 0.3 ? 1 : 2);
       var v = (p.lv / (LEVELS.length - 1)) * (1 - want * 0.35) + want * 0.45;
-      v *= (0.5 + 0.5 * aMul);
+      v *= (0.5 + 0.5 * Math.min(1, sum)) * sweepGlow;
+      if (wC > 0.02 && v < 0.66 * wC) v = 0.66 * wC;
       var lv = Math.max(0, Math.min(LEVELS.length - 1,
                                     Math.round(v * (LEVELS.length - 1))));
-      if (ph.s1 > 0.05 && ph.s1 < 0.95 && turb > 0.05) {
+      if (turb > 0.05 && ph.s1 > 0.05 && ph.s1 < 0.95) {
         var dx = x - BW * 0.76, dy = y - BH * 0.48;
         var dd = Math.sqrt(dx * dx + dy * dy) || 1;
         var len = turb * (16 + 70 * p.r);
@@ -328,55 +375,69 @@
         bctx.lineTo(x, y);
         bctx.stroke();
       }
-      void boost; void tint;
       bctx.drawImage(sprites[tier][lv], x - size, y - size, size * 2, size * 2);
     }
     bctx.globalCompositeOperation = 'source-over';
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     ctx.clearRect(0, 0, W, H);
-    ctx.globalAlpha = fade;
     ctx.drawImage(buf, 0, 0, BW, BH, 0, 0, W, H);
-    ctx.globalAlpha = 1;
   }
-  function setVar(el, v, key) {
+  function setVar(el, v) {
+    if (!isFinite(v)) return;
     var r = Math.round(v * 1000) / 1000;
     if (el.__v === r) return;
     el.__v = r;
     el.style.setProperty('--rv', r);
   }
   function syncDom(force) {
-    var p = progress;
-    var headV = ss(0.28, 0.42, p);          
+    var headV = headVar(progress);
     if (force || lastVars.head !== headV) {
       lastVars.head = headV;
-      setVar(headEl, headV, 'head');
+      setVar(headEl, headV);
     }
   }
   function readScroll() {
     var vh = window.innerHeight || 800;
     var y = window.pageYOffset || 0;
-    targetProgress = clamp(y / (vh * SPAN), 0, 1);
+    var p;
+    if (isFinite(headTop)) {
+      var top = headTop - y;
+      p = clamp((vh - top) / (vh * TRAVEL), 0, 1);
+    } else {
+      p = clamp(y / (vh * SPAN), 0, 1);
+    }
+    targetProgress = p;
     if (!raf) { progress = targetProgress; syncDom(false); }
   }
   function wanted() {
     return !reduce.matches && root.getAttribute('data-motion') !== 'off';
   }
+  function idle() {
+    if (anyCardLive() > 0.02) return false;
+    if (progress <= 0.012) return true;
+    var ph = phases(progress);
+    return ph.g * ss(0.0, 0.06, progress) < 0.02 && ph.t * textFade(progress) < 0.02;
+  }
   function frame(t) {
-    raf = window.requestAnimationFrame(frame);
-    if (lastPaint && t - lastPaint < frameBudget - 1) return;
+    if (lastPaint && t - lastPaint < frameBudget - 1) {
+      raf = window.requestAnimationFrame(frame);
+      return;
+    }
     var dt = lastPaint ? Math.min(0.05, (t - lastPaint) / 1000) : 0.016;
     lastPaint = t;
     time += dt;
     progress += (targetProgress - progress) * Math.min(1, dt * 5.5);
     syncDom(false);
-    if (progress <= 0.012) {                 
+    if (idle()) {
       cv.classList.remove('is-live');
       live = false;
+      stop();
       return;
     }
     cv.classList.add('is-live');
     live = true;
     draw();
+    raf = window.requestAnimationFrame(frame);
   }
   function start() {
     if (raf) return;
@@ -394,7 +455,8 @@
       cv.classList.remove('is-live');
       progress = targetProgress = 0;
       syncDom(true);
-      setVar(headEl, 1); for (var i = 0; i < cardEls.length; i++) setVar(cardEls[i], 1);
+      setVar(headEl, 1);
+      for (var i = 0; i < cardEls.length; i++) setVar(cardEls[i], 1);
       document.querySelectorAll('[data-morph]').forEach(function (el) {
         el.style.setProperty('--rv', 1);
       });
@@ -405,12 +467,14 @@
     start();
   }
   readPalette();
+  measureHead();
   resize();
   build();
   function loadText() {
     var h2 = headEl.querySelector('h2');
     textPts = sampleText(h2 ? h2.textContent : headEl.textContent);
     assign();
+    measureHead();
   }
   loadText();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(loadText);
@@ -427,7 +491,14 @@
     readScroll();
     if (!raf && wanted()) start();
   }, { passive: true });
-  window.addEventListener('resize', function () { resize(); assign(); });
+  window.addEventListener('resize', function () {
+    resize(); assign(); measureHead();
+    if (!raf && wanted()) start();
+  });
+  window.addEventListener('load', function () {
+    measureHead();
+    if (!raf && wanted()) start();
+  });
   if (reduce.addEventListener) reduce.addEventListener('change', sync);
   document.addEventListener('visibilitychange', sync);
   if (window.MutationObserver) {
@@ -437,20 +508,34 @@
   window.__morph = {
     info: function () {
       var ph = phases(progress);
+      var cards = [];
+      var gate = cardGate(progress);
+      for (var i = 0; i < cardEls.length; i++) {
+        var rv = parseFloat(cardEls[i].style.getPropertyValue('--rv'));
+        if (isNaN(rv)) rv = 1;
+        cards.push({ rv: Math.round(rv * 1000) / 1000,
+                     live: Math.round(gate * ss(0.06, 0.34, rv) * (1 - ss(0.34, 0.80, rv)) * 1000) / 1000 });
+      }
+      var heroRect = rectOf(hero);
       return {
         n: parts.length, p: Math.round(progress * 1000) / 1000,
         target: Math.round(targetProgress * 1000) / 1000,
         galaxy: Math.round(ph.g * 1000) / 1000,
         text: Math.round(ph.t * 1000) / 1000,
-        cards: Math.round(ph.c * 1000) / 1000,
+        fade: Math.round(textFade(progress) * 1000) / 1000,
         turb: Math.round(turbulence(progress) * 1000) / 1000,
+        cards: cards,
+        cardLive: Math.round(anyCardLive() * 1000) / 1000,
+        idle: idle(), live: live, running: !!raf,
+        headTop: headTop == null ? null : Math.round(headTop),
+        g: [Math.round(heroRect.x + heroRect.w * 0.76), Math.round(heroRect.y + heroRect.h * 0.48)],
         pts: textPts.length, words: (function () {
           var k = 0;
           for (var i = 0; i < parts.length; i++) if (parts[i].word) k++;
           return k;
-        })(), live: live, running: !!raf,
-        tbox: [Math.round(textBox().w), Math.round(textBox().h)],
-        tgt: (function () { var t = textTarget(); return [Math.round(t.w), Math.round(t.h)]; })(),
+        })(),
+        tbox: [Math.round(textRect().w), Math.round(textRect().h)],
+        tgt: (function () { var t = textTarget(); return [Math.round(t.x), Math.round(t.y), Math.round(t.w), Math.round(t.h)]; })(),
         ty: (function () {
           var lo = 1, hi = 0, xlo = 1, xhi = 0;
           for (var i = 0; i < parts.length; i++) {
@@ -473,7 +558,7 @@
           }
           return [Math.round(lo * 1000) / 1000, Math.round(hi * 1000) / 1000];
         })(),
-        head: headEl.__v, card: cardEls[0] ? cardEls[0].__v : null,
+        head: headEl.__v,
         w: W, h: H, bw: BW, bh: BH
       };
     },

@@ -340,6 +340,9 @@
       };
       measure();
       window.addEventListener('scroll', schedule, { passive: true });
+      document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) schedule();
+      });
       window.addEventListener('resize', measure, { passive: true });
       window.addEventListener('load', measure);
       window.setTimeout(measure, 1400);
@@ -1038,6 +1041,19 @@
     var lines = parseInt(box.getAttribute('data-lines'), 10) || 0;
     var more = box.querySelector('.code-more');
     var foldBtn = box.querySelector('.code-fold');
+    var pre = box.querySelector('.code-pre');
+    function measure() {
+      if (!pre || !pre.style) return;
+      var was = box.classList.contains('is-folded');
+      if (was) box.classList.remove('is-folded');
+      var h = pre.scrollHeight;              
+      if (was) box.classList.add('is-folded');
+      if (h > 0) pre.style.setProperty('--code-h', h + 'px');
+    }
+    measure();
+    if (window.ResizeObserver) new ResizeObserver(measure).observe(pre);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+    window.addEventListener('resize', measure, { passive: true });
     function apply(folded) {
       box.classList.toggle('is-folded', folded);
       if (more) {
@@ -1052,7 +1068,12 @@
       }
     }
     apply(lines > AUTO_FOLD);
-    function toggle() { apply(!box.classList.contains('is-folded')); }
+    function toggle() {
+      var folded = box.classList.contains('is-folded');
+      if (!folded) measure();      // 收起前重量一次：这一量决定了收起动画从哪开始
+      apply(!folded);
+      if (folded) setTimeout(measure, 320);   // 展开之后补量一次（折叠期间内容可能被改过）
+    }
     if (foldBtn) foldBtn.addEventListener('click', toggle);
     if (more) more.addEventListener('click', toggle);
   });
@@ -1122,6 +1143,7 @@
     });
     var box = null, pic = null, cap = null, prevBtn = null, nextBtn = null;
     var count = null, opener = null, index = 0;
+    var layers = null, top = 0, seq = 0;
     function build() {
       box = document.createElement('div');
       box.className = 'lightbox';
@@ -1136,13 +1158,16 @@
         '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" ' +
         'stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
         '</button>' +
-        '<figure class="lightbox-figure"><img alt=""><figcaption></figcaption></figure>' +
+        '<figure class="lightbox-figure"><span class="lightbox-stage">' +
+        '<img alt=""><img alt="" aria-hidden="true"></span>' +
+        '<figcaption></figcaption></figure>' +
         '<button class="lightbox-nav is-next" type="button" data-lb-next aria-label="下一张（→）">' +
         '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" ' +
         'stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
         '</button>' +
         '<span class="lightbox-count" aria-live="polite"></span>';
-      pic = box.querySelector('img');
+      layers = [].slice.call(box.querySelectorAll('.lightbox-stage img'));
+      pic = layers[0];
       cap = box.querySelector('figcaption');
       prevBtn = box.querySelector('[data-lb-prev]');
       nextBtn = box.querySelector('[data-lb-next]');
@@ -1153,7 +1178,8 @@
         count.hidden = true;
       }
       box.addEventListener('click', function (e) {
-        if (e.target === pic || e.target === cap) return;
+        if (e.target === cap) return;
+        if (e.target.tagName === 'IMG' && e.target.closest('.lightbox-stage')) return;
         if (e.target.closest && e.target.closest('.lightbox-close, .lightbox-nav, .lightbox-count')) return;
         close();
       });
@@ -1162,12 +1188,10 @@
       nextBtn.addEventListener('click', function () { step(1); });
       document.body.appendChild(box);
     }
-    function show(i) {
+    function show(i, instant) {
       index = i;
       var img = list[i];
       opener = img;                                 // 关掉时焦点回到**当前**这张
-      pic.src = img.currentSrc || img.src;
-      pic.alt = img.alt || '';
       var text = (img.alt || '').trim();
       var useful = text && !/\.(png|jpe?g|webp|gif|svg)$/i.test(text);
       cap.textContent = useful ? text : '';
@@ -1175,6 +1199,30 @@
       if (count) count.textContent = (i + 1) + ' / ' + list.length;
       prevBtn.disabled = (i === 0);
       nextBtn.disabled = (i === list.length - 1);
+      var under = layers[top], over = layers[1 - top];
+      var mine = ++seq;
+      var reveal = function () {
+        if (mine !== seq) return;                   // 连点的时候，旧的这一轮作废
+        over.classList.add('is-in');
+        under.classList.remove('is-in');
+        over.setAttribute('aria-hidden', 'false');
+        under.setAttribute('aria-hidden', 'true');
+        top = 1 - top;
+      };
+      over.classList.remove('is-in');
+      over.alt = useful ? text : '';
+      if (instant) over.style.transition = 'none';
+      over.src = img.currentSrc || img.src;
+      if (over.decode) over.decode().then(reveal, reveal);
+      else over.onload = reveal;
+      if (instant) {
+        window.requestAnimationFrame(function () { over.style.transition = ''; });
+      }
+      [i - 1, i + 1].forEach(function (n) {
+        if (n < 0 || n >= list.length) return;
+        var pre = new Image();
+        pre.src = list[n].currentSrc || list[n].src;
+      });
     }
     function step(delta) {
       var next = index + delta;
@@ -1184,7 +1232,7 @@
     function open(img) {
       if (!box) build();
       var i = list.indexOf(img);
-      show(i < 0 ? 0 : i);
+      show(i < 0 ? 0 : i, true);   // 打开时直接到位，别从空白淡进来
       box.classList.add('is-open');
       document.documentElement.classList.add('has-lightbox');
       var btn = box.querySelector('.lightbox-close');
@@ -1194,7 +1242,12 @@
       if (!box || !box.classList.contains('is-open')) return;
       box.classList.remove('is-open');
       document.documentElement.classList.remove('has-lightbox');
-      pic.removeAttribute('src');
+      seq++;
+      layers.forEach(function (l) {
+        l.removeAttribute('src');
+        l.classList.remove('is-in');
+      });
+      top = 0;
       if (opener && opener.focus) opener.focus();
       opener = null;
     }
