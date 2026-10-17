@@ -2,7 +2,36 @@
   'use strict';
   var stage = document.getElementById('graph-stage');
   if (!stage) return;
-  if (!(window.CSS && CSS.supports && CSS.supports('transform-style', 'preserve-3d'))) return;
+  function fallbackGraph() {
+    if (raf) cancelAnimationFrame(raf);
+    raf = 0; live = false;
+    stage.classList.remove('is-initializing', 'is-live', 'is-ready');
+    stage.classList.add('is-fallback');
+    stage.style.perspective = '';
+    var fallbackWorld = document.getElementById('graph-world');
+    if (fallbackWorld) {
+      fallbackWorld.style.transform = '';
+      fallbackWorld.querySelectorAll('.gcard').forEach(function (el) {
+        el.style.transform = ''; el.style.opacity = ''; el.style.visibility = '';
+        el.style.pointerEvents = ''; el.tabIndex = 0; el.removeAttribute('aria-hidden');
+      });
+    }
+    var fallbackHint = document.getElementById('graph-hint');
+    if (fallbackHint) fallbackHint.textContent = '当前以书目列表显示，点击即可阅读';
+    ['graph-layout', 'graph-auto', 'graph-reset', 'graph-zoom-in', 'graph-zoom-out', 'graph-kind', 'graph-clear', 'graph-q', 'graph-legend'].forEach(function (id) {
+      var control = document.getElementById(id);
+      if (!control) return;
+      if (control.tagName === 'BUTTON' || control.tagName === 'INPUT') control.disabled = true;
+      else control.querySelectorAll('button').forEach(function (button) { button.disabled = true; });
+    });
+    var fallbackResults = document.getElementById('graph-results');
+    if (fallbackResults) fallbackResults.open = true;
+    if (window.__boot) window.__boot.done('graph');
+  }
+  if (!(window.CSS && CSS.supports && CSS.supports('transform-style', 'preserve-3d'))) {
+    fallbackGraph();
+    return;
+  }
   var world = document.getElementById('graph-world');
   var canvas = document.getElementById('graph-canvas');
   var linkCanvas = document.getElementById('graph-links');
@@ -14,9 +43,29 @@
   var resetBtn = document.getElementById('graph-reset');
   var layoutBox = document.getElementById('graph-layout');
   var legendBox = document.getElementById('graph-legend');
-  var ctx = canvas.getContext('2d');
-  var lctx = linkCanvas ? linkCanvas.getContext('2d') : ctx;
+  var kindBox = document.getElementById('graph-kind');
+  var clearBtn = document.getElementById('graph-clear');
+  var zoomIn = document.getElementById('graph-zoom-in');
+  var zoomOut = document.getElementById('graph-zoom-out');
+  var zoomLabel = document.getElementById('graph-zoom-label');
+  var resultsBox = document.getElementById('graph-results');
+  var resultCount = document.getElementById('graph-result-count');
+  var emptyEl = document.getElementById('graph-empty');
+  var resultEls = [].slice.call(document.querySelectorAll('.graph-result[data-idx]'));
+  var detail = document.getElementById('graph-detail');
+  var detailKind = document.getElementById('graph-detail-kind');
+  var detailTitle = document.getElementById('graph-detail-title');
+  var detailSummary = document.getElementById('graph-detail-summary');
+  var detailTags = document.getElementById('graph-detail-tags');
+  var detailLink = document.getElementById('graph-detail-link');
+  var detailRelated = document.getElementById('graph-detail-related');
+  var ctx = null, lctx = null;
+  try { ctx = canvas && canvas.getContext('2d'); lctx = linkCanvas ? linkCanvas.getContext('2d') : ctx; } catch (error) {  }
   var root = document.documentElement;
+  if (!ctx || !lctx) {
+    fallbackGraph();
+    return;
+  }
   var BASE_F = 1500;          
   var R = 900;                
   var CARD_W = 250, CARD_H = 330, CARD_GAP = 34;
@@ -25,16 +74,18 @@
   var FLOOR_Y = 620, FLOOR_HALF = 1700, FLOOR_STEP = 150;
   var PITCH_MAX = 0.72;
   var compact = root.getAttribute('data-performance') === 'compact';
-  var DUST = compact ? 45 : 85;
+  var DUST = 85;
   var TAU = Math.PI * 2;
-  var HINT = '拖动书脊把书抽出来 · 松手归位 · 拖空白处转书架';
+  var HINT = '拖空白处转动 · 拖书本抽出 · Shift + 滚轮缩放';
   var state = { layout: 'shelf' };
   var shelfRows = [];         
   var shelfHeight = 900;      
   var cards = [], links = [], tagList = [], dust = [];
-  var hover = null, focusTag = null, query = '';
+  var hover = null, selected = null, focusTag = null, query = '', kind = 'all';
   var autoPref = false, dragging = false, dragDist = 0, lastX = 0, lastY = 0, idle = 0;
   var dragId = null, captured = false;
+  var touchPending = false, touchDrag = false, pointerOriginX = 0, pointerOriginY = 0;
+  var suppressClickUntil = 0;
   var DRAG_MIN = 6;           
   var PULL_K = 105, PULL_D = 11.2;
   var grabbing = null;        
@@ -42,7 +93,8 @@
   var grabOriginX = 0, grabOriginY = 0;   
   var grabT = 0;              
   var PULL_VMAX = 6000;       
-  var raf = 0, lastT = 0, W = 0, H = 0, DPR = 1, live = false, cachedPersp = '', cachedWorldT = '';
+  var raf = 0, lastT = null, W = 0, H = 0, DPR = 1, live = false, cachedPersp = '', cachedWorldT = '';
+  var cameraDirty = true, draws = 0, skyGradient = null, linkPhase = 0;
   var worldDY = 0;            
   var CX = 0, CY = 0;         
   var C = null;
@@ -50,13 +102,16 @@
   var goal = { yaw: 0.0, pitch: -0.04, zoom: 1 };
   var pal = {};
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-  var inViewport = true, activeUntil = 0, lastPaint = 0;
+  var inViewport = true, lastPaint = null;
   function motionAllowed() { return !reduce.matches && root.getAttribute('data-motion') !== 'off'; }
   function wake() {
-    activeUntil = performance.now() + (motionAllowed() ? 1800 : 0);
     if (!raf && live && inViewport && !document.hidden) {
-      lastT = 0; lastPaint = 0; raf = requestAnimationFrame(frame);
+      lastT = performance.now(); raf = requestAnimationFrame(frame);
     }
+  }
+  function follow(value, target, rate, dt, epsilon) {
+    var next = motionAllowed() ? value + (target - value) * (1 - Math.exp(-rate * dt)) : target;
+    return Math.abs(next - target) < epsilon ? target : next;
   }
   function toRgb(c) {
     if (!c) return null;
@@ -89,6 +144,7 @@
     pal.surface = toRgb(g('--surface-2', '#1a1f2b'));
     var bright = (pal.bg[0] * 0.299 + pal.bg[1] * 0.587 + pal.bg[2] * 0.114) > 128;
     pal.shadow = bright ? pal.text : pal.bg;
+    skyGradient = null;
   }
   function rowStep() { return (CARD_W + CARD_GAP) / R; }
   function makeCam() {
@@ -97,11 +153,33 @@
     var dist;
     var cp = Math.cos(view.pitch), sp = Math.sin(view.pitch);
     if (neb) {
-      dist = NEB_DIST / view.zoom;
+      var cyw = Math.cos(view.yaw), syw = Math.sin(view.yaw);
+      var halfWidth = Math.max(1, Math.min(CX, W - CX) * .92);
+      var halfHeight = Math.max(1, Math.min(CY, H - CY) * .88);
+      var halfBookWidth = CARD_W * 1.07 / 2, halfBookHeight = CARD_H * 1.07 / 2;
+      var fitted = NEB_DIST;
+      for (var ni = 0; ni < cards.length; ni++) {
+        var np = cards[ni].pos;
+        var nx = np.x * cyw + np.z * syw;
+        var nz = -np.x * syw + np.z * cyw;
+        var ny = np.y * cp - nz * sp;
+        var depth = np.y * sp + nz * cp;
+        var extentRatio = Math.max((Math.abs(nx) + halfBookWidth) / halfWidth,
+          (Math.abs(ny) + halfBookHeight) / halfHeight);
+        fitted = Math.min(fitted, f - depth - f * extentRatio);
+      }
+      dist = fitted / view.zoom;
+      worldDY = 0;
     } else {
       var target = H * 0.84;
       var lo = -3600, hi = -80;
-      for (var it = 0; it < 14; it++) {
+      for (var expand = 0; expand < 12; expand++) {
+        var farExtent = shelfExtent(lo, f, cp, sp, 0);
+        if (farExtent.bot - farExtent.top <= target &&
+            Math.max(Math.abs(farExtent.left), Math.abs(farExtent.right)) * 2 <= W * .92) break;
+        lo *= 2;
+      }
+      for (var it = 0; it < 18; it++) {
         var mid = (lo + hi) / 2;
         var e0 = shelfExtent(mid, f, cp, sp, 0);
         if (e0.bot - e0.top > target || Math.max(Math.abs(e0.left), Math.abs(e0.right)) * 2 > W * 0.92) hi = mid; else lo = mid;
@@ -189,7 +267,8 @@
   }
   function colsMax() {
     var d = (CARD_W + CARD_GAP) / R;
-    return Math.max(1, Math.floor(Math.PI / d) + 1);
+    var arcLimit = Math.max(1, Math.floor(Math.PI / d) + 1);
+    return Math.min(arcLimit, W <= 700 ? 4 : W <= 1000 ? 6 : arcLimit);
   }
   function layoutShelf() {
     var flat = [], i;
@@ -234,6 +313,7 @@
         c.rotY = ang;
         c.normal = { x: Math.sin(ang), y: 0, z: Math.cos(ang) };
         c.billboard = false;
+        c.hs = 1 + (c.cloth - 1) * .013;
       }
     }
   }
@@ -278,8 +358,10 @@
       CARD_W = cards[0].el.offsetWidth;
       CARD_H = cards[0].el.offsetHeight;
     }
+    ROW_GAP = CARD_H + 28;
     if (state.layout === 'nebula') layoutNebula(); else layoutShelf();
     buildTagAnchors();
+    cameraDirty = true;
   }
   function buildTagAnchors() {
     var acc = {}, i, j;
@@ -368,8 +450,9 @@
     return false;
   }
   function inTag(c) { return !focusTag || c.node.tags.indexOf(focusTag) >= 0; }
+  function matches(c) { return isMatch(c) && inTag(c) && (kind === 'all' || c.node.kind === kind); }
   function cruises() {
-    return autoPref && !focusTag && !query && !hover && !dragging && motionAllowed();
+    return autoPref && !focusTag && !query && kind === 'all' && !hover && !dragging && !grabbing && motionAllowed();
   }
   function resize() {
     var r = canvas.getBoundingClientRect();
@@ -377,9 +460,10 @@
     var h = Math.max(220, Math.round(r.height));
     CX = r.width / 2;
     CY = r.height / 2;
-    if (w === W && h === H) return false;
+    var nextDPR = Math.min(compact ? 1 : 1.5, window.devicePixelRatio || 1);
+    if (w === W && h === H && nextDPR === DPR) return false;
     W = w; H = h;
-    DPR = Math.min(compact ? 1 : 1.5, window.devicePixelRatio || 1);
+    DPR = nextDPR; cameraDirty = true; skyGradient = null;
     canvas.width = Math.round(W * DPR);
     canvas.height = Math.round(H * DPR);
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
@@ -393,20 +477,21 @@
   function frame(t) {
     raf = 0;
     if (!inViewport || document.hidden) return;
-    var budget = (dragging || grabbing) && !compact ? 1000 / 60 : 1000 / 30;
-    if (lastPaint && t - lastPaint < budget - 1) { raf = requestAnimationFrame(frame); return; }
+    var budget = compact ? 1000 / 30 : 0;
+    if (lastPaint !== null && t - lastPaint < budget - 1) { raf = requestAnimationFrame(frame); return; }
     lastPaint = t;
-    var dt = lastT ? Math.min(0.05, (t - lastT) / 1000) : 0.016;
+    var dt = lastT === null ? 0 : Math.max(0, Math.min(0.05, (t - lastT) / 1000));
     lastT = t;
     if (cruises()) {
       idle += dt;
       if (idle > 1.2) goal.yaw += dt * 0.07;
     }
-    var ease = motionAllowed() ? Math.min(1, dt * 7) : 1;
-    view.yaw += (goal.yaw - view.yaw) * ease;
-    view.pitch += (goal.pitch - view.pitch) * ease;
-    view.zoom += (goal.zoom - view.zoom) * ease;
-    C = makeCam();
+    var yaw = follow(view.yaw, goal.yaw, 8, dt, .00001);
+    var pitch = follow(view.pitch, goal.pitch, 8, dt, .00001);
+    var zoom = follow(view.zoom, goal.zoom, 8, dt, .00001);
+    if (yaw !== view.yaw || pitch !== view.pitch || zoom !== view.zoom) cameraDirty = true;
+    view.yaw = yaw; view.pitch = pitch; view.zoom = zoom;
+    if (cameraDirty || !C) { C = makeCam(); cameraDirty = false; }
     var persp = C.f.toFixed(1) + 'px';
     if (persp !== cachedPersp) { stage.style.perspective = persp; cachedPersp = persp; }
     var wt = 'translateY(' + worldDY.toFixed(2) + 'px) translateZ(' + C.dist.toFixed(1) +
@@ -415,20 +500,22 @@
     drawSky();
     drawFloor();
     drawShelves();
-    drawDust(dt);
-    drawLinks();
+    drawDust(cruises() ? dt : 0);
+    if (motionAllowed()) linkPhase += dt;
     stepSprings(dt);        
-    placeCards(dt);
+    drawLinks();
+    var cardsMoving = placeCards(dt);
     placeLabels();
     paintHud();
-    if (cruises() || dragging || grabbing || cards.some(function (c) { return !!c.pull; }) ||
-        t < activeUntil || Math.abs(goal.yaw-view.yaw)+Math.abs(goal.pitch-view.pitch)+Math.abs(goal.zoom-view.zoom) > 0.0001) {
+    draws++;
+    if (cruises() || cardsMoving || cards.some(function (c) { return !!c.pull && c !== grabbing; }) ||
+        goal.yaw !== view.yaw || goal.pitch !== view.pitch || goal.zoom !== view.zoom) {
       raf = requestAnimationFrame(frame);
-    }
+    } else { lastT = null; }
   }
   function placeCards(dt) {
     var cam = camLocal(C);
-    var ease = dt ? Math.min(1, dt * 9) : 1;
+    var moving = false;
     for (var i = 0; i < cards.length; i++) {
       var c = cards[i], p = c.pos;
       var fx = p.x, fy = p.y, fz = p.z;
@@ -439,7 +526,7 @@
         fx += c.pull.x; fy += c.pull.y; fz += c.pull.z;
       }
       var hs = c.hs || 1;
-      if (hs !== 1) fy += (hs - 1) * CARD_H / 2;
+      if (hs !== 1) fy -= (hs - 1) * CARD_H / 2;
       var pr = project(fx, fy, fz, C, C.dy);
       var vis;
       if (c.billboard) {
@@ -465,11 +552,13 @@
       if (pulled > 0) { f *= (1 - pulled); face = Math.max(face, pulled); }
       var op = (1 - f * 0.86) * face;
       var hot = isHot(c), rel = isRel(c), match = isMatch(c), inside = inTag(c);
-      var deemph = (query && !match) || !inside;
+      var deemph = !matches(c);
       if (deemph) op *= 0.16;
-      else if (query || focusTag) op = Math.min(1, op * 1.45);
+      else if (query || focusTag || kind !== 'all') op = Math.min(1, op * 1.45);
       if (hover && !hot && !rel && !pulled) op *= 0.34;
-      c.sc += ((hot ? 1.07 : rel ? 1.025 : 1) - c.sc) * ease;
+      var targetScale = hot ? 1.07 : rel ? 1.025 : 1;
+      c.sc = follow(c.sc, targetScale, 10, dt, .0001);
+      moving = moving || c.sc !== targetScale;
       var sc = c.sc * (1 + 0.07 * pulled);
       var t = 'translate3d(' + fx.toFixed(2) + 'px,' + fy.toFixed(2) + 'px,' + fz.toFixed(2) + 'px)';
       if (c.billboard) {
@@ -490,19 +579,20 @@
         c.el.style.visibility = op < 0.02 ? 'hidden' : '';
         c.o = o;
       }
-      var cls = 'gcard' + (c.node.archived ? ' is-archived' : '') +
+      var cls = 'gcard gcl-' + c.cloth + (c.node.archived ? ' is-archived' : '') +
         (hot ? ' is-hot' : '') + (rel ? ' is-rel' : '') + (deemph ? ' is-dim' : '') +
         (pulled > 0.02 ? ' is-pulled' : '');
       if (c.cls !== cls) { c.el.className = cls; c.cls = cls; }
       c.screen = pr;          
     }
+    return moving;
   }
   function applyPull(c, dx, dy) {
     if (!c || !c.screen) return;
     var inv = 1 / Math.max(0.25, c.screen.k);
-    var wx = (C.right.x * dx + C.up.x * -dy) * inv;
-    var wy = (C.right.y * dx + C.up.y * -dy) * inv;
-    var wz = (C.right.z * dx + C.up.z * -dy) * inv;
+    var wx = (C.right.x * dx + C.up.x * dy) * inv;
+    var wy = (C.right.y * dx + C.up.y * dy) * inv;
+    var wz = (C.right.z * dx + C.up.z * dy) * inv;
     var plan = Math.hypot(wx, wy, wz);
     var lift = Math.min(260, plan * 0.55 + 26);   
     c.pull = {
@@ -515,9 +605,9 @@
     if (!c) return;
     var inv = 1 / Math.max(0.25, c.screen ? c.screen.k : 1);
     c.pv = {
-      x: (C.right.x * vx + C.up.x * -vy) * inv,
-      y: (C.right.y * vx + C.up.y * -vy) * inv,
-      z: (C.right.z * vx + C.up.z * -vy) * inv
+      x: (C.right.x * vx + C.up.x * vy) * inv,
+      y: (C.right.y * vx + C.up.y * vy) * inv,
+      z: (C.right.z * vx + C.up.z * vy) * inv
     };
   }
   function stepSprings(dt) {
@@ -527,10 +617,13 @@
       if (!c.pull || c === grabbing) continue;
       if (!motionAllowed()) { c.pull = null; c.pv = null; continue; }
       var p = c.pull, v = c.pv || (c.pv = { x: 0, y: 0, z: 0 });
-      v.x += (-PULL_K * p.x - PULL_D * v.x) * dt;
-      v.y += (-PULL_K * p.y - PULL_D * v.y) * dt;
-      v.z += (-PULL_K * p.z - PULL_D * v.z) * dt;
-      p.x += v.x * dt; p.y += v.y * dt; p.z += v.z * dt;
+      var damping = PULL_D / 2, omega = Math.sqrt(PULL_K - damping * damping);
+      var decay = Math.exp(-damping * dt), cosine = Math.cos(omega * dt), sine = Math.sin(omega * dt);
+      ['x', 'y', 'z'].forEach(function (axis) {
+        var position = p[axis], velocity = v[axis];
+        p[axis] = decay * (position * cosine + (velocity + damping * position) / omega * sine);
+        v[axis] = decay * (velocity * cosine - (damping * velocity + PULL_K * position) / omega * sine);
+      });
       if (Math.abs(p.x) + Math.abs(p.y) + Math.abs(p.z) < 0.6 &&
           Math.abs(v.x) + Math.abs(v.y) + Math.abs(v.z) < 0.4) {
         c.pull = null; c.pv = null;
@@ -626,11 +719,13 @@
   }
   function drawSky() {
     ctx.clearRect(0, 0, W, H);
-    var g = ctx.createRadialGradient(W / 2, H * 0.64, 0, W / 2, H * 0.64, Math.max(W, H) * 0.74);
-    g.addColorStop(0, rgba(pal.accent, 0.11));
-    g.addColorStop(0.46, rgba(pal.accent, 0.03));
-    g.addColorStop(1, rgba(pal.bg, 0));
-    ctx.fillStyle = g;
+    if (!skyGradient) {
+      skyGradient = ctx.createRadialGradient(W / 2, H * 0.64, 0, W / 2, H * 0.64, Math.max(W, H) * 0.74);
+      skyGradient.addColorStop(0, rgba(pal.accent, 0.11));
+      skyGradient.addColorStop(0.46, rgba(pal.accent, 0.03));
+      skyGradient.addColorStop(1, rgba(pal.bg, 0));
+    }
+    ctx.fillStyle = skyGradient;
     ctx.fillRect(0, 0, W, H);
     var pool = project(0, FLOOR_Y, 0, C);
     if (pool.z < C.f - 90) {
@@ -677,7 +772,7 @@
   }
   function drawDust(dt) {
     if (!motionAllowed()) dt = 0;
-    for (var i = 0; i < dust.length; i++) {
+    for (var i = 0; i < Math.min(dust.length, compact ? 45 : 85); i++) {
       var d = dust[i];
       if (dt) {
         d.y -= d.v * dt;
@@ -697,13 +792,15 @@
   function drawLinks() {
     var active = hover;
     lctx.clearRect(0, 0, W, H);
-    var dashOff = -(performance.now() / 42) % 10;
+    var dashOff = motionAllowed() ? -(linkPhase * 1000 / 42) % 10 : 0;
     for (var i = 0; i < links.length; i++) {
       var L = links[i];
       var on = active && (L.a === active || L.b === active);
       var base = active ? (on ? 0.62 + L.w * 0.14 : 0.018) : 0.055 + L.w * 0.016;
       if (base < 0.012) continue;
-      var a = L.a.pos, b = L.b.pos;
+      var a0 = L.a.pos, b0 = L.b.pos, ap = L.a.pull, bp = L.b.pull;
+      var a = ap ? {x:a0.x+ap.x, y:a0.y+ap.y, z:a0.z+ap.z} : a0;
+      var b = bp ? {x:b0.x+bp.x, y:b0.y+bp.y, z:b0.z+bp.z} : b0;
       var ax = (a.x + b.x) * 0.5, az = (a.z + b.z) * 0.5;
       var rad = Math.hypot(ax, az);
       var bulge = 1 + 0.42 * Math.min(1, rad / R);
@@ -735,15 +832,89 @@
   function paintHud() {
     if (!statusEl) return;
     var shown = 0;
-    for (var i = 0; i < cards.length; i++) if (isMatch(cards[i]) && inTag(cards[i])) shown++;
+    for (var i = 0; i < cards.length; i++) if (matches(cards[i])) shown++;
     var deg = Math.round(((view.yaw * 180 / Math.PI) % 360 + 360) % 360);
-    var txt = (state.layout === 'nebula' ? '星云' : '书架') + ' · <b>' + shown + '</b>/' +
+    var txt = (state.layout === 'nebula' ? '星云' : '书架') + ' · ' + shown + '/' +
       cards.length + ' 个节点 · 关系 ' + links.length + ' 条 · 视角 ' + deg + '°';
-    if (focusTag) txt += ' · 标签 <b>' + focusTag + '</b>';
+    if (focusTag) txt += ' · 标签 ' + focusTag;
     else if (query) txt += ' · 搜索 “' + query + '”';
-    if (statusEl.innerHTML !== txt) statusEl.innerHTML = txt;
+    if (statusEl.textContent !== txt) statusEl.textContent = txt;
+    if (zoomLabel) zoomLabel.textContent = Math.round(view.zoom * 100) + '%';
   }
   function setHint(s) { if (hintEl && hintEl.textContent !== s) hintEl.textContent = s; }
+  function defaultHint() {
+    if (window.matchMedia('(pointer: coarse)').matches) return '竖向滑动页面 · 横向拖动书库 · 用 + / − 缩放';
+    if (document.activeElement === stage) return '方向键转动 · + / − 缩放 · R 复位 · Tab 进入书本';
+    return HINT;
+  }
+  function selectCard(card) {
+    if (selected === card && card) return;
+    selected = card;
+    if (!detail) return;
+    if (detailKind) detailKind.textContent = card ? (card.node.kind === 'project' ? '项目' : '文章') : '';
+    if (detailTitle) detailTitle.textContent = card ? card.node.title : '没有匹配的书目';
+    if (detailSummary) detailSummary.textContent = card ? card.node.summary : '试试更短的关键词，或清除筛选后继续探索。';
+    if (detailTags) {
+      detailTags.textContent = '';
+      if (card) card.node.tags.forEach(function (tag) {
+        var span = document.createElement('span'); span.textContent = tag; detailTags.appendChild(span);
+      });
+    }
+    if (detailLink) {
+      detailLink.hidden = !card;
+      if (card) detailLink.setAttribute('href', card.el.getAttribute('href'));
+      else detailLink.removeAttribute('href');
+    }
+    if (detailRelated) {
+      detailRelated.textContent = '';
+      if (card) {
+        var related = cards.filter(function (other) { return card.rel[other.node.id] && matches(other); }).slice(0, 3);
+        if (related.length) {
+          var label = document.createElement('span'); label.textContent = '相关书目'; detailRelated.appendChild(label);
+          related.forEach(function (other) {
+            var link = document.createElement('a'); link.textContent = other.node.title;
+            link.setAttribute('href', other.el.getAttribute('href')); detailRelated.appendChild(link);
+          });
+        }
+      }
+    }
+  }
+  function applyFilters() {
+    var count = 0, first = null, filtered = !!query || !!focusTag || kind !== 'all';
+    cards.forEach(function (card) {
+      var match = matches(card); card.el.tabIndex = match ? 0 : -1;
+      card.el.style.pointerEvents = match ? '' : 'none';
+      card.el.setAttribute('aria-hidden', String(!match));
+      if (match) { count++; if (!first) first = card; }
+    });
+    resultEls.forEach(function (el) {
+      var card = cards.find(function (item) { return item.idx === el.getAttribute('data-idx'); });
+      el.hidden = !card || !matches(card);
+    });
+    if (resultCount) resultCount.textContent = filtered ? count + ' / ' + cards.length + ' 本匹配' : cards.length + ' 本，可直接阅读';
+    if (emptyEl) emptyEl.hidden = count !== 0;
+    if (clearBtn) clearBtn.hidden = !filtered;
+    if (resultsBox && filtered) resultsBox.open = true;
+    if (hover && !matches(hover)) hover = null;
+    var next = selected && matches(selected) ? selected : first;
+    selected = null; selectCard(next);
+    syncLegend(); syncAuto();
+    if (kindBox) kindBox.querySelectorAll('button[data-kind]').forEach(function (button) {
+      var on = button.getAttribute('data-kind') === kind;
+      button.classList.toggle('is-on', on); button.setAttribute('aria-pressed', String(on));
+    });
+    paintHud();
+    wake();
+  }
+  function clearFilters() {
+    focusTag = null; query = ''; kind = 'all';
+    if (qEl) qEl.value = '';
+    applyFilters();
+  }
+  function zoomBy(factor) {
+    goal.zoom = Math.max(.55, Math.min(1.75, goal.zoom * factor));
+    idle = 0; wake();
+  }
   function cardOf(el) {
     for (var i = 0; i < cards.length; i++) if (cards[i].el === el) return cards[i];
     return null;
@@ -756,15 +927,19 @@
     return null;
   }
   stage.addEventListener('pointerdown', function (e) {
-    if (e.button !== 0) return;
+    if (e.button !== 0 || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
     if (dragId !== null) return;
-    dragDist = 0; dragId = e.pointerId; captured = false;
+    dragDist = 0; dragId = e.pointerId; captured = false; suppressClickUntil = 0;
+    touchPending = e.pointerType === 'touch'; touchDrag = false;
+    pointerOriginX = e.clientX; pointerOriginY = e.clientY;
     lastX = e.clientX; lastY = e.clientY;
     idle = 0;
     grabVX = 0; grabVY = 0; grabT = 0;
     var el = findCard(e.target);
     var c = el ? cardOf(el) : null;
-    if (c && state.layout === 'shelf') {
+    if (c && matches(c)) selectCard(c);
+    if (touchPending) { setHint(defaultHint()); return; }
+    if (c && state.layout === 'shelf' && matches(c)) {
       grabbing = c;
       grabOriginX = e.clientX; grabOriginY = e.clientY;
       c.pv = { x: 0, y: 0, z: 0 };
@@ -777,6 +952,13 @@
   window.addEventListener('pointermove', function (e) {
     if (e.pointerId !== dragId) return;
     var dx = e.clientX - lastX, dy = e.clientY - lastY;
+    if (touchPending) {
+      var totalX = e.clientX - pointerOriginX, totalY = e.clientY - pointerOriginY;
+      if (Math.max(Math.abs(totalX), Math.abs(totalY)) < 10) return;
+      if (Math.abs(totalY) >= Math.abs(totalX)) { cancelInteraction(); return; }
+      if (Math.abs(totalX) < Math.abs(totalY) * 1.2) return;
+      touchPending = false; touchDrag = true; dragging = true;
+    }
     lastX = e.clientX; lastY = e.clientY;
     dragDist += Math.abs(dx) + Math.abs(dy);
     if (grabbing) {
@@ -799,6 +981,7 @@
         }
         grabT = now;
         applyPull(grabbing, e.clientX - grabOriginX, e.clientY - grabOriginY);
+        wake();
       }
       idle = 0;
       return;
@@ -810,15 +993,16 @@
       if (stage.setPointerCapture) { try { stage.setPointerCapture(dragId); } catch (err) {} }
     }
     goal.yaw += dx * 0.0042 * view.zoom;
-    goal.pitch = Math.max(-PITCH_MAX, Math.min(PITCH_MAX, goal.pitch - dy * 0.0031));
+    if (!touchDrag) goal.pitch = Math.max(-PITCH_MAX, Math.min(PITCH_MAX, goal.pitch - dy * 0.0031));
     idle = 0;
+    wake();
   });
   function endDrag() {
-    if (!dragging) return;
     dragging = false;
+    touchPending = false; touchDrag = false;
     if (captured) {
-      try { stage.releasePointerCapture(dragId); } catch (err) {}
       captured = false;
+      try { stage.releasePointerCapture(dragId); } catch (err) {}
     }
     dragId = null;
     stage.classList.remove('is-dragging');
@@ -837,43 +1021,64 @@
     if (stage.setAttribute) stage.setAttribute('data-cursor-label', '按住抽书');
     setHint(HINT);
     if (captured) {
+      captured = false;
       try { stage.releasePointerCapture(dragId); } catch (err) {}
     }
     captured = false;
     dragId = null;
     stage.classList.remove('is-dragging');
+    wake();
+  }
+  function cancelInteraction() {
+    if (grabbing) { grabT = 0; grabVX = grabVY = 0; endGrab(); }
+    endDrag();
+    setHint(defaultHint());
+    if (stage.setAttribute) stage.setAttribute('data-cursor-label', '拖动探索');
   }
   window.addEventListener('pointerup', function (e) {
     if (e.pointerId !== dragId) return;
+    if (captured && dragDist > DRAG_MIN) suppressClickUntil = performance.now() + 450;
     if (grabbing) endGrab(); else endDrag();
+    wake();
   });
   window.addEventListener('pointercancel', function (e) {
     if (e.pointerId !== dragId) return;
-    if (grabbing) endGrab(); else endDrag();
+    cancelInteraction(); wake();
+  });
+  stage.addEventListener('lostpointercapture', function (e) {
+    if (captured && e.pointerId === dragId) { cancelInteraction(); wake(); }
+  });
+  window.addEventListener('blur', function () {
+    cancelInteraction(); hover = null; wake();
   });
   stage.addEventListener('dragstart', function (e) { e.preventDefault(); });
   stage.addEventListener('pointerover', function (e) {
+    if (e.pointerType === 'touch') return;
     var el = findCard(e.target);
     var c = el ? cardOf(el) : null;
+    if (c && !matches(c)) c = null;
     if (c !== hover) {
       hover = c;
+      if (c) selectCard(c);
       if (!grabbing) {
         setHint(c ? (state.layout === 'shelf' ? '按住把书抽出来 · 点击进入' : '点击进入') : HINT);
       }
       idle = 0;
+      wake();
     }
   });
-  stage.addEventListener('pointerleave', function () { hover = null; setHint(HINT); });
+  stage.addEventListener('pointerleave', function () { if (hover) { hover = null; wake(); } setHint(defaultHint()); });
   stage.addEventListener('click', function (e) {
-    if (dragDist > DRAG_MIN) { e.preventDefault(); e.stopPropagation(); }
+    if (e.detail > 0 && performance.now() < suppressClickUntil) { e.preventDefault(); e.stopPropagation(); }
   }, true);
   stage.addEventListener('wheel', function (e) {
+    if (!e.shiftKey || e.ctrlKey || e.metaKey || !e.deltaY) return;
     e.preventDefault();
-    goal.zoom = Math.max(0.55, Math.min(1.75, goal.zoom * (e.deltaY > 0 ? 0.93 : 1.075)));
-    idle = 0;
+    var pixels = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? H : 1);
+    zoomBy(Math.exp(-Math.max(-600, Math.min(600, pixels)) * .0012));
   }, { passive: false });
   window.addEventListener('keydown', function (e) {
-    if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    if (!e.target || !stage.contains(e.target) || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || e.target.isContentEditable) return;
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     var k = e.key, hit = true;
     if (k === 'ArrowLeft') goal.yaw += 0.17;
@@ -882,59 +1087,63 @@
     else if (k === 'ArrowDown') goal.pitch = Math.min(PITCH_MAX, goal.pitch + 0.09);
     else if (k === '+' || k === '=') goal.zoom = Math.min(1.75, goal.zoom * 1.1);
     else if (k === '-' || k === '_') goal.zoom = Math.max(0.55, goal.zoom * 0.9);
-    else if (k === 'Escape') clearFocus();
+    else if (k === 'Escape') { cancelInteraction(); clearFilters(); }
     else if (k === 'r' || k === 'R') resetView();
     else hit = false;
-    if (hit) { idle = 0; if (k.indexOf('Arrow') === 0) e.preventDefault(); }
+    if (hit) { idle = 0; e.preventDefault(); wake(); }
   });
+  stage.addEventListener('focus', function () { setHint(defaultHint()); });
+  stage.addEventListener('blur', function () { setHint(defaultHint()); });
   function resetView() {
     goal.yaw = 0.0; goal.pitch = -0.04; goal.zoom = 1;
-    clearFocus();
-  }
-  function clearFocus() {
-    focusTag = null;
-    query = '';
-    if (qEl) qEl.value = '';
-    syncLegend();
-    syncAuto();
+    idle = 0; cancelInteraction(); wake();
   }
   function syncAuto() {
-    if (autoBtn) autoBtn.setAttribute('aria-pressed', autoPref ? 'true' : 'false');
+    if (autoBtn) {
+      autoBtn.setAttribute('aria-pressed', autoPref && motionAllowed() ? 'true' : 'false');
+      autoBtn.disabled = !motionAllowed();
+      autoBtn.title = motionAllowed() ? '缓慢转动书库；悬停阅读时暂停' : '开启动态效果后可使用自动巡航';
+    }
   }
   function syncLegend() {
     if (!legendBox) return;
     var chips = legendBox.querySelectorAll('.graph-tag-chip');
     for (var i = 0; i < chips.length; i++) {
-      chips[i].classList.toggle('is-on', chips[i].getAttribute('data-tag') === focusTag);
+      var on = chips[i].getAttribute('data-tag') === focusTag;
+      chips[i].classList.toggle('is-on', on);
+      chips[i].setAttribute('aria-pressed', String(on));
     }
   }
   function focusOn(name) {
     focusTag = (focusTag === name) ? null : name;
-    syncLegend();
-    syncAuto();
+    applyFilters();
     if (!focusTag) return;
-    var sx = 0, sy = 0, n = 0;
+    var sx = 0, sy = 0, sz = 0, n = 0;
     for (var i = 0; i < cards.length; i++) {
       var c = cards[i];
-      if (c.node.tags.indexOf(focusTag) < 0) continue;
-      sx += c.pos.x; sy += c.pos.y; n++;
+      if (!matches(c)) continue;
+      sx += c.pos.x; sy += c.pos.y; sz += c.pos.z; n++;
     }
     if (!n) return;
-    sx /= n; sy /= n;
-    goal.yaw = -Math.atan2(sx, Math.sqrt(Math.max(1, NEB_R * NEB_R - sx * sx - sy * sy)));
-    goal.pitch = state.layout === 'nebula' ? 0.02
-      : Math.max(-PITCH_MAX, Math.min(PITCH_MAX, Math.atan2(sy, R)));
+    sx /= n; sy /= n; sz /= n;
+    var targetYaw = -Math.atan2(sx, sz);
+    goal.yaw = view.yaw + Math.atan2(Math.sin(targetYaw - view.yaw), Math.cos(targetYaw - view.yaw));
+    goal.pitch = Math.max(-PITCH_MAX, Math.min(PITCH_MAX, Math.atan2(sy, Math.hypot(sx, sz))));
+    wake();
   }
   if (qEl) {
     qEl.addEventListener('input', function () {
       query = qEl.value.trim();
       idle = 0;
+      applyFilters();
     });
     qEl.addEventListener('keydown', function (e) {
-      if (e.key !== 'Enter') return;
-      for (var i = 0; i < cards.length; i++) {
-        if (isMatch(cards[i]) && inTag(cards[i])) { window.location.href = cards[i].el.href; return; }
-      }
+      if (e.key !== 'Enter' || e.isComposing || e.keyCode === 229) return;
+      e.preventDefault();
+      if (resultsBox) resultsBox.open = true;
+      var first = resultEls.find(function (el) { return !el.hidden; });
+      var link = first && (first.tagName === 'A' ? first : first.querySelector('a'));
+      if (link) link.focus();
     });
   }
   if (legendBox) {
@@ -953,12 +1162,31 @@
   }
   if (autoBtn) {
     autoBtn.addEventListener('click', function () {
+      if (!motionAllowed()) return;
       autoPref = !autoPref;
       idle = autoPref ? 1.2 : 0;
-      syncAuto();
+      syncAuto(); wake();
     });
   }
   if (resetBtn) resetBtn.addEventListener('click', resetView);
+  if (clearBtn) clearBtn.addEventListener('click', clearFilters);
+  if (zoomIn) zoomIn.addEventListener('click', function () { zoomBy(1.12); });
+  if (zoomOut) zoomOut.addEventListener('click', function () { zoomBy(1 / 1.12); });
+  if (kindBox) kindBox.addEventListener('click', function (event) {
+    var button = event.target.closest && event.target.closest('button[data-kind]');
+    if (!button) return;
+    var value = button.getAttribute('data-kind');
+    if (['all', 'post', 'project'].indexOf(value) === -1) return;
+    kind = value; applyFilters();
+  });
+  resultEls.forEach(function (el) {
+    function preview() {
+      var card = cards.find(function (item) { return item.idx === el.getAttribute('data-idx'); });
+      if (card && matches(card)) selectCard(card);
+    }
+    el.addEventListener('pointerover', preview);
+    el.addEventListener('focusin', preview);
+  });
   if (layoutBox) {
     layoutBox.addEventListener('click', function (e) {
       var b = e.target.closest ? e.target.closest('button[data-val]') : null;
@@ -966,6 +1194,8 @@
       var v = b.getAttribute('data-val');
       if (v === state.layout) return;
       state.layout = v;
+      cancelInteraction();
+      cards.forEach(function (card) { card.pull = null; card.pv = null; });
       var kids = layoutBox.querySelectorAll('button');
       for (var i = 0; i < kids.length; i++) {
         var on = kids[i] === b;
@@ -975,17 +1205,26 @@
       relayout();
       goal.pitch = v === 'nebula' ? 0.02 : -0.04;
       goal.zoom = 1;
+      wake();
     });
   }
   if (window.MutationObserver) {
-    new MutationObserver(function () { readPalette(); wake(); }).observe(root, {
-      attributes: true, attributeFilter: ['data-theme', 'data-mode', 'data-glass', 'data-motion', 'style']
+    new MutationObserver(function (records) {
+      var paletteChanged = records.some(function (record) { return ['data-theme', 'data-mode', 'style'].indexOf(record.attributeName) >= 0; });
+      if (paletteChanged) readPalette();
+      var nextCompact = root.getAttribute('data-performance') === 'compact';
+      if (nextCompact !== compact) { compact = nextCompact; resize(); }
+      if (!motionAllowed()) cancelInteraction();
+      syncAuto(); wake();
+    }).observe(root, {
+      attributes: true, attributeFilter: ['data-theme', 'data-mode', 'data-glass', 'data-motion', 'data-performance', 'style']
     });
   }
   if (reduce.addEventListener) {
-    reduce.addEventListener('change', function () { syncAuto(); wake(); });
+    reduce.addEventListener('change', function () { if (!motionAllowed()) cancelInteraction(); syncAuto(); wake(); });
   }
   function boot() {
+    stage.classList.add('is-initializing');
     boot0('正在铺书架');
     bootP(22);
     var els = world.querySelectorAll('.gcard'), i;
@@ -996,6 +1235,8 @@
         var sumEl = el.querySelector('.gcard-sum');
         var card = {
           el: el,
+          idx: el.getAttribute('data-idx') || String(idx),
+          cloth: Math.max(1, Math.min(6, parseInt(el.getAttribute('data-cloth'), 10) || 1)),
           node: {
             id: el.getAttribute('data-kind') + ':' + idx,
             kind: el.getAttribute('data-kind'),
@@ -1009,13 +1250,13 @@
           hs: 1 + ((parseInt(el.getAttribute('data-cloth'), 10) || 1) - 1) * 0.013,
           pos: { x: 0, y: 0, z: 0 }, rotY: 0,
           normal: { x: 0, y: 0, z: 1 }, billboard: false,
-          sc: 1, t: '', o: '', cls: 'gcard', links: [], rel: {}
+          sc: 1, t: '', o: '', cls: '', links: [], rel: {}
         };
         cards.push(card);
         el.draggable = false;
         el.setAttribute('draggable', 'false');
-        el.addEventListener('focus', function () { hover = card; idle = 0; });
-        el.addEventListener('blur', function () { if (hover === card) hover = null; });
+        el.addEventListener('focus', function () { if (matches(card)) { hover = card; selectCard(card); idle = 0; wake(); } });
+        el.addEventListener('blur', function () { if (hover === card) { hover = null; wake(); } });
       }(els[i], i));
     }
     for (i = 0; i < DUST; i++) {
@@ -1028,16 +1269,19 @@
       });
     }
     buildLinks();
+    applyFilters();
     boot0('正在连线');
     bootP(52);
     readPalette();
     resize();
     relayout();
     bootP(78);
-    stage.classList.add('is-live');
+    stage.classList.add('is-live', 'is-ready');
+    stage.classList.remove('is-initializing');
     live = true;
     syncAuto();
-    lastT = 0;
+    setHint(defaultHint());
+    lastT = performance.now();
     raf = requestAnimationFrame(function (t) {
       frame(t);
       boot0('书架就绪');
@@ -1058,8 +1302,7 @@
     } catch (err) {
       window.__graphError = String((err && err.stack) || err);
       if (window.console && console.error) console.error('[graph]', err);
-      root.classList.remove('js');
-      if (window.__boot) window.__boot.done('graph');
+      fallbackGraph();
     }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', safeBoot);
@@ -1068,6 +1311,10 @@
     debug: function () {
       return {
         live: live,
+        running: !!raf, draws: draws, kind: kind,
+        selected: selected ? selected.idx : null,
+        visible: cards.filter(matches).length,
+        focused: hover ? hover.idx : null,
         layout: state.layout,
         yaw: view.yaw, pitch: view.pitch, zoom: view.zoom,
         f: C ? C.f : 0, dist: C ? C.dist : 0,
@@ -1076,7 +1323,7 @@
         dy: worldDY,
         pullMax: cards.reduce(function(m,c){return c.pull?Math.max(m,Math.hypot(c.pull.x,c.pull.y,c.pull.z)):m;},0),
         pulling: cards.filter(function(c){return !!c.pull;}).length,
-        ext: C && !C.neb ? shelfExtent(C.dist, C.f, C.cp, C.sp) : null,
+        ext: C && !C.neb ? shelfExtent(C.dist, C.f, C.cp, C.sp, C.dy) : null,
         shelfHeight: shelfHeight,
         cardW: CARD_W, cardH: CARD_H,
         rows: shelfRows.length,
@@ -1128,17 +1375,12 @@
     window.addEventListener('resize', onResize);
   }
   document.addEventListener('visibilitychange', function () {
-    if (document.hidden) { if (raf) cancelAnimationFrame(raf); raf = 0; }
+    if (document.hidden) { cancelInteraction(); hover = null; if (raf) cancelAnimationFrame(raf); raf = 0; lastT = null; lastPaint = null; }
     else wake();
   });
   if (window.IntersectionObserver) new IntersectionObserver(function (entries) {
     inViewport = entries[0].isIntersecting;
-    if (!inViewport) { if (raf) cancelAnimationFrame(raf); raf = 0; }
+    if (!inViewport) { cancelInteraction(); hover = null; if (raf) cancelAnimationFrame(raf); raf = 0; lastT = null; lastPaint = null; }
     else wake();
   }, {rootMargin:'80px'}).observe(stage);
-  ['pointerdown', 'pointermove', 'pointerup', 'pointercancel', 'pointerover', 'pointerout', 'wheel', 'click', 'input', 'focusin', 'focusout', 'keydown'].forEach(function (name) {
-    document.addEventListener(name, function (event) {
-      if (dragging || grabbing || (event.target.closest && event.target.closest('.graph-page, #graph-stage, #graph-q, #graph-layout, #graph-auto, #graph-reset, #graph-legend'))) wake();
-    }, {passive:true});
-  });
 })();

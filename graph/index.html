@@ -32,11 +32,11 @@
 <link rel="canonical" href="https://luoyebai.github.io/graph/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=02be8197">
-<link rel="stylesheet" href="/assets/site.css?v=02be8197">
+<link rel="stylesheet" href="/assets/themes.css?v=fd9a7ca5">
+<link rel="stylesheet" href="/assets/site.css?v=fd9a7ca5">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
-<link rel="stylesheet" href="/assets/graph.css?v=02be8197">
+<link rel="stylesheet" href="/assets/graph.css?v=fd9a7ca5">
 
 
 
@@ -166,14 +166,17 @@
 
 <section class="graph-page">
   <header class="graph-head">
-    <p class="graph-kicker"><span class="dot"></span>KNOWLEDGE ATLAS · 3D</p>
-    <h1>知识图谱</h1>
-    <p class="graph-lede">
-      12 篇文章、4 个项目、27 个标签，铺成一座三维书库。
-      按住书脊可以把书抽出来，松手它就自己滑回架上；拖空白处转动书架，滚轮推拉镜头。
-      共用标签的条目之间会连出弧线 —— 悬停任意一本，只看它牵出的关系。
-    </p>
-    <a class="btn ghost small" href="/learning/">按前置知识探索学习路线 ↗</a>
+    <div class="graph-head-copy">
+      <p class="graph-kicker"><span class="dot" aria-hidden="true"></span>KNOWLEDGE ATLAS</p>
+      <h1>知识图谱<span class="graph-title-note">让知识彼此连接。</span></h1>
+      <p class="graph-lede">在书架间翻阅，在星云中发现联系。每一条弧线，都来自两篇内容共同的主题。</p>
+      <a class="graph-route-link" href="/learning/">从学习路线开始 <span aria-hidden="true">↗</span></a>
+    </div>
+    <dl class="graph-overview" aria-label="书库概览">
+      <div><dt>文章</dt><dd>12</dd></div>
+      <div><dt>项目</dt><dd>4</dd></div>
+      <div><dt>主题</dt><dd>27</dd></div>
+    </dl>
   </header>
 
   <div class="graph-bar">
@@ -181,13 +184,13 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
         <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
       </svg>
-      <input id="graph-q" type="search" placeholder="搜索标题或标签…" autocomplete="off" aria-label="搜索节点">
+      <input id="graph-q" type="search" placeholder="找一本书，或一个主题…" autocomplete="off" aria-label="搜索书目" aria-controls="graph-result-list">
     </label>
     <div class="graph-seg" id="graph-layout" role="group" aria-label="布局">
       <button type="button" data-val="shelf" class="is-on" aria-pressed="true">书架</button>
       <button type="button" data-val="nebula" aria-pressed="false">星云</button>
     </div>
-    <button type="button" class="graph-btn" id="graph-auto" aria-pressed="true">
+    <button type="button" class="graph-btn" id="graph-auto" aria-pressed="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
         <path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>
       </svg>
@@ -196,7 +199,17 @@
     <button type="button" class="graph-btn" id="graph-reset">复位视角</button>
   </div>
 
-  <div class="graph-stage" id="graph-stage" data-cursor="drag" data-cursor-label="按住抽书">
+  <div class="graph-filter-row">
+    <div class="graph-seg" id="graph-kind" role="group" aria-label="内容类型">
+      <button type="button" data-kind="all" class="is-on" aria-pressed="true">全部</button>
+      <button type="button" data-kind="post" aria-pressed="false">文章</button>
+      <button type="button" data-kind="project" aria-pressed="false">项目</button>
+    </div>
+    <button type="button" class="graph-btn" id="graph-clear" hidden>清除筛选</button>
+    <p class="graph-filter-note">悬停看关联，点击开始阅读。</p>
+  </div>
+
+  <div class="graph-stage" id="graph-stage" role="region" aria-label="三维知识书库" aria-describedby="graph-hint" tabindex="0" data-cursor="drag" data-cursor-label="拖动探索">
     <canvas class="graph-canvas" id="graph-canvas" aria-hidden="true"></canvas>
 
     
@@ -210,7 +223,7 @@
         <span class="boot-dots" aria-hidden="true"><i></i><i></i><i></i></span>
       </p>
       <div class="boot-bar" aria-hidden="true"><i></i></div>
-      <p class="boot-hint">网络好像有点慢。下面的标签列表可以先看，页面就绪后书架会自己出现。</p>
+      <p class="boot-hint">书库还在准备。可以先在下方书目目录中阅读。</p>
     </div>
 
     <div class="graph-world" id="graph-world">
@@ -525,130 +538,314 @@
     <canvas class="graph-links" id="graph-links" aria-hidden="true"></canvas>
     <div class="graph-vignette" aria-hidden="true"></div>
 
-    <div class="graph-hud">
-      <span class="graph-chip" id="graph-status">初始化…</span>
-      <span class="graph-chip graph-chip--hint" id="graph-hint">按住书脊抽出来 · 拖空白处转书架 · 滚轮缩放</span>
+  </div>
+
+  <div class="graph-stage-footer">
+    <div class="graph-stage-meta">
+      <span class="graph-chip" id="graph-status">16 本书 · 正在准备视图</span>
+      <p id="graph-hint">拖空白处转动 · 拖书本抽出 · Shift + 滚轮缩放</p>
+    </div>
+    <div class="graph-zoom" role="group" aria-label="缩放视图">
+      <button type="button" class="graph-btn" id="graph-zoom-out" aria-label="缩小视图">−</button>
+      <output id="graph-zoom-label" aria-label="当前缩放">100%</output>
+      <button type="button" class="graph-btn" id="graph-zoom-in" aria-label="放大视图">+</button>
     </div>
   </div>
 
-  <div class="graph-legend" id="graph-legend">
-    <span class="graph-legend-label">标签</span>
-    
-    <button type="button" class="graph-tag-chip" data-tag="系统工程" style="--n:5">
-      系统工程<i>5</i>
-    </button>
-    
-    <button type="button" class="graph-tag-chip" data-tag="运动控制" style="--n:4">
-      运动控制<i>4</i>
-    </button>
-    
-    <button type="button" class="graph-tag-chip" data-tag="C++" style="--n:3">
-      C++<i>3</i>
-    </button>
-    
-    <button type="button" class="graph-tag-chip" data-tag="DDS" style="--n:3">
-      DDS<i>3</i>
-    </button>
-    
-    <button type="button" class="graph-tag-chip" data-tag="人形" style="--n:3">
-      人形<i>3</i>
-    </button>
-    
-    <button type="button" class="graph-tag-chip" data-tag="工具" style="--n:3">
-      工具<i>3</i>
-    </button>
-    
-    <button type="button" class="graph-tag-chip" data-tag="机械臂" style="--n:3">
-      机械臂<i>3</i>
-    </button>
-    
-    <button type="button" class="graph-tag-chip" data-tag="ROS2" style="--n:2">
-      ROS2<i>2</i>
-    </button>
-    
-    <button type="button" class="graph-tag-chip" data-tag="中间件" style="--n:2">
-      中间件<i>2</i>
-    </button>
-    
-    <button type="button" class="graph-tag-chip" data-tag="力控" style="--n:2">
-      力控<i>2</i>
-    </button>
-    
-    <button type="button" class="graph-tag-chip" data-tag="四足" style="--n:2">
-      四足<i>2</i>
-    </button>
-    
-    <button type="button" class="graph-tag-chip" data-tag="运动学" style="--n:2">
-      运动学<i>2</i>
-    </button>
-    
-    <button type="button" class="graph-tag-chip" data-tag="MPC" style="--n:1">
-      MPC<i>1</i>
-    </button>
-    
-    <button type="button" class="graph-tag-chip" data-tag="Python" style="--n:1">
-      Python<i>1</i>
-    </button>
-    
-    <button type="button" class="graph-tag-chip" data-tag="git" style="--n:1">
-      git<i>1</i>
-    </button>
-    
-    <button type="button" class="graph-tag-chip" data-tag="仿真" style="--n:1">
-      仿真<i>1</i>
-    </button>
-    
-    <button type="button" class="graph-tag-chip" data-tag="可视化" style="--n:1">
-      可视化<i>1</i>
-    </button>
-    
-    <button type="button" class="graph-tag-chip" data-tag="实时系统" style="--n:1">
-      实时系统<i>1</i>
-    </button>
-    
-    <button type="button" class="graph-tag-chip" data-tag="工具链" style="--n:1">
-      工具链<i>1</i>
-    </button>
-    
-    <button type="button" class="graph-tag-chip" data-tag="强化学习" style="--n:1">
-      强化学习<i>1</i>
-    </button>
-    
-    <button type="button" class="graph-tag-chip" data-tag="本站" style="--n:1">
-      本站<i>1</i>
-    </button>
-    
-    <button type="button" class="graph-tag-chip" data-tag="机器视觉" style="--n:1">
-      机器视觉<i>1</i>
-    </button>
-    
-    <button type="button" class="graph-tag-chip" data-tag="架构" style="--n:1">
-      架构<i>1</i>
-    </button>
-    
-    <button type="button" class="graph-tag-chip" data-tag="步态" style="--n:1">
-      步态<i>1</i>
-    </button>
-    
-    <button type="button" class="graph-tag-chip" data-tag="调参" style="--n:1">
-      调参<i>1</i>
-    </button>
-    
-    <button type="button" class="graph-tag-chip" data-tag="运控" style="--n:1">
-      运控<i>1</i>
-    </button>
-    
-    <button type="button" class="graph-tag-chip" data-tag="运行时" style="--n:1">
-      运行时<i>1</i>
-    </button>
-    
+  <div class="graph-reading">
+    <section class="graph-detail" id="graph-detail" aria-labelledby="graph-detail-title">
+      <p class="graph-detail-eyebrow">ON THE SHELF <span id="graph-detail-kind">文章</span></p>
+      <h2 id="graph-detail-title">可运行示例：让文章里的代码真的跑起来</h2>
+      <p id="graph-detail-summary">七个可以直接操作的浏览器示例：计算与绘图、阻尼调参、缓动曲线编辑、弹簧追踪，以及陨石躲避和记忆翻牌。每个面板独立运行，动画可以暂停和重置。</p>
+      <div id="graph-detail-tags" class="graph-detail-tags"><span>本站</span><span>工具</span></div>
+      <a id="graph-detail-link" class="graph-read-link" href="/posts/runnable-demos/">打开阅读 <span aria-hidden="true">↗</span></a>
+      <div id="graph-detail-related" class="graph-detail-related"></div>
+    </section>
+    <section class="graph-topics" aria-labelledby="graph-topics-title">
+      <p class="graph-detail-eyebrow">FIND A CONNECTION</p>
+      <h2 id="graph-topics-title">沿着主题继续探索</h2>
+      <p class="graph-topics-note">选择标签，聚焦书库中的相关内容。</p>
+      <div class="graph-legend" id="graph-legend">
+        
+        <button type="button" class="graph-tag-chip" data-tag="系统工程" aria-pressed="false" style="--n:5">
+          系统工程<i>5</i>
+        </button>
+        
+        <button type="button" class="graph-tag-chip" data-tag="运动控制" aria-pressed="false" style="--n:4">
+          运动控制<i>4</i>
+        </button>
+        
+        <button type="button" class="graph-tag-chip" data-tag="C++" aria-pressed="false" style="--n:3">
+          C++<i>3</i>
+        </button>
+        
+        <button type="button" class="graph-tag-chip" data-tag="DDS" aria-pressed="false" style="--n:3">
+          DDS<i>3</i>
+        </button>
+        
+        <button type="button" class="graph-tag-chip" data-tag="人形" aria-pressed="false" style="--n:3">
+          人形<i>3</i>
+        </button>
+        
+        <button type="button" class="graph-tag-chip" data-tag="工具" aria-pressed="false" style="--n:3">
+          工具<i>3</i>
+        </button>
+        
+        <button type="button" class="graph-tag-chip" data-tag="机械臂" aria-pressed="false" style="--n:3">
+          机械臂<i>3</i>
+        </button>
+        
+        <button type="button" class="graph-tag-chip" data-tag="ROS2" aria-pressed="false" style="--n:2">
+          ROS2<i>2</i>
+        </button>
+        
+        <button type="button" class="graph-tag-chip" data-tag="中间件" aria-pressed="false" style="--n:2">
+          中间件<i>2</i>
+        </button>
+        
+        <button type="button" class="graph-tag-chip" data-tag="力控" aria-pressed="false" style="--n:2">
+          力控<i>2</i>
+        </button>
+        
+        <button type="button" class="graph-tag-chip" data-tag="四足" aria-pressed="false" style="--n:2">
+          四足<i>2</i>
+        </button>
+        
+        <button type="button" class="graph-tag-chip" data-tag="运动学" aria-pressed="false" style="--n:2">
+          运动学<i>2</i>
+        </button>
+        
+        <button type="button" class="graph-tag-chip" data-tag="MPC" aria-pressed="false" style="--n:1">
+          MPC<i>1</i>
+        </button>
+        
+        <button type="button" class="graph-tag-chip" data-tag="Python" aria-pressed="false" style="--n:1">
+          Python<i>1</i>
+        </button>
+        
+        <button type="button" class="graph-tag-chip" data-tag="git" aria-pressed="false" style="--n:1">
+          git<i>1</i>
+        </button>
+        
+        <button type="button" class="graph-tag-chip" data-tag="仿真" aria-pressed="false" style="--n:1">
+          仿真<i>1</i>
+        </button>
+        
+        <button type="button" class="graph-tag-chip" data-tag="可视化" aria-pressed="false" style="--n:1">
+          可视化<i>1</i>
+        </button>
+        
+        <button type="button" class="graph-tag-chip" data-tag="实时系统" aria-pressed="false" style="--n:1">
+          实时系统<i>1</i>
+        </button>
+        
+        <button type="button" class="graph-tag-chip" data-tag="工具链" aria-pressed="false" style="--n:1">
+          工具链<i>1</i>
+        </button>
+        
+        <button type="button" class="graph-tag-chip" data-tag="强化学习" aria-pressed="false" style="--n:1">
+          强化学习<i>1</i>
+        </button>
+        
+        <button type="button" class="graph-tag-chip" data-tag="本站" aria-pressed="false" style="--n:1">
+          本站<i>1</i>
+        </button>
+        
+        <button type="button" class="graph-tag-chip" data-tag="机器视觉" aria-pressed="false" style="--n:1">
+          机器视觉<i>1</i>
+        </button>
+        
+        <button type="button" class="graph-tag-chip" data-tag="架构" aria-pressed="false" style="--n:1">
+          架构<i>1</i>
+        </button>
+        
+        <button type="button" class="graph-tag-chip" data-tag="步态" aria-pressed="false" style="--n:1">
+          步态<i>1</i>
+        </button>
+        
+        <button type="button" class="graph-tag-chip" data-tag="调参" aria-pressed="false" style="--n:1">
+          调参<i>1</i>
+        </button>
+        
+        <button type="button" class="graph-tag-chip" data-tag="运控" aria-pressed="false" style="--n:1">
+          运控<i>1</i>
+        </button>
+        
+        <button type="button" class="graph-tag-chip" data-tag="运行时" aria-pressed="false" style="--n:1">
+          运行时<i>1</i>
+        </button>
+        
+      </div>
+    </section>
   </div>
 
-  <noscript>
-    <ul class="graph-plain">
-      <li><a href="/posts/runnable-demos/">文章 · 可运行示例：让文章里的代码真的跑起来</a></li><li><a href="/posts/dds-qos-tuning/">文章 · DDS 选型与调参：从 QoS 到零拷贝</a></li><li><a href="/posts/quadruped-mpc-kinematics/">文章 · 四足运控：MPC 代价函数推导与腿部正逆运动学</a></li><li><a href="/posts/small-humanoid-consensus/">文章 · 小型人形机器人的结构、硬件与算法共识</a></li><li><a href="/posts/humanoid-0-to-1-toolchain/">文章 · 小型人形机器人 0→1：从 URDF 到真机部署的工具链</a></li><li><a href="/posts/arm-impedance-control/">文章 · 机械臂运控：阻抗控制与力位混合</a></li><li><a href="/posts/sam3-foundationpose-6d-pose/">文章 · 用 SAM3 与 FoundationPose 做工件 6D 姿态估计</a></li><li><a href="/posts/realtime-control-loop/">文章 · 运控回路的实时性：1 kHz 到底能不能跑满</a></li><li><a href="/posts/cpp-python-code-style/">文章 · C++ / Python 代码规范</a></li><li><a href="/posts/cpp-toolchain/">文章 · C++ 工程工具链：构建、调试、依赖与代码质量</a></li><li><a href="/posts/parallel-ankle-kinematics/">文章 · 脚踝并联机构：正逆运动学与静力学解算</a></li><li><a href="/posts/legacy-gait-tuning/">文章 · 早期四足步态调参笔记（已归档）</a></li><li><a href="/projects/cordis-cpp/">项目 · cordis-cpp</a></li><li><a href="/projects/git-vis/">项目 · git-vis</a></li><li><a href="/projects/joysonrobot_comm/">项目 · joysonrobot_comm</a></li><li><a href="/projects/arm-impedance-ctrl/">项目 · arm-impedance-ctrl</a></li>
+  <details class="graph-results" id="graph-results">
+    <summary><span>书目目录</span><span id="graph-result-count" role="status" aria-live="polite">16 本，可直接阅读</span></summary>
+    <p id="graph-empty" hidden>没有找到匹配的书目。试试更短的关键词，或清除筛选。</p>
+    <ul class="graph-result-list" id="graph-result-list">
+      
+      <li class="graph-result" data-idx="0" data-kind="post">
+        <a class="graph-result-link" href="/posts/runnable-demos/">
+          <span class="graph-result-kind">文章</span>
+          <h3>可运行示例：让文章里的代码真的跑起来</h3>
+          <p class="graph-result-summary">七个可以直接操作的浏览器示例：计算与绘图、阻尼调参、缓动曲线编辑、弹簧追踪，以及陨石躲避和记忆翻牌。每个面板独立运行，动画可以暂停和重置。</p>
+          <span class="graph-result-tags"><span>本站</span><span>工具</span></span>
+          <span class="graph-result-arrow" aria-hidden="true">↗</span>
+        </a>
+      </li>
+      
+      <li class="graph-result" data-idx="1" data-kind="post">
+        <a class="graph-result-link" href="/posts/dds-qos-tuning/">
+          <span class="graph-result-kind">文章</span>
+          <h3>DDS 选型与调参：从 QoS 到零拷贝</h3>
+          <p class="graph-result-summary">从消息语义出发选择 QoS，区分进程内通信、共享内存和零拷贝，并用可复现的测量定位 DDS 延迟与抖动。</p>
+          <span class="graph-result-tags"><span>DDS</span><span>中间件</span><span>系统工程</span></span>
+          <span class="graph-result-arrow" aria-hidden="true">↗</span>
+        </a>
+      </li>
+      
+      <li class="graph-result" data-idx="2" data-kind="post">
+        <a class="graph-result-link" href="/posts/quadruped-mpc-kinematics/">
+          <span class="graph-result-kind">文章</span>
+          <h3>四足运控：MPC 代价函数推导与腿部正逆运动学</h3>
+          <p class="graph-result-summary">把 MPC 从状态转移方程推到有限时域 QP 的代价函数，并解释为什么直接对输入加权会留下稳态误差、改用输入增量就能修掉；再从单腿三个关节的变换矩阵推出足端正运动学、从足端位置反解关节角。文末是三块工程细节：电机的力位速混合控制、状态观测器与拓展卡尔曼滤波，以及 MuJoCo + OCS2 的仿真链路和三种地形上的实测结果与边界。</p>
+          <span class="graph-result-tags"><span>四足</span><span>运动控制</span><span>MPC</span><span>运动学</span></span>
+          <span class="graph-result-arrow" aria-hidden="true">↗</span>
+        </a>
+      </li>
+      
+      <li class="graph-result" data-idx="3" data-kind="post">
+        <a class="graph-result-link" href="/posts/small-humanoid-consensus/">
+          <span class="graph-result-kind">文章</span>
+          <h3>小型人形机器人的结构、硬件与算法共识</h3>
+          <p class="graph-result-summary">把市面上四款小型人形机器人（G1 / PM01 / T1 / X2）的公开规格摆在一起看：关节数与运动空间、算力与传感器配置、电池与电机选型，以及它们在 SDK 通讯、状态机和行走算法上不约而同的选择。</p>
+          <span class="graph-result-tags"><span>人形</span><span>强化学习</span><span>系统工程</span></span>
+          <span class="graph-result-arrow" aria-hidden="true">↗</span>
+        </a>
+      </li>
+      
+      <li class="graph-result" data-idx="4" data-kind="post">
+        <a class="graph-result-link" href="/posts/humanoid-0-to-1-toolchain/">
+          <span class="graph-result-kind">文章</span>
+          <h3>小型人形机器人 0→1：从 URDF 到真机部署的工具链</h3>
+          <p class="graph-result-summary">把一台小型人形机器人从结构图纸做到能跑策略，中间要过的每一道工具：URDF 导出后怎么查零件与关节、用 IDL + Fast DDS 设计通讯 SDK、怎么在 MuJoCo 里提前验证算法所需的硬件频率与鲁棒性、真机后台的分层架构，以及仿真到真机不改代码的部署方式。</p>
+          <span class="graph-result-tags"><span>人形</span><span>工具链</span><span>DDS</span><span>仿真</span></span>
+          <span class="graph-result-arrow" aria-hidden="true">↗</span>
+        </a>
+      </li>
+      
+      <li class="graph-result" data-idx="5" data-kind="post">
+        <a class="graph-result-link" href="/posts/arm-impedance-control/">
+          <span class="graph-result-kind">文章</span>
+          <h3>机械臂运控：阻抗控制与力位混合</h3>
+          <p class="graph-result-summary">从接口、量纲与坐标系出发区分阻抗、导纳和力位混合控制，给出可运行的一维示例与接触任务的验证方法。</p>
+          <span class="graph-result-tags"><span>机械臂</span><span>运动控制</span><span>力控</span></span>
+          <span class="graph-result-arrow" aria-hidden="true">↗</span>
+        </a>
+      </li>
+      
+      <li class="graph-result" data-idx="6" data-kind="post">
+        <a class="graph-result-link" href="/posts/sam3-foundationpose-6d-pose/">
+          <span class="graph-result-kind">文章</span>
+          <h3>用 SAM3 与 FoundationPose 做工件 6D 姿态估计</h3>
+          <p class="graph-result-summary">免训练的 6D 姿态估计路线：SAM3 负责按语义把工件分出来，FoundationPose 只在给 CAD 数模和少量参考图的前提下估计并跟踪位姿。记录显存与耗时实测、姿态注册的旋转网格参数怎么调，以及精度不够时几条可落地的改进方向。</p>
+          <span class="graph-result-tags"><span>机器视觉</span><span>机械臂</span><span>ROS2</span></span>
+          <span class="graph-result-arrow" aria-hidden="true">↗</span>
+        </a>
+      </li>
+      
+      <li class="graph-result" data-idx="7" data-kind="post">
+        <a class="graph-result-link" href="/posts/realtime-control-loop/">
+          <span class="graph-result-kind">文章</span>
+          <h3>运控回路的实时性：1 kHz 到底能不能跑满</h3>
+          <p class="graph-result-summary">区分周期、执行时间、数据年龄与截止时间，建立有界的测量路径，再评估线程调度、内存与系统配置对控制回路的影响。</p>
+          <span class="graph-result-tags"><span>实时系统</span><span>ROS2</span><span>运控</span></span>
+          <span class="graph-result-arrow" aria-hidden="true">↗</span>
+        </a>
+      </li>
+      
+      <li class="graph-result" data-idx="8" data-kind="post">
+        <a class="graph-result-link" href="/posts/cpp-python-code-style/">
+          <span class="graph-result-kind">文章</span>
+          <h3>C++ / Python 代码规范</h3>
+          <p class="graph-result-summary">一份可以贴进项目仓库的代码规范：头文件自给自足与 include 顺序、命名空间与静态变量、类的隐式转换与继承、函数签名怎么设计、命名约定，以及平台相关代码不能假设什么。核心是「正确性优先，必要时才为优化让路」。</p>
+          <span class="graph-result-tags"><span>C++</span><span>Python</span><span>系统工程</span></span>
+          <span class="graph-result-arrow" aria-hidden="true">↗</span>
+        </a>
+      </li>
+      
+      <li class="graph-result" data-idx="9" data-kind="post">
+        <a class="graph-result-link" href="/posts/cpp-toolchain/">
+          <span class="graph-result-kind">文章</span>
+          <h3>C++ 工程工具链：构建、调试、依赖与代码质量</h3>
+          <p class="graph-result-summary">把一套能长期维护的 C++ 工程该配的东西过一遍：构建系统怎么选、调试与分析工具各自回答什么问题、依赖怎么管，以及 clang-tidy 与 clang-format 两份可以直接拿去用的配置。</p>
+          <span class="graph-result-tags"><span>工具</span><span>C++</span><span>系统工程</span></span>
+          <span class="graph-result-arrow" aria-hidden="true">↗</span>
+        </a>
+      </li>
+      
+      <li class="graph-result" data-idx="10" data-kind="post">
+        <a class="graph-result-link" href="/posts/parallel-ankle-kinematics/">
+          <span class="graph-result-kind">文章</span>
+          <h3>脚踝并联机构：正逆运动学与静力学解算</h3>
+          <p class="graph-result-summary">从三维连杆约束推导并联踝的逆解、正解、雅可比与力矩映射，并在浏览器中的 MuJoCo 闭环机构里观察两台电机如何带动被动脚底关节。</p>
+          <span class="graph-result-tags"><span>运动控制</span><span>运动学</span><span>人形</span></span>
+          <span class="graph-result-arrow" aria-hidden="true">↗</span>
+        </a>
+      </li>
+      
+      <li class="graph-result" data-idx="11" data-kind="post">
+        <a class="graph-result-link" href="/posts/legacy-gait-tuning/">
+          <span class="graph-result-kind">文章 · 归档</span>
+          <h3>早期四足步态调参笔记（已归档）</h3>
+          <p class="graph-result-summary">保留早期 Trot 调参的学习脉络，补齐轨迹示例，重新说明零位、接触与驱动限制；历史参数不作为其他平台的推荐值。</p>
+          <span class="graph-result-tags"><span>四足</span><span>步态</span><span>调参</span></span>
+          <span class="graph-result-arrow" aria-hidden="true">↗</span>
+        </a>
+      </li>
+      
+      <li class="graph-result" data-idx="12" data-kind="project">
+        <a class="graph-result-link" href="/projects/cordis-cpp/">
+          <span class="graph-result-kind">项目</span>
+          <h3>cordis-cpp</h3>
+          <p class="graph-result-summary">把「可回滚的副作用」与「响应式 coeffect」做成运行时机制，据此实现插件的运行时装入、卸载、依赖解析与配置热重载。</p>
+          <span class="graph-result-tags"><span>C++</span><span>架构</span><span>运行时</span></span>
+          <span class="graph-result-arrow" aria-hidden="true">↗</span>
+        </a>
+      </li>
+      
+      <li class="graph-result" data-idx="13" data-kind="project">
+        <a class="graph-result-link" href="/projects/git-vis/">
+          <span class="graph-result-kind">项目</span>
+          <h3>git-vis</h3>
+          <p class="graph-result-summary">在本地浏览 Git 历史、回放分支演进，并在执行命令前预览文件与引用变化。</p>
+          <span class="graph-result-tags"><span>工具</span><span>git</span><span>可视化</span></span>
+          <span class="graph-result-arrow" aria-hidden="true">↗</span>
+        </a>
+      </li>
+      
+      <li class="graph-result" data-idx="14" data-kind="project">
+        <a class="graph-result-link" href="/projects/joysonrobot_comm/">
+          <span class="graph-result-kind">项目</span>
+          <h3>joysonrobot_comm</h3>
+          <p class="graph-result-summary">把机器人通信里反复要重做的那部分收进一个库：DDS 发布订阅、RPC 服务、IDL 生成代码，以及与 ROS 2 的互通。</p>
+          <span class="graph-result-tags"><span>DDS</span><span>中间件</span><span>系统工程</span></span>
+          <span class="graph-result-arrow" aria-hidden="true">↗</span>
+        </a>
+      </li>
+      
+      <li class="graph-result" data-idx="15" data-kind="project">
+        <a class="graph-result-link" href="/projects/arm-impedance-ctrl/">
+          <span class="graph-result-kind">项目</span>
+          <h3>arm-impedance-ctrl</h3>
+          <p class="graph-result-summary">按驱动接口区分阻抗、导纳与力位混合控制，整理参数整定和接触实验的记录方式。</p>
+          <span class="graph-result-tags"><span>机械臂</span><span>力控</span><span>运动控制</span></span>
+          <span class="graph-result-arrow" aria-hidden="true">↗</span>
+        </a>
+      </li>
+      
     </ul>
-  </noscript>
+  </details>
 </section>
 
 </main>
@@ -1124,10 +1321,10 @@
 
 <script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
 
-<script src="/assets/site.js?v=02be8197" defer></script>
-<script src="/assets/graph.js?v=02be8197" defer></script>
+<script src="/assets/site.js?v=fd9a7ca5" defer></script>
+<script src="/assets/graph.js?v=fd9a7ca5" defer></script>
 
-<script src="/assets/reading.js?v=02be8197" defer></script>
+<script src="/assets/reading.js?v=fd9a7ca5" defer></script>
 </body>
 </html>
 
