@@ -41,12 +41,28 @@ UI 的“恢复默认参数”应先恢复对应默认增益，再调用 `reset(
 - `motors` / `velocities`：电机角和角速度，rad / rad·s⁻¹。
 - `foot`：按配置顺序 `[roll, pitch]` 的被动关节角，rad。
 - `torques`：实际电机执行器力矩，N·m。
+- `enabled`：两台电机的通电指令。`setMotorEnabled(index, enabled)` 仅撤去或恢复该电机的驱动力；不锁关节、不写入位置或速度。暂停时扭矩读数仍属于上一次物理解算，下一物理步更新。
 - `closure`：最大 connect 约束分量残差，米。
 - `finite`：物理状态是否全部为有限数。
 
 闭环约束有数值柔顺性，外力下的小残差不等同于假动画或闭环失效。脚底广义
 关节没有执行器。测试会禁用一条连接约束，确认对应杆端分离、脚底响应改变，
 验证传动因果关系。
+
+界面提供独立 A/B 通断电对照。断电的电机仍能被连杆与重力带动；目标角为零
+的通电伺服则会主动产生保持力矩，两者不同。物理测试从相同初态出发，确认
+断电电机的不同目标不会改变轨迹，重新通电后实际运动恢复响应。复位恢复两
+电机通电。双曲线同步显示电机目标/实际角，以及被动脚底姿态；导出 JSON
+包含最近六秒的电机角、目标角、力矩、通电状态和姿态样本。
+
+“运行对照实验”调用 `comparison.js`，在独立 MuJoCo 实例中运行零目标、单独 A、
+单独 B、同向、反向和 B 断电六种工况。每组从 `mj_resetData` 初态开始，使用
+默认 PD、零外载和原模型重力，真实推进 2 秒。表格读取这一时刻的状态，不承诺
+稳态；点击“观察”才会复位主视图并播放相同输入，到 2 秒采样点自动暂停，
+最后一帧按剩余物理子步截断。手动改动输入或控制器退出定时复现。
+对照结果连同控制器、通电状态、
+单位和采样间隔写入 JSON。计算会在取消、切换模型、隐藏页面或离开实验区域时
+中止并释放独立模型。`sampledMaxClosure` 只表示批末采样最大值，不是全时域峰值。
 
 ## PD 参数范围
 
@@ -108,6 +124,7 @@ README 保留在项目 `_staging/vendor-mujoco-reference/`，不随博客分发�
 ```text
 node --test tools/test-mujoco-engine.mjs
 node --test tools/test-ankle-physics.mjs
+node --test tools/test-ankle-comparison.mjs
 node tools/test-ankle-math.mjs
 ```
 

@@ -6,9 +6,17 @@
   <meta name="description" content="用两个电机驱动真实闭环并联踝，观察被动脚底姿态与约束误差。">
   <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
   <link rel="canonical" href="https://luoyebai.github.io/lab/ankle/">
-  <link rel="stylesheet" href="/assets/tools/ankle/lab.css?v=cfc76f81">
+  <link rel="stylesheet" href="/assets/tools/ankle/lab.css?v=02be8197">
   <script>var labQuery=new URLSearchParams(location.search),labAppearance={};try{labAppearance=JSON.parse(localStorage.getItem('blog.appearance')||'{}')||{};}catch(e){}document.documentElement.dataset.mode=(labQuery.get('mode')||labAppearance.mode)==='light'?'light':'dark';if(labQuery.get('embed')==='1')document.documentElement.classList.add('embedded');</script>
-  <script type="importmap">{"imports":{"three":"/assets/vendor/three/three.module.min.js"}}</script>
+  <script type="importmap">{"imports":{
+    "three":"/assets/vendor/three/three.module.min.js",
+    "/assets/tools/ankle/ankle-model.js":"/assets/tools/ankle/ankle-model.js?v=02be8197",
+    "/assets/tools/ankle/ankle-math.js":"/assets/tools/ankle/ankle-math.js?v=02be8197",
+    "/assets/tools/ankle/simulation.js":"/assets/tools/ankle/simulation.js?v=02be8197",
+    "/assets/tools/ankle/comparison.js":"/assets/tools/ankle/comparison.js?v=02be8197",
+    "/assets/tools/ankle/mujoco-engine.js":"/assets/tools/ankle/mujoco-engine.js?v=02be8197",
+    "/assets/tools/ankle/renderer.js":"/assets/tools/ankle/renderer.js?v=02be8197"
+  }}</script>
 </head>
 <body>
 <nav class="lab-nav" aria-label="实验室导航"><a href="/">洛叶白 <small>ROBOT LAB</small></a><div><a href="/lab/">全部实验</a><a href="/posts/parallel-ankle-kinematics/">阅读推导 ↗</a></div></nav>
@@ -27,7 +35,10 @@
         </div>
         <div class="scene-key"><span><i class="dot-a"></i>A 电机 / 支链</span><span><i class="dot-b"></i>B 电机 / 支链</span><span><i class="dot-foot"></i>被动脚底</span><span>坐标：X 前 · Y 左 · Z 上</span></div>
         <div class="readouts" aria-label="仿真实时读数"><div><span>实际 Roll</span><output id="actual-roll">—</output></div><div><span>实际 Pitch</span><output id="actual-pitch">—</output></div><div><span>闭环残差 ∞范数</span><output id="closure-error">—</output></div><div><span>仿真时间</span><output id="sim-time">0.00 s</output></div></div>
-        <div class="trace"><div class="trace-title"><span>姿态响应 / 最近 6 秒</span><small><i class="dot-a"></i>Roll <i class="dot-b"></i>Pitch</small></div><canvas id="plot" width="800" height="140" role="img" aria-label="脚底Roll和Pitch随仿真时间变化的曲线"></canvas></div>
+        <div class="traces">
+          <div class="trace"><div class="trace-title"><span>输入 / 电机响应</span><small><i class="dot-a"></i>A <i class="dot-b"></i>B</small></div><p class="trace-note">虚线为目标，实线为实际电机角 · 最近 6 秒</p><canvas id="motor-plot" width="800" height="140" role="img" aria-label="电机A和B的目标角（虚线）与实际角（实线）随仿真时间变化的曲线"></canvas></div>
+          <div class="trace"><div class="trace-title"><span>输出 / 被动脚底姿态</span><small><i class="dot-a"></i>Roll <i class="dot-b"></i>Pitch</small></div><p class="trace-note">读取 MuJoCo 积分结果 · 最近 6 秒</p><canvas id="plot" width="800" height="140" role="img" aria-label="脚底Roll和Pitch随仿真时间变化的曲线"></canvas></div>
+        </div>
       </div>
       <aside class="control-column">
         <fieldset id="controls" disabled>
@@ -37,6 +48,10 @@
           <label class="input-field">电机 B 目标 <output id="target-b-value">0.0°</output><input id="target-b" type="range" min="-20" max="20" step="0.5" value="0" aria-label="电机B目标角度"></label>
           <div class="motor-feedback">实际 <output id="motor-b-angle">—</output><span>力矩 <output id="motor-b-torque">—</output></span></div>
           <div class="presets"><button type="button" data-preset="single">只动 A</button><button type="button" data-preset="same">同向输入</button><button type="button" data-preset="opposite">反向输入</button></div>
+          <div class="motor-power" role="group" aria-label="电机通断电对照">
+            <label><input id="enable-a" type="checkbox" checked>电机 A 通电</label><label><input id="enable-b" type="checkbox" checked>电机 B 通电</label>
+            <p>断电只撤去驱动力矩，关节仍能被连杆与重力带动。暂停时，切换在下一物理步生效。</p>
+          </div>
           <div class="run-actions"><button id="play" class="primary" type="button">开始仿真</button><button id="step" type="button">单步 20 ms</button><button id="reset" type="button">复位</button></div>
           <p id="sim-status" class="status" role="status" aria-live="polite">加载后调节电机目标，再开始仿真。</p>
           <details class="controller-details"><summary>控制器与外力</summary><label class="input-field">刚度 Kp <output id="kp-value">80</output><input id="kp" type="range" min="10" max="240" step="5" value="80" aria-label="电机位置控制刚度"></label><label class="input-field">阻尼 Kd <output id="kd-value">3.0</output><input id="kd" type="range" min="0.5" max="10" step="0.5" value="3" aria-label="电机位置控制阻尼"></label><label class="input-field">脚底外加 Pitch 力矩 <output id="load-value">0.0 N·m</output><input id="external-load" type="range" min="-2" max="2" step="0.1" value="0" aria-label="脚底俯仰广义外力矩"></label><p class="small">τ = Kp (q目标 − q实际) − Kd q̇；由电机力矩推动机构。外力施加于被动 Pitch 自由度。</p></details>
@@ -45,11 +60,20 @@
         <div class="causal-note"><span>驱动路径</span><p>电机力矩 <b>→</b> 摇臂 <b>→</b> 刚性连杆<br><b>→</b> 闭环约束 <b>→</b> 被动脚底姿态</p></div>
       </aside>
     </div>
+    <section class="comparison" aria-labelledby="comparison-title">
+      <div class="comparison-heading"><div><span class="eyebrow">03 / CAUSE &amp; RESPONSE</span><h2 id="comparison-title">同一起点，六组驱动对照。</h2></div><div class="comparison-actions"><button id="compare" type="button" disabled>运行对照实验</button><button id="compare-cancel" type="button" hidden>取消计算</button></div></div>
+      <p class="small">每组从零位、静止开始，以默认 PD 参数推进 2 秒，保留重力、无外加力矩。前五组两电机通电，最后一组撤去 B 的驱动力。结果由独立 MuJoCo 实例重新计算，当前视图保持原状态。</p>
+      <p id="comparison-status" class="comparison-status" role="status" aria-live="polite">先加载模型，再比较单电机与双电机输入的影响。</p>
+      <div id="comparison-results" hidden>
+        <div class="comparison-scroll" role="region" aria-label="六组驱动与脚底响应对照表，可横向滚动" tabindex="0"><table><caption id="comparison-caption"></caption><thead><tr><th scope="col">输入方式</th><th scope="col">目标 A / B</th><th scope="col">实际 A / B</th><th scope="col">脚底 Roll / Pitch</th><th scope="col">力矩 A / B（N·m）</th><th scope="col">闭环残差</th><th scope="col">三维复现</th></tr></thead><tbody id="comparison-rows"></tbody></table></div>
+        <p class="small">重点比较「只给 A」与「B 断电」：目标相同，B 的驱动力不同。表格记录 2 秒时的状态，不预设机构已达到稳态。点击「观察」会复位主实验，播放到 2 秒后暂停；手动改动输入或控制器会退出定时复现。导出 JSON 包含本次对照数据；窄屏可横向滑动表格。</p>
+      </div>
+    </section>
     <footer class="experiment-footer"><span id="model-note">采用 LimX 官方 HU-D04 左踝局部模型，固定小腿；不模拟整机行走及足地接触。</span><button id="export" type="button" disabled>导出当前数据 JSON ↓</button></footer>
   </section>
-  <section class="lab-explainer"><div><span>先试这三件事</span><h2>看见两个电机的耦合。</h2></div><ol><li><b>只动一个电机</b><p>保持 B 不动，改变 A 的目标。看 Pitch 与 Roll 是否同时改变。</p></li><li><b>同向，再反向</b><p>比较两种输入组合。输入符号与机构布局相关，并非所有并联踝都一样。</p></li><li><b>加一点外力</b><p>保持目标不变，对脚底施加力矩。观察姿态偏差、响应过程与电机力矩变化。</p></li></ol></section>
+  <section class="lab-explainer"><div><span>先试这三件事</span><h2>看见驱动与响应。</h2></div><ol><li><b>只给 A 改目标</b><p>保持 B 的零位伺服，点击「只动 A」并开始仿真。比较目标虚线、实际电机角与脚底姿态；B 也会出力维持目标。</p></li><li><b>撤去一台电机的驱动力</b><p>取消「电机 B 通电」，再改变 B 的目标。B 的驱动力矩为零，目标不再驱动机构；它仍可能被另一台电机和重力带动。</p></li><li><b>重新通电，再加外力</b><p>给 B 通电，观察恢复目标的过程。在「控制器与外力」加脚底力矩，比较电机反力矩、姿态偏差与闭环残差。</p></li></ol></section>
   <details class="model-sources"><summary>模型来源、约束与计算范围</summary><p>默认模型来自 <a href="https://github.com/limxdynamics/humanoid-description" target="_blank" rel="noopener">LimX 官方 humanoid-description</a>（Apache-2.0），保留两电机、球铰连杆、被动 Pitch/Roll 与两条 connect 约束。以固定小腿替代整机；几何与惯性来自原模型，PD 参数和观察范围为本实验设置。仿真结果不能代替真机参数标定。</p><p>教学模型使用明确标注的自定义尺寸，对应文章的双 Y 轴电机推导；它同样使用力矩驱动和真实闭环约束，并非 G1 硬件参数。MuJoCo 的等式约束是数值软约束，残差不应被解释为严格零。</p><p><a href="/assets/tools/ankle/limx/SOURCES.md" target="_blank">模型修改与固定版本</a> · <a href="/assets/tools/ankle/limx/limx-left-ankle.xml" download>下载 LimX MJCF</a> · <a href="/assets/vendor/mujoco/PROVENANCE.md" target="_blank">引擎来源</a> · <a href="/posts/parallel-ankle-kinematics/">文章与推导</a></p></details>
   <noscript><p>此实验需要 JavaScript、WebAssembly 与 WebGL。你仍可阅读文章推导或下载模型。</p></noscript>
 </main>
-<script type="module" src="/assets/tools/ankle/app.js?v=cfc76f81"></script>
+<script type="module" src="/assets/tools/ankle/app.js?v=02be8197"></script>
 </body></html>

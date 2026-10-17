@@ -32,8 +32,8 @@
 <link rel="canonical" href="https://luoyebai.github.io/posts/parallel-ankle-kinematics/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=cfc76f81">
-<link rel="stylesheet" href="/assets/site.css?v=cfc76f81">
+<link rel="stylesheet" href="/assets/themes.css?v=02be8197">
+<link rel="stylesheet" href="/assets/site.css?v=02be8197">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
 
@@ -214,7 +214,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
             <circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>
           </svg>
-          11 分钟
+          14 分钟
         </span>
         
       </div>
@@ -250,8 +250,11 @@
       
 
       <div class="prose reveal"><aside class="callout callout-note"><div class="callout-title">迁移说明</div><div class="callout-body"><p>原文档里的两个代码压缩包未随导出保留，相关小节改成文字说明。</p></div></aside>
-<p>先打开下面的实验，试试“只动 A”“同向输入”“反向输入”，再拖动电机目标角。观察实际电机角、被动脚底 Roll/Pitch、输出力矩和闭环残差；“控制器与外力”里还能给脚底加一点外力，看机构怎样响应。</p>
+<p>先打开下面的实验，试试“只动 A”“同向输入”“反向输入”，再拖动电机目标角。输入曲线的虚线是电机目标，实线是积分得到的实际电机角；输出曲线显示被动脚底 Roll/Pitch。目标更新不会直接改变脚底姿态，需要开始或单步推进物理仿真。</p>
+<p>再取消“电机 B 通电”：它的驱动力矩变为零，改变 B 的目标不再驱动机构，但 B 仍能被连杆和重力带动。<strong>B 目标为零且保持通电</strong>意味着 PD 控制器主动维持零位，与断电不同。重新通电后看恢复目标的过程，再到“控制器与外力”给脚底施加力矩，比较姿态偏差、电机力矩和闭环残差。暂停时修改通电状态会在下一物理步体现到响应中。</p>
+<p>也可以点击实验台下方的 <strong>“运行对照实验”</strong>：浏览器会另开一个独立的物理实例，从相同零位分别运行六组输入，列出 2 秒时的电机实际角、被动 Roll/Pitch 和闭环残差。特别比较“只给 A”与“B 断电”：两组目标相同，但 B 是否主动出力会改变传动结果。表格里的“观察”可以在三维视图中复现该组过程；这些数值每次由 MuJoCo 重算，2 秒时的状态不一定已经达到稳态。</p>
 <p>默认的 <strong>LimX HU-D04 左踝</strong>截取自 <a href="https://github.com/limxdynamics/humanoid-description" target="_blank" rel="noopener" class="site-link" data-site="github.com"><svg class="site-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#site-github"/></svg>LimX 官方闭环模型</a>，保留电机、球铰连杆及被动脚底关节，小腿固定在实验台上。切到 <strong>双杆教学模型</strong>，可以对照本文的双 Y 轴电机推导，输入期望姿态并用 IK 生成电机目标；脚底依然由 MuJoCo 通过电机力矩和闭环约束求解。两套模型的轴向、零位和尺寸不同，教学参数不代表 LimX 或 Unitree G1 真机。</p>
+<p>为什么默认选 LimX？它的公开模型明确驱动 A/B 电机，Pitch/Roll 是被动关节，两根连杆通过 <code>connect</code> 闭合，适合观察传动因果关系。<a href="https://github.com/unitreerobotics/unitree_rl_mjlab/blob/main/src/assets/robots/unitree_g1/g1_23dof_constants.py" target="_blank" rel="noopener" class="site-link" data-site="github.com"><svg class="site-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#site-github"/></svg>Unitree 的 G1 mjlab 配置</a>则注明连杆准确几何未知，采用名义 1:1 传动比近似，并直接控制 Pitch/Roll；这份配置不能单独说明两台实体电机如何经连杆带动脚底。<a href="https://github.com/feidedao/Parallel_Ankle_Joint" target="_blank" rel="noopener" class="site-link" data-site="github.com"><svg class="site-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#site-github"/></svg>社区 G1 并联踝示例</a>有闭链运动学实现，但作者注明动力学参数不准确，因此本站没有把它当作 G1 力矩响应的依据。</p>
 <section class="mujoco-embed" data-mujoco-tool="ankle" aria-label="并联踝 MuJoCo 实验"><div class="mujoco-embed-intro"><span class="mujoco-tag">MUJOCO · 闭环机构</span><h3>转动电机，观察脚踝如何响应</h3><p>两个电机推动摇臂与连杆，脚底姿态由物理引擎求解。对比电机输入、实际角度、脚底姿态与闭环误差。</p><div class="mujoco-embed-actions"><button type="button" data-mujoco-load>加载并联踝实验</button><a href="/lab/ankle/" data-mujoco-link target="_blank" rel="noopener">独立打开 ↗</a></div><p class="mujoco-embed-note">按需加载约 11 MB 仿真引擎，模型另行加载；未运行时不占用仿真资源。</p></div><div data-mujoco-mount hidden></div><button class="mujoco-unload" type="button" data-mujoco-unload hidden>关闭实验并释放资源</button><noscript><p>交互实验需要 JavaScript；正文推导仍可阅读。</p></noscript></section>
 <h2 id="脚踝并联解算需求">脚踝并联解算需求<a class="heading-anchor" href="#脚踝并联解算需求" aria-label="锚点">#</a></h2>
 <blockquote><p>标准 URDF 的关节拓扑是一棵树，不能直接表达闭环约束。控制侧需要处理并联踝电机坐标与脚底姿态的映射；MuJoCo 则可以在运动学树之外追加等式约束，模拟闭环机构。</p></blockquote>
@@ -460,6 +463,16 @@ D_i=\mathbf r_i^T\frac{\partial\mathbf B_i}{\partial q_i}$$</div></div>
 <p>这只是刚性机构的理想静态映射。运动中的惯性、摩擦、执行器限幅和约束误差还需要动力学与反馈控制；使用雅可比并不意味着必须弃用位置伺服。工具中的 PD 控制先产生电机力矩，再由 MuJoCo 的动力学与闭环约束求出被动脚底关节的运动。</p>
 <h3 id="怎样核对可视化确实来自并联机构">怎样核对可视化确实来自并联机构<a class="heading-anchor" href="#怎样核对可视化确实来自并联机构" aria-label="锚点">#</a></h3>
 <p>可视化中的传动链应当是“电机力矩 → 摇臂 → 连杆约束 → 被动脚底”，脚底 roll、pitch 不应被界面每帧直接赋值。教学 MJCF 为每根杆配置球铰，并用 <code>connect</code> 等式约束闭合到脚底安装点；只有两个电机有执行器。</p>
+<p>下面是本站 LimX 模型的可复现对照：每次先复位，保持两电机通电，设置 <code>Kp=180</code>、<code>Kd=6</code>、外加力矩为零，保留重力；从零位推进 2 秒（2000 个 1 ms 物理步）。表中角度均为度，输出读取 MuJoCo 状态。</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
+<thead><tr><th>电机目标 A / B</th><th>实际电机 A / B</th><th>被动 Roll / Pitch</th><th>2 秒时闭环残差</th></tr></thead>
+<tbody>
+<tr><td>8 / 0</td><td>7.994 / −0.005</td><td>3.916 / 3.730</td><td>0.0046 mm</td></tr>
+<tr><td>8 / 8</td><td>7.994 / 7.988</td><td>7.911 / 0.008</td><td>0.0069 mm</td></tr>
+<tr><td>8 / −8</td><td>7.994 / −7.998</td><td>−0.004 / 7.468</td><td>0.0024 mm</td></tr>
+</tbody></table></div>
+<p>在这套轴向与装配零位下，同向电机输入主要形成 Roll，反向输入主要形成 Pitch；只改变 A 会同时影响两个姿态角。因此不能把 A、B 分别当成两个互不耦合的姿态轴。表中的残差是 <code>connect</code> 约束分量的最大绝对值，不是实机误差；这些数值也不能直接套到另一套教学机构上。</p>
+<p>物理回归还做了两个对照：禁用一条 <code>connect</code> 后，相同输入会导致杆端分离、最终脚底姿态改变；关闭一台电机后，改变它的目标不能改变相同初态下的动力学轨迹。断电仅令该电机驱动力矩为零，不锁定关节，也不重设位置、速度。这些对照直接检查传动因果关系。</p>
 <p>解析解用于设定目标与交叉核对，实际曲线读取 MuJoCo 积分后的电机角和被动脚底角。MuJoCo 使用软约束，运动中可能有小的闭合残差；真实动态姿态、解析刚性正解与控制目标也不必完全重合。要同时观察残差、目标误差和电机力矩，才能区分几何不可达、增益不合适、力矩饱和与正常动态滞后。</p>
 <p>本站对教学解算器做三类独立核对：在可达网格上执行 IK→FK 往返；用中心差分核对解析雅可比；用随机方向的速度与力矩检查 <span class="math-wrap"><span class="math-inline" data-tex="\boldsymbol\tau_q^T\dot{\mathbf q}=\boldsymbol\tau_\theta^T\dot{\boldsymbol\theta}">\boldsymbol\tau_q^T\dot{\mathbf q}=\boldsymbol\tau_\theta^T\dot{\boldsymbol\theta}</span><button class="math-copy" type="button" data-math-copy aria-label="复制 LaTeX 公式" title="复制 LaTeX"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M6 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1"/></svg><span data-copy-label>复制 LaTeX</span></button></span>。这些检查验证实现的一致性，不等同于真实硬件参数标定。</p>
 <hr>
@@ -467,7 +480,7 @@ D_i=\mathbf r_i^T\frac{\partial\mathbf B_i}{\partial q_i}$$</div></div>
 <blockquote><p><em>A Draft on the Comprehensive Kinematics Analysis of a Humanoid Parallel Ankle Mechanism.</em>
 本文的几何关系与雅可比推导与它同源；原 PDF 是第三方论文，不随本文转载。</p></blockquote>
 <p>模型与实现参考：</p>
-<ul><li><a href="https://mujoco.readthedocs.io/en/stable/XMLreference.html#equality-connect" target="_blank" rel="noopener" class="site-link" data-site="mujoco.readthedocs.io"><svg class="site-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#site-readthedocs"/></svg>MuJoCo：闭环连接约束（connect）</a></li><li><a href="https://mujoco.readthedocs.io/en/stable/modeling.html" target="_blank" rel="noopener" class="site-link" data-site="mujoco.readthedocs.io"><svg class="site-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#site-readthedocs"/></svg>MuJoCo：模型坐标与约束求解参数</a></li><li><a href="https://mujoco.readthedocs.io/en/stable/computation/index.html#actuation-model" target="_blank" rel="noopener" class="site-link" data-site="mujoco.readthedocs.io"><svg class="site-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#site-readthedocs"/></svg>MuJoCo：动力学与执行器模型</a></li></ul></div>
+<ul><li><a href="https://github.com/limxdynamics/humanoid-description/blob/80fbd2d650c43c38916979c2a6eab7a4c79e38de/HU_D04_description/xml/HU_D04_01.xml" target="_blank" rel="noopener" class="site-link" data-site="github.com"><svg class="site-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#site-github"/></svg>LimX HU_D04 官方完整动力学模型（固定版本）</a>：本站默认模型的来源。</li><li><a href="https://github.com/limxdynamics/humanoid-rl-deploy-python/blob/main/doc/parallel_joint_mapping_en.md" target="_blank" rel="noopener" class="site-link" data-site="github.com"><svg class="site-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#site-github"/></svg>LimX 官方并联关节映射说明</a>：区分实际 A/B 电机坐标与被动 Pitch/Roll 坐标。</li><li><a href="https://github.com/feidedao/Parallel_Ankle_Joint" target="_blank" rel="noopener" class="site-link" data-site="github.com"><svg class="site-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#site-github"/></svg>社区 G1 并联踝项目</a>：有闭环运动学示例，但作者明确说明动力学参数有误。因此本文没有将它作为可预测 G1 真实电机力矩响应的模型。</li><li><a href="https://mujoco.readthedocs.io/en/stable/XMLreference.html#equality-connect" target="_blank" rel="noopener" class="site-link" data-site="mujoco.readthedocs.io"><svg class="site-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#site-readthedocs"/></svg>MuJoCo：闭环连接约束（connect）</a></li><li><a href="https://mujoco.readthedocs.io/en/stable/modeling.html" target="_blank" rel="noopener" class="site-link" data-site="mujoco.readthedocs.io"><svg class="site-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#site-readthedocs"/></svg>MuJoCo：模型坐标与约束求解参数</a></li><li><a href="https://mujoco.readthedocs.io/en/stable/computation/index.html#actuation-model" target="_blank" rel="noopener" class="site-link" data-site="mujoco.readthedocs.io"><svg class="site-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#site-readthedocs"/></svg>MuJoCo：动力学与执行器模型</a></li></ul></div>
 
       <div class="post-end">
         <span class="end-mark" aria-hidden="true">◆</span>
@@ -747,7 +760,7 @@ D_i=\mathbf r_i^T\frac{\partial\mathbf B_i}{\partial q_i}$$</div></div>
       <span class="sep" aria-hidden="true">·</span>
       <span>除注明外均为原创，转载请注明出处</span>
       <span class="sep" aria-hidden="true">·</span>
-      <span>构建于 <time datetime="2026-10-17">2026-10-17</time></span>
+      <span>构建于 <time datetime="2026-10-18">2026-10-18</time></span>
     </p>
     <p class="footer-meta">
       <span class="footer-meta-label">字体</span>
@@ -1097,9 +1110,9 @@ D_i=\mathbf r_i^T\frac{\partial\mathbf B_i}{\partial q_i}$$</div></div>
 <script defer src="/assets/vendor/katex/katex.min.js"></script>
 
 
-<script src="/assets/site.js?v=cfc76f81" defer></script>
+<script src="/assets/site.js?v=02be8197" defer></script>
 
-<script src="/assets/reading.js?v=cfc76f81" defer></script>
+<script src="/assets/reading.js?v=02be8197" defer></script>
 </body>
 </html>
 

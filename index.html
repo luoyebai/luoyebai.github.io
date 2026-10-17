@@ -32,11 +32,13 @@
 <link rel="canonical" href="https://luoyebai.github.io/">
 <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="/assets/themes.css?v=cfc76f81">
-<link rel="stylesheet" href="/assets/site.css?v=cfc76f81">
+<link rel="stylesheet" href="/assets/themes.css?v=02be8197">
+<link rel="stylesheet" href="/assets/site.css?v=02be8197">
 
 <noscript><style>.boot{display:none !important}</style></noscript>
-<link rel="stylesheet" href="/assets/discovery.css?v=cfc76f81">
+<link rel="stylesheet" href="/assets/discovery.css?v=02be8197">
+<link rel="stylesheet" href="/assets/orbit-hero.css?v=02be8197">
+<link rel="stylesheet" href="/assets/home-flow.css?v=02be8197">
 
 
 
@@ -164,28 +166,12 @@
 <main id="main">
 
 
-<section class="hero">
-  <canvas class="hero-galaxy" id="hero-galaxy" aria-hidden="true"></canvas>
-
-  
-  <div class="boot boot--hero" id="hero-boot" data-boot="hero" role="status" aria-live="polite">
-    <div class="boot-visual" aria-hidden="true">
-      <div class="boot-cube"><i></i><i></i><i></i><i></i><i></i><i></i></div>
-      <div class="boot-corners"><span></span><span></span><span></span><span></span></div>
-    </div>
-    <p class="boot-label">
-      <span class="boot-text">正在点亮星系</span>
-      <span class="boot-dots" aria-hidden="true"><i></i><i></i><i></i></span>
-    </p>
-    <div class="boot-bar" aria-hidden="true"><i></i></div>
-    <p class="boot-hint">星系正在就绪，内容已可阅读。</p>
-  </div>
-
+<section class="hero hero-orbit">
   <div class="hero-inner">
     
-    <div class="hero-id reveal">
+    <div class="hero-id">
       <span class="avatar-ring">
-        <img class="avatar" src="/assets/uploads/下载.gif" alt="洛叶白" width="76" height="76" decoding="async">
+        <img class="avatar" src="/assets/uploads/下载.gif" alt="洛叶白" width="48" height="48" decoding="async">
       </span>
       <div class="hero-id-text">
         <strong>洛叶白</strong>
@@ -194,7 +180,7 @@
     </div>
     
 
-    <p class="hero-eyebrow reveal">Middleware · Motion Control · RL</p>
+    <p class="hero-eyebrow">Middleware · Motion Control · RL</p>
 
     <h1 class="hero-title">
       
@@ -204,10 +190,10 @@
       
     </h1>
 
-    <p class="hero-sub reveal">DDS 中间件 · 四足 / 人形 / 机械臂运控 · 强化学习 sim2real。
+    <p class="hero-sub">DDS 中间件 · 四足 / 人形 / 机械臂运控 · 强化学习 sim2real。
 当前在均普研究院做轮式双臂机器人（智元 G2）的工业场景落地与工具链开发。</p>
 
-    <div class="hero-cta reveal">
+    <div class="hero-cta">
       <a class="btn primary" href="/posts/">
         <span>阅读文章</span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -217,7 +203,7 @@
       <a class="btn ghost" href="/projects/">看看项目</a>
     </div>
 
-    <dl class="hero-stats reveal">
+    <dl class="hero-stats">
       
       <div class="stat">
         <dt><button class="stat-trigger" type="button" aria-label="11 篇技术笔记：查看说明" aria-describedby="hero-stat-tip-0">11<span class="stat-info" aria-hidden="true">ⓘ</span></button></dt>
@@ -237,24 +223,38 @@
     </dl>
   </div>
 
-  <div class="galaxy-controls" data-galaxy-controls hidden>
-    <div class="galaxy-toolbar" role="group" aria-label="星系互动">
-      <button type="button" class="galaxy-action" data-galaxy-action="attract" title="在星系空白处按住鼠标左键，吸引附近星尘"><span class="galaxy-key" aria-hidden="true">左键</span>聚拢</button>
-      <button type="button" class="galaxy-action" data-galaxy-action="repel" title="按住右键推开星尘；Shift + 右键打开浏览器菜单"><span class="galaxy-key" aria-hidden="true">右键</span>推开</button>
-      <button type="button" class="galaxy-action" data-galaxy-action="burst" title="在星系空白处按下鼠标中键，触发一次星爆"><span class="galaxy-key" aria-hidden="true">中键</span>星爆</button>
-      <button type="button" class="galaxy-pause" data-galaxy-pause aria-pressed="false">暂停星系动效</button>
+  <figure class="orbit-visual" aria-label="运动轨道交互图">
+    <p class="orbit-kicker" aria-hidden="true"><span>KINETIC FIELD</span><span>/ 01</span></p>
+    <div class="orbit-stage">
+      <svg class="orbit-fallback" viewBox="0 0 600 480" fill="none" stroke="currentColor" aria-hidden="true" focusable="false">
+        <ellipse cx="300" cy="240" rx="180" ry="72" transform="rotate(-28 300 240)"/>
+        <ellipse cx="300" cy="240" rx="180" ry="72" transform="rotate(32 300 240)"/>
+        <ellipse cx="300" cy="240" rx="180" ry="72" transform="rotate(92 300 240)"/>
+        <path d="M300 214 322 240 300 266 278 240Z"/>
+      </svg>
+      <canvas id="hero-orbit" aria-hidden="true"></canvas>
     </div>
-    <p class="galaxy-hint" data-galaxy-hint><span class="galaxy-mouse-hint">在右侧星系空白处操作 · 按住左右键可拖动</span><span class="galaxy-touch-hint">轻点按钮，让星尘动起来</span></p>
-    <p class="galaxy-status" data-galaxy-status role="status" aria-live="polite" aria-atomic="true">移动鼠标或点击按钮探索星系</p>
-  </div>
-  <div class="hero-fade" aria-hidden="true"></div>
+    <figcaption>信息流动，动作成形。</figcaption>
+    <div class="orbit-controls" data-orbit-controls hidden>
+      <div class="orbit-modes" role="group" aria-label="运动轨道模式">
+        <button type="button" data-orbit-mode="signal" aria-pressed="false">信号</button>
+        <button type="button" data-orbit-mode="motion" aria-pressed="true">轨迹</button>
+        <button type="button" data-orbit-mode="policy" aria-pressed="false">策略</button>
+      </div>
+      <button class="orbit-pause" type="button" data-orbit-pause aria-pressed="false">暂停</button>
+    </div>
+    <p class="orbit-status" data-orbit-status role="status" aria-live="polite" aria-atomic="true">运动轨道 · 交互加载后可用</p>
+    <p class="orbit-hint"><span class="orbit-pointer-hint">左键聚合 · 右键展开 · 中键脉冲</span><span class="orbit-touch-hint">轻点模式按钮，切换观察方式。</span></p>
+  </figure>
 </section>
 
+<div class="flow-bridge">
+  <a href="#explore" aria-label="向下探索：从一个问题开始"><span>沿着问题，往下探索</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14m-5-5 5 5 5-5"/></svg></a>
+</div>
 
-<canvas class="morph-canvas" id="morph-canvas" aria-hidden="true"></canvas>
-
-<section class="section discovery-section" aria-label="按方向开始">
-  <header class="section-head" data-morph="head"><div><h2>从一个问题开始</h2><p>选一条路线，把文章、课件和实验连起来。</p></div><a class="more" href="/learning/">学习路线 →</a></header>
+<div class="home-flow" data-home-flow>
+<section class="section discovery-section" id="explore" data-scroll-chapter aria-label="按方向开始">
+  <header class="section-head reveal"><div><p class="flow-caption" aria-hidden="true">EXPLORE</p><h2>从一个问题开始</h2><p>选一条路线，把文章、课件和实验连起来。</p></div><a class="more" href="/learning/">学习路线 →</a></header>
   <div class="direction-grid">
     <a class="direction-card reveal" href="/learning/#middleware"><span class="direction-number">01 / MIDDLEWARE</span><h3>数据怎样准时抵达？</h3><p>从 ROS 2 通信到 DDS 与实时回路。</p><span class="direction-go">探索中间件 <b aria-hidden="true">↗</b></span></a>
     <a class="direction-card reveal" href="/learning/#motion"><span class="direction-number">02 / MOTION CONTROL</span><h3>动作怎样跟上目标？</h3><p>从坐标与运动学到 MPC、阻抗控制。</p><span class="direction-go">探索运动控制 <b aria-hidden="true">↗</b></span></a>
@@ -263,11 +263,15 @@
   <a class="lab-invitation reveal" href="/lab/"><span><span class="direction-number">ROBOT LAB</span><strong>把控制环调稳</strong><span>调参数，看响应。在浏览器里完成一次小实验。</span></span><span class="btn ghost">进入实验室 ↗</span></a>
 </section>
 
-<section class="section" data-reading-recent hidden><header class="section-head"><div><h2>继续阅读</h2><p>仅记录在这台设备。</p></div></header><div data-reading-recent-list></div></section>
+<section class="section" data-scroll-chapter data-reading-recent hidden>
+  <header class="section-head reveal"><div><p class="flow-caption" aria-hidden="true">CONTINUE</p><h2>继续阅读</h2><p>仅记录在这台设备。</p></div></header>
+  <div class="reveal" data-reading-recent-list></div>
+</section>
 
-<section class="section">
+<section class="section" data-scroll-chapter>
   <header class="section-head reveal">
     <div>
+      <p class="flow-caption" aria-hidden="true">NOTES</p>
       <h2>精选文章</h2>
       <p>中间件 · 运动控制 · 强化学习</p>
     </div>
@@ -404,9 +408,10 @@
 </section>
 
 
-<section class="section">
+<section class="section" data-scroll-chapter>
   <header class="section-head reveal">
     <div>
+      <p class="flow-caption" aria-hidden="true">BUILD</p>
       <h2>项目</h2>
       <p>能跑起来的代码，胜过幻灯片</p>
     </div>
@@ -545,9 +550,10 @@
 </section>
 
 
-<section class="section">
+<section class="section" data-scroll-chapter>
   <header class="section-head reveal">
     <div>
+      <p class="flow-caption" aria-hidden="true">JOURNAL</p>
       <h2>最近更新</h2>
       <p>精选之外，最近值得翻看的记录。</p>
     </div>
@@ -559,9 +565,9 @@
 </section>
 
 
-<section class="section">
+<section class="section" data-scroll-chapter>
   <header class="section-head reveal">
-    <div><h2>标签</h2><p>按主题翻</p></div>
+    <div><p class="flow-caption" aria-hidden="true">INDEX</p><h2>标签</h2><p>按主题翻</p></div>
     <a class="more" href="/tags/">全部标签</a>
   </header>
   <div class="tag-cloud reveal">
@@ -625,6 +631,7 @@
   </div>
 </section>
 
+</div>
 
 </main>
 
@@ -753,7 +760,7 @@
       <span class="sep" aria-hidden="true">·</span>
       <span>除注明外均为原创，转载请注明出处</span>
       <span class="sep" aria-hidden="true">·</span>
-      <span>构建于 <time datetime="2026-10-17">2026-10-17</time></span>
+      <span>构建于 <time datetime="2026-10-18">2026-10-18</time></span>
     </p>
     <p class="footer-meta">
       <span class="footer-meta-label">字体</span>
@@ -1099,11 +1106,10 @@
 
 <script type="application/json" id="theme-meta">{"dusk":{"name":"暮色风车","nameEn":"Dusk","swatch":["#ff9d5c","#7aa2ff","#0b1020"],"bg":"assets/bg/dusk.webp","video":"assets/bg/dusk.mp4"},"neon":{"name":"霓虹机房","nameEn":"Neon","swatch":["#c04bff","#22d3ee","#0a0718"],"bg":"assets/bg/neon.webp","video":"assets/bg/neon.mp4"},"cyber":{"name":"夜城投递","nameEn":"Cyber","swatch":["#ff7ab6","#5ee7c4","#141019"],"bg":"assets/bg/cyber.webp","video":"assets/bg/cyber.mp4"},"sakura":{"name":"樱色光爆","nameEn":"Sakura","swatch":["#ff6fa5","#b78bff","#120a14"],"bg":"assets/bg/sakura.webp","video":"assets/bg/sakura.mp4"},"void":{"name":"虚空龙息","nameEn":"Void","swatch":["#6ea8ff","#ffd166","#06080f"],"bg":"assets/bg/void.webp","video":"assets/bg/void.mp4"},"mono":{"name":"黑白编辑","nameEn":"Mono","swatch":["#e8e8e8","#9aa0a6","#0c0c0d"],"bg":"assets/bg/mono.webp","video":"assets/bg/mono.mp4"},"paper":{"name":"留白纸面","nameEn":"Paper","swatch":["#17b8a6","#f0a04b","#fbfcfc"],"bg":"assets/bg/paper.webp","video":"assets/bg/paper.mp4"},"alpine":{"name":"远山夜湖","nameEn":"Alpine","swatch":["#5b8dd9","#78d9c8","#0a1220"],"bg":"assets/bg/alpine.webp","video":"assets/bg/alpine.mp4"},"moonlit":{"name":"皎月水面","nameEn":"Moonlit","swatch":["#7fd4f0","#ffd9a0","#050b1c"],"bg":"assets/bg/moonlit.webp","video":"assets/bg/moonlit.mp4"},"comet":{"name":"彗星山晚","nameEn":"Comet","swatch":["#e07a5f","#9b8cff","#1c2242"],"bg":"assets/bg/comet.webp","video":"assets/bg/comet.mp4"},"lantern":{"name":"林间提灯","nameEn":"Lantern","swatch":["#e8a45c","#66d6a8","#141121"],"bg":"assets/bg/lantern.webp","video":"assets/bg/lantern.mp4"},"sketch":{"name":"素描线稿","nameEn":"Sketch","swatch":["#5a6b96","#8a6f52","#1f2024"],"bg":"assets/bg/sketch.webp","video":"assets/bg/sketch.mp4"},"manga":{"name":"漫画分格","nameEn":"Manga","swatch":["#cf4436","#4a6fa8","#242428"],"bg":"assets/bg/manga.webp","video":"assets/bg/manga.mp4"},"lumen":{"name":"暖灯夜色","nameEn":"Lumen","swatch":["#ffbe4d","#7ad3e8","#0d1a28"],"bg":"assets/bg/lumen.webp","video":"assets/bg/lumen.mp4"},"bocchi":{"name":"波奇光晕","nameEn":"Bocchi Halo","swatch":["#eaa5bc","#6acbc9","#101b2d"],"bg":"assets/bg/bocchi.webp","video":"assets/bg/bocchi.mp4"}}</script>
 
-<script src="/assets/site.js?v=cfc76f81" defer></script>
-<script src="/assets/galaxy.js?v=cfc76f81" defer></script>
-<script src="/assets/morph.js?v=cfc76f81" defer></script>
+<script src="/assets/site.js?v=02be8197" defer></script>
+<script src="/assets/orbit-field.js?v=02be8197" defer></script>
 
-<script src="/assets/reading.js?v=cfc76f81" defer></script>
+<script src="/assets/reading.js?v=02be8197" defer></script>
 </body>
 </html>
 
