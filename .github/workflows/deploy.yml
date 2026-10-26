@@ -1,0 +1,59 @@
+name: 构建并部署到 GitHub Pages
+
+# 这个生成器是纯 Python 标准库实现，CI 里不需要 pip install 任何东西。
+# 首次使用：按注释设好 BASE_PATH 与仓库名即可。
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:          # 也支持在 Actions 页面手动触发
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  # 用户站点（仓库名叫 <用户名>.github.io，站点在根路径）→ 留空
+  # 项目站点（站点在 /<仓库名>/）→ 改成 /<仓库名>
+  BASE_PATH: ""
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # 默认连壁纸一起发布。若想构建不含壁纸的版本（纯渐变背景、体积小一半），
+      # 在下面这行末尾加上 --no-bg 即可。
+      - name: 构建站点
+        run: |
+          python tools/build.py --clean ${{ env.BASE_PATH != '' && format('--base {0}', env.BASE_PATH) || '' }}
+
+      - name: 发布前自检（链接 / 资源 / sitemap）
+        run: |
+          python tools/check-site.py --dir public ${{ env.BASE_PATH != '' && format('--base {0}', env.BASE_PATH) || '' }}
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

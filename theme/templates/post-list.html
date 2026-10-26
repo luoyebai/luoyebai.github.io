@@ -1,0 +1,49 @@
+{{> partials/head.html}}
+
+<section class="list-head">
+  {{#if back_href}}<a class="back" href="{{build.basePath}}{{back_href}}">{{back_label}}</a>{{/if}}
+  <h1 class="reveal">{{heading}}</h1>
+  <p class="reveal">{{subheading}}</p>
+</section>
+
+{{#if all_tags}}
+<div class="filter-bar reveal">
+  <span class="filter-label">按标签筛选</span>
+  <div class="filter-chips">
+    {{#each all_tags}}
+    <a class="chip" href="{{build.basePath}}/tags/{{slug}}/">{{name}}<b>{{count}}</b></a>
+    {{/each}}
+  </div>
+</div>
+{{/if}}
+
+<section class="section">
+  {{#if posts}}
+  <div class="grid grid-3">
+    {{#each posts}}{{> partials/card-post.html}}{{/each}}
+  </div>
+  {{/if}}
+
+  {{#if projects}}
+  <h2 class="block-title">相关项目</h2>
+  <div class="grid grid-3">
+    {{#each projects}}{{> partials/card-project.html}}{{/each}}
+  </div>
+  {{/if}}
+
+  {{#if show_empty}}
+  <p class="empty">这里还没有内容。</p>
+  {{/if}}
+
+  {{#if show_pager}}
+  <nav class="pager" aria-label="分页">
+    {{#if prev_url}}<a class="pager-btn" href="{{build.basePath}}{{prev_url}}">← 上一页</a>
+    {{else}}<span class="pager-btn disabled">← 上一页</span>{{/if}}
+    <span class="pager-info">{{page_no}} / {{page_count}}</span>
+    {{#if next_url}}<a class="pager-btn" href="{{build.basePath}}{{next_url}}">下一页 →</a>
+    {{else}}<span class="pager-btn disabled">下一页 →</span>{{/if}}
+  </nav>
+  {{/if}}
+</section>
+
+{{> partials/foot.html}}

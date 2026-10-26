@@ -1,0 +1,14 @@
+{{> partials/head.html}}
+
+<section class="list-head">
+  <h1 class="reveal">{{heading}}</h1>
+  <p class="reveal">{{subheading}}</p>
+</section>
+
+<section class="section">
+  <div class="grid grid-3">
+    {{#each projects}}{{> partials/card-project.html}}{{/each}}
+  </div>
+</section>
+
+{{> partials/foot.html}}

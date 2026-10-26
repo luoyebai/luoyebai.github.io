@@ -1,0 +1,39 @@
+{{> partials/head.html}}
+
+<section class="list-head">
+  <h1 class="reveal">{{heading}}</h1>
+  <p class="reveal">{{subheading}}</p>
+</section>
+
+<section class="section archive">
+  {{#each groups}}
+  <div class="archive-year reveal">
+    <div class="archive-year-head">
+      <span class="year">{{year}}</span>
+      <span class="count">{{count}} 篇</span>
+    </div>
+    <ol class="archive-list">
+      {{#each posts}}
+      <li class="archive-item{{#if archived}} is-archived{{/if}}">
+        {{! 命中层铺满整行；标签独立成链接，所以行内容不能包在 <a> 里（<a> 不能嵌套） }}
+        <a class="archive-hit" href="{{build.basePath}}{{url}}"><span class="sr-only">{{title}}</span></a>
+        <div class="archive-row">
+          <time datetime="{{date}}">{{date}}</time>
+          <span class="t">{{title}}</span>
+          {{#if archived}}<span class="mark" title="已归档">归档</span>{{/if}}
+          <span class="tags">
+            {{#each tag_links}}<a href="{{build.basePath}}/tags/{{slug}}/">{{name}}</a>{{/each}}
+          </span>
+        </div>
+      </li>
+      {{/each}}
+    </ol>
+  </div>
+  {{/each}}
+
+  {{#unless groups}}
+  <p class="empty">还没有文章。</p>
+  {{/unless}}
+</section>
+
+{{> partials/foot.html}}

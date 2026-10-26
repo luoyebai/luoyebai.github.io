@@ -1,0 +1,119 @@
+{{> partials/head.html}}
+
+<article class="doc" id="doc"
+         data-slides="{{doc.slide_count}}"
+         data-title="{{doc.title}}">
+  <header class="doc-head">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="{{build.basePath}}/docs/">文档</a>
+      <span aria-hidden="true">/</span>
+      <a href="{{build.basePath}}{{collection.url}}">{{collection.title}}</a>
+      <span aria-hidden="true">/</span>
+      <span class="current">{{doc.title}}</span>
+    </nav>
+
+    <h1 class="doc-title">{{doc.title}}</h1>
+    {{#if doc.summary}}<p class="doc-lede">{{doc.summary}}</p>{{/if}}
+
+    <p class="doc-meta">
+      <span class="meta-item"><b>{{doc.index}}</b> / {{doc.sibling_count}} 篇</span>
+      <span class="meta-item"><b>{{doc.slide_count}}</b> 页幻灯片</span>
+      {{#if doc.origin}}<span class="meta-item muted">迁移自 <a href="{{doc.origin}}" rel="noopener" target="_blank">源文档</a></span>{{/if}}
+    </p>
+  </header>
+
+  <section class="deck is-paged" id="deck" data-deck aria-roledescription="幻灯片" aria-label="{{doc.title}}">
+    <noscript>
+      <style>.deck .slide{display:block !important;margin-top:1.2rem;height:auto !important;overflow:visible !important}</style>
+    </noscript>
+    <div class="deck-bar">
+      <div class="deck-nav">
+        <button type="button" class="deck-btn" data-deck-prev aria-label="上一页" title="上一页  ←">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M15 5 8 12l7 7"/>
+          </svg>
+        </button>
+        <button type="button" class="deck-btn" data-deck-next aria-label="下一页" title="下一页  →">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m9 5 7 7-7 7"/>
+          </svg>
+        </button>
+        <p class="deck-counter" aria-live="polite">
+          <b data-deck-no>1</b> / {{doc.slide_count}}
+        </p>
+      </div>
+
+      <p class="deck-section" data-deck-section aria-live="polite"></p>
+
+      <div class="deck-tools">
+        <button type="button" class="deck-btn deck-btn--text" data-deck-outline aria-expanded="false" aria-controls="deck-outline">目录</button>
+        <div class="deck-seg" role="group" aria-label="阅读方式">
+          <button type="button" data-deck-mode="paged" class="is-on" aria-pressed="true">逐页</button>
+          <button type="button" data-deck-mode="scroll" aria-pressed="false">通读</button>
+        </div>
+        <button type="button" class="deck-btn" data-deck-full aria-label="全屏演示" title="全屏演示  F">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="deck-progress" aria-hidden="true"><i data-deck-progress></i></div>
+
+    <nav class="deck-outline" id="deck-outline" data-deck-outline-panel hidden aria-label="幻灯片目录">
+      <ol>
+        {{#each doc.toc}}
+        <li{{#if section}} class="is-section"{{/if}}>
+          <button type="button" data-deck-goto="{{idx}}">
+            <span class="ol-no">{{idx}}</span>{{title}}
+          </button>
+        </li>
+        {{/each}}
+      </ol>
+    </nav>
+
+    <div class="deck-stage" id="deck-stage" data-deck-stage tabindex="0"
+         aria-label="幻灯片内容，用左右方向键翻页">
+      {{#each doc.slides}}
+      <section class="slide{{#if is_section}} slide--section{{/if}}" data-slide="{{index}}"
+               data-title="{{title}}"{{#if is_section}} data-section="1"{{/if}}>
+        <div class="slide-inner">{{{html}}}</div>
+      </section>
+      {{/each}}
+    </div>
+
+    <p class="deck-hint">
+      <kbd>←</kbd><kbd>→</kbd> 逐步收起 / 展开，展开完翻页 · <kbd>F</kbd> 全屏 · <kbd>Esc</kbd> 退出
+    </p>
+
+    {{! 左右两侧的翻页热区：只有在逐页模式、鼠标移到舞台上时才浮出来 }}
+    <button type="button" class="deck-zone deck-zone--prev" data-deck-prev aria-label="上一页" tabindex="-1">
+      <span aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></svg>
+      </span>
+    </button>
+    <button type="button" class="deck-zone deck-zone--next" data-deck-next aria-label="下一页" tabindex="-1">
+      <span aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg>
+      </span>
+    </button>
+  </section>
+
+  <nav class="doc-nav" aria-label="上下篇">
+    {{#if doc.prev_doc}}
+    <a class="doc-nav-item prev" href="{{build.basePath}}{{doc.prev_doc.url}}">
+      <span class="dir">← 上一篇</span>
+      <span class="t">{{doc.prev_doc.title}}</span>
+    </a>
+    {{else}}<span class="doc-nav-item empty"></span>{{/if}}
+    {{#if doc.next_doc}}
+    <a class="doc-nav-item next" href="{{build.basePath}}{{doc.next_doc.url}}">
+      <span class="dir">下一篇 →</span>
+      <span class="t">{{doc.next_doc.title}}</span>
+    </a>
+    {{else}}<span class="doc-nav-item empty"></span>{{/if}}
+  </nav>
+</article>
+
+{{> partials/foot.html}}

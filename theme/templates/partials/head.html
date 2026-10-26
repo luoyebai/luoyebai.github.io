@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="{{site.lang}}"
+      data-theme="{{appearance.defaultTheme}}"
+      data-mode="{{appearance.defaultMode}}"
+      data-bg="{{#if appearance.showBackgroundByDefault}}on{{else}}off{{/if}}"
+      data-bgmode="{{appearance.defaultBgMode}}"
+      data-tilt="{{appearance.defaultTilt}}"
+      data-glass="med"
+      data-font="{{appearance.defaultFont}}"
+      data-motion="on"
+      data-width="normal"
+      data-cursor="{{appearance.defaultCursor}}"
+      data-default-cursor="{{appearance.defaultCursor}}"
+      data-root="{{build.basePath}}"
+      data-search-url="{{build.basePath}}/search-index.json">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{{#if page.title}}{{page.title}} · {{site.title}}{{else}}{{site.title}} · {{site.tagline}}{{/if}}</title>
+<meta name="description" content="{{page.description}}">
+<meta name="author" content="{{site.author}}">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0b0d14" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f7f7f5" media="(prefers-color-scheme: light)">
+<meta property="og:type" content="{{page.og_type}}">
+<meta property="og:site_name" content="{{site.title}}">
+<meta property="og:title" content="{{#if page.title}}{{page.title}}{{else}}{{site.title}} · {{site.tagline}}{{/if}}">
+<meta property="og:description" content="{{page.description}}">
+<meta property="og:url" content="{{page.abs_url}}">
+{{#if page.og_image}}<meta property="og:image" content="{{page.og_image}}">{{/if}}
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="{{page.abs_url}}">
+<link rel="icon" href="{{build.basePath}}/assets/images/favicon.svg" type="image/svg+xml">
+{{#if build.enableRss}}<link rel="alternate" type="application/rss+xml" title="{{site.title}}" href="{{build.basePath}}/feed.xml">
+{{/if}}
+<link rel="stylesheet" href="{{build.basePath}}/assets/themes.css?v={{asset_version}}">
+<link rel="stylesheet" href="{{build.basePath}}/assets/site.css?v={{asset_version}}">
+{{! 启动遮罩是写在 HTML 里的（要盖住的正是「JS 还没下载完」那段时间），
+    所以没有 JS 时必须让它彻底隐身，否则会永远转下去。 }}
+<noscript><style>.boot{display:none !important}</style></noscript>
+{{#each page.extra_styles}}<link rel="stylesheet" href="{{build.basePath}}/assets/{{this}}?v={{asset_version}}">
+{{/each}}
+{{#if has_math}}
+{{#if build.mathLocal}}<link rel="stylesheet" href="{{build.basePath}}/assets/vendor/katex/katex.min.css">
+{{else}}<link rel="stylesheet" href="{{build.mathCdn}}katex.min.css">
+{{/if}}
+{{/if}}
+{{{ page.extra_head }}}
+<script>
+/* 在首次绘制前恢复外观偏好；URL 参数优先，便于分享特定主题的链接 */
+(function () {
+  var el = document.documentElement;
+  el.classList.add('js');   /* 只有 JS 可用时才启用进场动画的隐藏态 */
+  var compact = matchMedia('(pointer: coarse)').matches ||
+    (navigator.connection && navigator.connection.saveData) ||
+    (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
+    (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+  el.setAttribute('data-performance', compact ? 'compact' : 'standard');
+  var q = {};
+  try { new URLSearchParams(location.search).forEach(function (v, k) { q[k] = v; }); } catch (e) {}
+  var s = {};
+  try { s = JSON.parse(localStorage.getItem('blog.appearance') || '{}') || {}; } catch (e) {}
+  function pick(k) { return q[k] !== undefined ? q[k] : s[k]; }
+  el.setAttribute('data-focus', s.focus === 'on' ? 'on' : 'off');
+  ['theme', 'mode', 'bg', 'bgmode', 'tilt', 'glass', 'font', 'motion', 'width', 'cursor'].forEach(function (k) {
+    var v = pick(k);
+    if (k === 'cursor' && ['glow', 'on', 'off'].indexOf(v) === -1) return;
+    if (v) el.setAttribute('data-' + k, v);
+  });
+  var op = pick('bgOpacity');
+  if (op !== undefined && op !== '') el.style.setProperty('--bg-opacity', (Number(op) / 100).toFixed(3));
+  var bl = pick('bgBlur');
+  if (bl !== undefined && bl !== '') el.style.setProperty('--bg-blur', Number(bl) + 'px');
+  var sc = pick('scale');
+  if (sc !== undefined && sc !== '') el.style.setProperty('--font-scale', String(sc));
+  var ac = pick('accent');
+  if (ac) el.style.setProperty('--accent', ac);
+})();
+</script>
+</head>
+<body class="{{page.body_class}}">
+<a class="skip-link" href="#main">跳到正文</a>
+
+<div class="bg-layer" aria-hidden="true">
+  <div class="bg-image"></div>
+  <video class="bg-video" muted loop playsinline preload="none" disablepictureinpicture></video>
+  <div class="bg-scrim"></div>
+  <div class="bg-aurora"><span></span><span></span><span></span></div>
+  <div class="bg-grid"></div>
+  <div class="bg-vignette"></div>
+</div>
+<div class="grain" aria-hidden="true"></div>
+<div class="spotlight" aria-hidden="true"></div>
+<div class="scroll-progress" aria-hidden="true"><i></i></div>
+
+{{> partials/nav.html}}
+
+<main id="main">

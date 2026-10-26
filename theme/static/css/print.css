@@ -1,0 +1,31 @@
+/* 打印样式：去掉背景与动效，只留正文 */
+@media print {
+  .nav, .footer, .to-top, .settings, .search, .mobile-menu,
+  .bg-layer, .grain, .spotlight, .scroll-progress,
+  .post-aside, .post-nav, .related, .hero-fade { display: none !important; }
+
+  html, body {
+    background: #fff !important; color: #111 !important;
+    font-size: 11.5pt; line-height: 1.5;
+  }
+  main { max-width: none; }
+  .post, .post-head, .post-layout, .section, .list-head { padding: 0 !important; max-width: none; }
+  .prose { max-width: none; }
+  .prose a { color: #111; text-decoration: underline; }
+  .prose a[href^="http"]::after {
+    content: " (" attr(href) ")"; font-size: .8em; color: #555;
+  }
+  .code-block, .callout, .table-wrap, .math-block {
+    border: 1px solid #ddd !important;
+    background: #fafafa !important;
+    backdrop-filter: none !important;
+    break-inside: avoid;
+  }
+  .card, .post-nav-item {
+    border: 1px solid #ddd !important;
+    background: none !important;
+    backdrop-filter: none !important;
+  }
+  h1, h2, h3 { break-after: avoid; }
+  img { break-inside: avoid; }
+}

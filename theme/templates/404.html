@@ -1,0 +1,48 @@
+{{> partials/head.html}}
+<section class="lost" id="lost" aria-labelledby="lost-title">
+  <div hidden id="lost-routes">{{#each rescue_routes}}<a href="{{url}}">{{title}}</a>{{/each}}</div>
+  <div class="lost-copy">
+    <p class="lost-kicker"><span aria-hidden="true"></span> 404 / LOST COORDINATES</p>
+    <h1 id="lost-title">页面不见了，<br><span class="grad-text">探索可以继续。</span></h1>
+    <p class="lost-intro">这个地址没有对应的内容。<br>也许链接已移动，也许只是走错了一小步。</p>
+    <div class="lost-actions">
+      <a class="btn primary" href="{{build.basePath}}/">回到首页 <span aria-hidden="true">↗</span></a>
+      <button class="btn ghost" id="lost-search" type="button" data-open-search hidden>搜索站内内容</button>
+    </div>
+    <nav class="lost-shortcuts" aria-label="继续浏览">
+      <a href="{{build.basePath}}/posts/">文章 <span aria-hidden="true">↗</span></a>
+      <a href="{{build.basePath}}/docs/">文档 <span aria-hidden="true">↗</span></a>
+      <a href="{{build.basePath}}/graph/">知识图谱 <span aria-hidden="true">↗</span></a>
+    </nav>
+    <div class="lost-mission" id="lost-mission" hidden>
+      <div class="lost-mission-head"><span>或者，偶遇一段新知识</span><span id="lost-count" aria-hidden="true">00 / 03</span></div>
+      <p id="lost-status" role="status" aria-live="polite">点亮星图里的 3 颗星，自动前往一个随机页面。</p>
+      <div class="lost-progress" aria-hidden="true"><i></i><i></i><i></i></div>
+    </div>
+  </div>
+  <div class="lost-chart">
+    <div class="lost-chart-heading" aria-hidden="true"><span>一张尚未连接的星图</span><span>MAP / 404</span></div>
+    <div class="lost-space" id="lost-space" role="group" aria-label="互动星图：点亮三颗星后随机跳转">
+      <svg class="lost-map" viewBox="0 0 600 460" fill="none" aria-hidden="true">
+        <defs><radialGradient id="lost-halo"><stop class="lost-halo-core"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></radialGradient></defs>
+        <circle cx="300" cy="230" r="215" fill="url(#lost-halo)"/>
+        <g class="lost-guides">
+          <path d="M300 22v416M40 230h520" stroke-dasharray="2 8"/>
+          <circle cx="300" cy="230" r="170"/>
+          <circle cx="300" cy="230" r="112" stroke-dasharray="2 8"/>
+          <ellipse cx="300" cy="230" rx="265" ry="93" transform="rotate(-24 300 230)"/>
+          <path d="M62 78h18m-9-9v18M512 374h18m-9-9v18M456 60h10m-5-5v10M80 350h10m-5-5v10"/>
+        </g>
+        <text class="lost-number" x="300" y="269" text-anchor="middle">404</text>
+        <g class="lost-dust"><circle cx="98" cy="191" r="2"/><circle cx="178" cy="81" r="1.5"/><circle cx="432" cy="320" r="2"/><circle cx="372" cy="98" r="2"/><circle cx="531" cy="263" r="1.5"/><circle cx="224" cy="385" r="2"/><circle cx="157" cy="303" r="1.5"/><circle cx="431" cy="140" r="1.5"/><circle cx="264" cy="45" r="1.5"/></g>
+        <g class="lost-connections"><path data-link="0" d="M120 132 300 230"/><path data-link="1" d="M488 188 300 230"/><path data-link="2" d="M332 370 300 230"/></g>
+        <g class="lost-core"><circle cx="300" cy="230" r="7"/><circle class="lost-core-ring" cx="300" cy="230" r="17"/><path d="M300 208v44m-22-22h44"/></g>
+      </svg>
+      <button class="lost-beacon beacon-a" type="button" data-beacon="0" aria-label="点亮第一颗星" hidden><span aria-hidden="true">✦</span><small>01</small></button>
+      <button class="lost-beacon beacon-b" type="button" data-beacon="1" aria-label="点亮第二颗星" hidden><span aria-hidden="true">✦</span><small>02</small></button>
+      <button class="lost-beacon beacon-c" type="button" data-beacon="2" aria-label="点亮第三颗星" hidden><span aria-hidden="true">✦</span><small>03</small></button>
+    </div>
+    <div class="lost-chart-footer" aria-hidden="true"><span id="lost-signal">等待坐标连接</span><span>每一次偏航，都可能有新发现。</span></div>
+  </div>
+</section>
+{{> partials/foot.html}}

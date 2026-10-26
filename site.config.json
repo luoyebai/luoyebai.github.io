@@ -1,0 +1,505 @@
+{
+  "site": {
+    "title": "洛叶白",
+    "titleEn": "luoyebai",
+    "role": "机器人软件 / 运动控制工程师",
+    "tagline": "中间件 · 运动控制 · 强化学习",
+    "description": "机器人软件与运动控制工程师的个人站点：DDS 中间件、四足与人形机器人运控、机械臂控制、强化学习 sim2real 的工程笔记。",
+    "avatar": "assets/uploads/下载.gif",
+    "url": "https://luoyebai.github.io",
+    "lang": "zh-CN",
+    "author": "洛叶白",
+    "email": "2112216825@qq.com",
+    "emailAlt": "luoyebai4444@gmail.com",
+    "phone": "13407209575",
+    "org": "宁波均普人工智能与人形机器人研究院（均胜集团）",
+    "nowDoing": "轮式双臂机器人（智元 G2）的工业场景落地与工具链",
+    "startYear": 2022,
+    "footerNote": "除注明外均为原创，转载请注明出处",
+    "heroEyebrow": "Middleware · Motion Control · RL",
+    "heroTitleLines": "从代码到行动 | 探索机器人技术",
+    "heroSubtitle": "DDS 中间件 · 四足 / 人形 / 机械臂运控 · 强化学习 sim2real。\n当前在均普研究院做轮式双臂机器人（智元 G2）的工业场景落地与工具链开发。"
+  },
+  "nav": [
+    {
+      "label": "首页",
+      "href": "/"
+    },
+    {
+      "label": "文章",
+      "href": "/posts/"
+    },
+    {
+      "label": "项目",
+      "href": "/projects/"
+    },
+    {
+      "label": "文档",
+      "href": "/docs/"
+    },
+    {
+      "label": "实验室",
+      "href": "/lab/"
+    },
+    {
+      "label": "图谱",
+      "href": "/graph/"
+    },
+    {
+      "label": "归档",
+      "href": "/archive/"
+    },
+    {
+      "label": "一些网站",
+      "href": "/links/"
+    },
+    {
+      "label": "关于",
+      "href": "/about/"
+    }
+  ],
+  "social": [
+    {
+      "label": "GitHub",
+      "href": "https://github.com/luoyebai"
+    },
+    {
+      "label": "邮箱",
+      "href": "mailto:2112216825@qq.com"
+    },
+    {
+      "label": "Gmail",
+      "href": "mailto:luoyebai4444@gmail.com"
+    },
+    {
+      "label": "电话",
+      "href": "tel:13407209575"
+    }
+  ],
+  "hero": {
+    "eyebrow": "Middleware · Motion Control · RL",
+    "titleLines": [
+      "从代码到行动",
+      "探索机器人技术"
+    ],
+    "subtitle": "DDS 中间件 · 四足 / 人形 / 机械臂运控 · 强化学习 sim2real。\n当前在均普研究院做轮式双臂机器人（智元 G2）的工业场景落地与工具链开发。",
+    "primaryCta": {
+      "label": "阅读文章",
+      "href": "/posts/"
+    },
+    "secondaryCta": {
+      "label": "看看项目",
+      "href": "/projects/"
+    },
+    "stats": [
+      {
+        "value": "{posts}",
+        "label": "篇技术笔记",
+        "hint": "记录机器人中间件、运动控制与强化学习部署中的工程实践。数量自动统计已发布的非归档文章。"
+      },
+      {
+        "value": "{projects}",
+        "label": "个项目记录",
+        "hint": "整理开发工具、中间件、四足控制、强化学习部署与机械臂力控等项目的设计和实现。数量随项目内容自动更新。"
+      },
+      {
+        "value": "3+",
+        "label": "年工程经验",
+        "hint": "从机器人通信与控制，到仿真训练和实机部署。目前聚焦轮式双臂机器人的工业场景落地与工具链开发。"
+      }
+    ]
+  },
+  "home": {
+    "featuredCount": 3,
+    "latestCount": 6,
+    "showProjects": true,
+    "showTags": true
+  },
+  "docs": {
+    "source": "https://github.com/luoyebai/doc_html",
+    "collections": [
+      {
+        "id": "windows-to-linux",
+        "title": "从 Windows 到 Linux",
+        "subtitle": "视觉组教程",
+        "order": 1,
+        "description": "给刚上手 Linux 的同学的一条线：先会用命令行，再写出第一个 C 程序，然后真正看懂指针，最后把工程搭起来、维护住。每篇都是幻灯片，左右键翻页。",
+        "refs": [
+          {
+            "name": "OpenCV",
+            "href": "https://opencv.org/",
+            "img": "assets/docs/brand/opencv.png"
+          },
+          {
+            "name": "ROS",
+            "href": "https://www.ros.org/",
+            "img": "assets/docs/brand/ros.jpg"
+          },
+          {
+            "name": "C++",
+            "href": "https://isocpp.org/",
+            "img": "assets/docs/brand/cpp.png"
+          }
+        ],
+        "pending": []
+      },
+      {
+        "id": "cpp",
+        "title": "从 C 语言到 C++",
+        "subtitle": "语言进阶",
+        "order": 2,
+        "description": "C++ 不是「带类的 C」。先把 C 的边界看清楚，再看它到底补了哪几个洞，最后决定哪些特性值得用、哪些先当它不存在。",
+        "refs": [
+          {
+            "name": "C++ 核心准则",
+            "href": "https://isocpp.github.io/CppCoreGuidelines/",
+            "img": "assets/docs/brand/cpp.png"
+          }
+        ],
+        "pending": []
+      },
+      {
+        "id": "vision",
+        "title": "ROS 与机器视觉",
+        "subtitle": "视觉组教程",
+        "order": 3,
+        "description": "从 ROS 2 通信、坐标与工具开始，连接仿真、视觉检测与识别、SLAM 和相机手眼标定，逐步建立机器人感知系统。",
+        "refs": [
+          {
+            "name": "ROS",
+            "href": "https://www.ros.org/",
+            "img": "assets/docs/brand/ros.jpg"
+          },
+          {
+            "name": "OpenCV",
+            "href": "https://opencv.org/",
+            "img": "assets/docs/brand/opencv.png"
+          }
+        ],
+        "pending": []
+      },
+      {
+        "id": "learning",
+        "title": "从编程开始的学习",
+        "subtitle": "编程基础",
+        "order": 4,
+        "description": "从「为什么要学」开始：编程到底在做什么、图灵机是什么、操作系统从哪来，以及一些关于学习本身的思考。同样是幻灯片。",
+        "refs": [
+          {
+            "name": "CS-Self-Learning",
+            "href": "https://csdiy.wiki/",
+            "img": "assets/docs/brand/cs-self-learning.jpg"
+          },
+          {
+            "name": "GitHub",
+            "href": "https://github.com/",
+            "img": "assets/docs/brand/github.jpg"
+          },
+          {
+            "name": "Awesome Lists",
+            "href": "https://github.com/topics/awesome",
+            "img": "assets/docs/brand/awesome.svg"
+          }
+        ],
+        "pending": []
+      }
+    ]
+  },
+  "build": {
+    "outDir": "public",
+    "basePath": "",
+    "postsPerPage": 12,
+    "enableSearch": true,
+    "enableMath": true,
+    "mathCdn": "https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/",
+    "enableRss": false,
+    "enableSitemap": true
+  },
+  "appearance": {
+    "defaultTheme": "dusk",
+    "defaultMode": "dark",
+    "defaultBgMode": "image",
+    "defaultTilt": 12,
+    "enableThemePanel": true,
+    "customCursor": true,
+    "defaultCursor": "glow",
+    "showBackgroundByDefault": true,
+    "defaultFont": "serif"
+  },
+  "themes": [
+    {
+      "id": "dusk",
+      "name": "暮色风车",
+      "nameEn": "Dusk",
+      "bg": "assets/bg/dusk.jpg",
+      "swatch": [
+        "#ff9d5c",
+        "#7aa2ff",
+        "#0b1020"
+      ],
+      "seeds": {
+        "accent": "#ff9d5c",
+        "accent2": "#7aa2ff",
+        "darkBg": "#0b1020",
+        "lightBg": "#f6f4f0",
+        "tintHue": 23
+      }
+    },
+    {
+      "id": "neon",
+      "name": "霓虹机房",
+      "nameEn": "Neon",
+      "bg": "assets/bg/neon.jpg",
+      "swatch": [
+        "#c04bff",
+        "#22d3ee",
+        "#0a0718"
+      ],
+      "seeds": {
+        "accent": "#c04bff",
+        "accent2": "#22d3ee",
+        "darkBg": "#0a0718",
+        "lightBg": "#f4f1fb",
+        "tintHue": 279
+      }
+    },
+    {
+      "id": "cyber",
+      "name": "夜城投递",
+      "nameEn": "Cyber",
+      "bg": "assets/bg/cyber.jpg",
+      "swatch": [
+        "#ff7ab6",
+        "#5ee7c4",
+        "#141019"
+      ],
+      "seeds": {
+        "accent": "#ff7ab6",
+        "accent2": "#5ee7c4",
+        "darkBg": "#141019",
+        "lightBg": "#faf4f6",
+        "tintHue": 332
+      }
+    },
+    {
+      "id": "sakura",
+      "name": "樱色光爆",
+      "nameEn": "Sakura",
+      "bg": "assets/bg/sakura.jpg",
+      "swatch": [
+        "#ff6fa5",
+        "#b78bff",
+        "#120a14"
+      ],
+      "seeds": {
+        "accent": "#ff6fa5",
+        "accent2": "#b78bff",
+        "darkBg": "#120a14",
+        "lightBg": "#fdf3f7",
+        "tintHue": 337
+      }
+    },
+    {
+      "id": "void",
+      "name": "虚空龙息",
+      "nameEn": "Void",
+      "bg": "assets/bg/void.jpg",
+      "swatch": [
+        "#6ea8ff",
+        "#ffd166",
+        "#06080f"
+      ],
+      "seeds": {
+        "accent": "#6ea8ff",
+        "accent2": "#ffd166",
+        "darkBg": "#06080f",
+        "lightBg": "#f2f5fa",
+        "tintHue": 216
+      }
+    },
+    {
+      "id": "mono",
+      "name": "黑白编辑",
+      "nameEn": "Mono",
+      "bg": "assets/bg/mono.jpg",
+      "swatch": [
+        "#e8e8e8",
+        "#9aa0a6",
+        "#0c0c0d"
+      ],
+      "seeds": {
+        "accent": "#e8e8e8",
+        "accent2": "#9aa0a6",
+        "darkBg": "#0c0c0d",
+        "lightBg": "#f7f7f6",
+        "tintHue": 0
+      }
+    },
+    {
+      "id": "paper",
+      "name": "留白纸面",
+      "nameEn": "Paper",
+      "bg": "assets/bg/paper.jpg",
+      "swatch": [
+        "#17b8a6",
+        "#f0a04b",
+        "#fbfcfc"
+      ],
+      "seeds": {
+        "accent": "#17b8a6",
+        "accent2": "#f0a04b",
+        "darkBg": "#fbfcfc",
+        "lightBg": "#fbfcfc",
+        "tintHue": 173
+      }
+    },
+    {
+      "id": "alpine",
+      "name": "远山夜湖",
+      "nameEn": "Alpine",
+      "bg": "assets/bg/alpine.jpg",
+      "swatch": [
+        "#5b8dd9",
+        "#78d9c8",
+        "#0a1220"
+      ],
+      "seeds": {
+        "accent": "#5b8dd9",
+        "accent2": "#78d9c8",
+        "darkBg": "#0a1220",
+        "lightBg": "#eef2f7",
+        "tintHue": 216
+      }
+    },
+    {
+      "id": "moonlit",
+      "name": "皎月水面",
+      "nameEn": "Moonlit",
+      "bg": "assets/bg/moonlit.jpg",
+      "swatch": [
+        "#7fd4f0",
+        "#ffd9a0",
+        "#050b1c"
+      ],
+      "seeds": {
+        "accent": "#7fd4f0",
+        "accent2": "#ffd9a0",
+        "darkBg": "#050b1c",
+        "lightBg": "#eef4f8",
+        "tintHue": 194
+      }
+    },
+    {
+      "id": "comet",
+      "name": "彗星山晚",
+      "nameEn": "Comet",
+      "bg": "assets/bg/comet.jpg",
+      "swatch": [
+        "#e07a5f",
+        "#9b8cff",
+        "#1c2242"
+      ],
+      "seeds": {
+        "accent": "#e07a5f",
+        "accent2": "#9b8cff",
+        "darkBg": "#1c2242",
+        "lightBg": "#fbf0e8",
+        "tintHue": 12
+      }
+    },
+    {
+      "id": "lantern",
+      "name": "林间提灯",
+      "nameEn": "Lantern",
+      "bg": "assets/bg/lantern.jpg",
+      "swatch": [
+        "#e8a45c",
+        "#66d6a8",
+        "#141121"
+      ],
+      "seeds": {
+        "accent": "#e8a45c",
+        "accent2": "#66d6a8",
+        "darkBg": "#141121",
+        "lightBg": "#f1f3ec",
+        "tintHue": 30
+      }
+    },
+    {
+      "id": "sketch",
+      "name": "素描线稿",
+      "nameEn": "Sketch",
+      "bg": "assets/bg/sketch.jpg",
+      "swatch": [
+        "#5a6b96",
+        "#8a6f52",
+        "#1f2024"
+      ],
+      "seeds": {
+        "accent": "#5a6b96",
+        "accent2": "#8a6f52",
+        "darkBg": "#1f2024",
+        "lightBg": "#fbfbf9",
+        "tintHue": 223
+      }
+    },
+    {
+      "id": "manga",
+      "name": "漫画分格",
+      "nameEn": "Manga",
+      "bg": "assets/bg/manga.jpg",
+      "swatch": [
+        "#cf4436",
+        "#4a6fa8",
+        "#242428"
+      ],
+      "seeds": {
+        "accent": "#cf4436",
+        "accent2": "#4a6fa8",
+        "darkBg": "#242428",
+        "lightBg": "#f6f4f0",
+        "tintHue": 5
+      }
+    },
+    {
+      "id": "lumen",
+      "name": "暖灯夜色",
+      "nameEn": "Lumen",
+      "bg": "assets/bg/lumen.jpg",
+      "swatch": [
+        "#ffbe4d",
+        "#7ad3e8",
+        "#0d1a28"
+      ],
+      "seeds": {
+        "accent": "#ffbe4d",
+        "accent2": "#7ad3e8",
+        "darkBg": "#0d1a28",
+        "lightBg": "#fdf6ec",
+        "tintHue": 38
+      }
+    },
+    {
+      "id": "bocchi",
+      "name": "波奇光晕",
+      "nameEn": "Bocchi Halo",
+      "bg": "assets/bg/bocchi.jpg",
+      "swatch": [
+        "#eaa5bc",
+        "#6acbc9",
+        "#101b2d"
+      ],
+      "seeds": {
+        "accent": "#eaa5bc",
+        "accent2": "#6acbc9",
+        "darkBg": "#101b2d",
+        "lightBg": "#fcf3f5",
+        "tintHue": 339
+      }
+    }
+  ],
+  "deploy": {
+    "remote": "https://github.com/luoyebai/luoyebai.github.io.git",
+    "branch": "gh-pages"
+  }
+}

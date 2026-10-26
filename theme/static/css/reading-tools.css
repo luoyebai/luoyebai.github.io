@@ -1,0 +1,25 @@
+/* 内容发现、续读和可撤销的专注阅读。 */
+.search-filters { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 20px; border-bottom: 1px solid var(--border); }
+.search-filters button { padding: 6px 16px; border: 1px solid var(--border); border-radius: 100px; color: var(--text-2); background: transparent; font: inherit; font-size: .85rem; cursor: pointer; }
+.search-filters button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+.search-filters button:focus-visible, .reading-tools button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.reading-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 20px; padding: 14px 18px; border-block: 1px solid var(--border); font-size: .86rem; }
+.reading-tools p { margin: 0; color: var(--text-2); line-height: 1.65; }
+.reading-tools button { font: inherit; cursor: pointer; }
+.reading-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.reading-resume { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.reading-resume[hidden] { display: none; }
+.reading-note { color: var(--text-3); font-size: .78rem; }
+[data-reading-recent][hidden] { display: none; }
+[data-reading-recent-list] { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 14px; }
+.reading-recent-link { display: flex; flex-direction: column; gap: 7px; padding: 18px 20px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface-2); color: var(--text); }
+.reading-recent-link:hover { border-color: var(--accent); }
+.reading-recent-link small, [data-reading-status] { color: var(--text-3); font-size: .8rem; }
+[data-reading-state="complete"] [data-reading-status] { color: var(--accent); }
+html[data-focus="on"] :is(.spotlight,.bg-layer) { display: none !important; }
+html[data-focus="on"] .page-post .phero { min-height: 0; padding: clamp(20px,3vw,36px); background: var(--surface-2); box-shadow: none; }
+html[data-focus="on"] .page-post .phero::after { display: none; }
+html[data-focus="on"] .page-post .phero-title { font-size: clamp(1.7rem,3vw,2.8rem); }
+html[data-focus="on"] .card-tilt { transform: none !important; }
+@media (max-width: 600px) { .reading-tools { padding-inline: 4px; } .reading-resume { width: 100%; } .reading-resume p { width: 100%; } }
+@media print { .reading-tools, [data-reading-recent] { display: none !important; } }

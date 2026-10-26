@@ -1,0 +1,18 @@
+{{> partials/head.html}}
+
+<section class="list-head">
+  <h1 class="reveal">{{heading}}</h1>
+  <p class="reveal">{{subheading}}</p>
+</section>
+
+<section class="section">
+  <div class="tag-cloud big reveal">
+    {{#each tags}}
+    <a class="tag-pill" href="{{build.basePath}}/tags/{{slug}}/">
+      <span>{{name}}</span><b>{{count}}</b>
+    </a>
+    {{/each}}
+  </div>
+</section>
+
+{{> partials/foot.html}}

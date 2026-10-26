@@ -1,0 +1,101 @@
+<footer class="footer">
+  <div class="footer-glow" aria-hidden="true"></div>
+  <div class="footer-grid" aria-hidden="true"></div>
+  <span class="footer-corner tl" aria-hidden="true"></span>
+  <span class="footer-corner tr" aria-hidden="true"></span>
+
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="brand-mark lg" aria-hidden="true">
+        {{> partials/mark.html}}
+      </div>
+      <p class="footer-title">{{site.title}}</p>
+      <p class="footer-tag">{{site.tagline}}</p>
+
+      {{#if site.nowDoing}}
+      <p class="footer-now"><span class="pulse" aria-hidden="true"></span>{{site.nowDoing}}</p>
+      {{/if}}
+
+      <div class="footer-social">
+        {{#each social}}
+        <a class="footer-chip" href="{{href}}" rel="noopener">{{label}}</a>
+        {{/each}}
+      </div>
+
+      <dl class="footer-stats">
+        <div><dt>{{footer.stats.posts}}</dt><dd>篇文章</dd></div>
+        <div><dt>{{footer.stats.docs}}</dt><dd>篇文档</dd></div>
+        <div><dt>{{footer.stats.projects}}</dt><dd>个项目</dd></div>
+        <div><dt>{{footer.stats.slides}}</dt><dd>页幻灯片</dd></div>
+      </dl>
+    </div>
+
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h4>最新文章</h4>
+        {{#each footer.latest}}
+        <a class="footer-link" href="{{build.basePath}}{{url}}">
+          <span class="t">{{title}}</span>
+          <span class="d">{{date_text}}</span>
+        </a>
+        {{/each}}
+        <a class="footer-more" href="{{build.basePath}}/posts/">
+          全部文章
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/></svg>
+        </a>
+      </div>
+
+      <div class="footer-col">
+        <h4>文档课程</h4>
+        {{#each footer.courses}}
+        <a class="footer-link" href="{{build.basePath}}{{url}}">
+          <span class="t">{{title}}</span>
+          <span class="d">{{count}} 篇 · {{slide_total}} 页</span>
+        </a>
+        {{/each}}
+        <a class="footer-more" href="{{build.basePath}}/docs/">
+          文档总览
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/></svg>
+        </a>
+      </div>
+
+      <div class="footer-col">
+        <h4>导航</h4>
+        <nav class="footer-nav" aria-label="页脚导航">
+          {{#each nav}}<a href="{{build.basePath}}{{href}}">{{label}}</a>{{/each}}
+        </nav>
+
+        <h4 class="footer-h4-gap">站点</h4>
+        <nav class="footer-nav" aria-label="站点资源">
+          <a href="{{build.basePath}}/learning/">学习路线</a>
+          <a href="{{build.basePath}}/tags/">标签</a>
+          <a href="{{build.basePath}}/archive/">归档</a>
+          {{#if build.enableRss}}<a href="{{build.basePath}}/feed.xml">RSS</a>{{/if}}
+          <a href="{{build.basePath}}/sitemap.xml">站点地图</a>
+          <a href="{{build.basePath}}/search-index.json">搜索索引</a>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p class="footer-colophon">
+      <span>© {{site.startYear}}–{{page.year}} {{site.author}}</span>
+      <span class="sep" aria-hidden="true">·</span>
+      <span>{{site.footerNote}}</span>
+      <span class="sep" aria-hidden="true">·</span>
+      <span>构建于 <time datetime="{{footer.built}}">{{footer.built}}</time></span>
+    </p>
+    <p class="footer-meta">
+      <span class="footer-meta-label">字体</span>
+      {{#each footer.fonts}}<span class="footer-meta-item">{{name}}<i>{{note}}</i></span>{{/each}}
+      <span class="footer-meta-item is-accent">无第三方依赖 · 无追踪 · 无 Cookie</span>
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" type="button" data-to-top aria-label="回到顶部">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19V5"/><path d="m5.5 11.5 6.5-6.5 6.5 6.5"/>
+  </svg>
+</button>

@@ -1,0 +1,22 @@
+</main>
+
+{{> partials/footer.html}}
+{{> partials/settings.html}}
+
+{{! 正文里用到的站点图标：整页一份内联精灵，页面上没有用到就是空串 }}
+{{{site_icons}}}
+
+<script type="application/json" id="theme-meta">{{{theme_meta_json}}}</script>
+{{#if has_math}}
+{{#if build.mathLocal}}
+<script defer src="{{build.basePath}}/assets/vendor/katex/katex.min.js"></script>
+{{else}}
+<script defer src="{{build.mathCdn}}katex.min.js"></script>
+{{/if}}
+{{/if}}
+<script src="{{build.basePath}}/assets/site.js?v={{asset_version}}" defer></script>
+{{#each page.extra_scripts}}<script src="{{build.basePath}}/assets/{{this}}?v={{asset_version}}" defer></script>
+{{/each}}
+<script src="{{build.basePath}}/assets/reading.js?v={{asset_version}}" defer></script>
+</body>
+</html>

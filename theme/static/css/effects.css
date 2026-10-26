@@ -1,0 +1,667 @@
+/* =========================================================================
+   effects.css — 背景层、渐变、玻璃、动效
+   ========================================================================= */
+
+/* ---------- 背景层 ---------- */
+.bg-layer {
+  position: fixed; inset: 0; z-index: -1;
+  overflow: hidden; pointer-events: none;
+}
+.bg-image {
+  position: absolute; inset: -3%;
+  background-image: var(--bg-image);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: blur(var(--bg-blur)) saturate(1.06) contrast(1.02);
+  transform: scale(1.05);
+  opacity: var(--bg-opacity);
+  transition: opacity .5s var(--ease), filter .5s var(--ease);
+}
+html[data-bg="off"] .bg-image { opacity: 0; }
+
+/* 视频背景：选「动态」时才显示，静态图让位。preload=none，没选动态就不会下载 */
+.bg-video {
+  position: absolute; top: -3%; left: -3%;
+  width: 106%; height: 106%;
+  object-fit: cover; pointer-events: none;
+  opacity: 0;
+  filter: blur(var(--bg-blur)) saturate(1.06) contrast(1.02);
+  transition: opacity .6s var(--ease);
+}
+html[data-bgmode="video"] .bg-video { opacity: var(--bg-opacity); }
+html[data-bgmode="video"] .bg-image { opacity: 0; }
+html[data-bg="off"] .bg-video { opacity: 0; }
+html[data-motion="off"] .bg-video { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .bg-video { display: none; }
+}
+
+/* 图片之上的压暗/提亮纱：顶部留薄一点让壁纸透出来，往下逐渐压实保证正文可读 */
+/* 图片之上的压暗/提亮纱：顶部留薄一点让壁纸透出来，往下逐渐压实保证正文可读。
+   颜色用 --scrim（暗色下就是 --bg，亮色下是一层浅灰）——
+   两种模式的「纱该是什么颜色」不一样，交给主题变量决定。 */
+.bg-scrim {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg,
+      color-mix(in oklab, var(--scrim) 26%, transparent) 0%,
+      color-mix(in oklab, var(--scrim) 58%, transparent) 30%,
+      color-mix(in oklab, var(--scrim) 84%, transparent) 62%,
+      var(--bg) 100%);
+}
+html[data-bg="off"] .bg-scrim {
+  background:
+    radial-gradient(120% 90% at 50% -10%, var(--grad-3), transparent 70%),
+    linear-gradient(180deg, var(--bg-soft) 0%, var(--bg) 60%);
+}
+/* 亮色下纱要往**文字色**偏一点，不能直接用 --bg：
+   亮底色的亮度跟亮壁纸差不多（#efebe4 是 239，亮壁纸 246），拿它当纱等于没压，
+   纱越厚画面反而越亮（实测过）。--scrim 在亮色下是一层浅灰，才真的压得住。 */
+html[data-mode="light"] .bg-scrim {
+  background:
+    linear-gradient(180deg,
+      color-mix(in oklab, var(--scrim) 46%, transparent) 0%,
+      color-mix(in oklab, var(--scrim) 72%, transparent) 30%,
+      color-mix(in oklab, var(--scrim) 90%, transparent) 62%,
+      var(--bg) 100%);
+}
+html[data-mode="light"][data-bg="off"] .bg-scrim {
+  background:
+    radial-gradient(120% 90% at 50% -10%, var(--grad-3), transparent 70%),
+    linear-gradient(180deg, var(--bg-soft) 0%, var(--bg) 60%);
+}
+
+/* 极光光斑 */
+.bg-aurora { position: absolute; inset: -20%; opacity: .85; }
+.bg-aurora span {
+  position: absolute; display: block;
+  width: 54vw; height: 54vw; max-width: 900px; max-height: 900px;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: .5;
+  will-change: transform;
+}
+.bg-aurora span:nth-child(1) {
+  top: -8%; left: -6%;
+  background: radial-gradient(circle, var(--glow-1), transparent 66%);
+  animation: drift-a 26s var(--ease) infinite alternate;
+}
+.bg-aurora span:nth-child(2) {
+  top: 18%; right: -12%;
+  background: radial-gradient(circle, var(--glow-2), transparent 66%);
+  animation: drift-b 32s var(--ease) infinite alternate;
+}
+.bg-aurora span:nth-child(3) {
+  bottom: -18%; left: 26%;
+  background: radial-gradient(circle, var(--glow-1), transparent 70%);
+  animation: drift-c 38s var(--ease) infinite alternate;
+  opacity: .34;
+}
+@keyframes drift-a { to { transform: translate3d(9vw, 7vh, 0) scale(1.16); } }
+@keyframes drift-b { to { transform: translate3d(-11vw, 9vh, 0) scale(1.1); } }
+@keyframes drift-c { to { transform: translate3d(7vw, -8vh, 0) scale(1.2); } }
+
+/* 网格纹理 */
+.bg-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--text) 7%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--text) 7%, transparent) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(120% 80% at 50% 0%, #000 0%, transparent 72%);
+  -webkit-mask-image: radial-gradient(120% 80% at 50% 0%, #000 0%, transparent 72%);
+  opacity: var(--grid-opacity, .5);
+}
+html[data-bg="off"] .bg-grid { opacity: .35; }
+
+/* 暗角 */
+.bg-vignette {
+  position: absolute; inset: 0;
+  background: radial-gradient(130% 100% at 50% 40%, transparent 40%, color-mix(in oklab, var(--bg) 88%, transparent) 100%);
+}
+
+/* 噪点：消除渐变色带 */
+.grain {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  opacity: .28; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='.5'/></svg>");
+}
+html[data-motion="off"] .grain { opacity: .18; }
+
+/* 光标聚光 */
+.spotlight {
+  position: fixed; z-index: 0; pointer-events: none;
+  width: 620px; height: 620px; margin: -310px 0 0 -310px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--glow-1), transparent 62%);
+  opacity: 0; transition: opacity .5s var(--ease);
+  filter: blur(20px);
+}
+.spotlight.is-on { opacity: .30; }
+html[data-motion="off"] .spotlight { display: none; }
+
+/* 阅读进度 */
+.scroll-progress {
+  position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 70;
+  background: transparent; pointer-events: none;
+}
+.scroll-progress i {
+  display: block; height: 100%; width: 0;
+  background: var(--grad-1);
+  box-shadow: 0 0 12px var(--glow-1);
+  transition: width .1s linear;
+}
+.scroll-progress.is-done i { box-shadow: none; }
+
+/* =========================================================================
+   Hero
+   ========================================================================= */
+.hero {
+  position: relative;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: clamp(56px, 9vh, 118px) 24px clamp(40px, 6vh, 76px);
+}
+/* 粒子旋涡星系：hero 的背景层，正文压在它上面 */
+.hero-galaxy {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  display: block; pointer-events: none; z-index: 0;
+  /* 往左淡出，避免和左侧标题抢注意力；右边亮起来当光源 */
+  -webkit-mask-image: linear-gradient(100deg, transparent 0%, #000 26%, #000 100%);
+  mask-image: linear-gradient(100deg, transparent 0%, #000 26%, #000 100%);
+}
+.hero-inner { position: relative; z-index: 1; max-width: 900px; }
+/* 滚动把首屏「交出去」：标题上移淡出、星系随后追上（`--hero-scroll` 由 galaxy.js
+   按滚动进度写 0..1，带惯性）。这样往下滚的第一屏是「扎进星系 → 标题让位 →
+   正文浮现」一条连续的动线，而不是硬切。 */
+.hero { --hero-scroll: 0; }
+.hero-inner {
+  transform: translate3d(0, calc(var(--hero-scroll) * -56px), 0);
+  opacity: calc(1 - var(--hero-scroll) * 1.08);
+  will-change: transform, opacity;
+}
+.hero .hero-galaxy { opacity: calc((1 - var(--hero-scroll) * 0.5) * (1 - var(--galaxy-handoff, 0))); }
+html[data-motion="off"] .hero-inner,
+html[data-motion="off"] .hero .hero-galaxy {
+  transform: none !important;
+  opacity: 1 !important;
+}
+.hero { max-width: none; padding-inline: max(24px, calc((100% - var(--content-max)) / 2 + 24px)); }
+.hero .hero-title { font-family: var(--font-sans); font-size: clamp(2.35rem, 5.8vw, 5.1rem); line-height: 1.19; letter-spacing: -.045em; }
+.hero .hero-title .line { overflow: visible; }
+.hero .hero-title .grad-text { background-image: linear-gradient(110deg, var(--text) 10%, color-mix(in oklab, var(--text) 75%, var(--accent)) 42%, color-mix(in oklab, var(--text) 70%, var(--accent-2)) 75%, var(--text)); }
+.hero .hero-title .line:first-child .grad-text { background: none; color: var(--text); -webkit-text-fill-color: currentColor; }
+.hero .hero-eyebrow { padding: .55em .9em; letter-spacing: .07em; color: var(--text); }
+.hero .hero-sub { max-width: 55ch; text-wrap: pretty; }
+.hero .hero-galaxy { -webkit-mask-image: linear-gradient(90deg, transparent 8%, #0003 42%, #000 66%), linear-gradient(180deg, #000 52%, transparent 99%);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(90deg, transparent 8%, #0003 42%, #000 66%), linear-gradient(180deg, #000 52%, transparent 99%);
+  mask-composite: intersect; }
+.hero .hero-stats dt { background: none; color: var(--text); -webkit-text-fill-color: currentColor; }
+@media(max-width: 600px) {
+ .hero { padding: 48px 20px 40px; }
+ .hero .hero-eyebrow { font-size: .62rem; letter-spacing: .025em; }
+ .hero .hero-galaxy { opacity: calc(.55 * (1 - var(--hero-scroll) * .5) * (1 - var(--galaxy-handoff, 0))); }
+ .hero .hero-stats { gap: 8px; }
+ .hero .hero-stats .stat { min-width: 0; flex: 1; padding: 12px; }
+ .hero .hero-stats dd { font-size: .7rem; }
+}
+html[data-motion="off"] .hero .grad-text, html[data-motion="off"] .hero-eyebrow::before { animation: none; }
+
+/* 头像 + 身份 */
+.hero-id { display: flex; align-items: center; gap: 15px; margin-bottom: 24px; }
+.avatar-ring {
+  display: grid; place-items: center; flex-shrink: 0;
+  width: 84px; height: 84px; padding: 3px; border-radius: 50%;
+  background: var(--grad-1);
+  box-shadow: 0 12px 34px -14px var(--glow-1);
+}
+.avatar-ring.lg { width: 104px; height: 104px; }
+.avatar {
+  width: 100%; height: 100%; display: block;
+  border-radius: 50%; object-fit: cover;
+  background: var(--surface-2);
+}
+.hero-id-text { display: flex; flex-direction: column; line-height: 1.38; min-width: 0; }
+.hero-id-text strong { font-size: 1.06rem; font-weight: 690; letter-spacing: -.012em; }
+.hero-id-text span { font-size: .84rem; color: var(--text-3); }
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 9px;
+  margin: 0 0 20px;
+  padding: .34em .86em; border-radius: var(--radius-pill);
+  font-family: var(--font-mono); font-size: .76rem; letter-spacing: .1em;
+  color: var(--text-2);
+  background: var(--surface-glass);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+}
+.hero-eyebrow::before {
+  content: ""; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  animation: pulse 2.4s var(--ease) infinite;
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 3px var(--accent-soft); }
+  50% { box-shadow: 0 0 0 7px transparent; }
+}
+
+.hero-title {
+  margin: 0 0 24px;
+  font-size: clamp(2.6rem, 1.6rem + 5.6vw, 5.4rem);
+  line-height: 1.04; letter-spacing: -.035em; font-weight: 760;
+}
+.hero-title .line { display: block; overflow: hidden; }
+.grad-text {
+  display: inline-block;
+  background-image: var(--grad-1);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: grad-pan 9s ease-in-out infinite alternate;
+}
+@supports not (-webkit-background-clip: text) {
+  .grad-text { color: var(--accent); -webkit-text-fill-color: currentColor; }
+}
+@keyframes grad-pan {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+.hero-sub {
+  max-width: 62ch; margin: 0 0 34px;
+  font-size: clamp(1rem, .95rem + .3vw, 1.14rem);
+  color: var(--text-2); line-height: 1.85;
+}
+.hero-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 46px; }
+
+.hero-stats {
+  display: flex; flex-wrap: wrap; gap: 12px; margin: 0;
+  padding: 0; list-style: none;
+}
+.hero-stats .stat {
+  min-width: 128px; padding: 16px 20px;
+  border-radius: var(--radius);
+  background: var(--surface-glass);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  transition: transform .3s var(--ease), border-color .3s;
+}
+.hero-stats .stat:hover { transform: translateY(-3px); border-color: var(--ring); }
+.hero-stats dt {
+  font-size: 1.65rem; font-weight: 740; letter-spacing: -.02em;
+  background-image: var(--grad-1);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent; -webkit-text-fill-color: transparent;
+}
+.hero-stats dd { margin: 2px 0 0; font-size: .82rem; color: var(--text-3); }
+
+/* 首屏与正文之间**不要分界线**。
+   这里原来是「90px 渐变到 --bg」的一层遮罩 —— 但 hero 自己根本没有背景色，
+   正文那一段露的是**壁纸**：一层不透明的 `--bg` 盖上去，跟下面的壁纸一比就是
+   一条横线（画布下边缘再被硬切一刀，更明显）。
+   现在这层只保留极淡的一段，用来压住星系最下面的余晖，透出壁纸而不是盖住它。 */
+.hero-fade {
+  position: absolute; inset: auto 0 -1px 0; height: clamp(90px, 16vh, 170px);
+  background: linear-gradient(180deg, transparent 0%, color-mix(in oklab, var(--bg) 22%, transparent) 60%, transparent 100%);
+  pointer-events: none;
+}
+
+/* =========================================================================
+   滚动显现
+   —— 进度由 effects.js 按滚动写进 `--rv`（0..1），这里只负责把它翻译成
+      位移 / 缩放 / 透明度。没有过渡：过渡会追着每帧的新值重新开始，
+      反而拖沓；跟手才是"被滚轮一点点推出来"的手感。
+   —— 只有 JS 可用时才隐藏（html.js），避免无 JS 时内容不可见。
+   ========================================================================= */
+html.js .reveal {
+  opacity: var(--rv, 0);
+  transform: translate3d(0, calc((1 - var(--rv, 0)) * 34px), 0)
+             scale(calc(.982 + .018 * var(--rv, 0)));
+  /* 进度是跟手算出来的，但**仍然要给一小段过渡**：滚轮一次就是一格（约 100px），
+     没有过渡的话卡片是"一格一跳"地亮起来的 —— 看着就是"没有过渡"。
+     过渡把每一格之间补平，又不至于像固定时长的进场动画那样跟手脱节。 */
+  transition: opacity .42s var(--ease-out), transform .42s var(--ease-out);
+  will-change: opacity, transform;
+}
+/* 显形之后把 will-change 收掉：一屏几十个元素一直挂着会白占显存 */
+html.js .reveal.is-in { will-change: auto; }
+/* JS owns the eased progress so particles and the actual card share one clock. */
+html.js.reveal-driven .reveal { transition-property: box-shadow, border-color, background-color, color; }
+html[data-motion="off"] .reveal,
+html[data-motion="off"] .reveal.is-in {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none;
+}
+
+/* 滚动叙事里由粒子"拼"出来的那几块（标题与卡片，见 morph.js）。
+   进度同样走 `--rv`，但**默认值是 1**：morph.js 没跑（关动效、脚本失败、
+   窄屏降级）时它们必须是正常可见的，绝不能因为"等粒子"而空着。 */
+html.js [data-morph] {
+  opacity: var(--rv, 1);
+  transform: translate3d(0, calc((1 - var(--rv, 1)) * 26px), 0)
+             scale(calc(.984 + .016 * var(--rv, 1)));
+  transition: opacity .42s var(--ease-out), transform .42s var(--ease-out);
+}
+/* 粒子拼出来的是"发光的小点"，真标题是清晰的字 —— 直接交叉淡入那一下会"跳"。
+   所以给标题一层**随浮现进度衰减的辉光**：rv 越小越虚、越像一团光，rv=1 时彻底
+   消失、只剩清晰的字。于是交接读起来是"光凝成了字"，而不是两个东西换了一下。 */
+/* 交接时真标题从轻微模糊变清晰：和粒子的淡出叠在一起，看起来是「颗粒凝成了字」，
+   而不是「一层粒子换成了另一层字」。 */
+html.js [data-morph="head"] { transform: none; transition: none; }
+html.js [data-morph="head"] h2 {
+  filter: blur(calc((1 - var(--rv, 1)) * 2.4px));
+  text-shadow:
+    0 0 calc((1 - var(--rv, 1)) * 12px) color-mix(in oklab, var(--accent) 60%, transparent),
+    0 0 calc((1 - var(--rv, 1)) * 30px) color-mix(in oklab, var(--accent) 26%, transparent);
+}
+html[data-motion="off"] [data-morph] {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none;
+}
+html[data-motion="off"] [data-morph="head"] h2 { text-shadow: none; filter: none; }
+
+/* 叙事用的整屏粒子层：浮在内容之上、不拦事件，没在叙事区间时完全不画 */
+.morph-canvas {
+  position: fixed; inset: 0;
+  width: 100vw; height: 100vh;
+  display: none; pointer-events: none;
+  z-index: 4;
+}
+.morph-canvas.is-live { display: block; }
+
+/* 卡片 3D 倾斜 —— 只作用于内层 .card-tilt（它 pointer-events:none）。
+   接收点击的 .card-link 是永不参与变形的矩形，所以倾斜再大也不会点空；
+   上浮也放进同一个 transform，这样没有任何东西会移动命中盒子。 */
+.card[data-tiltable] .card-tilt {
+  transform:
+    translateY(var(--lift, 0px))
+    perspective(1600px)
+    rotateX(var(--rx, 0deg))
+    rotateY(var(--ry, 0deg));
+  transition: transform .34s var(--ease), box-shadow .4s var(--ease), border-color .3s;
+  will-change: transform;
+}
+.card[data-tiltable]:hover .card-tilt { --lift: -5px; }
+html.tilt-driven .card[data-tiltable] .card-tilt { transition: box-shadow .4s var(--ease), border-color .3s; }
+html.tilt-driven .card[data-tiltable]:hover .card-tilt { --lift: 0px; }
+/* 只有精确指针才做倾斜；触屏上 pointermove 会跟着滚动乱转 */
+@media (pointer: coarse) {
+  .card[data-tiltable] .card-tilt { transform: none; }
+}
+html[data-motion="off"] .card[data-tiltable] .card-tilt,
+html[data-motion="off"] .card[data-tiltable]:hover .card-tilt { transform: none !important; }
+
+/* =========================================================================
+   玻璃强度档位
+   ========================================================================= */
+/* 玻璃强度档位：统一驱动不透明度、模糊、饱和度与镜面高光的强度。
+
+   选择器刻意带上 [data-theme][data-mode] 提高优先级：调色器里的令牌写在
+   html[data-theme="…"][data-mode="…"]（2 个属性选择器）上，而档位如果只写
+   html[data-glass="…"]（1 个）就会被主题压掉——表现为「四档完全没反应」，
+   而且没有任何报错，极难发现。带上同样多的属性选择器才稳。 */
+:root {
+  --glass-blur: 14px;
+  /* 面板比卡片糊一点，用 calc 派生，档位一动它就跟着动 */
+  --glass-blur-lg: calc(var(--glass-blur) * 1.7);
+  --glass-saturate: 180%;
+  --glass-spec: 1;
+  --glass-bloom: 20px;
+  /* 可复用的边缘高光配方。写成自定义属性就能直接前置拼到任何 box-shadow 上：
+     box-shadow: var(--glass-edge), <原有阴影>;
+     小元素只要上下两条亮线，大面板四边都要。 */
+  --glass-edge:
+    inset 0 1px 0 0 var(--glass-spec-top),
+    inset 0 -1px 0 0 var(--glass-spec-bottom);
+  --glass-edge-panel:
+    inset 0 1px 0 0 var(--glass-spec-top),
+    inset 0 -1px 0 0 var(--glass-spec-bottom),
+    inset 1px 0 0 0 var(--glass-spec-side),
+    inset -1px 0 0 0 var(--glass-spec-side),
+    inset 0 0 var(--glass-bloom) calc(var(--glass-bloom) / -2) var(--glass-rim);
+}
+html[data-theme][data-mode][data-glass="off"] {
+  --glass-alpha: 1;         /* 关掉玻璃就是实底，别再有透出 */
+  --glass-blur: 0px;
+  --glass-saturate: 100%;
+  --glass-spec: 0;
+  --glass-bloom: 0px;
+  /* 高光也要一起熄掉，否则实底上还浮着亮线，像贴了层塑料膜 */
+  --glass-spec-top: transparent;
+  --glass-spec-side: transparent;
+  --glass-spec-bottom: transparent;
+  --glass-rim: transparent;
+}
+html[data-theme][data-mode][data-glass="low"] {
+  --glass-blur: 8px;
+  --glass-saturate: 130%;
+  --glass-spec: 0.6;
+  --glass-bloom: 12px;
+}
+html[data-theme][data-mode][data-glass="med"] {
+  --glass-blur: 14px;
+  --glass-saturate: 180%;
+  --glass-spec: 1;
+  --glass-bloom: 20px;
+}
+html[data-theme][data-mode][data-glass="high"] {
+  --glass-blur: 26px;
+  --glass-saturate: 210%;
+  /* opacity 最大就是 1，所以「更强」不能靠它，要靠光晕范围 */
+  --glass-spec: 1;
+  --glass-bloom: 34px;
+}
+html[data-glass="off"] .nav.is-stuck,
+html[data-glass="off"] .settings-panel,
+html[data-glass="off"] .search-panel,
+html[data-glass="off"] .footer,
+html[data-glass="off"] .toc,
+html[data-glass="off"] .btn.ghost,
+html[data-glass="off"] .to-top,
+html[data-glass="off"] .hero-stats .stat,
+html[data-glass="off"] .hero-eyebrow {
+  backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--surface);
+}
+html[data-glass="high"] .prose .code-block,
+html[data-glass="high"] .toc {
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+}
+
+/* =========================================================================
+   玻璃边缘高光：全站统一
+   参考 liquidglassdesign.com 上那 140+ 个案例的共同点——**每一个浮起的表面
+   都有一条明亮的 1px 内缘高光**，而不是只有大卡片有。
+   放在文件末尾，靠顺序压过前面同优先级的 box-shadow 声明。
+   ========================================================================= */
+.hero-stats .stat,
+.hero-eyebrow,
+.tag-pill,
+.btn.ghost,
+.pill,
+.chip {
+  box-shadow: var(--glass-edge);
+}
+/* 大面板四边都要亮线 + 内侧光晕 */
+.nav.is-stuck,
+.toc,
+.footer {
+  box-shadow: var(--glass-edge-panel), var(--shadow-1);
+}
+/* 这两个自带较大的投影，把高光前置拼上去而不是替换掉它们 */
+.search-panel {
+  box-shadow: var(--glass-edge-panel), 0 40px 90px -50px #000;
+}
+.settings-panel {
+  box-shadow: var(--glass-edge-panel), -30px 0 70px -40px #000;
+}
+.to-top {
+  box-shadow: var(--glass-edge), var(--shadow-2);
+}
+/* hover 时内侧光晕加强一点，玻璃就「活」了 */
+.pill:hover,
+.chip:hover,
+.tag-pill:hover {
+  box-shadow:
+    inset 0 1px 0 0 var(--glass-spec-top),
+    inset 0 -1px 0 0 var(--glass-spec-bottom),
+    inset 0 0 14px -6px var(--glass-rim);
+}
+
+/* =========================================================================
+   自定义鼠标指针
+   圆环使用反相；微光保留系统指针，停下后光尾收起。
+   JS 只在精确指针设备上启用，阅读 / 原生控件不隐藏系统指针。
+   ========================================================================= */
+html.has-custom-cursor[data-cursor="on"]:not(.is-cursor-text):not(.is-cursor-native):not(.is-bar-drag) :not(input):not(textarea):not(select):not([contenteditable]) {
+  cursor: none;
+}
+html.is-cursor-text :is(.prose, .slide-inner, .phero-title, .phero-lede, .doc-title, .doc-lede) {
+  cursor: text;
+}
+html.is-bar-drag .cursor {
+  opacity: 0 !important;
+}
+
+.cursor {
+  position: fixed; left: 0; top: 0; z-index: 9999;
+  pointer-events: none;
+  mix-blend-mode: difference;
+  opacity: 0;
+  transition: opacity .28s var(--ease);
+  contain: layout style;
+}
+.cursor.is-on { opacity: 1; }
+.cursor[data-state="native"], .cursor[data-state="text"] { opacity: 0; transition: none; }
+
+.cursor-ring, .cursor-dot { position: absolute; left: 0; top: 0; border-radius: 50%; }
+.cursor-ring {
+  width: 30px; height: 30px;
+  border: 1.5px solid #fff;
+  transition: width .26s var(--ease), height .26s var(--ease),
+              border-width .26s var(--ease), border-style .26s var(--ease),
+              opacity .26s var(--ease);
+}
+.cursor-dot {
+  width: 5px; height: 5px; background: #fff;
+  transition: width .26s var(--ease), height .26s var(--ease), opacity .26s var(--ease);
+}
+.cursor-label {
+  position: absolute; left: 0; top: 0;
+  padding: 2px 0;
+  color: #fff; font-family: var(--font-mono); font-size: .66rem;
+  letter-spacing: .14em; text-transform: uppercase; white-space: nowrap;
+  opacity: 0; transition: opacity .22s var(--ease);
+}
+/* 放大镜图标：只在 data-state="zoom" 时出现（正文里可点开看原图的图） */
+.cursor-icon {
+  position: absolute; left: 0; top: 0;
+  width: 0; height: 0; opacity: 0;
+  display: grid; place-items: center;
+  color: #fff;
+  transition: width .24s var(--ease), height .24s var(--ease), opacity .2s var(--ease);
+}
+.cursor-icon svg { width: 100%; height: 100%; }
+.cursor.has-label .cursor-label { opacity: .92; }
+
+/* 链接 / 按钮 */
+.cursor[data-state="link"] .cursor-ring { width: 46px; height: 46px; border-width: 1px; }
+.cursor[data-state="link"] .cursor-dot { width: 3px; height: 3px; }
+/* 图片可放大：圆环让开，中间画一个放大镜 */
+.cursor[data-state="zoom"] .cursor-ring { width: 44px; height: 44px; border-width: 1px; opacity: .5; }
+.cursor[data-state="zoom"] .cursor-dot { opacity: 0; }
+.cursor[data-state="zoom"] .cursor-icon { width: 17px; height: 17px; opacity: 1; }
+/* 可拖拽的 3D 区域 */
+.cursor[data-state="drag"] .cursor-ring {
+  width: 62px; height: 62px; border-width: 1px; border-style: dashed;
+}
+.cursor[data-state="drag"] .cursor-dot { width: 4px; height: 4px; }
+/* 只在悬停时显示的强调色点 */
+.cursor[data-state="text"] .cursor-ring { width: 2px; height: 26px; border-radius: 2px; border-width: 0; background: #fff; }
+.cursor[data-state="text"] .cursor-dot { opacity: 0; }
+.cursor.is-down .cursor-ring { transform-origin: center; }
+.cursor.is-down .cursor-dot { width: 9px; height: 9px; }
+.cursor-trail { display: none; }
+
+/* 微光：光点偏离箭头尖端，最多 22px 的尾迹，文字上完全收起。 */
+html[data-cursor="glow"] .cursor { mix-blend-mode: normal; color: var(--accent); }
+html[data-cursor="glow"] .cursor .cursor-dot {
+  width: 4px; height: 4px; background: currentColor;
+  box-shadow: 0 0 6px var(--accent-soft); opacity: 0;
+}
+html[data-cursor="glow"] .cursor .cursor-ring {
+  width: 14px; height: 14px; border: 1px solid currentColor; opacity: 0;
+}
+html[data-cursor="glow"] .cursor-trail {
+  display: block; position: absolute; left: 0; top: 0; height: 2px;
+  border-radius: 2px; transform-origin: 0 50%; pointer-events: none;
+  background: linear-gradient(90deg, currentColor, transparent);
+  opacity: 0; transition: opacity .18s var(--ease);
+}
+html[data-cursor="glow"] .cursor.is-moving .cursor-trail { opacity: .5; }
+html[data-cursor="glow"] .cursor.is-moving .cursor-dot { opacity: .75; }
+html[data-cursor="glow"] .cursor[data-state="link"] .cursor-ring { opacity: .6; }
+html[data-cursor="glow"] .cursor[data-state="drag"] .cursor-ring { width: 18px; height: 18px; border-style: dashed; opacity: .6; }
+html[data-cursor="glow"] .cursor.is-down .cursor-ring { width: 8px; height: 8px; opacity: .85; }
+/* 原生的放大镜 / 手形仍然可见，不再叠加第二个符号和文字。 */
+html[data-cursor="glow"] .cursor-icon, html[data-cursor="glow"] .cursor-label { display: none; }
+html[data-cursor="off"] .cursor, html[data-motion="off"] .cursor { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor { display: none; }
+  .cursor-ring, .cursor-dot, .cursor-label { transition: none; }
+}
+
+/* =========================================================================
+   无障碍 / 打印偏好
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+  .reveal { opacity: 1; transform: none; }
+  .bg-aurora span { animation: none; }
+}
+.galaxy-controls {
+  position: absolute; right: max(24px,calc((100% - var(--content-max)) / 2 + 24px));
+  bottom: clamp(40px, 6vh, 76px); z-index: 2; max-width: min(390px,43%);
+}
+.galaxy-controls[hidden] { display: none; }
+.galaxy-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; }
+.galaxy-action, .galaxy-pause {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 40px; padding: 9px 12px; border: 1px solid var(--border-2); border-radius: 30px;
+  color: var(--text-2); background: var(--surface-glass); font: 12px var(--font-sans); cursor: pointer;
+  transition: color .2s, border-color .2s, background .2s;
+}
+.galaxy-key { color: var(--text-3); font-size: 10px; }
+.galaxy-action:hover:not(:disabled), .galaxy-pause:hover:not(:disabled) { color: var(--text); border-color: var(--accent); background: var(--accent-softer); }
+.galaxy-action:focus-visible, .galaxy-pause:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.galaxy-action:disabled, .galaxy-pause:disabled { opacity: .45; cursor: default; }
+.hero[data-galaxy-state="attract"] [data-galaxy-action="attract"],
+.hero[data-galaxy-state="repel"] [data-galaxy-action="repel"],
+.hero[data-galaxy-state="burst"] [data-galaxy-action="burst"] { color: var(--text); border-color: var(--accent); background: var(--accent-soft); }
+.galaxy-hint, .galaxy-status { margin: 9px 0 0; font: 12px/1.7 var(--font-sans); }
+.galaxy-hint { color: var(--text-3); }
+.galaxy-status { min-height: 1.7em; margin-top: 2px; color: var(--accent); }
+.galaxy-touch-hint { display: none; }
+@media (max-width: 900px) {
+  .galaxy-controls { position: relative; inset: auto; max-width: none; margin-top: 30px; }
+  .galaxy-action, .galaxy-pause { min-height: 42px; }
+}
+@media (hover: none), (pointer: coarse) {
+  .galaxy-key, .galaxy-mouse-hint { display: none; }
+  .galaxy-touch-hint { display: inline; }
+  .galaxy-action { padding-inline: 16px; }
+}

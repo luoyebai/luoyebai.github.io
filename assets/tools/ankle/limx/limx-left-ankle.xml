@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="LimX HU_D04_01 left parallel ankle">
+  <!-- Modified official LimX HU_D04_01 excerpt; source commit 80fbd2d650c43c38916979c2a6eab7a4c79e38de. See LICENSE and SOURCES.md. Fixed shank at z=0.48; removed other limbs and contact geometry; retained original ankle geometry, inertias, motor armatures, passive joints and two connect constraints. Original torque motors retained. -->
+  <compiler angle="radian" meshdir="." autolimits="true" fusestatic="false" />
+  <option timestep="0.001" integrator="implicitfast" solver="Newton" iterations="60" tolerance="1e-10" gravity="0 0 -9.81" />
+  <statistic center="0.02 0 0.26" extent="0.6" />
+  <default>
+    <default class="visual">
+      <geom contype="0" conaffinity="0" group="1" type="mesh" rgba="0.8 0.8 0.8 1.0" />
+    </default>
+    <joint damping="0.01" margin="0.0001" solreflimit="0.002 1" />
+    <geom contype="0" conaffinity="0" friction="1.0 0.3 0.3" rgba="0.5 0.6 0.7 0.5" margin="0.001" group="0" />
+    <equality solref="0.001  1" />
+  </default>
+  <asset>
+    <mesh name="left_knee_link" file="left_knee_link.STL" />
+    <mesh name="left_ankle_pitch_link" file="left_ankle_pitch_link.STL" />
+    <mesh name="left_ankle_roll_link" file="left_ankle_roll_link.STL" />
+    <mesh name="left_A_achilles_link" file="left_A_achilles_link.STL" />
+    <mesh name="left_A_achilles_rod_link" file="left_A_achilles_rod_link.STL" />
+    <mesh name="left_B_achilles_link" file="left_B_achilles_link.STL" />
+    <mesh name="left_B_achilles_rod_link" file="left_B_achilles_rod_link.STL" />
+  </asset>
+  <worldbody>
+    <body name="left_knee_link" pos="0 0 0.48">
+      <inertial pos="0.007614 0.005361 -0.142099" quat="0.988682 -0.0432819 0.00451233 0.143575" mass="2.95837" diaginertia="0.0278704 0.0275597 0.00283291" />
+      <geom type="mesh" class="visual" rgba="0.75294 0.75294 0.75294 1" mesh="left_knee_link" name="left_knee_link_visual" />
+      <body name="left_ankle_pitch_link" pos="0 0 -0.385">
+        <inertial pos="0 0 0.001077" quat="0.707107 0.707107 0 0" mass="0.042944" diaginertia="4e-06 4e-06 2e-06" />
+        <joint name="left_ankle_pitch_joint" pos="0 0 0" axis="0 1 0" limited="true" range="-1.012 0.611" />
+        <geom type="mesh" class="visual" rgba="0.75294 0.75294 0.75294 1" mesh="left_ankle_pitch_link" name="left_ankle_pitch_link_visual" />
+        <body name="left_ankle_roll_link" pos="0 0 0">
+          <inertial pos="0.0097384 0 -0.0353129" quat="0.000738839 0.742709 0.000165367 0.669614" mass="1.024" diaginertia="0.00446858 0.00421783 0.000811547" />
+          <joint name="left_ankle_roll_joint" pos="0 0 0" axis="1 0 0" limited="true" range="-0.436 0.436" />
+          <geom type="mesh" class="visual" rgba="0.75294 0.75294 0.75294 1" mesh="left_ankle_roll_link" name="left_ankle_roll_link_visual" />
+        </body>
+      </body>
+      <body name="left_A_achilles_link" pos="-0.0238 0 -0.115">
+        <inertial pos="5.8e-05 0.014158 0.001949" quat="0.654216 0.740706 0.0880375 0.124926" mass="0.07344" diaginertia="3.42312e-05 2.9226e-05 9.54279e-06" />
+        <joint name="left_A_achilles_joint" pos="0 0 0" axis="1 0 0" limited="true" range="-1.184 0.91" armature="0.083508" />
+        <geom type="mesh" class="visual" rgba="0.75294 0.75294 0.75294 1" mesh="left_A_achilles_link" name="left_A_achilles_link_visual" />
+        <body name="left_A_achilles_rod_link" pos="-0.0112 0.032692 0.0045">
+          <inertial pos="0 0 -0.135046" mass="0.100994" diaginertia="0.000696 0.000696 2e-06" />
+          <joint name="left_A_achilles_rod_joint" type="ball" limited="false" />
+          <geom type="mesh" class="visual" rgba="0.75294 0.75294 0.75294 1" mesh="left_A_achilles_rod_link" name="left_A_achilles_rod_link_visual" />
+        </body>
+      </body>
+      <body name="left_B_achilles_link" pos="-0.0238 0 -0.205">
+        <inertial pos="5.8e-05 -0.014158 0.001949" quat="0.740706 0.654216 -0.124926 -0.0880375" mass="0.07344" diaginertia="3.42312e-05 2.9226e-05 9.54279e-06" />
+        <joint name="left_B_achilles_joint" pos="0 0 0" axis="1 0 0" limited="true" range="-0.91 1.184" armature="0.083508" />
+        <geom type="mesh" class="visual" rgba="0.75294 0.75294 0.75294 1" mesh="left_B_achilles_link" name="left_B_achilles_link_visual" />
+        <body name="left_B_achilles_rod_link" pos="-0.0112 -0.032692 0.0045">
+          <inertial pos="0 0 -0.09003" mass="0.068223" diaginertia="0.000221 0.000221 2e-06" />
+          <joint name="left_B_achilles_rod_joint" type="ball" limited="false" />
+          <geom type="mesh" class="visual" rgba="0.75294 0.75294 0.75294 1" mesh="left_B_achilles_rod_link" name="left_B_achilles_rod_link_visual" />
+        </body>
+      </body>
+    </body>
+  </worldbody>
+  <equality>
+    <connect name="A_achilles_connect_L" body1="left_ankle_roll_link" body2="left_A_achilles_rod_link" anchor="-0.035 0.033 0.0045" />
+    <connect name="B_achilles_connect_L" body1="left_ankle_roll_link" body2="left_B_achilles_rod_link" anchor="-0.035 -0.033 0.0045" />
+  </equality>
+  <actuator>
+    <motor name="ankle_A_left" gear="1" joint="left_A_achilles_joint" ctrllimited="true" ctrlrange="-42 42" />
+    <motor name="ankle_B_left" gear="1" joint="left_B_achilles_joint" ctrllimited="true" ctrlrange="-42 42" />
+  </actuator>
+</mujoco>

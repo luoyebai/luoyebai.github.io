@@ -1,0 +1,63 @@
+{{> partials/head.html}}
+
+<article class="post">
+  <header class="{{#if content_page.cover}}phero has-media{{else}}post-head{{/if}}">
+    {{#if content_page.cover}}
+    <div class="phero-media media-shim">
+      <img src="{{build.basePath}}/{{content_page.cover}}"
+           {{#if content_page.cover_alt}}alt="{{content_page.cover_alt}}"{{else}}alt="" aria-hidden="true"{{/if}}
+           {{#if content_page.cover_w}}width="{{content_page.cover_w}}" height="{{content_page.cover_h}}"{{/if}}
+           style="object-position: {{content_page.cover_pos}}"
+           fetchpriority="high" decoding="async">
+    </div>
+    <span class="phero-scrim" aria-hidden="true"></span>
+    {{/if}}
+    <div class="{{#if content_page.cover}}phero-inner{{else}}post-head-inner{{/if}}">
+      {{#if show_avatar}}
+      <div class="hero-id reveal">
+        <span class="avatar-ring lg">
+          <img class="avatar" src="{{build.basePath}}/{{site.avatar}}" alt="{{site.title}}" width="96" height="96" decoding="async">
+        </span>
+        <div class="hero-id-text">
+          <strong>{{site.title}}</strong>
+          <span>{{site.role}}</span>
+        </div>
+      </div>
+      {{/if}}
+      {{#if is_links}}<p class="resource-kicker">BOOKMARKS / 持续积累的工具与参考</p>{{/if}}
+      <h1 class="{{#if content_page.cover}}phero-title{{else}}post-title{{/if}} reveal">{{content_page.title}}</h1>
+      {{#if is_links}}<p class="resource-intro">学习有路标，探索有去处。</p>{{/if}}
+      {{#if content_page.summary}}<p class="{{#if content_page.cover}}phero-lede{{else}}post-lede{{/if}}">{{content_page.summary}}</p>{{/if}}
+      {{#if content_page.subtitle}}<p class="{{#if content_page.cover}}phero-lede{{else}}post-lede{{/if}} reveal">{{content_page.subtitle}}</p>{{/if}}
+    </div>
+  </header>
+
+  <div class="post-layout">
+    {{#if content_page.toc}}
+    <aside class="post-aside">
+      <nav class="toc" data-toc aria-label="目录">
+        <p class="toc-title">目录</p>
+        <ul>
+          {{#each content_page.toc}}
+          <li class="toc-l{{level}}"><a href="#{{id}}">{{text}}</a></li>
+          {{/each}}
+        </ul>
+      </nav>
+    </aside>
+    {{/if}}
+    <div class="post-main">
+      {{#if content_page.toc}}
+      <details class="mobile-toc">
+        <summary>本页目录</summary>
+        <nav aria-label="本页目录"><ul>
+          {{#each content_page.toc}}<li class="toc-l{{level}}"><a href="#{{id}}">{{text}}</a></li>{{/each}}
+        </ul></nav>
+      </details>
+      {{/if}}
+
+      <div class="prose reveal">{{{content_page.html}}}</div>
+    </div>
+  </div>
+</article>
+
+{{> partials/foot.html}}

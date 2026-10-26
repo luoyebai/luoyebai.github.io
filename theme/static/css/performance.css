@@ -1,0 +1,11 @@
+/* Soft gradients already supply the falloff: avoid three viewport-size blur passes. */
+.bg-aurora span { filter:none; will-change:auto; }
+.spotlight { filter:none; }
+html.is-page-hidden *, html.is-page-hidden *::before, html.is-page-hidden *::after { animation-play-state:paused !important; }
+html[data-performance="compact"] .bg-aurora span { animation:none; }
+html[data-performance="compact"] .spotlight,
+html[data-performance="compact"] .grain { display:none; }
+html[data-performance="compact"] { --glass-blur:4px; --glass-blur-lg:6px; }
+html[data-performance="compact"] .gcard { backdrop-filter:none; -webkit-backdrop-filter:none; }
+/* Keep geometry available to the 3D camera; never content-visibility the graph cards. */
+.footer { content-visibility:auto; contain-intrinsic-size:auto 460px; }

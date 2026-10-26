@@ -1,0 +1,61 @@
+{{> partials/head.html}}
+
+<section class="docs-page docs-page--single">
+  <nav class="crumbs" aria-label="面包屑">
+    <a href="{{build.basePath}}/docs/">文档</a>
+    <span aria-hidden="true">/</span>
+    <span class="current">{{collection.title}}</span>
+  </nav>
+
+  <header class="docs-head">
+    <p class="docs-kicker"><span class="dot"></span>{{collection.subtitle}}</p>
+    <h1>{{collection.title}}</h1>
+    <p class="docs-lede">{{collection.description}}</p>
+    <p class="docs-stats">
+      <span><b>{{collection.count}}</b> 篇</span>
+      <span><b>{{slide_total}}</b> 页幻灯片</span>
+      {{#if collection.pending}}<span><b>{{collection.pending_count}}</b> 篇待更新</span>{{/if}}
+    </p>
+  </header>
+
+  {{#if collection.refs}}
+  <p class="ds-refs ds-refs--top">
+    <span class="ds-refs-label">相关</span>
+    {{#each collection.refs}}
+    <a class="ds-ref" href="{{href}}" rel="noopener" target="_blank">
+      {{#if img}}<img src="{{build.basePath}}/{{img}}" alt="" loading="lazy" decoding="async">{{/if}}
+      {{name}}
+    </a>
+    {{/each}}
+  </p>
+  {{/if}}
+
+  <ol class="ds-list ds-list--wide">
+    {{#each collection.docs}}
+    <li class="ds-item">
+      <a class="ds-link" href="{{build.basePath}}{{url}}">
+        <span class="ds-no">{{index}}</span>
+        <span class="ds-body">
+          <span class="ds-title">{{title}}</span>
+          <span class="ds-sum">{{summary}}</span>
+        </span>
+        <span class="ds-pages">{{slide_count}}<i>页</i></span>
+      </a>
+    </li>
+    {{/each}}
+  </ol>
+
+  {{#if collection.pending}}
+  <p class="ds-pending">
+    <span class="ds-pending-label">还没写完</span>
+    {{#each collection.pending}}<span class="ds-pending-item">{{title}}<i>{{note}}</i></span>{{/each}}
+  </p>
+  {{/if}}
+
+  <p class="ds-source">
+    原始幻灯片：
+    <a href="{{docs_source}}" rel="noopener" target="_blank">doc_html</a>
+  </p>
+</section>
+
+{{> partials/foot.html}}

@@ -1,0 +1,118 @@
+{{> partials/head.html}}
+
+<article class="post">
+  {{! 封面不再是标题上方那条被厚纱盖住的窄带：整块做成头图，标题/标签/日期直接压上去。
+      压得住靠的是 .phero-scrim 那层从底部起的重渐变 —— 图再花，正文也读得清。
+      coverPos 可以在 front-matter 里指定裁切焦点，避免 16:9 居中裁切切坏截图和竖图。 }}
+  <header class="phero{{#if post.cover}} {{#if post.cover_hd}}has-media{{else}}has-media is-soft{{/if}}{{else}} is-plain{{/if}}">
+    {{#if post.cover}}
+    <div class="phero-media media-shim">
+      <img src="{{build.basePath}}/{{post.cover}}"
+           {{#if post.cover_alt}}alt="{{post.cover_alt}}"{{else}}alt="" aria-hidden="true"{{/if}}
+           {{#if post.cover_w}}width="{{post.cover_w}}" height="{{post.cover_h}}"{{/if}}
+           style="object-position: {{post.cover_pos}}"
+           fetchpriority="high" decoding="async">
+    </div>
+    {{/if}}
+    <span class="phero-scrim" aria-hidden="true"></span>
+
+    <div class="phero-inner">
+      <nav class="crumbs" aria-label="面包屑">
+        <a href="{{build.basePath}}/posts/">文章</a>
+        <span aria-hidden="true">/</span>
+        <span class="current">{{post.title}}</span>
+      </nav>
+
+      {{#if post.tags}}
+      <div class="post-tags">
+        {{#each post.tag_links}}
+        <a class="pill" href="{{build.basePath}}/tags/{{slug}}/">{{name}}</a>
+        {{/each}}
+      </div>
+      {{/if}}
+
+      <h1 class="phero-title reveal">{{post.title}}</h1>
+      {{#if post.summary}}<p class="phero-lede reveal">{{post.summary}}</p>{{/if}}
+
+      <div class="phero-meta reveal">
+        <span class="meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/>
+          </svg>
+          <time datetime="{{post.date}}">{{post.date_text}}</time>
+        </span>
+        <span class="meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>
+          </svg>
+          {{post.minutes}} 分钟
+        </span>
+        {{#if post.updated_text}}
+        <span class="meta-item muted">更新于 {{post.updated_text}}</span>
+        {{/if}}
+      </div>
+    </div>
+  </header>
+
+  <div class="post-layout">
+    {{#if post.toc}}
+    <aside class="post-aside">
+      <nav class="toc" data-toc aria-label="目录">
+        <button class="toc-head" type="button" data-toc-toggle aria-expanded="true"
+                aria-controls="toc-list" aria-label="折叠或展开目录">
+          <span class="toc-title">目录</span>
+          {{! 收起之后只剩标题会让人不知道自己在哪，所以把当前小节留在这儿 }}
+          <span class="toc-current" data-toc-current aria-hidden="true"></span>
+          <span class="toc-count">{{post.toc_count}} 节</span>
+          <svg class="toc-caret" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        {{{post.toc_html}}}
+      </nav>
+    </aside>
+    {{/if}}
+
+    <div class="post-main">
+      {{#if post.toc}}
+      <details class="mobile-toc">
+        <summary>本页目录</summary>
+        <nav aria-label="本页目录">{{{post.toc_html}}}</nav>
+      </details>
+      {{/if}}
+
+      <div class="prose reveal">{{{post.html}}}</div>
+
+      <div class="post-end">
+        <span class="end-mark" aria-hidden="true">◆</span>
+      </div>
+
+      {{#if related}}
+      <section class="related">
+        <h2>相关文章</h2>
+        <div class="grid grid-3">
+          {{#each related}}{{> partials/card-post.html}}{{/each}}
+        </div>
+      </section>
+      {{/if}}
+    </div>
+  </div>
+
+  <nav class="post-nav" aria-label="上下篇">
+    {{#if prev_post}}
+    <a class="post-nav-item prev" href="{{build.basePath}}{{prev_post.url}}">
+      <span class="dir">← 上一篇</span>
+      <span class="t">{{prev_post.title}}</span>
+    </a>
+    {{else}}<span class="post-nav-item empty"></span>{{/if}}
+    {{#if next_post}}
+    <a class="post-nav-item next" href="{{build.basePath}}{{next_post.url}}">
+      <span class="dir">下一篇 →</span>
+      <span class="t">{{next_post.title}}</span>
+    </a>
+    {{else}}<span class="post-nav-item empty"></span>{{/if}}
+  </nav>
+</article>
+
+{{> partials/foot.html}}

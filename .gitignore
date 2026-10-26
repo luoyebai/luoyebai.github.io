@@ -1,0 +1,28 @@
+# 只把「源码」放进来：构建产物、本机缓存、备份、截图、临时项目都不进仓库。
+# 这样仓库能直接给 GitHub Actions 用（`tools/build.py` 会把 public/ 重新生成）。
+
+# 构建产物（public/ 自己是一个独立仓库，专门推 gh-pages）
+public/
+
+# 本机缓存与备份
+.cache/
+.backups/
+.blog-history/
+
+# 过程产物：截图、临时拉下来的参考项目
+_shots/
+_staging/
+
+# Python
+__pycache__/
+*.pyc
+
+# 编辑器 / 操作系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# 配置备份（当前配置本身要进仓库）
+site.config.json.bak
+_pkg/

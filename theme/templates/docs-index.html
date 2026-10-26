@@ -1,0 +1,78 @@
+{{> partials/head.html}}
+
+<section class="docs-page">
+  <header class="docs-head">
+    <p class="docs-kicker"><span class="dot"></span>DOCS · SLIDES</p>
+    <h1>文档</h1>
+    <p class="docs-lede">
+      从编程基础到机器人系统，把概念、代码和实验串成一套课件，支持逐页演示与连续阅读。
+      在早期 {{#if docs_source}}<a href="{{docs_source}}" rel="noopener">doc_html</a>{{else}}幻灯文档{{/if}} 的基础上持续修订，
+      补充环境说明、练习答案与官方参考资料。
+    </p>
+    <p class="docs-stats">
+      <span><b>{{docs_stats.collections}}</b> 个系列</span>
+      <span><b>{{docs_stats.docs}}</b> 篇</span>
+      <span><b>{{docs_stats.slides}}</b> 页幻灯片</span>
+      {{#if docs_stats.pending}}<span><b>{{docs_stats.pending}}</b> 篇待更新</span>{{/if}}
+    </p>
+  </header>
+
+  <div class="ds-collections">
+    {{#each collections}}
+    <section class="ds-collection" id="collection-{{id}}">
+      <header class="ds-col-head">
+        <div class="ds-col-text">
+          <p class="ds-col-sub">{{subtitle}}</p>
+          <h2><a href="{{build.basePath}}{{url}}">{{title}}</a></h2>
+          <p class="ds-col-desc">{{description}}</p>
+        </div>
+        <p class="ds-col-meta"><b>{{count}}</b> 篇 · <b>{{slide_total}}</b> 页</p>
+      </header>
+
+      <ol class="ds-list">
+        {{#each brief}}
+        <li class="ds-item">
+          <a class="ds-link" href="{{build.basePath}}{{url}}">
+            <span class="ds-no">{{index}}</span>
+            <span class="ds-body">
+              <span class="ds-title">{{title}}</span>
+              <span class="ds-sum">{{summary}}</span>
+            </span>
+            <span class="ds-pages">{{slide_count}}<i>页</i></span>
+          </a>
+        </li>
+        {{/each}}
+      </ol>
+
+      {{#if pending}}
+      <p class="ds-pending">
+        <span class="ds-pending-label">还没写完</span>
+        {{#each pending}}<span class="ds-pending-item">{{title}}<i>{{note}}</i></span>{{/each}}
+      </p>
+      {{/if}}
+
+      {{#if refs}}
+      <p class="ds-refs">
+        <span class="ds-refs-label">相关</span>
+        {{#each refs}}
+        <a class="ds-ref" href="{{href}}" rel="noopener" target="_blank">
+          {{#if img}}<img src="{{build.basePath}}/{{img}}" alt="" loading="lazy" decoding="async">{{/if}}
+          {{name}}
+        </a>
+        {{/each}}
+      </p>
+      {{/if}}
+    </section>
+    {{/each}}
+  </div>
+
+  {{#if links_page}}
+  <aside class="ds-aside">
+    <p class="ds-aside-kicker">外部资源</p>
+    <h2><a href="{{build.basePath}}/{{links_page.slug}}/">{{links_page.title}}</a></h2>
+    <p class="ds-aside-desc">{{links_page.summary}}</p>
+  </aside>
+  {{/if}}
+</section>
+
+{{> partials/foot.html}}

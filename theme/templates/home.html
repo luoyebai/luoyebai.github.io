@@ -1,0 +1,166 @@
+{{> partials/head.html}}
+
+<section class="hero hero-orbit">
+  <div class="hero-inner">
+    {{#if site.avatar}}
+    <div class="hero-id">
+      <span class="avatar-ring">
+        <img class="avatar" src="{{build.basePath}}/{{site.avatar}}" alt="{{site.title}}" width="48" height="48" decoding="async">
+      </span>
+      <div class="hero-id-text">
+        <strong>{{site.title}}</strong>
+        <span>{{site.role}}</span>
+      </div>
+    </div>
+    {{/if}}
+
+    <p class="hero-eyebrow">{{hero.eyebrow}}</p>
+
+    <h1 class="hero-title">
+      {{#each hero.titleLines}}
+      <span class="line"><span class="grad-text">{{.}}</span></span>
+      {{/each}}
+    </h1>
+
+    <p class="hero-sub">{{hero.subtitle}}</p>
+
+    <div class="hero-cta">
+      <a class="btn primary" href="{{build.basePath}}{{hero.primaryCta.href}}">
+        <span>{{hero.primaryCta.label}}</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/>
+        </svg>
+      </a>
+      <a class="btn ghost" href="{{build.basePath}}{{hero.secondaryCta.href}}">{{hero.secondaryCta.label}}</a>
+    </div>
+
+    <dl class="hero-stats">
+      {{#each hero.stats}}
+      <div class="stat">
+        <dt>{{#if hint}}<button class="stat-trigger" type="button" aria-label="{{value}} {{label}}：查看说明" aria-describedby="{{tip_id}}">{{value}}<span class="stat-info" aria-hidden="true">ⓘ</span></button>{{else}}{{value}}{{/if}}</dt>
+        <dd>{{label}}{{#if hint}}<span class="stat-tip" role="tooltip" id="{{tip_id}}">{{hint}}</span>{{/if}}</dd>
+      </div>
+      {{/each}}
+    </dl>
+  </div>
+
+  <figure class="orbit-visual" aria-label="运动轨道交互图">
+    <p class="orbit-kicker" aria-hidden="true"><span>KINETIC FIELD</span><span>/ 01</span></p>
+    <div class="orbit-stage">
+      <svg class="orbit-fallback" viewBox="0 0 600 480" fill="none" stroke="currentColor" aria-hidden="true" focusable="false">
+        <ellipse cx="300" cy="240" rx="180" ry="72" transform="rotate(-28 300 240)"/>
+        <ellipse cx="300" cy="240" rx="180" ry="72" transform="rotate(32 300 240)"/>
+        <ellipse cx="300" cy="240" rx="180" ry="72" transform="rotate(92 300 240)"/>
+        <path d="M300 214 322 240 300 266 278 240Z"/>
+      </svg>
+      <canvas id="hero-orbit" aria-hidden="true"></canvas>
+    </div>
+    <figcaption>信息流动，动作成形。</figcaption>
+    <div class="orbit-controls" data-orbit-controls hidden>
+      <div class="orbit-modes" role="group" aria-label="运动轨道模式">
+        <button type="button" data-orbit-mode="signal" aria-pressed="false">信号</button>
+        <button type="button" data-orbit-mode="motion" aria-pressed="true">轨迹</button>
+        <button type="button" data-orbit-mode="policy" aria-pressed="false">策略</button>
+      </div>
+      <button class="orbit-pause" type="button" data-orbit-pause aria-pressed="false">暂停</button>
+    </div>
+    <p class="orbit-status" data-orbit-status role="status" aria-live="polite" aria-atomic="true">运动轨道 · 交互加载后可用</p>
+    <p class="orbit-hint"><span class="orbit-pointer-hint">左键聚合 · 右键展开 · 中键脉冲</span><span class="orbit-touch-hint">轻点模式按钮，切换观察方式。</span></p>
+  </figure>
+</section>
+
+{{! 正文里的「场」：同一台引擎接着画导轨上的信号、卡片描边的笔尖、以及从雕塑弯进第一章的连接段。纯装饰，且 pointer-events:none。 }}
+<canvas class="flow-field" id="flow-field" aria-hidden="true"></canvas>
+
+<div class="flow-bridge">
+  <a href="#explore" aria-label="向下探索：从一个问题开始"><span>沿着问题，往下探索</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14m-5-5 5 5 5-5"/></svg></a>
+</div>
+
+<div class="home-flow" data-home-flow>
+<section class="section discovery-section" id="explore" data-scroll-chapter aria-label="按方向开始">
+  <header class="section-head reveal"><div><p class="flow-caption" aria-hidden="true">EXPLORE</p><h2>从一个问题开始</h2><p>选一条路线，把文章、课件和实验连起来。</p></div><a class="more" href="{{build.basePath}}/learning/">学习路线 →</a></header>
+  <div class="direction-grid">
+    <a class="direction-card reveal" href="{{build.basePath}}/learning/#middleware"><span class="direction-number">01 / MIDDLEWARE</span><h3>数据怎样准时抵达？</h3><p>从 ROS 2 通信到 DDS 与实时回路。</p><span class="direction-go">探索中间件 <b aria-hidden="true">↗</b></span></a>
+    <a class="direction-card reveal" href="{{build.basePath}}/learning/#motion"><span class="direction-number">02 / MOTION CONTROL</span><h3>动作怎样跟上目标？</h3><p>从坐标与运动学到 MPC、阻抗控制。</p><span class="direction-go">探索运动控制 <b aria-hidden="true">↗</b></span></a>
+    <a class="direction-card reveal" href="{{build.basePath}}/learning/#rl"><span class="direction-number">03 / SIM2REAL</span><h3>策略怎样走出仿真？</h3><p>理解模型、工具链与实机部署边界。</p><span class="direction-go">探索强化学习 <b aria-hidden="true">↗</b></span></a>
+  </div>
+  <a class="lab-invitation reveal" href="{{build.basePath}}/lab/"><span><span class="direction-number">ROBOT LAB</span><strong>把控制环调稳</strong><span>调参数，看响应。在浏览器里完成一次小实验。</span></span><span class="btn ghost">进入实验室 ↗</span></a>
+</section>
+
+<section class="section" data-scroll-chapter data-reading-recent hidden>
+  <header class="section-head reveal"><div><p class="flow-caption" aria-hidden="true">CONTINUE</p><h2>继续阅读</h2><p>仅记录在这台设备。</p></div></header>
+  <div class="reveal" data-reading-recent-list></div>
+</section>
+
+<section class="section" data-scroll-chapter>
+  <header class="section-head reveal">
+    <div>
+      <p class="flow-caption" aria-hidden="true">NOTES</p>
+      <h2>精选文章</h2>
+      <p>中间件 · 运动控制 · 强化学习</p>
+    </div>
+    <a class="more" href="{{build.basePath}}/posts/">
+      全部 {{total_posts}} 篇
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/>
+      </svg>
+    </a>
+  </header>
+  <div class="grid grid-3">
+    {{#each featured}}{{> partials/card-post.html}}{{/each}}
+  </div>
+</section>
+
+{{#if home.showProjects}}
+<section class="section" data-scroll-chapter>
+  <header class="section-head reveal">
+    <div>
+      <p class="flow-caption" aria-hidden="true">BUILD</p>
+      <h2>项目</h2>
+      <p>能跑起来的代码，胜过幻灯片</p>
+    </div>
+    <a class="more" href="{{build.basePath}}/projects/">
+      全部 {{total_projects}} 个
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/>
+      </svg>
+    </a>
+  </header>
+  <div class="grid grid-3">
+    {{#each projects}}{{> partials/card-project.html}}{{/each}}
+  </div>
+</section>
+{{/if}}
+
+{{#if posts}}<section class="section" data-scroll-chapter>
+  <header class="section-head reveal">
+    <div>
+      <p class="flow-caption" aria-hidden="true">JOURNAL</p>
+      <h2>最近更新</h2>
+      <p>精选之外，最近值得翻看的记录。</p>
+    </div>
+    <a class="more" href="{{build.basePath}}/posts/">全部文章 →</a>
+  </header>
+  <div class="latest-list">
+    {{#each posts}}<a class="latest-entry reveal" href="{{build.basePath}}{{url}}"><time datetime="{{activity_date}}">{{activity_text}}</time><span><strong>{{title}}</strong><span class="latest-summary">{{summary}}</span></span><span class="latest-time">{{minutes}} 分钟 <b aria-hidden="true">↗</b></span></a>{{/each}}
+  </div>
+</section>{{/if}}
+
+{{#if home.showTags}}
+<section class="section" data-scroll-chapter>
+  <header class="section-head reveal">
+    <div><p class="flow-caption" aria-hidden="true">INDEX</p><h2>标签</h2><p>按主题翻</p></div>
+    <a class="more" href="{{build.basePath}}/tags/">全部标签</a>
+  </header>
+  <div class="tag-cloud reveal">
+    {{#each tags}}
+    <a class="tag-pill" href="{{build.basePath}}/tags/{{slug}}/">
+      <span>{{name}}</span><b>{{count}}</b>
+    </a>
+    {{/each}}
+  </div>
+</section>
+{{/if}}
+</div>
+
+{{> partials/foot.html}}

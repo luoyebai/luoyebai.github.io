@@ -1,0 +1,195 @@
+/* =========================================================================
+   loading.css — 等待状态的统一样子
+   两个原语，整站共用：
+
+   1. `.media-shim`  图片的骨架屏：容器自带一层扫光，图加载完淡入。
+                     用在文章头图、卡片封面、幻灯片插图这些**大图**上。
+
+   2. `.boot`        重活页面的启动遮罩：一个转动的线框立方体 +
+                     一条不定量扫描条 + 一行**真实**的阶段文案。
+                     参考的是 /graph/ 那套 3D 视觉语言（线框包围盒 +
+                     强调色辉光 + 等宽小字），所以它看起来像页面的一部分，
+                     而不是贴上去的转圈图标。
+
+   两条原则：
+   · 遮罩必须写在 HTML 里（不是 JS 生成）—— 要盖住的正是「JS 还没下载完」
+     那段时间，JS 建出来的遮罩等于没盖。
+   · 因此它也必须在**没有 JS** 时隐身，否则会永远转下去（见 head.html 的 noscript）。
+   ========================================================================= */
+
+/* ---------------------------------------------------------------- 图片骨架 */
+/* 关键：扫光只在 `.is-armed` 时出现，而 `is-armed` 是 loading.js 挂上去的
+   （只对「还没加载完」的图挂）。于是三种情况都对：
+     · 正常加载   → 挂上 armed，图淡入后 is-ready，扫光停
+     · 缓存命中   → 压根不挂，直接就绪，不会闪一下暗底
+     · JS 没起来  → 从不挂 armed，图照常显示（**降级必须是可见，而不是永远转**）
+   这一条踩过：最早写反了，默认就藏图，结果 site.js 一挂整站封面全黑。 */
+.media-shim { background-color: var(--surface-2); }
+.media-shim.is-armed {
+  /* 扫光：一条比容器宽的亮带从左扫到右 */
+  background-image: linear-gradient(100deg,
+    transparent 28%,
+    color-mix(in oklab, var(--text) 9%, transparent) 46%,
+    transparent 64%);
+  background-size: 220% 100%;
+  background-repeat: no-repeat;
+  animation: media-sweep 1.4s linear infinite;
+}
+/* 加载失败：给一层斜纹，比空白更清楚地说明「这里本该有东西」 */
+.media-shim.is-failed {
+  background-image: repeating-linear-gradient(45deg,
+    color-mix(in oklab, var(--text) 5%, transparent) 0 6px,
+    transparent 6px 12px);
+}
+@keyframes media-sweep {
+  from { background-position: 140% 0; }
+  to   { background-position: -60% 0; }
+}
+html.js .media-shim.is-armed img { opacity: 0; }
+html.js .media-shim.is-armed.is-ready img {
+  opacity: 1;
+  transition: opacity .55s var(--ease-out), transform .8s var(--ease-out), filter .5s;
+}
+html.js .media-shim.is-armed.is-failed img { opacity: 0; }
+
+/* 搜索面板：索引（约 20 KB JSON）没到位时的那一行 */
+.search-loading {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  color: var(--text-3);
+}
+
+/* ---------------------------------------------------------------- 动态壁纸 */
+/* 切到「动态视频」时，静态图会被规则直接透明掉，而视频还在下载 —— 中间那一段
+   就是一片空白。这里让静态图先留任，并在它上面扫一道光，视频可播了再交班。 */
+html[data-bgmode="video"] .bg-layer.is-video-loading .bg-image {
+  opacity: var(--bg-opacity);
+  background-image:
+    linear-gradient(100deg, transparent 28%,
+      color-mix(in oklab, #fff 14%, transparent) 46%, transparent 64%),
+    var(--bg-image);
+  background-size: 220% 100%, cover;
+  background-repeat: no-repeat, no-repeat;
+  animation: bg-sweep 1.8s linear infinite;
+}
+html[data-bgmode="video"] .bg-layer.is-video-loading .bg-video { opacity: 0; }
+@keyframes bg-sweep {
+  from { background-position: 140% 0, center; }
+  to   { background-position: -60% 0, center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-bgmode="video"] .bg-layer.is-video-loading .bg-image { animation: none; }
+}
+
+/* ---------------------------------------------------------------- 启动遮罩 */
+.boot {
+  position: absolute; inset: 0; z-index: 8;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 18px; padding: 24px;
+  background:
+    radial-gradient(70% 60% at 50% 42%, color-mix(in oklab, var(--accent) 10%, transparent), transparent 70%),
+    color-mix(in oklab, var(--bg) 74%, transparent);
+  backdrop-filter: blur(10px) saturate(1.2);
+  -webkit-backdrop-filter: blur(10px) saturate(1.2);
+  /* 延迟 150ms 再淡入：本机打开时 JS 通常 50~130ms 就绪了，不该闪一下遮罩。
+     慢的时候（要等的正是这个场景）150ms 之后它就在了。
+     淡出**不能**再用一个 `from { opacity: 1 }` 的 keyframe —— 那会把一个只淡到 0.05
+     的遮罩硬拉回全不透明再淡出，快加载时反而闪一下（踩过）。
+     改成由 loading.js 把当前值固化成过渡起点（见 __boot.done）。 */
+  opacity: 0;
+  animation: boot-in .25s var(--ease-out) .15s forwards;
+  transition: opacity .3s var(--ease-out), visibility 0s linear .3s;
+}
+.boot.is-done {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;         /* 立刻放行点击，不等淡出走完 */
+}
+@keyframes boot-in { from { opacity: 0; } to { opacity: 1; } }
+
+.boot-visual {
+  position: relative; width: 56px; height: 56px;
+  perspective: 320px;
+  color: var(--accent);
+}
+.boot-cube {
+  position: absolute; inset: 0;
+  transform-style: preserve-3d;
+  animation: boot-spin 4.6s linear infinite;
+}
+.boot-cube i {
+  position: absolute; inset: 0; display: block;
+  border: 1px solid color-mix(in oklab, currentColor 58%, transparent);
+  background: color-mix(in oklab, currentColor 7%, transparent);
+}
+.boot-cube i:nth-child(1) { transform: translateZ(28px); }
+.boot-cube i:nth-child(2) { transform: rotateY(180deg) translateZ(28px); }
+.boot-cube i:nth-child(3) { transform: rotateY(90deg) translateZ(28px); }
+.boot-cube i:nth-child(4) { transform: rotateY(-90deg) translateZ(28px); }
+.boot-cube i:nth-child(5) { transform: rotateX(90deg) translateZ(28px); }
+.boot-cube i:nth-child(6) { transform: rotateX(-90deg) translateZ(28px); }
+/* 四个角标：和 /graph/ 卡片外面的线框包围盒是同一个记号 */
+.boot-corners { position: absolute; inset: -14px; pointer-events: none; }
+.boot-corners span {
+  position: absolute; width: 10px; height: 10px;
+  border: 1px solid color-mix(in oklab, var(--accent-2) 75%, transparent);
+}
+.boot-corners span:nth-child(1) { left: 0; top: 0; border-right: 0; border-bottom: 0; }
+.boot-corners span:nth-child(2) { right: 0; top: 0; border-left: 0; border-bottom: 0; }
+.boot-corners span:nth-child(3) { left: 0; bottom: 0; border-right: 0; border-top: 0; }
+.boot-corners span:nth-child(4) { right: 0; bottom: 0; border-left: 0; border-top: 0; }
+@keyframes boot-spin {
+  from { transform: rotateX(-22deg) rotateY(0deg); }
+  to   { transform: rotateX(-22deg) rotateY(360deg); }
+}
+
+.boot-label {
+  margin: 0; display: inline-flex; align-items: baseline; gap: 6px;
+  font-family: var(--font-mono); font-size: .74rem; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--text-2);
+}
+/* 省略号用一个一个亮起来的小点，比打三个字符省事也更好看 */
+.boot-dots { display: inline-flex; gap: 3px; }
+.boot-dots i {
+  width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: .25;
+  animation: boot-dot 1.2s ease-in-out infinite;
+}
+.boot-dots i:nth-child(2) { animation-delay: .16s; }
+.boot-dots i:nth-child(3) { animation-delay: .32s; }
+@keyframes boot-dot { 0%, 100% { opacity: .22; } 40% { opacity: 1; } }
+
+/* 不定量扫描条：JS 起来之前没有可信的进度，就别假装有 */
+.boot-bar {
+  position: relative; width: min(220px, 46vw); height: 2px; overflow: hidden;
+  border-radius: 2px; background: var(--border);
+}
+.boot-bar i {
+  position: absolute; top: 0; bottom: 0; width: 38%; border-radius: 2px;
+  background: var(--grad-1);
+  animation: boot-sweep 1.25s var(--ease) infinite;
+}
+@keyframes boot-sweep {
+  from { left: -40%; }
+  to   { left: 100%; }
+}
+/* 拿到真实里程碑之后切成定量条（宽由 JS 写内联样式） */
+.boot.is-measured .boot-bar i { animation: none; left: 0; width: 0; transition: width .3s var(--ease-out); }
+
+/* 等太久给一句人话，而不是让人对着转圈猜。
+   刻意做成**纯 CSS 的延迟动画**：JS 没起来时它同样会到点出现 ——
+   如果交给 JS 定时器，恰恰在最需要它的「脚本没到」场景下不会出现。 */
+.boot-hint {
+  margin: 0; max-width: 34ch; text-align: center;
+  font-size: .78rem; line-height: 1.7; color: var(--text-3);
+  opacity: 0;
+  animation: boot-hint-in .5s var(--ease-out) 8s forwards;
+}
+@keyframes boot-hint-in { to { opacity: 1; } }
+.boot.is-done .boot-hint { animation: none; opacity: 0; }
+
+/* 关掉动效时保留结构，去掉所有转动与扫描 */
+@media (prefers-reduced-motion: reduce) {
+  .boot-cube { animation: none; transform: rotateX(-22deg) rotateY(28deg); }
+  .boot-bar i { animation: none; left: 0; width: 34%; }
+  .media-shim { animation: none; }
+  html.js .media-shim.is-ready img { transition: none; }
+}

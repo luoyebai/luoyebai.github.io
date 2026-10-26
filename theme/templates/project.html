@@ -1,0 +1,84 @@
+{{> partials/head.html}}
+
+<article class="post project">
+  <header class="phero{{#if project.cover}} {{#if project.cover_hd}}has-media{{else}}has-media is-soft{{/if}}{{else}} is-plain{{/if}}">
+    {{#if project.cover}}
+    <div class="phero-media media-shim">
+      <img src="{{build.basePath}}/{{project.cover}}"
+           {{#if project.cover_alt}}alt="{{project.cover_alt}}"{{else}}alt="" aria-hidden="true"{{/if}}
+           {{#if project.cover_w}}width="{{project.cover_w}}" height="{{project.cover_h}}"{{/if}}
+           style="object-position: {{project.cover_pos}}"
+           fetchpriority="high" decoding="async">
+    </div>
+    {{/if}}
+    <span class="phero-scrim" aria-hidden="true"></span>
+
+    <div class="phero-inner">
+      <nav class="crumbs" aria-label="面包屑">
+        <a href="{{build.basePath}}/projects/">项目</a>
+        <span aria-hidden="true">/</span>
+        <span class="current">{{project.title}}</span>
+      </nav>
+
+      <div class="post-tags">
+        {{#if project.status}}<span class="pill pill-accent">{{project.status}}</span>{{/if}}
+        {{#each project.tag_links}}
+        <a class="pill" href="{{build.basePath}}/tags/{{slug}}/">{{name}}</a>
+        {{/each}}
+      </div>
+
+      <h1 class="phero-title reveal">{{project.title}}</h1>
+      {{#if project.summary}}<p class="phero-lede reveal">{{project.summary}}</p>{{/if}}
+
+      {{#if project.stack}}
+      <div class="stack reveal">
+        {{#each project.stack}}<span class="chip">{{.}}</span>{{/each}}
+      </div>
+      {{/if}}
+
+      {{#if project.links}}
+      <div class="hero-cta reveal">
+        {{#each project.links}}
+        <a class="btn ghost small" href="{{href}}" rel="noopener">
+          {{label}}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 17 17 7"/><path d="M9 7h8v8"/>
+          </svg>
+        </a>
+        {{/each}}
+      </div>
+      {{/if}}
+    </div>
+  </header>
+
+  <div class="post-layout">
+    {{#if project.toc}}
+    <aside class="post-aside">
+      <nav class="toc" data-toc aria-label="目录">
+        <p class="toc-title">目录</p>
+        <ul>
+          {{#each project.toc}}
+          <li class="toc-l{{level}}"><a href="#{{id}}">{{text}}</a></li>
+          {{/each}}
+        </ul>
+      </nav>
+    </aside>
+    {{/if}}
+
+    <div class="post-main">
+      {{#if project.toc}}
+      <details class="mobile-toc">
+        <summary>本页目录</summary>
+        <nav aria-label="本页目录"><ul>
+          {{#each project.toc}}<li class="toc-l{{level}}"><a href="#{{id}}">{{text}}</a></li>{{/each}}
+        </ul></nav>
+      </details>
+      {{/if}}
+
+      <div class="prose reveal">{{{project.html}}}</div>
+      <div class="post-end"><span class="end-mark" aria-hidden="true">◆</span></div>
+    </div>
+  </div>
+</article>
+
+{{> partials/foot.html}}

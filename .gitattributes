@@ -1,0 +1,17 @@
+# 统一换行：仓库里存 LF，任何平台检出也是 LF。
+#
+# 不写这一条时，Windows 的 `core.autocrlf=true` 会把检出的文本换成 CRLF ——
+# `assets/docs/**` 里那些可下载的示例代码会被原样复制进 public/，
+# 于是「从仓库构建出来的站点」和「本机构建出来的站点」字节数就不一样了：
+# 构建不再可复现，对比产物的探针也会莫名其妙地漂。
+* text=auto eol=lf
+
+# 明确按二进制处理（text=auto 一般也能认出来，写出来是为了不依赖猜测）
+*.wasm binary
+*.mp4 binary
+*.webm binary
+*.zip binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary

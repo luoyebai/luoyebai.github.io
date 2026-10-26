@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>写作后台 · 洛叶白</title>
+<link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<link rel="stylesheet" href="/admin/admin.css?v=recovery1">
+<script>
+/* 首屏前恢复后台主题，避免闪一下；?atheme=xxx 可临时覆盖 */
+try {
+  var q = new URLSearchParams(location.search);
+  var t = q.get('atheme') || localStorage.getItem('blog.admin.theme');
+  if (t) document.documentElement.setAttribute('data-admin-theme', t);
+} catch (e) {}
+</script>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="glyph" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3.5" y="7" width="17" height="12" rx="4"/>
+        <circle cx="9" cy="13" r="1.5" fill="currentColor" stroke="none"/>
+        <circle cx="15" cy="13" r="1.5" fill="currentColor" stroke="none"/>
+        <path d="M12 7V3.6"/><circle cx="12" cy="2.9" r="1.2"/>
+      </svg>
+    </span>
+    <div class="brand-text">
+      <b>写作后台</b>
+      <i id="siteName">…</i>
+    </div>
+  </div>
+
+  <div class="actions">
+    <span class="dirty" id="dirty" hidden>未保存</span>
+
+    <div class="theme-pick">
+      <button class="icon" type="button" data-act="theme-menu" aria-label="后台主题" title="后台主题">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.8-.8 1.8-1.8 0-.5-.2-.9-.5-1.2s-.5-.7-.5-1.2c0-1 .8-1.8 1.8-1.8H16a5 5 0 0 0 5-5c0-3.9-4-7-9-7Z"/>
+          <circle cx="7.6" cy="12.4" r="1.2" fill="currentColor" stroke="none"/>
+          <circle cx="10" cy="8" r="1.2" fill="currentColor" stroke="none"/>
+          <circle cx="14.6" cy="8.2" r="1.2" fill="currentColor" stroke="none"/>
+        </svg>
+      </button>
+      <div class="theme-menu" id="themeMenu" hidden>
+        <p>后台主题</p>
+        <button type="button" data-admin-theme="midnight"><i class="sw" style="background:linear-gradient(135deg,#ff9d5c,#7aa2ff)"></i>暮色<b>midnight</b></button>
+        <button type="button" data-admin-theme="violet"><i class="sw" style="background:linear-gradient(135deg,#c07bff,#46d5e8)"></i>紫罗兰<b>violet</b></button>
+        <button type="button" data-admin-theme="ocean"><i class="sw" style="background:linear-gradient(135deg,#3fc6d8,#6ea8ff)"></i>深海<b>ocean</b></button>
+        <button type="button" data-admin-theme="forest"><i class="sw" style="background:linear-gradient(135deg,#5ddc9a,#d6e86a)"></i>苔原<b>forest</b></button>
+        <button type="button" data-admin-theme="rose"><i class="sw" style="background:linear-gradient(135deg,#ff7eb2,#b98bff)"></i>玫瑰<b>rose</b></button>
+        <button type="button" data-admin-theme="paper"><i class="sw" style="background:linear-gradient(135deg,#c2600f,#2f6ea8)"></i>纸面<b>light</b></button>
+      </div>
+    </div>
+
+    <button class="btn" data-act="new-post">＋ 新文章</button>
+    <button class="btn primary" data-act="new-doc">＋ 新建 PPT 文档</button>
+    <button class="btn ghost" data-act="site">站点设置</button>
+    <button class="btn ghost" data-act="themes">主题</button>
+    <button class="btn ghost" data-act="recovery">恢复中心<span id="draftCount"></span></button>
+    <button class="btn ghost" data-act="build">构建站点</button>
+    <button class="btn ghost" data-act="deploy" title="构建 → 自检 → 提交 → 推送到 GitHub Pages">发布到线上</button>
+    <a class="btn ghost" id="viewSite" href="http://127.0.0.1:4201/" target="_blank" rel="noopener">打开站点 ↗</a>
+  </div>
+</header>
+
+<main class="layout">
+  <aside class="sidebar">
+    <div class="side-head">
+      <input type="search" id="q" placeholder="搜索标题、标签…" autocomplete="off">
+      <div class="tabs" id="tabs"></div>
+    </div>
+    <div class="doclist" id="list"></div>
+    <div class="side-foot" id="sideFoot"></div>
+  </aside>
+
+  <section class="editor">
+    <div class="empty" id="empty">
+      <div class="empty-inner">
+        <p class="empty-icon">✎</p>
+        <p>从左侧选一篇开始编辑</p>
+        <p class="hint">或者</p>
+        <div class="empty-btns">
+          <button class="btn" data-act="new-post">新建文章</button>
+          <button class="btn ghost" data-act="new-project">新建项目</button>
+          <button class="btn ghost" data-act="new-page">新建页面</button>
+          <button class="btn ghost" data-act="new-doc">新建文档</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="editor-body" id="editorBody" hidden>
+      <div class="workspace-head"><div><span class="workspace-kicker">CONTENT STUDIO</span><h1 id="editingTitle">内容编辑</h1></div><button class="btn ghost tiny" data-act="toggle-meta" aria-expanded="true">收起文档信息</button></div>
+      <div class="meta" id="meta"></div>
+      <div class="slide-workbench" id="slideWorkbench" hidden>
+        <div class="slide-actions"><strong>PPT 页面</strong><span class="hint">选择一页编辑 · 拖动 ⠿ 排序</span><span class="spacer"></span>
+          <select id="slideTemplate" aria-label="新页面模板"><option value="content">要点页</option><option value="cover">章节页</option><option value="code">代码页</option><option value="image">图文页</option></select>
+          <button class="btn tiny" data-act="slide-add">＋ 添加页</button><button class="btn ghost tiny" data-act="slide-copy">复制页</button><button class="btn ghost tiny" data-act="doc-image">插入图片</button>
+          <button class="btn ghost tiny" data-act="slide-up" aria-label="当前页前移">前移</button><button class="btn ghost tiny" data-act="slide-down" aria-label="当前页后移">后移</button>
+          <button class="btn ghost tiny" data-act="slide-remove">移除页</button><button class="btn ghost tiny" data-act="slide-undo" disabled>撤销操作</button>
+          <button class="btn ghost tiny" data-act="insert-step" title="插入 --，后面的内容在下一步显示">＋ 展示步骤</button>
+          <button class="btn ghost tiny" data-act="slide-source" aria-pressed="false">全文源码</button>
+        </div><div class="slide-rail" id="slideRail" role="group" aria-label="PPT 页面导航"></div>
+      </div>
+
+      <div class="split">
+        <div class="pane">
+          <div class="pane-head">
+            <span>Markdown</span>
+            <!-- 插入工具条：只做纯文本插入，跟手写 Markdown 完全等价。
+                 快捷键：Ctrl/Cmd + B 粗体、I 斜体、E 行内代码、K 链接。 -->
+            <span class="md-tools" role="toolbar" aria-label="插入 Markdown">
+              <button type="button" class="md-btn" data-md="bold" title="粗体（Ctrl+B）"><b>B</b></button>
+              <button type="button" class="md-btn" data-md="italic" title="斜体（Ctrl+I）"><i>I</i></button>
+              <button type="button" class="md-btn" data-md="code" title="行内代码（Ctrl+E）">&lt;/&gt;</button>
+              <button type="button" class="md-btn" data-md="link" title="链接（Ctrl+K）">链接</button>
+              <button type="button" class="md-btn" data-md="image" title="插入图片（也可以直接把图粘进来）">图</button>
+              <button type="button" class="md-btn" data-md="list" title="无序列表">列表</button>
+              <button type="button" class="md-btn" data-md="quote" title="引用">引用</button>
+              <button type="button" class="md-btn" data-md="codeblock" title="代码块">代码</button>
+              <button type="button" class="md-btn" data-md="table" title="表格">表格</button>
+              <button type="button" class="md-btn" data-md="callout" title="提示框">提示</button>
+              <button type="button" class="md-btn" data-md="gallery" title="并排图组">图组</button>
+              <button type="button" class="md-btn" data-md="math" title="公式">公式</button>
+              <button type="button" class="md-btn" data-md="hr" title="分隔线">线</button>
+            </span>
+            <span class="mono" id="counter">—</span>
+          </div>
+          <textarea id="body" spellcheck="false" aria-label="Markdown 正文" placeholder="开始写……"></textarea>
+          <textarea id="slideBody" spellcheck="false" aria-label="当前页 Markdown" placeholder="写下这一页的标题和内容…" hidden></textarea>
+        </div>
+        <div class="pane">
+          <div class="pane-head preview-head">
+            <span>实时预览</span>
+            <span class="pane-tools">
+              <label class="preview-sync" title="滚动右侧预览，左侧会跟随到对应的 Markdown 段落"><input id="previewSync" type="checkbox" checked>滚动同步</label>
+              <!-- 文档是幻灯片，预览也要能一页页翻；这一排只在 doc 类型下露出来。
+                   注意：admin/*.html 是**原样发给浏览器**的静态文件，不走模板引擎，
+                   所以这里只能用 HTML 注释，写模板注释语法会连花括号一起显示出来。 -->
+              <span class="deck-tools" id="deckTools" hidden>
+                <button class="icon" type="button" data-act="deck-prev" title="上一页">‹</button>
+                <span class="mono" id="deckNo">1 / 1</span>
+                <button class="icon" type="button" data-act="deck-next" title="下一页">›</button>
+                <button class="btn ghost tiny" type="button" data-act="deck-all">通读</button>
+                <select id="figPick" title="在光标处插入一张插图">
+                  <option value="">＋ 插图…</option>
+                </select>
+              </span>
+              <button class="btn ghost tiny" type="button" data-act="checkup"
+                      title="检查标题长度、摘要、图片说明和外链域名">体检</button>
+              <span class="mono" id="previewInfo">—</span>
+            </span>
+          </div>
+          <p class="preview-error" id="previewError" role="status" hidden></p>
+          <div class="preview" id="preview" aria-label="博客实时预览"></div>
+        </div>
+      </div>
+
+      <div class="statusbar">
+        <span id="statusText" role="status" aria-live="polite">—</span>
+        <span class="spacer"></span>
+        <button class="btn ghost danger" data-act="delete">删除</button>
+        <button class="btn ghost" data-act="history">版本历史</button>
+        <button class="btn ghost" data-act="reload">放弃改动</button>
+        <button class="btn" data-act="save">保存</button>
+        <button class="btn primary" data-act="save-build">保存并构建</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- 站点设置 -->
+<div class="modal" id="siteModal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-panel wide">
+    <header class="modal-head">
+      <h2>站点设置</h2>
+      <button class="icon" data-close aria-label="关闭">✕</button>
+    </header>
+    <div class="modal-body" id="siteForm"></div>
+    <footer class="modal-foot">
+      <span class="save-status" id="siteSaveStatus" role="status" aria-live="polite"></span>
+      <button class="btn primary" data-act="save-site">保存设置</button>
+      <button class="btn ghost" data-close>取消</button>
+    </footer>
+  </div>
+</div>
+
+<!-- 主题管理 -->
+<div class="modal" id="themeModal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-panel wide">
+    <header class="modal-head">
+      <h2>主题管理</h2>
+      <button class="icon" data-close aria-label="关闭">✕</button>
+    </header>
+    <div class="modal-tools">
+      <span class="hint">共 <b id="themeCount">0</b> 套主题。点左侧缩略图可换背景图；改完点保存。</span>
+      <span style="flex:1"></span>
+      <button class="btn ghost" data-act="add-theme">＋ 新增主题</button>
+      <button class="btn ghost" data-act="close-themes">放弃改动</button>
+    </div>
+    <div class="modal-body"><div class="theme-list" id="themeList"></div></div>
+    <footer class="modal-foot">
+      <span class="save-status" id="themeSaveStatus" role="status" aria-live="polite"></span>
+      <button class="btn primary" data-act="save-themes">保存主题</button>
+      <button class="btn ghost" data-act="close-themes">取消</button>
+    </footer>
+  </div>
+</div>
+
+<div class="modal" id="recoveryModal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <section class="modal-panel wide" role="dialog" aria-modal="true" aria-labelledby="recoveryTitle">
+    <header class="modal-head"><h2 id="recoveryTitle">恢复中心</h2><button class="icon" data-close aria-label="关闭恢复中心">✕</button></header>
+    <div class="modal-tools recovery-tabs">
+      <button class="btn" data-recovery-tab="drafts">未保存暂存</button>
+      <button class="btn" data-recovery-tab="history">版本历史</button>
+      <button class="btn" data-recovery-tab="trash">回收站</button>
+    </div>
+    <div class="modal-body">
+      <p class="hint" id="recoveryContext"></p>
+      <p class="hint">暂存在当前浏览器；历史版本与回收站保存在本机工作区，不会发布到博客。不会自动清理历史内容。</p>
+      <div id="recoveryList" aria-live="polite"></div>
+      <div class="recovery-paging" id="recoveryPaging" hidden><button class="btn ghost tiny" id="recoveryPrev" data-act="recovery-prev">上一页</button><span id="recoveryPage"></span><button class="btn ghost tiny" id="recoveryNext" data-act="recovery-next">下一页</button></div>
+      <section id="recoveryDetail" hidden>
+        <details id="recoveryDiffWrap" open><summary>与当前已保存内容的差异（− 当前，＋ 历史）</summary><pre id="recoveryDiff" class="recovery-code"></pre></details>
+        <details open><summary>原始内容</summary><pre id="recoverySource" class="recovery-code"></pre></details>
+      </section>
+    </div>
+    <footer class="modal-foot"><button class="btn ghost" data-close>关闭</button></footer>
+  </section>
+</div>
+
+<!-- 通用输入 / 确认弹窗（替代原生 prompt/confirm） -->
+<div class="modal" id="askModal" hidden>
+  <div class="modal-backdrop" data-ask-cancel></div>
+  <div class="modal-panel ask-panel">
+    <header class="modal-head">
+      <h2 id="askTitle">输入</h2>
+      <button class="icon" data-ask-cancel aria-label="关闭">✕</button>
+    </header>
+    <div class="modal-body">
+      <p class="ask-message" id="askMessage"></p>
+      <label class="field" id="askField"><span id="askLabel">名称</span>
+        <input type="text" id="askInput" autocomplete="off"></label>
+      <p class="hint" id="askHint"></p>
+    </div>
+    <footer class="modal-foot">
+      <button class="btn primary" id="askOk" data-ask-ok>确定</button>
+      <button class="btn ghost" data-ask-cancel>取消</button>
+    </footer>
+  </div>
+</div>
+
+<!-- 图片选择 -->
+<div class="modal" id="imgModal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-panel wide">
+    <header class="modal-head">
+      <h2 id="imgTitle">选择图片</h2>
+      <button class="icon" data-close aria-label="关闭">✕</button>
+    </header>
+    <div class="modal-tools">
+      <!-- 两个页签：本地已有图片 / 在线图源。
+           admin 的 HTML 是原样吐出去的（不过模板引擎），所以注释用 HTML 的写法。 -->
+      <div class="seg" id="imgTabs" role="tablist">
+        <button type="button" class="seg-btn is-active" data-img-tab="local" role="tab">本地图片</button>
+        <button type="button" class="seg-btn" data-img-tab="online" role="tab">在线图源</button>
+      </div>
+      <label class="btn ghost file">
+        上传图片
+        <input type="file" id="imgFile" hidden
+               accept=".jpg,.jpeg,.png,.webp,.gif,.avif,.svg,image/jpeg,image/png,image/webp,image/gif,image/avif,image/svg+xml">
+      </label>
+      <span class="hint" id="imgHint">支持 jpg / png / webp / gif / avif / svg，单张最大 12MB（HEIC 请先转成 jpg）</span>
+    </div>
+
+    <!-- 在线图源：搜索 → 选一张 → 由后台下载、压成 WebP 落进 assets/uploads/ -->
+    <div class="online-bar" id="onlineBar" hidden>
+      <div class="seg" id="onlineProv" role="tablist">
+        <button type="button" class="seg-btn is-active" data-prov="wallhaven" role="tab">wallhaven</button>
+        <button type="button" class="seg-btn" data-prov="4kwallpapers" role="tab">4kwallpapers</button>
+      </div>
+      <input type="search" id="onlineQ" value="robot"
+             placeholder="搜索关键词（wallhaven）或分类（4kwallpapers）" autocomplete="off">
+      <button class="btn" type="button" id="onlineGo">搜索</button>
+      <button class="btn ghost" type="button" id="onlineRandom" title="换一批随机的">随机</button>
+      <span class="pager">
+        <button class="btn ghost" type="button" id="onlinePrev" title="上一页">‹</button>
+        <span class="hint mono" id="onlinePage">1 / 1</span>
+        <button class="btn ghost" type="button" id="onlineNext" title="下一页">›</button>
+      </span>
+      <span class="hint" id="onlineHint"></span>
+    </div>
+
+    <div class="modal-body">
+      <div class="img-grid" id="imgGrid"></div>
+      <div class="img-grid online-grid" id="onlineGrid" hidden></div>
+      <div class="online-cats" id="onlineCats" hidden></div>
+    </div>
+
+    <!-- 选中之后先在这儿看大图，确认了再「使用这张」。
+         以前是点一下直接生效，想反悔得重新找一遍。 -->
+    <div class="img-preview" id="imgPreview" hidden>
+      <div class="img-preview-shot" id="imgPreviewShot">
+        <span class="img-preview-empty" id="imgPreviewEmpty">正在取预览…</span>
+      </div>
+      <div class="img-preview-side">
+        <p class="img-preview-name" id="imgPreviewName"></p>
+        <p class="hint" id="imgPreviewMeta"></p>
+        <div class="img-preview-actions">
+          <button class="btn primary" type="button" id="imgPreviewUse">使用这张</button>
+          <button class="btn ghost" type="button" id="imgPreviewCancel">取消</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<div class="loading" id="loading" role="status" aria-label="正在处理请求" hidden><span></span></div>
+
+<script src="/admin/preview.js?v=studio7"></script>
+<script src="/admin/admin.js?v=recovery1"></script>
+</body>
+</html>

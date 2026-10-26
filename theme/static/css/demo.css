@@ -1,0 +1,155 @@
+/* =========================================================================
+   demo.css —— 文章里的「可运行示例」面板
+   结构见 tools/mdparse.py 的 render_demo()
+   ========================================================================= */
+
+.demo {
+  position: relative;
+  margin: 1.6em 0;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-2);
+  background: var(--surface-glass);
+  overflow: hidden;
+  box-shadow: var(--shadow-1);
+}
+/* 左侧一条渐变竖条，一眼能看出这不是普通代码块 */
+.demo::before {
+  content: "";
+  position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--grad-1);
+  opacity: .85;
+}
+
+/* ---------- 头部 ---------- */
+.demo-head {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 9px 14px 9px 17px;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in oklab, var(--surface-2) 70%, transparent);
+}
+.demo-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: .18em .6em; border-radius: var(--radius-pill);
+  font-size: .7rem; font-weight: 600; letter-spacing: .02em;
+  color: var(--accent-contrast, #10131c);
+  background: var(--grad-1);
+}
+.demo-lang {
+  font-family: var(--font-mono); font-size: .72rem;
+  color: var(--text-3); letter-spacing: .02em;
+}
+.demo-actions { margin-left: auto; display: flex; align-items: center; gap: 7px; }
+
+.demo-run, .demo-reset, .demo-toggle, .demo .code-copy {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: .34em .8em; border-radius: var(--radius-sm);
+  font-size: .78rem; font-family: var(--font-body);
+  color: var(--text-2);
+  background: var(--surface-2); border: 1px solid var(--border-2);
+  transition: color .18s, background .18s, border-color .18s, transform .18s var(--ease);
+}
+.demo-run:hover, .demo-reset:hover, .demo-toggle:hover, .demo .code-copy:hover {
+  color: var(--text); border-color: var(--accent); transform: translateY(-1px);
+}
+.demo-run {
+  color: var(--accent-contrast, #10131c); font-weight: 600;
+  background: var(--grad-1); border-color: transparent;
+  box-shadow: 0 6px 18px -10px var(--accent);
+}
+.demo-run:hover { filter: brightness(1.08); color: var(--accent-contrast, #10131c); }
+.demo-run svg { width: 13px; height: 13px; fill: currentColor; }
+.demo-toggle .demo-caret {
+  width: 14px; height: 14px; flex-shrink: 0;
+  transition: transform .22s var(--ease);
+}
+.demo-toggle.is-open .demo-caret { transform: rotate(180deg); }
+.demo.is-running .demo-run svg { animation: demo-pulse 1s ease-in-out infinite; }
+@keyframes demo-pulse { 50% { opacity: .35; } }
+
+/* ---------- 源码 ---------- */
+.demo .code-pre {
+  margin: 0; padding: 14px 16px 14px 18px;
+  font-family: var(--font-mono); font-size: .83rem; line-height: 1.72;
+  overflow-x: auto;
+  background: color-mix(in oklab, #000 22%, transparent);
+  border-bottom: 1px solid var(--border);
+}
+
+/* ---------- 结果区 ---------- */
+.demo-stage {
+  padding: 0;
+  background: color-mix(in oklab, var(--surface) 82%, transparent);
+  animation: demo-in .3s var(--ease);
+}
+@keyframes demo-in { from { opacity: 0; transform: translateY(-4px); } }
+
+.demo-frame-wrap { position: relative; }
+.demo-frame {
+  display: block; width: 100%; height: 0; min-height: 0;
+  border: 0; background: transparent;
+  transition: height .18s var(--ease);
+}
+.demo-frame-wrap:empty { display: none; }
+
+/* ---------- 输出（console，画在父页面：可用站点样式、可选中复制） ---------- */
+.demo-log {
+  max-height: 300px; overflow-y: auto;
+  padding: 10px 16px;
+  font-family: var(--font-mono);
+  font-size: .78rem; line-height: 1.7;
+  border-top: 1px solid var(--border);
+  background: color-mix(in oklab, #000 22%, transparent);
+}
+html[data-mode="light"] .demo-log { background: color-mix(in oklab, #000 4%, var(--surface-2)); }
+.demo-line { padding: 1px 0; white-space: pre-wrap; word-break: break-word; }
+.demo-line::before { content: "› "; color: var(--text-3); opacity: .55; }
+.demo-line.is-warn { color: var(--warn, #e5b45c); }
+.demo-line.is-error { color: var(--danger, #e8706d); }
+.demo-line.is-muted { color: var(--text-3); font-style: italic; }
+.demo-line.is-muted::before { content: ""; }
+
+.demo-status {
+  margin: 0; padding: 7px 16px 9px;
+  font-size: .75rem; color: var(--text-3);
+  border-top: 1px solid var(--border);
+}
+.demo-status:empty { display: none; }
+.demo-status.is-done { color: var(--ok, #5cc98d); }
+.demo-status.is-error { color: var(--danger, #e8706d); }
+
+.demo.is-error { border-color: color-mix(in oklab, var(--danger, #e8706d) 45%, transparent); }
+.demo.is-blocked { border-color: color-mix(in oklab, var(--warn, #e5b45c) 50%, transparent); }
+
+.demo-noscript { margin: 0; padding: 10px 16px; font-size: .8rem; color: var(--text-3); }
+
+/* 亮色主题下源码底色不要太黑 */
+html[data-mode="light"] .demo .code-pre {
+  background: color-mix(in oklab, #000 5%, var(--surface-2));
+}
+
+/* ---------- 移动端 ---------- */
+@media (max-width: 640px) {
+  .demo-head { padding: 8px 12px 8px 14px; }
+  .demo-actions { gap: 5px; }
+  .demo-lang { display: none; }
+  .demo-run, .demo-reset, .demo .code-copy { padding: .34em .6em; font-size: .74rem; }
+  .demo .code-pre { padding: 12px 13px 12px 15px; font-size: .78rem; }
+}
+
+/* 打印时把结果区裁掉，只留源码 */
+@media print {
+  .demo-stage, .demo-actions { display: none; }
+}
+/* Reader-activated physics lab, separate from arbitrary runnable snippets. */
+.mujoco-embed { margin: 30px 0; border: 1px solid var(--border-2); border-radius: 18px; overflow: hidden; background: var(--surface-glass); }
+.mujoco-embed-intro { padding: clamp(20px,4vw,34px); background: radial-gradient(ellipse at 90% 0,var(--accent-soft),transparent 65%); }
+.mujoco-embed .mujoco-tag { color: var(--accent); font: 11px var(--font-mono); letter-spacing: .12em; }
+.mujoco-embed h3 { margin: 14px 0 12px; }
+.mujoco-embed-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 20px; margin-top: 20px; }
+.mujoco-embed button { font: inherit; padding: 10px 16px; border-radius: 10px; border: 1px solid var(--accent); color: var(--text); background: var(--accent-soft); cursor: pointer; }
+.mujoco-embed button:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.mujoco-embed .mujoco-embed-note { margin: 14px 0 0; color: var(--text-3); font-size: 12px; }
+.mujoco-embed iframe { display: block; width: 100%; height: 1080px; border: 0; background: var(--bg); }
+.mujoco-embed .mujoco-unload { display: block; margin: 12px auto; border-color: var(--border-2); font-size: 12px; }
+.mujoco-embed [hidden] { display: none !important; }
+@media(max-width:600px) { .mujoco-embed iframe { height: 1430px; } }

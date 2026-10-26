@@ -1,0 +1,197 @@
+<div class="settings" id="settings" hidden>
+  <div class="settings-backdrop" data-close-settings></div>
+  <aside class="settings-panel" role="dialog" aria-modal="true" aria-label="外观设置">
+    <header class="settings-head">
+      <div>
+        <h2>外观设置</h2>
+        <p>设置会保存在本机浏览器，刷新后保持</p>
+      </div>
+      <button class="icon-btn" type="button" data-close-settings aria-label="关闭">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path d="M6 6l12 12M18 6 6 18"/>
+        </svg>
+      </button>
+    </header>
+
+    <div class="settings-body">
+
+      <section class="set-group">
+        <h3>专注阅读</h3>
+        <div class="set-field">
+          <span class="set-label">阅读预设</span>
+          <div class="seg" data-seg="focus">
+            <button type="button" data-val="off">日常</button>
+            <button type="button" data-val="on">专注</button>
+          </div>
+        </div>
+        <p class="set-note">收起壁纸、聚光和装饰动效，缩小文章头图区并保留封面；主题配色不变，退出后恢复原来的外观设置。</p>
+      </section>
+
+      <section class="set-group">
+        <h3>主题</h3>
+        <div class="theme-grid">
+          {{#each themes}}
+          <button class="theme-card" type="button" data-theme-pick="{{id}}" title="{{name}}">
+            <span class="theme-thumb" style="background-image:url({{build.basePath}}/{{bg}})">
+              <span class="theme-swatches">
+                {{#each swatch}}<i style="background:{{.}}"></i>{{/each}}
+              </span>
+            </span>
+            <span class="theme-name">{{name}}</span>
+          </button>
+          {{/each}}
+        </div>
+      </section>
+
+      <section class="set-group">
+        <h3>配色</h3>
+        <div class="set-field">
+          <span class="set-label">明暗模式</span>
+          <div class="seg" data-seg="mode">
+            <button type="button" data-val="dark">深色</button>
+            <button type="button" data-val="light">浅色</button>
+          </div>
+        </div>
+        <div class="set-field set-field--inline">
+          <span class="set-label">强调色覆盖</span>
+          <input type="color" data-color="accent" value="#ff9d5c" aria-label="强调色">
+        </div>
+        <p class="set-note">强调色默认由主题的种子色推导；想临时改一个色就动这里，留空色块即为跟随主题。</p>
+      </section>
+
+      <section class="set-group">
+        <h3>排版</h3>
+        <div class="set-field">
+          <span class="set-label">正文字体</span>
+          <div class="seg" data-seg="font">
+            <button type="button" data-val="sans">黑体</button>
+            <button type="button" data-val="serif">宋体</button>
+            <button type="button" data-val="mono">等宽</button>
+          </div>
+        </div>
+        <div class="set-field">
+          <span class="set-label">字号 <b data-out="scale">—</b></span>
+          <input type="range" data-range="scale" min="0.9" max="1.25" step="0.01" value="1" aria-label="字号">
+        </div>
+        <div class="set-field">
+          <span class="set-label">阅读宽度</span>
+          <div class="seg" data-seg="width">
+            <button type="button" data-val="narrow">窄</button>
+            <button type="button" data-val="normal">标准</button>
+            <button type="button" data-val="wide">宽</button>
+          </div>
+        </div>
+        <p class="set-note">黑体 / 宋体随站点自带，不依赖本机字体。</p>
+      </section>
+
+      <section class="set-group">
+        <h3>玻璃材质</h3>
+        <div class="set-field">
+          <span class="set-label">质感档位</span>
+          <div class="seg" data-seg="glass">
+            <button type="button" data-val="off">关闭</button>
+            <button type="button" data-val="low">弱</button>
+            <button type="button" data-val="med">中</button>
+            <button type="button" data-val="high">强</button>
+          </div>
+        </div>
+        <div class="set-field">
+          <span class="set-label">不透明度 <b data-out="glassAlpha">—</b></span>
+          <input type="range" data-range="glassAlpha" min="40" max="100" step="1" value="72" aria-label="玻璃不透明度">
+        </div>
+        <p class="set-note">越低越透、背后的壁纸越明显；低于 60% 时文字在花哨壁纸上会不太好读。选「关闭」为实底。</p>
+      </section>
+
+      <section class="set-group">
+        <h3>背景壁纸</h3>
+        <div class="set-field">
+          <span class="set-label">显示</span>
+          <div class="seg" data-seg="bg">
+            <button type="button" data-val="on">显示</button>
+            <button type="button" data-val="off">隐藏</button>
+          </div>
+        </div>
+        <div class="set-field">
+          <span class="set-label">来源</span>
+          <div class="seg" data-seg="bgmode">
+            <button type="button" data-val="image">静态图</button>
+            <button type="button" data-val="video">动态视频</button>
+          </div>
+        </div>
+        <p class="set-note">无声循环视频按当前主题加载；切到「动态视频」后才加载，后台标签页会暂停。</p>
+        <div class="set-divider"></div>
+        <div class="set-field">
+          <span class="set-label">可见度 <b data-out="bgOpacity">—</b></span>
+          <input type="range" data-range="bgOpacity" min="0" max="100" step="2" value="62" aria-label="壁纸可见度">
+        </div>
+        <div class="set-field">
+          <span class="set-label">模糊 <b data-out="bgBlur">—</b></span>
+          <input type="range" data-range="bgBlur" min="0" max="40" step="1" value="0" aria-label="壁纸模糊">
+        </div>
+      </section>
+
+      <section class="set-group">
+        <h3>交互</h3>
+        <div class="set-field">
+          <span class="set-label">卡片 3D 倾斜</span>
+          <div class="seg" data-seg="tilt">
+            <button type="button" data-val="0">关闭</button>
+            <button type="button" data-val="6">轻微</button>
+            <button type="button" data-val="12">标准</button>
+            <button type="button" data-val="20">明显</button>
+          </div>
+        </div>
+        <p class="set-note">鼠标移到文章 / 项目卡片上时跟着倾斜的角度，仅在精确指针设备生效。</p>
+        <div class="set-divider"></div>
+        <div class="set-field">
+          <span class="set-label">页面动效</span>
+          <div class="seg" data-seg="motion">
+            <button type="button" data-val="on">开启</button>
+            <button type="button" data-val="off">关闭</button>
+          </div>
+        </div>
+        <div class="set-field">
+          <span class="set-label">鼠标指针</span>
+          <div class="seg" data-seg="cursor">
+            <button type="button" data-val="glow">微光</button>
+            <button type="button" data-val="on">圆环</button>
+            <button type="button" data-val="off">系统</button>
+          </div>
+        </div>
+        <p class="set-note">微光保留系统指针，移动时轻柔跟随，进入正文或输入框时收起；圆环悬停时会变形。关闭页面动效或使用触屏时，自动使用系统指针。</p>
+      </section>
+
+    </div>
+
+    <footer class="settings-foot">
+      <button class="btn ghost" type="button" data-reset-appearance>恢复默认</button>
+      <button class="btn primary" type="button" data-close-settings>完成</button>
+    </footer>
+  </aside>
+</div>
+
+<div class="search" id="search" hidden>
+  <div class="search-backdrop" data-close-search></div>
+  <div class="search-panel" role="dialog" aria-modal="true" aria-label="搜索">
+    <div class="search-input">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <circle cx="11" cy="11" r="6.5"/><path d="M16.2 16.2 21 21"/>
+      </svg>
+      <input type="search" placeholder="搜索文章、项目、文档…" autocomplete="off" spellcheck="false" data-search-input>
+      <kbd>Esc</kbd>
+    </div>
+    <div class="search-results" data-search-results>
+      <p class="search-hint">输入关键词开始搜索 · ↑↓ 选择 · Enter 打开</p>
+    </div>
+  </div>
+</div>
+
+<div class="mobile-menu" id="mobile-menu" hidden>
+  <div class="mobile-menu-backdrop" data-close-menu></div>
+  <nav class="mobile-menu-panel">
+    {{#each nav}}<a href="{{build.basePath}}{{href}}"{{#if active}} class="is-active" aria-current="page"{{/if}}>{{label}}</a>{{/each}}
+    <div class="mobile-menu-social">
+      {{#each social}}<a href="{{href}}" rel="noopener">{{label}}</a>{{/each}}
+    </div>
+  </nav>
+</div>

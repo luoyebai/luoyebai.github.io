@@ -1,0 +1,151 @@
+{{> partials/head.html}}
+
+<section class="graph-page">
+  <header class="graph-head">
+    <div class="graph-head-copy">
+      <p class="graph-kicker"><span class="dot" aria-hidden="true"></span>KNOWLEDGE ATLAS</p>
+      <h1>知识图谱<span class="graph-title-note">让知识彼此连接。</span></h1>
+      <p class="graph-lede">在书架间翻阅，在星云中发现联系。每一条弧线，都来自两篇内容共同的主题。</p>
+      <a class="graph-route-link" href="{{build.basePath}}/learning/">从学习路线开始 <span aria-hidden="true">↗</span></a>
+    </div>
+    <dl class="graph-overview" aria-label="书库概览">
+      <div><dt>文章</dt><dd>{{graph.post}}</dd></div>
+      <div><dt>项目</dt><dd>{{graph.project}}</dd></div>
+      <div><dt>主题</dt><dd>{{graph.tags}}</dd></div>
+    </dl>
+  </header>
+
+  <div class="graph-bar">
+    <label class="graph-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+      </svg>
+      <input id="graph-q" type="search" placeholder="找一本书，或一个主题…" autocomplete="off" aria-label="搜索书目" aria-controls="graph-result-list">
+    </label>
+    <div class="graph-seg" id="graph-layout" role="group" aria-label="布局">
+      <button type="button" data-val="shelf" class="is-on" aria-pressed="true">书架</button>
+      <button type="button" data-val="nebula" aria-pressed="false">星云</button>
+    </div>
+    <button type="button" class="graph-btn" id="graph-auto" aria-pressed="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>
+      </svg>
+      自动巡航
+    </button>
+    <button type="button" class="graph-btn" id="graph-reset">复位视角</button>
+  </div>
+
+  <div class="graph-filter-row">
+    <div class="graph-seg" id="graph-kind" role="group" aria-label="内容类型">
+      <button type="button" data-kind="all" class="is-on" aria-pressed="true">全部</button>
+      <button type="button" data-kind="post" aria-pressed="false">文章</button>
+      <button type="button" data-kind="project" aria-pressed="false">项目</button>
+    </div>
+    <button type="button" class="graph-btn" id="graph-clear" hidden>清除筛选</button>
+    <p class="graph-filter-note">悬停看关联，点击开始阅读。</p>
+  </div>
+
+  <div class="graph-stage" id="graph-stage" role="region" aria-label="三维知识书库" aria-describedby="graph-hint" tabindex="0" data-cursor="drag" data-cursor-label="拖动探索">
+    <canvas class="graph-canvas" id="graph-canvas" aria-hidden="true"></canvas>
+
+    {{! 启动遮罩：3D 这一页要等 site.js + graph.js 两个包下完，
+        再跑一遍建卡片 / 连线 / 拟合镜头，冷启动时舞台会空一小会儿。
+        造型直接借用这座书库自己的视觉语言：线框包围盒 + 强调色辉光。
+        它是**服务端渲染**的，所以在 JS 到位之前就已经盖在舞台上了。 }}
+    <div class="boot" id="graph-boot" data-boot="graph" role="status" aria-live="polite">
+      <div class="boot-visual" aria-hidden="true">
+        <div class="boot-cube"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="boot-corners"><span></span><span></span><span></span><span></span></div>
+      </div>
+      <p class="boot-label">
+        <span class="boot-text">正在取书库数据</span>
+        <span class="boot-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+      </p>
+      <div class="boot-bar" aria-hidden="true"><i></i></div>
+      <p class="boot-hint">书库还在准备。可以先在下方书目目录中阅读。</p>
+    </div>
+
+    <div class="graph-world" id="graph-world">
+      {{#each nodes}}
+      <a class="gcard gcl-{{cloth}}{{#if archived}} is-archived{{/if}}" href="{{url}}"
+         data-idx="{{idx}}" data-kind="{{kind}}" data-year="{{year}}" data-cloth="{{cloth}}"
+         data-date="{{date}}" data-tags="{{tags_csv}}">
+        <span class="gcard-frame" aria-hidden="true"></span>
+        <span class="gcard-head" aria-hidden="true"></span>
+        <span class="gcard-edge" aria-hidden="true"></span>
+        <span class="gcard-body">
+          <span class="gcard-top">
+            <span class="gcard-kind">{{type_label}}</span>
+            <span class="gcard-date">{{date_text}}</span>
+          </span>
+          <span class="gcard-title">{{title}}</span>
+          <span class="gcard-sum">{{summary}}</span>
+          <span class="gcard-foot">
+            {{#each tags}}<span class="gcard-tag">{{this}}</span>{{/each}}
+          </span>
+        </span>
+      </a>
+      {{/each}}
+    </div>
+
+    <div class="graph-labels" id="graph-labels" aria-hidden="true"></div>
+    <canvas class="graph-links" id="graph-links" aria-hidden="true"></canvas>
+    <div class="graph-vignette" aria-hidden="true"></div>
+
+  </div>
+
+  <div class="graph-stage-footer">
+    <div class="graph-stage-meta">
+      <span class="graph-chip" id="graph-status">{{graph.total}} 本书 · 正在准备视图</span>
+      <p id="graph-hint">拖空白处转动 · 拖书本抽出 · Shift + 滚轮缩放</p>
+    </div>
+    <div class="graph-zoom" role="group" aria-label="缩放视图">
+      <button type="button" class="graph-btn" id="graph-zoom-out" aria-label="缩小视图">−</button>
+      <output id="graph-zoom-label" aria-label="当前缩放">100%</output>
+      <button type="button" class="graph-btn" id="graph-zoom-in" aria-label="放大视图">+</button>
+    </div>
+  </div>
+
+  <div class="graph-reading">
+    <section class="graph-detail" id="graph-detail" aria-labelledby="graph-detail-title">
+      <p class="graph-detail-eyebrow">ON THE SHELF <span id="graph-detail-kind">{{graph_initial.type_label}}</span></p>
+      <h2 id="graph-detail-title">{{#if graph_initial}}{{graph_initial.title}}{{else}}书库正在生长{{/if}}</h2>
+      <p id="graph-detail-summary">{{graph_initial.summary}}</p>
+      <div id="graph-detail-tags" class="graph-detail-tags">{{#each graph_initial.tags}}<span>{{this}}</span>{{/each}}</div>
+      <a id="graph-detail-link" class="graph-read-link" href="{{#if graph_initial}}{{graph_initial.url}}{{else}}{{build.basePath}}/posts/{{/if}}"{{#unless graph_initial}} hidden{{/unless}}>打开阅读 <span aria-hidden="true">↗</span></a>
+      <div id="graph-detail-related" class="graph-detail-related"></div>
+    </section>
+    <section class="graph-topics" aria-labelledby="graph-topics-title">
+      <p class="graph-detail-eyebrow">FIND A CONNECTION</p>
+      <h2 id="graph-topics-title">沿着主题继续探索</h2>
+      <p class="graph-topics-note">选择标签，聚焦书库中的相关内容。</p>
+      <div class="graph-legend" id="graph-legend">
+        {{#each legend_tags}}
+        <button type="button" class="graph-tag-chip" data-tag="{{name}}" aria-pressed="false" style="--n:{{count}}">
+          {{name}}<i>{{count}}</i>
+        </button>
+        {{/each}}
+      </div>
+    </section>
+  </div>
+
+  <details class="graph-results" id="graph-results">
+    <summary><span>书目目录</span><span id="graph-result-count" role="status" aria-live="polite">{{graph.total}} 本，可直接阅读</span></summary>
+    <p id="graph-empty" hidden>没有找到匹配的书目。试试更短的关键词，或清除筛选。</p>
+    <ul class="graph-result-list" id="graph-result-list">
+      {{#each nodes}}
+      <li class="graph-result" data-idx="{{idx}}" data-kind="{{kind}}">
+        <a class="graph-result-link" href="{{url}}">
+          <span class="graph-result-kind">{{type_label}}{{#if archived}} · 归档{{/if}}</span>
+          <h3>{{title}}</h3>
+          <p class="graph-result-summary">{{summary}}</p>
+          <span class="graph-result-tags">{{#each tags}}<span>{{this}}</span>{{/each}}</span>
+          <span class="graph-result-arrow" aria-hidden="true">↗</span>
+        </a>
+      </li>
+      {{/each}}
+    </ul>
+  </details>
+</section>
+
+{{> partials/foot.html}}

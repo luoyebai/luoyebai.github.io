@@ -1,0 +1,60 @@
+/* 与首页共享留白、渐变与星系语汇；只在交互时绘制连线。 */
+.lost { display:grid; grid-template-columns:1fr 1.1fr; align-items:center; gap:clamp(24px,4vw,64px); max-width:var(--content-max); min-height:min(820px,calc(100svh - var(--header-h))); margin:auto; padding:70px 24px 90px; }
+.lost-copy { min-width:0; }
+.lost-kicker { display:inline-flex; align-items:center; gap:10px; margin:0 0 26px; font:500 .68rem/1.5 var(--font-mono); letter-spacing:.1em; color:var(--text-2); }
+.lost-kicker > span { width:6px; height:6px; border-radius:50%; background:var(--accent); box-shadow:0 0 12px var(--accent-soft); }
+.lost h1 { margin:0; font:750 clamp(2rem,3.5vw,3.4rem)/1.3 var(--font-sans); letter-spacing:-.035em; }
+.lost h1 .grad-text { background-image:linear-gradient(110deg,var(--text) 10%,color-mix(in oklab,var(--text) 75%,var(--accent)) 45%,color-mix(in oklab,var(--text) 70%,var(--accent-2))); animation:none; }
+.lost-intro { margin:24px 0 28px; color:var(--text-2); font-size:.94rem; line-height:1.95; }
+.lost-actions { display:flex; align-items:center; flex-wrap:wrap; gap:12px; }
+.lost-actions .btn { font-size:.86rem; }
+.lost-shortcuts { display:flex; gap:25px; margin:24px 0 0; font-size:.78rem; }
+.lost-shortcuts a { color:var(--text-2); padding:5px 0; }
+.lost-shortcuts span { margin-left:5px; color:var(--text-3); }
+.lost-shortcuts a:hover, .lost-shortcuts a:hover span { color:var(--accent); }
+.lost-mission { margin-top:42px; padding-top:20px; max-width:400px; border-top:1px solid var(--border); }
+.lost-mission-head { display:flex; justify-content:space-between; gap:12px; color:var(--text-2); font-size:.77rem; }
+#lost-count { font:500 .7rem var(--font-mono); color:var(--accent); }
+.lost-mission p { margin:10px 0 15px; min-height:3.4em; font-size:.76rem; line-height:1.7; color:var(--text-3); overflow-wrap:anywhere; }
+.lost-progress { display:flex; gap:8px; }
+.lost-progress i { flex:1; height:2px; background:var(--border-2); transition:background .3s; }
+.lost-progress .is-found { background:var(--accent); }
+.lost-chart { min-width:0; }
+.lost-chart-heading, .lost-chart-footer { display:flex; align-items:center; justify-content:space-between; gap:12px; color:var(--text-2); font:400 .68rem/1.7 var(--font-mono); }
+.lost-chart-heading { padding:0 4px 18px; border-bottom:1px solid var(--border); }
+.lost-chart-footer { padding:18px 4px 0; border-top:1px solid var(--border); font-family:var(--font-body); }
+.lost-space { position:relative; width:100%; aspect-ratio:600 / 460; isolation:isolate; }
+.lost-map { display:block; width:100%; height:100%; overflow:visible; color:var(--accent-2); }
+.lost-halo-core { stop-color:var(--accent-2); stop-opacity:.12; }
+.lost-guides { stroke:var(--border-2); stroke-width:1; }
+.lost-number { fill:color-mix(in oklab,var(--accent) 9%,transparent); stroke:color-mix(in oklab,var(--accent) 55%,var(--border)); stroke-width:.8; font:500 160px var(--font-mono); letter-spacing:-14px; }
+.lost-dust { fill:var(--accent-2); opacity:.65; }
+.lost-connections path { stroke:var(--accent); stroke-width:1.3; stroke-dasharray:240; stroke-dashoffset:240; transition:stroke-dashoffset .65s var(--ease); }
+.lost-connections .is-linked { stroke-dashoffset:0; }
+.lost-core { stroke:var(--accent-2); stroke-width:1; }
+.lost-core > circle:first-child { fill:var(--accent-2); fill-opacity:.2; }
+.lost-core-ring { opacity:.45; }
+.lost-beacon { position:absolute; width:64px; height:64px; display:grid; place-content:center; transform:translate(-50%,-50%); color:var(--accent); background:transparent; border:0; cursor:pointer; touch-action:manipulation; }
+.lost-beacon > span { font-size:35px; line-height:1; text-shadow:0 0 22px var(--accent-soft); transition:transform .25s; }
+.lost-beacon > small { position:absolute; left:50%; top:calc(50% + 22px); transform:translateX(-50%); font:400 10px var(--font-mono); color:var(--text-3); }
+.beacon-a { left:20%; top:28.69565%; }
+.beacon-b { left:81.33333%; top:40.86957%; }
+.beacon-c { left:55.33333%; top:80.43478%; }
+.lost-beacon:hover > span { transform:rotate(45deg) scale(1.18); }
+.lost-beacon:focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-radius:50%; }
+.lost-beacon.is-found { color:var(--accent-2); cursor:default; }
+.lost-beacon.is-found > span { transform:scale(.65); }
+.lost-beacon.is-found > small { color:var(--accent-2); }
+.is-rescued .lost-core-ring { animation:lost-connect .7s ease-out; }
+.is-rescued #lost-signal { color:var(--accent-2); }
+.lost [hidden] { display:none!important; }
+@keyframes lost-connect { from { stroke-width:4; opacity:1; } to { stroke-width:1; opacity:0; } }
+@media(max-width:860px) {
+  .lost { grid-template-columns:1fr; max-width:660px; padding:42px 24px 56px; gap:42px; min-height:auto; }
+  .lost h1 { font-size:clamp(2rem,6vw,3.1rem); }
+  .lost-mission { max-width:none; margin-top:28px; }
+  .lost-mission p { min-height:0; }
+}
+@media(max-width:400px) { .lost { padding-inline:20px; } .lost-chart-footer { flex-wrap:wrap; font-size:.6rem; } }
+html[data-motion="off"] .lost *, html[data-motion="off"] .lost *::after { animation:none!important; transition:none!important; }
+@media(prefers-reduced-motion:reduce) { .lost *, .lost *::after { animation:none!important; transition:none!important; } }

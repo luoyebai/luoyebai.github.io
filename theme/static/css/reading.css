@@ -1,0 +1,29 @@
+/* 阅读布局保持适宜行宽；目录在窄屏上仍可使用。 */
+.post-main > .prose { max-width: var(--prose-max); }
+.post-main .prose h2 { font-size: clamp(1.3rem, 2.2vw, 1.6rem); line-height: 1.5; }
+.post-main .prose h3 { line-height: 1.5; }
+.post-main .prose :is(h2,h3,h4) { text-wrap: balance; }
+.prose .heading-anchor:focus-visible { opacity: 1; }
+.post-main .table-wrap { backdrop-filter: none; -webkit-backdrop-filter: none; }
+.table-wrap:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.post-main .prose td { vertical-align: top; }
+.post-main .prose tbody tr:nth-child(even) { background: var(--accent-softer); }
+.post-main .prose pre { tab-size: 4; }
+.mobile-toc { display: none; }
+@media (max-width: 1080px) {
+  .mobile-toc { display: block; max-width: var(--prose-max); margin: 0 0 28px; border-block: 1px solid var(--border); }
+  .mobile-toc summary { padding: 15px 4px; color: var(--accent); font-size: .9rem; font-weight: 650; cursor: pointer; }
+  .mobile-toc nav { padding: 0 8px 18px; }
+  .mobile-toc ul { list-style: none; margin: 0; padding: 0; }
+  .mobile-toc a { display: block; padding: 7px 0; line-height: 1.5; color: var(--text-2); }
+  .mobile-toc .toc-l3 { padding-left: 16px; }
+  .mobile-toc .toc-l4 { padding-left: 32px; }
+}
+@media (max-width: 600px) {
+  .post-layout { padding-inline: 16px; gap: 24px; }
+  .post-main .prose { font-size: 1rem; line-height: 1.85; }
+  .post-main .prose table { min-width: 480px; }
+  .post-main .prose :not(pre) > code { overflow-wrap: anywhere; }
+  .phero-title { overflow-wrap: anywhere; }
+}
+@media print { .mobile-toc { display: none; } }

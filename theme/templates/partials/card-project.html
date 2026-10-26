@@ -1,0 +1,45 @@
+<article class="card project-card reveal" data-tiltable>
+  {{! 命中层：绝对定位铺满整张卡片，永不参与变形，所以点击永远可靠。
+      标签要单独可点，所以不能把内容包进这个 <a>（<a> 不能嵌套）。 }}
+  <a class="card-link" href="{{build.basePath}}{{url}}"><span class="sr-only">{{title}}</span></a>
+  <div class="card-tilt">
+    {{#if cover}}
+    <div class="card-cover media-shim{{#unless cover_wide}} is-fit{{/unless}}">
+      {{#unless cover_wide}}
+      <span class="card-cover-blur" style="background-image:url('{{build.basePath}}/{{cover}}')" aria-hidden="true"></span>
+      {{/unless}}
+      <img src="{{build.basePath}}/{{cover}}"
+           {{#if cover_alt}}alt="{{cover_alt}}"{{else}}alt=""{{/if}}
+           {{#if cover_w}}width="{{cover_w}}" height="{{cover_h}}"{{/if}}
+           style="object-position: {{cover_pos}}"
+           loading="lazy" decoding="async">
+      <span class="card-cover-veil"></span>
+    </div>
+    {{/if}}
+    <div class="card-body">
+      <div class="card-tags">
+        {{#if status}}<span class="pill pill-accent">{{status}}</span>{{/if}}
+        {{#each tag_links}}<a class="pill" href="{{build.basePath}}/tags/{{slug}}/">{{name}}</a>{{/each}}
+      </div>
+      <h3 class="card-title">{{title}}</h3>
+      <p class="card-summary">{{summary}}</p>
+      {{#if stack}}
+      <div class="stack">
+        {{#each stack}}<span class="chip">{{.}}</span>{{/each}}
+      </div>
+      {{/if}}
+      <div class="card-meta">
+        <time datetime="{{date}}">{{date_text}}</time>
+        <span class="card-meta-end">
+          {{#if archived}}<span class="pin pin-muted" title="已归档">归档</span>{{/if}}
+          {{#if featured}}<span class="pin" title="精选">精选</span>{{/if}}
+          <span class="card-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/>
+            </svg>
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>
+</article>
