@@ -9,9 +9,7 @@
     "url": "https://luoyebai.github.io",
     "lang": "zh-CN",
     "author": "洛叶白",
-    "email": "2112216825@qq.com",
-    "emailAlt": "luoyebai4444@gmail.com",
-    "phone": "13407209575",
+    "email": "luoyebai4444@gmail.com",
     "org": "宁波均普人工智能与人形机器人研究院（均胜集团）",
     "nowDoing": "轮式双臂机器人（智元 G2）的工业场景落地与工具链",
     "startYear": 2022,
@@ -64,16 +62,8 @@
       "href": "https://github.com/luoyebai"
     },
     {
-      "label": "邮箱",
-      "href": "mailto:2112216825@qq.com"
-    },
-    {
       "label": "Gmail",
       "href": "mailto:luoyebai4444@gmail.com"
-    },
-    {
-      "label": "电话",
-      "href": "tel:13407209575"
     }
   ],
   "hero": {

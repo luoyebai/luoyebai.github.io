@@ -120,6 +120,28 @@ python tools/build.py --clean      # 只构建到 public/
 
 > 站点预览必须挂在**独立的根路径**上，所以它用单独端口（4201），而不是后台的子路径。
 
+### 源码仓库与「没有本机也能写」
+
+源码公开在 <https://github.com/luoyebai/luoyebai.github.io>：`main` 分支就是这份代码，
+`gh-pages` 分支是构建产物。clone 下来只需要 Python 3.11+（没有任何第三方依赖）：
+
+```bash
+git clone https://github.com/luoyebai/luoyebai.github.io.git
+cd luoyebai.github.io
+python tools/build.py --clean     # 构建到 public/
+python tools/build.py --serve     # 起预览 http://127.0.0.1:4173
+```
+
+手上没有装环境的时候用 **GitHub Codespaces** —— 浏览器里的 VS Code + 一台云端 Linux：
+
+1. 仓库页 → 绿色 `Code` → `Codespaces` 标签 → `Create codespace on main`（首次等 30–60 秒）；
+2. 终端里 `python tools/admin.py`，右下角会弹「4200 端口已转发」，点开就是写作后台；
+3. 端口可见性保持 **Private**（默认），只有你自己（GitHub 登录态）能打开。
+
+**它不是服务器**：空闲 30 分钟自动停，停了后台就没了 —— 适合「随手写一篇」，
+不适合当 7×24 在线的后台。另外仓库页按 `.` 打开的是 `github.dev`（纯网页编辑器，
+没有终端、跑不了 Python），别和 Codespaces 搞混。
+
 ## 写作后台
 
 ### 阅读、实验与内容恢复
@@ -1636,8 +1658,11 @@ python tools/deploy.py --base /<仓库名>
 > 子路径部署已实测：`--base /blog` 构建后挂在 `/blog/` 下，17 个请求 0 个 404，
 > 卡片跳转、字体加载、可运行示例的沙箱都正常。
 
-**自动化**：仓库里附了 `.github/workflows/deploy.yml`，推到 `main` 自动构建并发布，
-以后不用手动构建。首次使用把里面的 `BASE_PATH` 按上面两种情况设好。
+**自动化**：仓库里附了 `.github/workflows/build.yml` —— 推到 `main` 会自动构建并跑
+`check-site.py`，**只做自检、不发布**（发布仍然走 `deploy.py` → `gh-pages`）。
+早先这个工作流是「构建 + `actions/deploy-pages`」，把源码搬进 `luoyebai.github.io`
+这个仓库之后，它会和「从分支发布」的设置抢同一个 Pages 站点，所以收成了纯自检；
+哪天想改用 Actions 发布，得先到 Settings → Pages 把来源切成 GitHub Actions。
 
 ### 方式二：Cloudflare Pages / Vercel / Netlify
 

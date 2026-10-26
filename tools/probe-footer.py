@@ -35,6 +35,12 @@ PUBLIC = os.path.join(ROOT, "public")
 PORT = 4188
 SHOTS = os.path.join(ROOT, "_shots")
 BASE = "http://127.0.0.1:%d" % PORT
+# 页脚社交胶囊的**期望数量从站点配置里取**，不写死。
+# 写死过一次：联系方式从「GitHub / 邮箱 / Gmail / 电话」收成「GitHub / Gmail」时，
+# 这条断言红了 —— 红的不是页脚，是断言把内容当成了不变式。从配置取，就等于
+# 「配置里有几个，页脚就得渲染几个」；少渲染一个仍然会红。
+CFG = json.load(io.open(os.path.join(ROOT, "site.config.json"), encoding="utf-8"))
+WANT_CHIPS = len(CFG.get("social") or [])
 
 # 各种版式都要有页脚：首页、列表、正文、文档（自带阅读器）、图谱（全屏舞台）、404
 PAGES = [
@@ -145,8 +151,9 @@ def main():
                 ok(m["cols"] == 3 and m["links"] >= 3 and m["navs"] >= 8,
                    "%s：三组链接齐全（列 %d / 条目 %d / 导航 %d）"
                    % (label, m["cols"], m["links"], m["navs"]))
-                ok(m["chips"] >= 3 and m["stats"] == 4 and m["metas"] >= 4,
-                   "%s：社交 %d、统计 %d、字体/站点 %d" % (label, m["chips"], m["stats"], m["metas"]))
+                ok(m["chips"] == WANT_CHIPS and m["stats"] == 4 and m["metas"] >= 4,
+                   "%s：社交 %d/%d、统计 %d、字体/站点 %d"
+                   % (label, m["chips"], WANT_CHIPS, m["stats"], m["metas"]))
                 ok(m["emptyMeta"] == 0,
                    "%s：没有渲染成空白的胶囊（空 %d 个）" % (label, m["emptyMeta"]))
                 ok(m["gapBelow"] == 0, "%s：页脚下面没有留空（%d px）" % (label, m["gapBelow"]))

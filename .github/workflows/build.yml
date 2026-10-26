@@ -1,0 +1,44 @@
+name: 构建自检
+
+# 站点**不从这里发布**。
+# 公开的那份产物由本机的 `python tools/deploy.py` 推到 `luoyebai.github.io` 的
+# `gh-pages` 分支（GitHub Pages 设的是「从分支发布」）。早先这个文件是
+# 「构建 + `actions/deploy-pages`」，把源码搬到这个仓库之后会和分支发布打架：
+# 两个发布者抢同一个 Pages 站点，Actions 那条必然报错，而且会覆盖仓库里
+# 「Pages 来源」的设置。
+#
+# 所以它现在只做一件事：**每次 push 都证明这份源码能构建出完整站点**。
+# 想改回 Actions 发布，需要先把仓库 Settings → Pages 的来源切到 GitHub Actions。
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  # 用户站点（仓库名 luoyebai.github.io，站点在根路径）→ 留空
+  # 项目站点（站点在 /<仓库名>/）→ 改成 /<仓库名>
+  BASE_PATH: ""
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # 生成器是纯 Python 标准库实现，不需要 pip install 任何东西。
+      # 壁纸随源码一起提交，所以这里构建出来的站点和本机一致。
+      - name: 构建站点
+        run: |
+          python tools/build.py --clean ${{ env.BASE_PATH != '' && format('--base {0}', env.BASE_PATH) || '' }}
+
+      - name: 自检（链接 / 静态资源 / 字体字形 / sitemap / 搜索索引）
+        run: |
+          python tools/check-site.py --dir public ${{ env.BASE_PATH != '' && format('--base {0}', env.BASE_PATH) || '' }}

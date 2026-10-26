@@ -91,8 +91,6 @@ DDS 传输选型、QoS 配置、共享内存与零拷贝、发现机制，以及
 ## 联系
 
 - GitHub：[@luoyebai](https://github.com/luoyebai)
-- 邮箱：[2112216825@qq.com](mailto:2112216825@qq.com)
 - Gmail：[luoyebai4444@gmail.com](mailto:luoyebai4444@gmail.com)
-- 电话：[13407209575](tel:13407209575)
 
 欢迎交流机器人中间件、运动控制、强化学习部署，以及开发工具相关的问题。开源项目的问题可以在对应仓库提交 issue；文章勘误或技术讨论也可以发邮件，附上页面链接、问题背景和复现信息会更方便沟通。
