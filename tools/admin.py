@@ -13,6 +13,7 @@ import datetime as dt
 import difflib
 import functools
 import hashlib
+import hmac
 import http.server
 import json
 import os
@@ -22,6 +23,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import time
 import traceback
 import urllib.parse
 import urllib.request
@@ -475,6 +477,65 @@ summary: 一句话说清这篇文档讲什么。
 }
 
 
+# ---------------------------------------------------------------- 登录鉴权
+#
+# 默认语义不变：**不给密码，就只听回环地址，来了就当主人**。
+# 一旦要走公网，密码是硬门槛 —— 这个后台能改文章、往 assets/ 传文件、还能
+# `subprocess` 跑构建，没有任何内建权限概念；把没密码的它挂到公网，
+# 等于把「写权限」交给全网的扫描器（首页没有登录页也照样会被扫到）。
+#
+#   本机：   python tools/admin.py
+#   公网：   ADMIN_PASSWORD='...' python tools/admin.py --host 0.0.0.0 --port 4200
+#            （前面必须再套一层 HTTPS 反向代理，见 README「在公网上用后台」）
+#
+# 会话 = 一个 HMAC 签名串，`_auth_secret` 每次启动随机：重启即全部失效，
+# 改密码也会让旧 cookie 立刻作废。cookie 带 HttpOnly + SameSite=Strict；
+# 反向代理传 `X-Forwarded-Proto: https` 时再加 Secure。
+# 登录失败按来源 IP 限速（10 分钟 5 次），挡住最基本的撞库。
+
+_auth_password = ""
+_auth_public_url = ""
+_auth_secret = os.urandom(32)
+_login_fails: dict = {}
+LOGIN_WINDOW = 600.0
+LOGIN_LIMIT = 5
+LOOPBACK_HOSTS = {"127.0.0.1", "localhost", "::1"}
+
+LOGIN_HTML = """<!doctype html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>写作后台 · 登录</title>
+<style>
+  :root { color-scheme: dark }
+  * { box-sizing: border-box }
+  body { margin:0; min-height:100vh; display:grid; place-items:center; background:#0b1020;
+         color:#e4edf5; font:15px/1.6 -apple-system,"Segoe UI","Noto Sans SC",sans-serif }
+  form { width:min(360px,88vw); padding:28px; border:1px solid rgba(244,243,243,.14);
+         border-radius:16px; background:rgba(255,255,255,.04) }
+  h1 { margin:0 0 4px; font-size:1.05rem }
+  .sub { margin:0 0 20px; color:#8291a5; font-size:.8rem }
+  label { display:block; margin-bottom:8px; color:#8291a5; font-size:.78rem }
+  input { width:100%; padding:11px 13px; border-radius:10px; border:1px solid rgba(244,243,243,.18);
+          background:rgba(11,16,32,.6); color:inherit; font:inherit }
+  button { margin-top:16px; width:100%; padding:11px; border:0; border-radius:10px; cursor:pointer;
+           background:#e65c00; color:#fff; font:inherit; font-weight:600 }
+  .err { margin:0 0 14px; color:#ff8f6b; font-size:.82rem }
+</style></head>
+<body>
+<form method="post" action="/login">
+  <h1>写作后台</h1>
+  <p class="sub">洛叶白 · 洛叶白博客</p>
+  {{error}}
+  <label for="pw">密码</label>
+  <input id="pw" name="password" type="password" autocomplete="current-password" autofocus required>
+  <button type="submit">进入</button>
+</form>
+</body></html>
+"""
+
+
 # ---------------------------------------------------------------- 请求处理
 
 class Handler(BaseHTTPRequestHandler):
@@ -520,8 +581,104 @@ class Handler(BaseHTTPRequestHandler):
         except (UnicodeDecodeError, json.JSONDecodeError) as exc:
             raise ValueError(f"请求体不是合法 JSON：{exc}") from exc
 
+    # -- 登录鉴权 ----------------------------------------------------
+    def _cookie(self, name: str) -> str:
+        for part in (self.headers.get("Cookie") or "").split(";"):
+            key, _, value = part.strip().partition("=")
+            if key == name:
+                return value
+        return ""
+
+    def _session_token(self) -> str:
+        # 密码进 HMAC 的输入：改了密码，旧 cookie 立刻对不上
+        return hmac.new(_auth_secret, ("admin:" + _auth_password).encode("utf-8"),
+                        hashlib.sha256).hexdigest()
+
+    def _session_cookie(self, clear: bool = False) -> str:
+        parts = ["admin_session=" + ("" if clear else self._session_token()),
+                 "Path=/", "HttpOnly", "SameSite=Strict",
+                 "Max-Age=0" if clear else "Max-Age=604800"]
+        if (self.headers.get("X-Forwarded-Proto") or "").lower() == "https":
+            parts.append("Secure")
+        return "; ".join(parts)
+
+    def _authed(self) -> bool:
+        if not _auth_password:
+            return True
+        return hmac.compare_digest(self._cookie("admin_session"), self._session_token())
+
+    def _client_ip(self) -> str:
+        # 反代后面的真实来源；没有反代时 XFF 可伪造，但这里只用来限速
+        fwd = (self.headers.get("X-Forwarded-For") or "").split(",")[0].strip()
+        return fwd or self.client_address[0]
+
+    def _throttled(self) -> bool:
+        now = time.time()
+        hits = [t for t in _login_fails.get(self._client_ip(), []) if now - t < LOGIN_WINDOW]
+        if hits:
+            _login_fails[self._client_ip()] = hits
+        else:
+            _login_fails.pop(self._client_ip(), None)
+        return len(hits) >= LOGIN_LIMIT
+
+    def _login_page(self, error: str = "", status: int = 200) -> None:
+        body = LOGIN_HTML.replace("{{error}}", error).encode("utf-8")
+        self._send(status, body, "text/html; charset=utf-8")
+
+    def _gate(self, path: str) -> bool:
+        """返回 True 表示放行；否则已经把响应写完了。"""
+        if not self._authed():
+            if path.startswith("/api/"):
+                self.fail("需要登录", 401)
+            else:
+                self._send(302, b"", "text/plain; charset=utf-8", {"Location": "/login"})
+            return False
+        # 已登录的写请求再核一次来源：cookie 已是 SameSite=Strict，
+        # 这里再挡一遍「别的站点往这个后台提交表单」。
+        if self.command == "POST":
+            origin = self.headers.get("Origin") or ""
+            if origin and urlsplit(origin).netloc != (self.headers.get("Host") or ""):
+                self.fail("跨站请求被拒绝", 403)
+                return False
+        return True
+
+    def handle_login(self) -> None:
+        if self._throttled():
+            self._login_page('<p class="err">试太多次了，等十分钟再来。</p>', 429)
+            return
+        length = int(self.headers.get("Content-Length") or 0)
+        raw = self.rfile.read(length) if length > 0 else b""
+        ctype = (self.headers.get("Content-Type") or "").lower()
+        given = ""
+        if "application/json" in ctype:
+            try:
+                given = str(json.loads(raw.decode("utf-8")).get("password") or "")
+            except (UnicodeDecodeError, json.JSONDecodeError, AttributeError):
+                given = ""
+        else:
+            # 登录页是普通表单提交，不走 JS
+            given = (parse_qs(raw.decode("utf-8", "replace")).get("password") or [""])[0]
+        if given and hmac.compare_digest(given, _auth_password):
+            _login_fails.pop(self._client_ip(), None)
+            self._send(302, b"", "text/plain; charset=utf-8",
+                       {"Location": "/", "Set-Cookie": self._session_cookie()})
+            return
+        _login_fails.setdefault(self._client_ip(), []).append(time.time())
+        self._login_page('<p class="err">密码不对。</p>', 401)
+
+    def handle_logout(self) -> None:
+        self._send(302, b"", "text/plain; charset=utf-8",
+                   {"Location": "/login", "Set-Cookie": self._session_cookie(clear=True)})
+
     # -- 路由 --------------------------------------------------------
     def do_GET(self):
+        path = unquote(urlsplit(self.path).path)
+        if _auth_password and path == "/login":
+            return self._login_page()
+        if _auth_password and path == "/logout":
+            return self.handle_logout()
+        if not self._gate(path):
+            return
         try:
             self.route_get()
         except Exception as exc:                       # noqa: BLE001
@@ -532,6 +689,13 @@ class Handler(BaseHTTPRequestHandler):
         self.do_GET()
 
     def do_POST(self):
+        path = unquote(urlsplit(self.path).path)
+        if _auth_password and path == "/login":
+            return self.handle_login()
+        if _auth_password and path == "/logout":
+            return self.handle_logout()
+        if not self._gate(path):
+            return
         try:
             self.route_post()
         except ValueError as exc:
@@ -678,6 +842,7 @@ class Handler(BaseHTTPRequestHandler):
                           if fn.__doc__ else "")
                      for k, fn in docfigs.FIGURES.items()],
             sitePort=_site_port,
+            siteOrigin=_auth_public_url,
             last_build=_last_build,
             root=ROOT,
         )
@@ -1288,15 +1453,36 @@ def start_site_server(port: int):
 
 
 def main() -> int:
+    global _auth_password, _auth_public_url
     argv = sys.argv[1:]
     port = 4200
     if "--port" in argv:
         port = int(argv[argv.index("--port") + 1])
+    host = os.environ.get("ADMIN_HOST") or "127.0.0.1"
+    if "--host" in argv:
+        host = argv[argv.index("--host") + 1]
+    _auth_password = os.environ.get("ADMIN_PASSWORD") or ""
+    if "--password" in argv:
+        _auth_password = argv[argv.index("--password") + 1]
+    _auth_public_url = (os.environ.get("ADMIN_PUBLIC_URL") or "").rstrip("/")
+    if "--public-url" in argv:
+        _auth_public_url = argv[argv.index("--public-url") + 1].rstrip("/")
+
+    # 没密码就只能待在回环地址上：这不是提示，是拒绝启动。
+    if host not in LOOPBACK_HOSTS and not _auth_password:
+        print("!! 绑定到非回环地址必须设密码，已中止。")
+        print("   ADMIN_PASSWORD='换成长密码' python tools/admin.py --host 0.0.0.0")
+        print("   公网还必须再套一层 HTTPS 反向代理（见 README「在公网上用后台」）")
+        return 2
+    if _auth_password and len(_auth_password) < 8:
+        print("!! 密码太短（至少 8 位）。公网上的后台会被自动扫描。")
+        return 2
+
     os.makedirs(UPLOADS, exist_ok=True)
 
     for i in range(20):
         try:
-            httpd = QuietThreadingHTTPServer(("127.0.0.1", port + i), Handler)
+            httpd = QuietThreadingHTTPServer((host, port + i), Handler)
             port = port + i
             break
         except OSError:
@@ -1312,7 +1498,11 @@ def main() -> int:
         site_srv, site_port = start_site_server(port + 1)
         _site_port = site_port
 
-    print(f"  写作后台: http://127.0.0.1:{port}/")
+    base = _auth_public_url or f"http://{host}:{port}"
+    print(f"  写作后台: {base}/")
+    print("  登录: " + ("已启用密码" if _auth_password else "免登录（只监听回环地址）"))
+    if _auth_password and not _auth_public_url:
+        print("  公网请用 HTTPS 反向代理转发到这个端口，并设 --public-url https://你的域名")
     if site_port:
         print(f"  站点预览: http://127.0.0.1:{site_port}/")
     else:

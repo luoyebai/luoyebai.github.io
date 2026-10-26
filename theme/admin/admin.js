@@ -2158,10 +2158,11 @@
       draftBadge();
       $('siteName').textContent = (r.site.title || '') + ' · ' + (r.site.tagline || '');
       document.title = '写作后台 · ' + (r.site.title || '');
-      // 「打开站点」指向独立端口的站点预览（站点用根绝对路径，不能挂在后台子路径下）
+      // 「打开站点」指向独立端口的站点预览（站点用根绝对路径，不能挂在后台子路径下）。
+      // 走反向代理 / 公网时端口不是 4201 那种直连，所以后台给了 siteOrigin 就优先用它。
       var link = $('viewSite');
-      if (link && r.sitePort) {
-        link.href = location.protocol + '//' + location.hostname + ':' + r.sitePort + '/';
+      if (link && (r.siteOrigin || r.sitePort)) {
+        link.href = r.siteOrigin || (location.protocol + '//' + location.hostname + ':' + r.sitePort + '/');
       }
       renderList();
       fillFigurePicker(r.figures || []);
