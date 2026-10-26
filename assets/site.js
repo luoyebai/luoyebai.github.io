@@ -350,7 +350,7 @@
       }) : [];
       item.top = docTop(item.el);
       item.lag = item.home
-        ? (window.innerWidth <= 700 ? 0 : clamp(siblings.indexOf(item.el), 0, 2) * .035)
+        ? (window.innerWidth <= 700 ? 0 : clamp(siblings.indexOf(item.el), 0, 2) * .085)
         : clamp(siblings.indexOf(item.el), 0, 5) * .07;
     });
     chapters.forEach(function (item) { item.top = docTop(item.el); item.height = Math.max(1, item.el.offsetHeight); });
@@ -363,7 +363,7 @@
     reveals.forEach(function (item) {
       if (!item.home) { item.target = clamp((y + vh * .88 - item.top) / (vh * .44) - item.lag, 0, 1); return; }
       item.target = atBottom || (document.activeElement && item.el.contains(document.activeElement))
-        ? 1 : clamp((y + vh * .94 - item.top) / Math.min(220, vh * .28) - item.lag, 0, 1);
+        ? 1 : clamp((y + vh * .98 - item.top) / (vh * .52) - item.lag, 0, 1);
     });
     chapters.forEach(function (item) {
       item.enterTarget = clamp((y + vh * .9 - item.top) / (vh * .28), 0, 1);
@@ -427,7 +427,7 @@
     var revealChanged = false, revealActive = false;
     reveals.forEach(function (item) {
       var value = Number.isFinite(item.el.__rv) ? item.el.__rv : 0;
-      value = follow(value, item.target, 10, dt, .0001);
+      value = item.home ? item.target : follow(value, item.target, 10, dt, .0001);
       revealChanged = paintReveal(item.el, value) || revealChanged;
       revealActive = revealActive || value !== item.target;
     });

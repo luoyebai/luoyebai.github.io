@@ -23,14 +23,273 @@
   var px = 0, py = 0, tx = 0, ty = 0, pointer = null, pendingPointer = null;
   var interaction = {kind: 'idle', strength: 0, held: false, age: 0, tap: false};
   var spin = 0, targetSpin = 0, deformation = 0, bounds = null;
+  var yawShift = 0;
+  var camera = null, heroCamera = {turn: 0, scale: 1, dx: 0, dy: 0};
+  var neutralCamera = {turn: 0, scale: 1, dx: 0, dy: 0};
+  var heroLeave = 0;
   var debug = /[?&]motion-debug=1(?:&|$)/.test(window.location.search || '');
   var metrics = null, costs = [], intervals = [], metricAt = 0;
   var TAU = Math.PI * 2;
   var ignored = 'a,button,input,textarea,select,[contenteditable]';
   function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+  var flowCanvas = document.getElementById('flow-field');
+  var flowCtx = null;
+  try { flowCtx = flowCanvas && flowCanvas.getContext ? flowCanvas.getContext('2d', {alpha: true}) : null; } catch (ignore) {}
+  var flowW = 0, flowH = 0, flowDpr = 1;
+  var flowVisible = false, flowChapters = [], flowCards = [], flowRows = [];
+  var flowDots = {x: 0, y: 0}, flowBridge = null;
+  var leanX = 0, leanY = 0, leanTX = 0, leanTY = 0;
+  function readStep(el, name) {
+    var v = parseFloat(el.style.getPropertyValue(name));
+    return isFinite(v) ? v : 0;
+  }
+  function measureFlow() {
+    if (!flowCtx) return;
+    flowChapters = [].slice.call(document.querySelectorAll('.home-flow [data-scroll-chapter]'))
+      .filter(function (el) { return !el.hidden && el.offsetParent !== null; });
+    flowCards = [].slice.call(document.querySelectorAll(
+      '.home-flow .direction-card, .home-flow .lab-invitation, .home-flow .card'));
+    flowRows = [].slice.call(document.querySelectorAll('.home-flow .latest-entry'));
+    flowBridge = document.querySelector('.page-home .flow-bridge a');
+    var pills = [].slice.call(document.querySelectorAll('.home-flow .tag-cloud .tag-pill'));
+    pills.forEach(function (pill, index) {
+      pill.style.setProperty('--d', (pills.length > 1 ? index / (pills.length - 1) * .38 : 0).toFixed(3));
+    });
+    var w = Math.max(320, window.innerWidth || 320);
+    var h = Math.max(280, window.innerHeight || 280);
+    var ratio = Math.min(compact ? 1.25 : 2, window.devicePixelRatio || 1);
+    if (w === flowW && h === flowH && ratio === flowDpr) return;
+    flowW = w; flowH = h; flowDpr = ratio;
+    flowCanvas.width = Math.round(w * ratio);
+    flowCanvas.height = Math.round(h * ratio);
+  }
+  function flowDot(context, x, y, r, color, alpha) {
+    context.globalAlpha = alpha; context.fillStyle = color;
+    context.beginPath(); context.arc(x, y, r, 0, TAU); context.fill();
+  }
+  function traceHead(el, rv, out) {
+    var r = el.getBoundingClientRect();
+    var e1 = clamp((rv - .03) * 5, 0, 1), e2 = clamp((rv - .22) * 5, 0, 1);
+    var e3 = clamp((rv - .41) * 5, 0, 1), e4 = clamp((rv - .60) * 5, 0, 1);
+    if (e1 < 1) { out.x = r.left + r.width * e1; out.y = r.top; return true; }
+    if (e2 < 1) { out.x = r.right; out.y = r.top + r.height * e2; return true; }
+    if (e3 < 1) { out.x = r.right - r.width * e3; out.y = r.bottom; return true; }
+    if (e4 < 1) { out.x = r.left; out.y = r.bottom - r.height * e4; return true; }
+    return false;
+  }
+  function drawAmbient(alpha) {
+    if (alpha <= .012 || !flowCtx) return;
+    var saveX = cx, saveY = cy, saveR = radius, saveShift = yawShift, saveCam = camera;
+    var savePX = px, savePY = py;
+    camera = neutralCamera;
+    radius = Math.max(flowW * .58, flowH * .95);
+    cx = flowW * .68; cy = flowH * .30;
+    yawShift = -(window.pageYOffset || 0) * .00055;
+    px = leanX * .55; py = leanY * .55;
+    var steps = compact ? 64 : 120;
+    for (var i = 0; i < 3; i++) {
+      var a0 = time * (.055 + i * .012) + i * 2.1;
+      flowCtx.beginPath();
+      for (var n = 0; n <= steps; n++) {
+        point(i, a0 + n / steps * TAU, temp);
+        if (n === 0) flowCtx.moveTo(temp.x, temp.y); else flowCtx.lineTo(temp.x, temp.y);
+      }
+      flowCtx.strokeStyle = pathColor(i);
+      flowCtx.globalAlpha = alpha * (i === 2 ? .5 : .85);
+      flowCtx.lineWidth = 1;
+      flowCtx.stroke();
+      for (var k = 0; k < 5; k++) {
+        point(i, a0 + (k + .4) * TAU / 5, temp);
+        flowDot(flowCtx, temp.x, temp.y, 1.5, pathColor(i), alpha * (i === 2 ? .5 : .95));
+      }
+    }
+    cx = saveX; cy = saveY; radius = saveR; yawShift = saveShift;
+    px = savePX; py = savePY;
+    camera = saveCam;
+    flowCtx.globalAlpha = 1;
+  }
+  function drawFlow() {
+    if (!flowCtx || !flowW || !flowH) return;
+    var context2 = flowCtx;
+    context2.setTransform(flowDpr, 0, 0, flowDpr, 0, 0);
+    context2.clearRect(0, 0, flowW, flowH);
+    if (staticMode() || !flowVisible || document.hidden) return;
+    var vh = flowH;
+    context2.lineCap = 'round'; context2.lineJoin = 'round';
+    var ambient = bounds ? clamp((vh * .60 - bounds.bottom) / (vh * .70), 0, 1) : 0;
+    if (ambient > .01) drawAmbient(ambient * (colors.light ? .12 : .19));
+    if (flowW <= 700) return;
+    var bridgeRect = flowBridge ? flowBridge.getBoundingClientRect() : null;
+    var bridgeMid = bridgeRect && bridgeRect.height > 0 ? bridgeRect.top + bridgeRect.height / 2 : null;
+    for (var ci = 0; ci < flowChapters.length; ci++) {
+      var el = flowChapters[ci];
+      var r = el.getBoundingClientRect();
+      if (r.bottom < -80 || r.top > vh + 80) continue;
+      var enter = readStep(el, '--chapter-enter');
+      var progress = readStep(el, '--chapter-progress');
+      var railX = Math.round(r.left + 24) + .5;    
+      var top = Math.max(r.top, -40);
+      var bottom = Math.min(r.bottom, vh + 40);
+      var bridgeY = null;
+      if (ci === 0 && bridgeMid !== null && bridgeMid > -60 && bridgeMid < vh + 60) {
+        bridgeY = bridgeMid;
+        if (bridgeY < top) top = Math.max(bridgeY, -40);
+      }
+      if (bottom - top < 2) continue;
+      var headY = r.top + (r.bottom - r.top) * progress;
+      var headClamped = clamp(headY, top, bottom);
+      if (enter > .2) {
+        var bands = el.querySelectorAll('.direction-card, .lab-invitation, .card, .latest-entry, .tag-cloud');
+        var bandTops = [];
+        for (var bi = 0; bi < bands.length; bi++) {
+          var bandRect = bands[bi].getBoundingClientRect();
+          if (bandRect.width < 60 || bandRect.bottom < -20 || bandRect.top > vh + 20) continue;
+          var dupRow = false;
+          for (var bj = 0; bj < bandTops.length; bj++) {
+            if (Math.abs(bandTops[bj] - bandRect.top) < 6) { dupRow = true; break; }
+          }
+          if (dupRow) continue;
+          bandTops.push(bandRect.top);
+          var bandRv = readStep(bands[bi], '--rv');
+          if (bandRv < .1) continue;
+          context2.globalAlpha = (.09 + .15 * bandRv) * enter;
+          context2.strokeStyle = colors.muted; context2.lineWidth = 1;
+          context2.beginPath();
+          context2.moveTo(railX + .5, bandRect.top + .5);
+          context2.lineTo(railX + 6.5, bandRect.top + .5);
+          context2.stroke();
+        }
+      }
+      if (progress > .02 && progress < .995 && enter > .02) {
+        var tone = ci % 2 ? colors.warm : colors.accent;
+        var tail = 18 + 10 * Math.sin(time * .9 + ci * 1.7);
+        context2.globalAlpha = .5 * enter;
+        context2.strokeStyle = tone; context2.lineWidth = 1.5;
+        context2.beginPath();
+        context2.moveTo(railX, Math.max(top, headClamped - tail));
+        context2.lineTo(railX, headClamped);
+        context2.stroke();
+        flowDot(context2, railX, headClamped, 7, tone, .13 * enter);
+        flowDot(context2, railX, headClamped, 2.6, tone, .85 * enter);
+        flowDot(context2, railX, headClamped, .9, colors.bg, .9 * enter);
+      }
+      if (ci === 0 && bridgeY !== null && bridgeRect) {
+        var brEnter = clamp((vh * .55 - bridgeRect.top) / 200, 0, 1);
+        context2.globalAlpha = .22 + .5 * brEnter;
+        context2.strokeStyle = colors.accent; context2.lineWidth = 1;
+        context2.beginPath(); context2.arc(railX, bridgeY, 4.6, 0, TAU); context2.stroke();
+        flowDot(context2, railX, bridgeY, 1.6, colors.accent, .3 + .55 * brEnter);
+        context2.globalAlpha = .26 + .34 * brEnter;
+        context2.beginPath();
+        context2.moveTo(railX + 5, bridgeY); context2.lineTo(bridgeRect.left, bridgeY); context2.stroke();
+        var railStart = r.top + 35;
+        if (railStart > bridgeY + 6) {
+          var seamLine = context2.createLinearGradient(0, bridgeY, 0, railStart);
+          seamLine.addColorStop(0, colors.accent);
+          seamLine.addColorStop(1, colors.muted);
+          context2.globalAlpha = .3 + .35 * brEnter;
+          context2.strokeStyle = seamLine;
+          context2.beginPath(); context2.moveTo(railX, bridgeY + 5.5); context2.lineTo(railX, railStart); context2.stroke();
+        }
+      }
+      var cap = el.querySelector('.flow-caption');
+      if (cap) {
+        var cr = cap.getBoundingClientRect();
+        var capY = cr.top + cr.height / 2;
+        if (capY > -20 && capY < vh + 20) {
+          if (enter > .04) {
+            context2.globalAlpha = .16 + .3 * enter;
+            context2.strokeStyle = colors.accent; context2.lineWidth = 1;
+            context2.beginPath();
+            context2.moveTo(railX + 5, capY); context2.lineTo(cr.left, capY); context2.stroke();
+          }
+          flowDot(context2, railX, capY, 4.4, colors.accent, .18 + enter * .5);
+          flowDot(context2, railX, capY, 1.7, colors.accent, .35 + enter * .6);
+          if (progress > .02 && progress < .985) {
+            var wave = (time * .55 + ci * .37) % 1;
+            context2.globalAlpha = (1 - wave) * .2 * enter;
+            context2.strokeStyle = colors.accent; context2.lineWidth = .9;
+            context2.beginPath(); context2.arc(railX, capY, 4.4 + wave * 14, 0, TAU); context2.stroke();
+          }
+        }
+      }
+    }
+    for (var k = 0; k < flowCards.length; k++) {
+      var card = flowCards[k];
+      var rv = readStep(card, '--rv');
+      if (!(rv > .03 && rv < .999)) continue;
+      var rect = card.getBoundingClientRect();
+      if (rect.bottom < -40 || rect.top > vh + 40) continue;
+      if (rect.width < 40 || rect.height < 40) continue;
+      if (!traceHead(card, rv, flowDots)) continue;
+      var glowX = flowDots.x, glowY = flowDots.y;
+      flowDot(context2, glowX, glowY, 9, colors.warm, .12);
+      flowDot(context2, glowX, glowY, 3.4, colors.warm, .42);
+      flowDot(context2, glowX, glowY, 1.5, colors.text, .95);
+    }
+    for (var ri = 0; ri < flowRows.length; ri++) {
+      var row = flowRows[ri];
+      var rrv = readStep(row, '--rv');
+      if (!(rrv > .05 && rrv < .995)) continue;
+      var rr = row.getBoundingClientRect();
+      if (rr.bottom < -20 || rr.top > vh + 20 || rr.width < 80) continue;
+      var hx = rr.left + rr.width * rrv, hy = rr.top;
+      context2.globalAlpha = .26 * (1 - rrv * .35);
+      context2.strokeStyle = colors.accent; context2.lineWidth = 1.2;
+      context2.beginPath();
+      context2.moveTo(Math.max(rr.left, hx - Math.min(120, rr.width * .3)), hy);
+      context2.lineTo(hx, hy); context2.stroke();
+      flowDot(context2, hx, hy, 7, colors.accent, .10);
+      flowDot(context2, hx, hy, 2.2, colors.text, .8);
+    }
+    if (bounds && flowChapters.length) {
+      var first = flowChapters[0].getBoundingClientRect();
+      var firstRailX = Math.round(first.left + 24) + .5;
+      var startX = bounds.left + bounds.width * .70;
+      var startY = bounds.bottom - 6;              
+      var endX = firstRailX;
+      var endY = first.top + 6;                    
+      if (flowBridge) {                            
+        var bn = flowBridge.getBoundingClientRect();
+        if (bn.height > 0) endY = bn.top + bn.height / 2;
+      }
+      if (startY > -40 && startY < vh + 20 && endY > -20 && endY < vh + 80 && startY < endY) {
+        var fade = clamp((vh - Math.max(startY, 0)) / 220, 0, 1);
+        var midY = startY + (endY - startY) * .55;
+        var c1x = startX - 30, c2x = endX + 70;
+        var lanes = [[5, 0], [0, 1], [-5, 2]];
+        for (var li = 0; li < lanes.length; li++) {
+          var off = lanes[li][0];
+          context2.strokeStyle = pathColor(lanes[li][1]); context2.lineWidth = 1;
+          context2.globalAlpha = (li === 1 ? .13 : .09) + (li === 1 ? .15 : .09) * fade;
+          context2.beginPath();
+          context2.moveTo(startX, startY + off);
+          context2.bezierCurveTo(c1x, midY + off, c2x, midY, endX, endY);
+          context2.stroke();
+        }
+        var cycle = 3.4;
+        for (var d = 0; d < lanes.length; d++) {
+          var tt = (time / cycle + d / 3) % 1, u = 1 - tt, laneOff = lanes[d][0];
+          var bx = u*u*u*startX + 3*u*u*tt*c1x + 3*u*tt*tt*c2x + tt*tt*tt*endX;
+          var by = u*u*u*(startY + laneOff) + 3*u*u*tt*(midY + laneOff) + 3*u*tt*tt*midY + tt*tt*tt*endY;
+          var life = Math.min(1, tt * 5) * Math.min(1, (1 - tt) * 5) * fade;
+          if (life > .02) {
+            flowDot(context2, bx, by, 7, pathColor(d), .13 * life);
+            flowDot(context2, bx, by, 2.4, pathColor(d), .9 * life);
+            flowDot(context2, bx, by, 1, colors.text, .75 * life);
+          }
+        }
+        var pa = (time / cycle * 3) % 1;
+        context2.globalAlpha = (1 - pa) * .26 * fade;
+        context2.strokeStyle = pathColor(Math.floor(time / cycle * 3) % 3); context2.lineWidth = 1;
+        context2.beginPath(); context2.arc(endX, endY, 4.6 + pa * 15, 0, TAU); context2.stroke();
+      }
+    }
+    context2.globalAlpha = 1;
+  }
   function ease(v, target, rate, dt) { return dt ? target + (v - target) * Math.exp(-rate * dt) : v; }
   function staticMode() { return paused || reduce.matches || root.getAttribute('data-motion') === 'off'; }
-  function unavailable() { return staticMode() || !visible || document.hidden; }
+  function unavailable() { return staticMode() || document.hidden || (!visible && !flowVisible); }
   function palette() {
     var style = getComputedStyle(root);
     function color(name, fallback) { return style.getPropertyValue(name).trim() || fallback; }
@@ -64,19 +323,21 @@
     });
     ground.length = 0;
     for (var n = 0; n <= 80; n++) ground.push({x: 0, y: 0, z: 0});
+    measureFlow();
     draw();
   }
   function project(x, y, z, out) {
-    var yaw = -.48 + time * .065 + px * .24 + spin;
+    var cam = camera || neutralCamera;
+    var yaw = -.48 + time * .065 + px * .24 + spin + yawShift + cam.turn;
     var pitch = .42 + py * .16, roll = -.12;
     var ax = x * Math.cos(yaw) + z * Math.sin(yaw);
     var az = -x * Math.sin(yaw) + z * Math.cos(yaw);
     var ay = y * Math.cos(pitch) - az * Math.sin(pitch);
     var depth = y * Math.sin(pitch) + az * Math.cos(pitch);
     var k = 4.8 / (4.8 + depth);
-    var scale = 1 + deformation;
-    out.x = cx + (ax * Math.cos(roll) - ay * Math.sin(roll)) * radius * k * scale;
-    out.y = cy - (ax * Math.sin(roll) + ay * Math.cos(roll)) * radius * k * scale;
+    var scale = (1 + deformation) * cam.scale;
+    out.x = cx + cam.dx + (ax * Math.cos(roll) - ay * Math.sin(roll)) * radius * k * scale;
+    out.y = cy + cam.dy - (ax * Math.sin(roll) + ay * Math.cos(roll)) * radius * k * scale;
     out.z = depth; return out;
   }
   var temp = {x: 0, y: 0, z: 0};
@@ -154,12 +415,21 @@
     dot(temp.x, temp.y, front ? 3.3 : 2.4, color, opacity);
     dot(temp.x, temp.y, 1, colors.bg, .9);
   }
+  function updateExit() {
+    var vh = Math.max(320, window.innerHeight || 320);
+    heroLeave = bounds ? clamp(-bounds.top / (vh * .42), 0, 1) : 0;
+    heroCamera.turn = -heroLeave * .5;
+    heroCamera.scale = 1 - heroLeave * .07;
+    heroCamera.dx = -heroLeave * 14;
+    heroCamera.dy = heroLeave * 10;
+  }
   function drawAnnotations() {
     context.font = '10px ui-monospace, SFMono-Regular, Consolas, monospace';
     context.textBaseline = 'middle'; context.fillStyle = colors.muted;
     var labels = ['SIGNAL', 'MOTION', 'POLICY'];
     var positions = [[.09,.23], [.82,.36], [.14,.76]];
-    context.globalAlpha = .72;
+    var life = 1 - heroLeave * .85;
+    context.globalAlpha = .72 * life;
     for (var i = 0; i < 3; i++) {
       var x = W * positions[i][0], y = H * positions[i][1];
       context.textAlign = i === 1 ? 'right' : 'left'; context.fillStyle = i === modes.indexOf(mode) ? pathColor(i) : colors.muted;
@@ -169,24 +439,25 @@
       context.beginPath(); context.moveTo(x, y + 11); context.lineTo(x + direction * 24, y + 11);
       context.lineTo(x + direction * 34, y + 20); context.stroke();
     }
-    context.textAlign = 'center'; context.fillStyle = colors.muted; context.globalAlpha = .55;
+    context.textAlign = 'center'; context.fillStyle = colors.muted; context.globalAlpha = .55 * life;
     context.fillText('x', W*.80, H*.79); context.fillText('y', W*.23, H*.86);
   }
-  function draw() {
+  function drawStage() {
     if (!W || !H) return; draws++;
+    updateExit(); camera = heroCamera;
     context.setTransform(DPR, 0, 0, DPR, 0, 0); context.clearRect(0, 0, W, H);
     context.lineCap = 'round'; context.lineJoin = 'round';
-    if (glow) { context.globalAlpha = colors.light ? .045 : .085; context.drawImage(glow, cx-radius*1.5, cy-radius*1.5, radius*3, radius*3); }
+    if (glow) { context.globalAlpha = (colors.light ? .045 : .085) * (1 - heroLeave * .5); context.drawImage(glow, cx-radius*1.5, cy-radius*1.5, radius*3, radius*3); }
     drawGround();
     paths.forEach(function (path, index) {
       for (var i = 0; i <= segments; i++) point(index, i / segments * TAU, path[i]);
       strokePath(path, pathColor(index), colors.light ? .28 : .29, .85, -1);
-      drawTraveller(index, time * (.23 + index * .045) + index * 2.0 + .5, false);
+      drawTraveller(index, time * (.23 + index * .045) + index * 2.0 + .5 + heroLeave * .9, false);
     });
     drawCore();
     paths.forEach(function (path, index) {
       strokePath(path, pathColor(index), index === 2 ? .55 : .78, index === 2 ? .85 : 1.05, 1);
-      drawTraveller(index, time * (.23 + index * .045) + index * 2.0 + .5, true);
+      drawTraveller(index, time * (.23 + index * .045) + index * 2.0 + .5 + heroLeave * .9, true);
       for (var n = 0; n < 4; n++) {
         point(index, n * TAU / 4 + .30, temp); dot(temp.x, temp.y, 1.45, pathColor(index), temp.z < 0 ? .72 : .27);
       }
@@ -196,6 +467,10 @@
       context.strokeStyle = colors.accent; context.lineWidth = 1; context.globalAlpha = interaction.strength * .45; context.stroke();
     }
     drawAnnotations(); context.globalAlpha = 1;
+  }
+  function draw() {
+    if (visible) drawStage();
+    drawFlow();
   }
   function updateControls() {
     buttons.forEach(function (button) { button.setAttribute('aria-pressed', String(button.getAttribute('data-orbit-mode') === mode)); });
@@ -233,6 +508,7 @@
       if (pointer !== null && !e.buttons) release(true);
     }
     px = ease(px, tx, 5, dt); py = ease(py, ty, 5, dt); spin = ease(spin, targetSpin, 4, dt);
+    leanX = ease(leanX, leanTX, 3, dt); leanY = ease(leanY, leanTY, 3, dt);
     time += dt;
     weights.forEach(function (w, i) { weights[i] = ease(w, modes[i] === mode ? 1 : 0, 4, dt); });
     interaction.age += dt;
@@ -285,15 +561,26 @@
   window.addEventListener('blur', function() { release(); tx=ty=0; pendingPointer=null; });
   window.addEventListener('resize', resize, {passive:true});
   window.addEventListener('scroll', function () { bounds = stage.getBoundingClientRect(); }, {passive:true});
+  window.addEventListener('resize', measureFlow, {passive:true});
+  window.addEventListener('pointermove', function (e) {
+    if (e.pointerType && e.pointerType !== 'mouse') return;
+    if (!bounds || bounds.bottom > 0 || staticMode()) { leanTX = leanTY = 0; return; }
+    leanTX = clamp(e.clientX / flowW * 2 - 1, -1, 1);
+    leanTY = clamp(e.clientY / flowH * 2 - 1, -1, 1);
+  }, {passive:true});
   document.addEventListener('visibilitychange', sync);
   if (reduce.addEventListener) reduce.addEventListener('change', sync);
   if (window.IntersectionObserver) new IntersectionObserver(function(entries) { visible = entries[0].isIntersecting; sync(); }).observe(stage);
+  var flowHost = document.querySelector('.home-flow');
+  if (flowHost && window.IntersectionObserver) {
+    new IntersectionObserver(function (entries) { flowVisible = entries[0].isIntersecting; sync(); }).observe(flowHost);
+  }
   if (window.ResizeObserver) new ResizeObserver(resize).observe(stage);
   if (window.MutationObserver) new MutationObserver(function(records) {
     if (records.some(function(r) {return r.attributeName !== 'data-motion';})) { palette(); resize(); draw(); }
     sync();
   }).observe(root, {attributes:true, attributeFilter:['data-theme','data-mode','data-motion','data-performance','style']});
-  palette(); resize(); stage.classList.add('is-ready'); if (controls) controls.hidden = false;
+  palette(); resize(); measureFlow(); stage.classList.add('is-ready'); if (controls) controls.hidden = false;
   if (debug) {
     metrics = document.createElement('output'); metrics.className = 'orbit-metrics'; metrics.id = 'orbit-motion-metrics';
     visual.appendChild(metrics);
@@ -301,7 +588,11 @@
   window.__orbitField = {info:function() {return {
     running:!!raf, mode:mode, time:time, paused:paused, draws:draws, width:W, height:H,
     interaction:{kind:interaction.kind,strength:interaction.strength,held:interaction.held},
-    quality:compact?'compact':'full', segments:segments, weights:weights.slice(), pointer:[px,py], deformation:deformation
+    quality:compact?'compact':'full', segments:segments, weights:weights.slice(), pointer:[px,py], deformation:deformation,
+    flow:{visible:flowVisible, chapters:flowChapters.length, cards:flowCards.length,
+          size:[flowW, flowH], drawn:!!flowCtx, lean:[leanX, leanY]},
+    exit:{leave:heroLeave, turn:heroCamera.turn, scale:heroCamera.scale,
+          dx:heroCamera.dx, dy:heroCamera.dy}
   };}};
   sync();
 })();
